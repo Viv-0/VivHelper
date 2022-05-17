@@ -1,0 +1,252 @@
+#   This is an annotated copy of the Default Seeker yaml file. You can copy and paste this file into a new yaml file to change around variables.
+#   Do not add the units into the numbers, they are there for you to understand the units.
+#   You can change whatever you need to and leave the rest as is, and it will work with the Seeker.
+#   If you're adding this to a generator file, only take from the - onward. Ideally you would use the write_seeker_data command to get one without all the comments but either way works.
+
+#   Acceleration. Default Value: 600px/s²
+  - Accel: 600
+#   The acceleration for when the Seeker is attacking between AttackStartSpeed and AttackTargetSpeed. Default Value: 300px/s²
+    AttackAccel: 300
+#   The minimum distance for the seeker attacking the player. Default Value: 16px (2 tiles)
+    AttackMinXDist: 16
+#   The starting speed for when the Seeker begins its attack. Default Value: 180px/s
+    AttackStartSpeed: 180
+#   The ending (default) top speed for when the Seeker attacks. Default Value: 260px/s
+    AttackTargetSpeed: 260
+#   Before the seeker attacks, it will wind up, moving at this speed backwards before attacking. Default Value: 60px/s.
+    AttackWindUpSpeed: 60
+#   The time the seeker winds up for before attacking. Default Value: 0.3s
+    AttackWindUpTime: 0.3
+#   The maximum a seeker can rotate over the course of its attack. Default Value: 35°
+    AttackMaxRotateDegrees: 35
+    
+#   The SFX Path for when the Seeker attacks.
+    aggroSFXPath: "event:/game/05_mirror_temple/seeker_aggro"
+#   The SFX Path for when the Seeker is bounced on.
+    boopedSFXPath: "event:/game/05_mirror_temple/seeker_revive"
+#   The SFX Path for custom audio for when the Seeker is revived.
+    reviveSFXPath: "event:/game/05_mirror_temple/seeker_revive"
+#   A custom sprite path to the Seeker. Must have a Sprites.xml for this to work. Leave blank for default.
+    CustomSpritePath: ""
+#   A custom sprite path to the Shockwave. Must have a Sprites.xml for this to work. Leave blank for default.
+    CustomShockwavePath: ""
+    
+#   The speed at which the Seeker moves down after being bounced on. Default Value: 200px/s
+    BounceSpeed: 200
+#   This is a weird one. Basically, it represents the speed at which when the Seeker has passed the player will the Seeker's state turn to Skidding. Default Value: 0.4(px???)
+    DirectionDotThreshold: 0.4
+#   The radius at which the Seeker explodes when revived. Default Value: 40px (5 tiles, 2.5 in each direction)
+    ExplodeRadius: 40
+#   The distance away in pixels the Seeker will not spot the player from. Default Value: 160px (20 tiles)
+    SightDistance: 160
+    
+#   The Distance from the player at which it is considered "Far." When the Seeker is "Far," its speed is multiplied by a factor (which is also customizable). Default Value: 112px (14 tiles)
+    FarDist: 112
+#   The multiplier for the speed of the Seeker when it is "Far." Default Value: 2
+    FarDistSpeedMult: 2
+    
+#   The max speed at which the Seeker travels while Idle. Default Value: 50px/s
+    IdleSpeed: 50
+#   The acceleration at which the Seeker travels while Idle. Default Value: 200px/s²
+    IdleAccel: 200
+    
+#   The maximum number of Bounces the Seeker can take before dying. Set to -1 for infinite.
+    MaxNumberOfBounces: -1
+#   The maximum number of Attacks the Seeker can make before dying. Works with Final Dash. Set to -1 for infinite.
+    MaxNumberOfDashes: -1
+#   The maximum number of Wall Collides the Seeker can take before dying. Set to -1 for infinite.
+    MaxNumberOfWallCollides: -1
+
+#   The speed at which the Seeker patrols around. Default Value: 25px/s
+    PatrolSpeed: 25
+#   The delay before the Seeker patrols to its next point, or towards the player. Default Value: 0.4s
+    PatrolWaitTime: 0.4
+    
+#   The time it takes for this Seeker to regenerate. Default Value: 1.85s
+    RegenerationTimerLength: 1.85
+    
+#   The timer set after skidding to set the Seeker to skid strongly. Default Value: 0.08s
+    StrongSkiddingTime: 0.08
+#   The deceleration of the Seeker when it skids (after missing the player and not hitting a wall) Default Value: 200px/s²
+    SkiddingAccel: 200
+#   The deceleration of the Seeker while skidding strongly (after a timer set by StrongSkiddingTime). Default Value: 400px/s²
+    StrongSkiddingAccel: 400
+    
+#   The length of time that the Seeker takes to go idle after losing sight of the player. Default Value: 0.6s
+    SpottedLosePlayerTime: 0.6
+#   The maximum Y distance the Seeker from which the Seeker can attack from. This is equivalent to it patrolling up before attacking. Default Value: 24px (3 tiles)
+    SpottedMaxYDist: 24
+#   The delay after the Seeker spots the player from which it can attack the player. Default Value: 0.2s
+    SpottedMinAttackTime: 0.2
+#   The maximum speed the Seeker can travel at while Patrolling and has Spotted the player. Default Value: 60px/s
+    SpottedTargetSpeed: 60
+    
+#   The length of time the Seeker is Stunned for upon slamming into a wall. Default Value: 0.8s
+    StunTime: 0.8
+#   The speed the Seeker travels in the X direction (left/right) while stunned. Default Value: 100px/s
+    StunXSpeed: 100
+#   The requisite speed for when the Seeker hits a wall, it is stunned. Default Value:100px/s
+    WallCollideStunThreshold: 100
+    
+#   Note: Colors are usually supposed to be written as Hex Codes. However, the exception to the rule is XNA Colors, which are listed at the bottom of this document.
+#         Also, you do need quotations around the text in this case.
+
+#   The color the seeker emits in the circle ring when it dies. Default Value: "Hot Pink"
+    DeathEffectColor: "Hot Pink"
+#   The tint the Seeker is colored in game. This doesn't mean it's perfect, and using custom sprites, despite being way more labor intensive, is advised. Default Value: "ffffff" or "White"
+    SeekerColorTint: "White"
+    
+#   Disables all particles the Seeker emits.
+    DisableAllParticles: False
+#   When this is set to true: When the seeker is on its last dash it will keep traveling forward until it hits a wall or goes off screen where it dies.
+#   Only applies when there is a value for MaxNumberOfDashes.
+    FinalDash: True
+#   Removes the hitbox the Seeker can be bounced on.
+    RemoveBounceHitbox: False
+    
+#   The interval at which Particles are Emitted during the Attack phase. Default Value: 0.04s. Set to 0 for none.
+    ParticleEmitInterval: 0.04
+#   The interval at which a Trail is made, which follows behind the Seeker. Default Value: 0.06s. Set to 0 for none.
+    TrailCreateInterval: 0.06
+    
+#   XNA Colors:
+    # AliceBlue = new Color(4294965488u);
+    # AntiqueWhite = new Color(4292340730u);
+    # Aqua = new Color(4294967040u);
+    # Aquamarine = new Color(4292149119u);
+    # Azure = new Color(4294967280u);
+    # Beige = new Color(4292670965u);
+    # Bisque = new Color(4291093759u);
+    # Black = new Color(4278190080u);
+    # BlanchedAlmond = new Color(4291685375u);
+    # Blue = new Color(4294901760u);
+    # BlueViolet = new Color(4293012362u);
+    # Brown = new Color(4280953509u);
+    # BurlyWood = new Color(4287084766u);
+    # CadetBlue = new Color(4288716383u);
+    # Chartreuse = new Color(4278255487u);
+    # Chocolate = new Color(4280183250u);
+    # Coral = new Color(4283465727u);
+    # CornflowerBlue = new Color(4293760356u);
+    # Cornsilk = new Color(4292671743u);
+    # Crimson = new Color(4282127580u);
+    # Cyan = new Color(4294967040u);
+    # DarkBlue = new Color(4287299584u);
+    # DarkCyan = new Color(4287335168u);
+    # DarkGoldenrod = new Color(4278945464u);
+    # DarkGray = new Color(4289309097u);
+    # DarkGreen = new Color(4278215680u);
+    # DarkKhaki = new Color(4285249469u);
+    # DarkMagenta = new Color(4287299723u);
+    # DarkOliveGreen = new Color(4281297749u);
+    # DarkOrange = new Color(4278226175u);
+    # DarkOrchid = new Color(4291572377u);
+    # DarkRed = new Color(4278190219u);
+    # DarkSalmon = new Color(4286224105u);
+    # DarkSeaGreen = new Color(4287347855u);
+    # DarkSlateBlue = new Color(4287315272u);
+    # DarkSlateGray = new Color(4283387695u);
+    # DarkTurquoise = new Color(4291939840u);
+    # DarkViolet = new Color(4292018324u);
+    # DeepPink = new Color(4287829247u);
+    # DeepSkyBlue = new Color(4294950656u);
+    # DimGray = new Color(4285098345u);
+    # DodgerBlue = new Color(4294938654u);
+    # Firebrick = new Color(4280427186u);
+    # FloralWhite = new Color(4293982975u);
+    # ForestGreen = new Color(4280453922u);
+    # Fuchsia = new Color(4294902015u);
+    # Gainsboro = new Color(4292664540u);
+    # GhostWhite = new Color(4294965496u);
+    # Gold = new Color(4278245375u);
+    # Goldenrod = new Color(4280329690u);
+    # Gray = new Color(4286611584u);
+    # Green = new Color(4278222848u);
+    # GreenYellow = new Color(4281335725u);
+    # Honeydew = new Color(4293984240u);
+    # HotPink = new Color(4290013695u);
+    # IndianRed = new Color(4284243149u);
+    # Indigo = new Color(4286709835u);
+    # Ivory = new Color(4293984255u);
+    # Khaki = new Color(4287424240u);
+    # Lavender = new Color(4294633190u);
+    # LavenderBlush = new Color(4294308095u);
+    # LawnGreen = new Color(4278254716u);
+    # LemonChiffon = new Color(4291689215u);
+    # LightBlue = new Color(4293318829u);
+    # LightCoral = new Color(4286611696u);
+    # LightCyan = new Color(4294967264u);
+    # LightGoldenrodYellow = new Color(4292016890u);
+    # LightGray = new Color(4292072403u);
+    # LightGreen = new Color(4287688336u);
+    # LightPink = new Color(4290885375u);
+    # LightSalmon = new Color(4286226687u);
+    # LightSeaGreen = new Color(4289376800u);
+    # LightSkyBlue = new Color(4294626951u);
+    # LightSlateGray = new Color(4288252023u);
+    # LightSteelBlue = new Color(4292789424u);
+    # LightYellow = new Color(4292935679u);
+    # Lime = new Color(4278255360u);
+    # LimeGreen = new Color(4281519410u);
+    # Linen = new Color(4293325050u);
+    # Magenta = new Color(4294902015u);
+    # Maroon = new Color(4278190208u);
+    # MediumAquamarine = new Color(4289383782u);
+    # MediumBlue = new Color(4291624960u);
+    # MediumOrchid = new Color(4292040122u);
+    # MediumPurple = new Color(4292571283u);
+    # MediumSeaGreen = new Color(4285641532u);
+    # MediumSlateBlue = new Color(4293814395u);
+    # MediumSpringGreen = new Color(4288346624u);
+    # MediumTurquoise = new Color(4291613000u);
+    # MediumVioletRed = new Color(4286911943u);
+    # MidnightBlue = new Color(4285536537u);
+    # MintCream = new Color(4294639605u);
+    # MistyRose = new Color(4292994303u);
+    # Moccasin = new Color(4290110719u);
+    # NavajoWhite = new Color(4289584895u);
+    # Navy = new Color(4286578688u);
+    # OldLace = new Color(4293326333u);
+    # Olive = new Color(4278222976u);
+    # OliveDrab = new Color(4280520299u);
+    # Orange = new Color(4278232575u);
+    # OrangeRed = new Color(4278207999u);
+    # Orchid = new Color(4292243674u);
+    # PaleGoldenrod = new Color(4289390830u);
+    # PaleGreen = new Color(4288215960u);
+    # PaleTurquoise = new Color(4293848751u);
+    # PaleVioletRed = new Color(4287852763u);
+    # PapayaWhip = new Color(4292210687u);
+    # PeachPuff = new Color(4290370303u);
+    # Peru = new Color(4282353101u);
+    # Pink = new Color(4291543295u);
+    # Plum = new Color(4292714717u);
+    # PowderBlue = new Color(4293320880u);
+    # Purple = new Color(4286578816u);
+    # Red = new Color(4278190335u);
+    # RosyBrown = new Color(4287598524u);
+    # RoyalBlue = new Color(4292962625u);
+    # SaddleBrown = new Color(4279453067u);
+    # Salmon = new Color(4285694202u);
+    # SandyBrown = new Color(4284523764u);
+    # SeaGreen = new Color(4283927342u);
+    # SeaShell = new Color(4293850623u);
+    # Sienna = new Color(4281160352u);
+    # Silver = new Color(4290822336u);
+    # SkyBlue = new Color(4293643911u);
+    # SlateBlue = new Color(4291648106u);
+    # SlateGray = new Color(4287660144u);
+    # Snow = new Color(4294638335u);
+    # SpringGreen = new Color(4286578432u);
+    # SteelBlue = new Color(4290019910u);
+    # Tan = new Color(4287411410u);
+    # Teal = new Color(4286611456u);
+    # Thistle = new Color(4292394968u);
+    # Tomato = new Color(4282868735u);
+    # Turquoise = new Color(4291878976u);
+    # Violet = new Color(4293821166u);
+    # Wheat = new Color(4289978101u);
+    # White = new Color(uint.MaxValue);
+    # WhiteSmoke = new Color(4294309365u);
+    # Yellow = new Color(4278255615u);
+    # YellowGreen = new Color(4281519514u);

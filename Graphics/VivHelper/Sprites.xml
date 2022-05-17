@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Sprites>
+	<CustomTorch path="VivHelper/entities/" start="off">
+    		<Justify x="0.5" y="0.5"/>
+    		<Loop id="off" path="CustomTorch" delay="0.1" frames="0"/>
+    		<Anim id="turnOn" path="CustomTorch" delay="0.08" frames="1-3" goto="on"/>
+    		<Loop id="on" path="CustomTorch" delay="0.08" frames="3-8"/>
+  	</CustomTorch>
+		<DefaultTorch path="FollowTorchSprites/ThorcVar/DefaultTorch/" start="rotating">
+	     <Justify x="0.5" y="0.5" />
+
+	         <Anim id="rotating" path="DefaultTorch" delay="0.1" frames="0-5" goto="rotating"/>
+	         <Loop id="idle" path="DefaultTorch" delay="0.1" frames="0"/>
+	   </DefaultTorch>
+	   <RedTorch path="FollowTorchSprites/ThorcVar/RedTorch/" start="rotating">
+	   	 <Universal/>
+	     <Justify x="0.5" y="0.5" />
+
+	         <Anim id="rotating" path="RedTorch" delay="0.1" frames="0-5" goto="rotating"/>
+	         <Loop id="idle" path="RedTorch" delay="0.1" frames="0"/>
+	   </RedTorch>
+	   <OrangeTorch path="FollowTorchSprites/ThorcVar/OrangeTorch/" start="rotating">
+	     <Justify x="0.5" y="0.5" />
+
+	         <Anim id="rotating" path="OrangeTorch" delay="0.1" frames="0-5" goto="rotating"/>
+	         <Loop id="idle" path="OrangeTorch" delay="0.1" frames="0"/>
+	   </OrangeTorch>
+	   <GreenTorch path="FollowTorchSprites/ThorcVar/GreenTorch/" start="rotating">
+	   <Justify x="0.5" y="0.5" />
+
+	       <Anim id="rotating" path="GreenTorch" delay="0.1" frames="0-5" goto="rotating"/>
+	       <Loop id="idle" path="GreenTorch" delay="0.1" frames="0"/>
+	 </GreenTorch>
+	 <BlueTorch path="FollowTorchSprites/ThorcVar/BlueTorch/" start="rotating">
+	 <Justify x="0.5" y="0.5" />
+
+	     <Anim id="rotating" path="BlueTorch" delay="0.1" frames="0-5" goto="rotating"/>
+	     <Loop id="idle" path="BlueTorch" delay="0.1" frames="0"/>
+	 </BlueTorch>
+	 <PurpleTorch path="FollowTorchSprites/ThorcVar/PurpleTorch/" start="rotating">
+	 <Justify x="0.5" y="0.5" />
+
+	     <Anim id="rotating" path="PurpleTorch" delay="0.1" frames="0-5" goto="rotating"/>
+	     <Loop id="idle" path="PurpleTorch" delay="0.1" frames="0"/>
+	 </PurpleTorch>
+	 <SunsetTorch path="FollowTorchSprites/ThorcVar/SunsetTorch/" start="rotating">
+	 <Justify x="0.5" y="0.5" />
+
+	     <Anim id="rotating" path="SunsetTorch" delay="0.1" frames="0-5" goto="rotating"/>
+	     <Loop id="idle" path="SunsetTorch" delay="0.1" frames="0"/>
+	 </SunsetTorch>
+	 <GrayTorch path="FollowTorchSprites/ThorcVar/GrayTorch/" start="rotating">
+	 <Justify x="0.5" y="0.5" />
+
+	     <Anim id="rotating" path="GrayTorch" delay="0.1" frames="0-5" goto="rotating"/>
+	     <Loop id="idle" path="GrayTorch" delay="0.1" frames="0"/>
+	 </GrayTorch>
+	 <floatingFlame path="VivHelper/entities/" start="rotating">
+		 <Justify x="0.5" y="0.5" />
+		 <Anim id="rotating" path="flame" delay="0.1" frames="0-5" goto="rotating"/>
+	 </floatingFlame>
+	 <VivHelperGrayBooster path="VivHelper/VivHelperGrayBooster/" start="loop">
+		 <Justify x="0.5" y="0.5"/>
+		 <Anim id="appear" path="boosterGray" delay="0.08" frames="26-34" goto="loop"/>
+		 <Loop id="loop" path="boosterGray" delay="0.1" frames="0-4"/>
+		 <Loop id="inside" path="boosterGray" delay="0.1" frames="5-8"/>
+		 <Loop id="spin" path="boosterGray" delay="0.06" frames="18-25"/>
+		 <Anim id="pop" path="boosterGray" delay="0.08" frames="9-17"/>
+		 <Loop id="outline" path="outline" delay="0.4" frames="0-3"/>
+	 </VivHelperGrayBooster>
+
+	 <VivHelperLightGrayBooster path="VivHelper/VivHelperLightGrayBooster/" start="loop">
+		<Justify x="0.5" y="0.5"/>
+		<Anim id="appear" path="boosterGray" delay="0.08" frames="26-34" goto="loop"/>
+		<Loop id="loop" path="boosterGray" delay="0.1" frames="0-4"/>
+		<Loop id="inside" path="boosterGray" delay="0.1" frames="5-8"/>
+		<Loop id="spin" path="boosterGray" delay="0.06" frames="18-25"/>
+		<Anim id="pop" path="boosterGray" delay="0.08" frames="9-17"/>
+		<Loop id="outline" path="outline" delay="0.4" frames="0-3"/>
+	</VivHelperLightGrayBooster>
+
+	<VivHelperOrangeBooster path="VivHelper/boosters/" start="loop">
+		<Justify x="0.5" y="0.5"/>
+		<Anim id="appear" path="boosterOrange" delay="0.08" frames="26-34" goto="loop"/>
+		<Loop id="loop" path="boosterOrange" delay="0.1" frames="0-4"/>
+		<Loop id="inside" path="boosterOrange" delay="0.1" frames="5-8"/>
+		<Loop id="spin" path="boosterOrange" delay="0.06" frames="18-25"/>
+		<Anim id="pop" path="boosterOrange" delay="0.08" frames="9-17"/>
+		<Loop id="outline" path="outline" delay="0.4" frames="0-3"/>
+	</VivHelperOrangeBooster>
+
+	<VivHelperPinkBooster path="VivHelper/boosters/" start="loop">
+		<Justify x="0.5" y="0.5"/>
+		<Anim id="appear" path="boosterPink" delay="0.08" frames="26-34" goto="loop"/>
+		<Loop id="loop" path="boosterPink" delay="0.1" frames="0-4"/>
+		<Loop id="inside" path="boosterPink" delay="0.1" frames="5-8"/>
+		<Loop id="spin" path="boosterPink" delay="0.06" frames="18-25"/>
+		<Anim id="pop" path="boosterPink" delay="0.08" frames="9-17"/>
+		<Loop id="outline" path="outline" delay="0.4" frames="0-3"/>
+	</VivHelperPinkBooster>
+
+	<purpMirror path="VivHelper/MaddyBaddyMirror/purpMirror" start="idle">
+		 <Justify x=".5" y="1" />
+		 <Loop id="idle" path="" delay="0.08" frames="0"/>
+		 <Loop id="broken" path="" delay="0.08" frames="1"/>
+	 </purpMirror>
+
+	<redMirror path="VivHelper/MaddyBaddyMirror/redMirror" start="idle">
+		 <Justify x=".5" y="1" />
+		 <Loop id="idle" path="" delay="0.08" frames="0"/>
+		 <Loop id="broken" path="" delay="0.08" frames="1"/>
+	 </redMirror>
+
+	<FakeRealHeart path="AsleepHelper/FakeHeart/FakeHeart" start="idle">
+     <Center />
+     <Loop id="idle" path="" frames="0" />
+     <Loop id="spin" path="" frames="0*10,1-10" delay="0.08"/>
+     <Loop id="fastspin" path="" frames="1-10" delay="0.08"/>
+     <Anim id="break" path="" frames="11-32" delay="0.07"/>
+   </FakeRealHeart>
+
+	<particlebox path="VivHelper/entities/particleBoxIdle" start="idle">
+		 <Loop id="idle" path="" frames="0" />
+	</particlebox>
+
+	<seekergate path="objects/door/" start="idle">
+     <Justify x="0.5" y="0"/>
+     <Loop id="idle" path="templeDoor" delay="0.1" frames="0"/>
+     <Anim id="open" path="templeDoor" delay="0.1" frames="6-14" goto="idle"/>
+     <Anim id="hit" path="templeDoor" delay="0.08" frames="0-4" goto="idle"/>
+   </seekergate>
+
+	<cbdn path="VivHelper/crystalBombDetonatorNeutralizer/" start="idle">
+		 <Origin x="10" y="22"/>
+     <Loop id="idle" path="idle" delay="0.08"/>
+     <Anim id="crbomb" path="crbomb" delay="0.2" frames="0-60"/>
+	</cbdn>
+
+	<VivHelper_maddy_crushblock_face path="VivHelper/VariantKevin/Maddy/" start="idle">
+      <Center/>
+      <Loop id="idle" path="idle_face" delay="0.08"/>
+      <Anim id="hurt" path="hurt" frames="3-12" delay="0.08" goto="idle"/>
+      <Anim id="hit" path="hit" delay="0.08"/>
+      <Loop id="left" path="hit_left" delay="0.08"/>
+      <Loop id="right" path="hit_right" delay="0.08"/>
+      <Loop id="up" path="hit_up" delay="0.08"/>
+      <Loop id="down" path="hit_down" delay="0.08"/>
+  	</VivHelper_maddy_crushblock_face>
+
+	<VivHelper_maddy_giant_crushblock_face path="VivHelper/VariantKevin/Maddy/" start="idle">
+      <Center/>
+      <Loop id="idle" path="giant_block" frames="0" delay="0.08"/>
+      <Anim id="hurt"  path="giant_block" frames="8-12" delay="0.08" goto="idle"/>
+      <Anim id="hit" path="giant_block" frames="0-5" delay="0.08"/>
+      <Loop id="right" path="giant_block" frames="6,7"  delay="0.08"/>
+  	</VivHelper_maddy_giant_crushblock_face>
+
+	<VivHelper_baddy_crushblock_face path="VivHelper/VariantKevin/Baddy/" start="idle">
+      <Center/>
+      <Loop id="idle" path="idle_face" delay="0.08"/>
+      <Anim id="hurt" path="hurt" frames="3-12" delay="0.08" goto="idle"/>
+      <Anim id="hit" path="hit" delay="0.08"/>
+      <Loop id="left" path="hit_left" delay="0.08"/>
+      <Loop id="right" path="hit_right" delay="0.08"/>
+      <Loop id="up" path="hit_up" delay="0.08"/>
+      <Loop id="down" path="hit_down" delay="0.08"/>
+  	</VivHelper_baddy_crushblock_face>
+
+	<VivHelper_baddy_giant_crushblock_face path="VivHelper/VariantKevin/Baddy/" start="idle">
+      <Center/>
+      <Loop id="idle" path="giant_block" frames="0" delay="0.08"/>
+      <Anim id="hurt"  path="giant_block" frames="8-12" delay="0.08" goto="idle"/>
+      <Anim id="hit" path="giant_block" frames="0-5" delay="0.08"/>
+      <Loop id="right" path="giant_block" frames="6,7"  delay="0.08"/>
+  	</VivHelper_baddy_giant_crushblock_face>
+
+	<goldcoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="goldcoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="goldcoin" frames="0-7,0-7,0-7" delay="0.03" goto="empty"/>
+		<Loop id="outline" path="outlinecoin" delay="0.1"/>
+	</goldcoin>
+	<whitecoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="goldcoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="goldcoin" frames="0-7,0-7,0-7" delay="0.03" goto="empty"/>
+		<Loop id="outline" path="outlinecoin" delay="0.1"/>
+	</whitecoin>
+	<bluecoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="bluecoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="bluecoin" frames="0-7,0-7,0-7" delay="0.03" goto="empty"/>
+		<Loop id="outline" path="outlinecoin" delay="0.1"/>
+	</bluecoin>
+	<greencoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="greencoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="greencoin" frames="0-7,0-7,0-7" delay="0.03" goto="empty"/>
+		<Loop id="outline" path="outlinecoin" delay="0.1"/>
+	</greencoin>
+	<orangecoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="orangecoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="orangecoin" frames="0-7,0-7,0-7" delay="0.03" goto="empty"/>
+		<Loop id="outline" path="outlinecoin" delay="0.1"/>
+	</orangecoin>
+	<purplecoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="purplecoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="purplecoin" frames="0-7,0-7,0-7" delay="0.03" goto="empty"/>
+		<Loop id="outline" path="outlinecoin" delay="0.1"/>
+	</purplecoin>
+	<redcoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="redcoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="redcoin" frames="0-7,0-7,0-7" delay="0.03" goto="empty"/>
+		<Loop id="outline" path="outlinecoin" delay="0.1"/>
+	</redcoin>
+	<pinkcoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="pinkcoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="pinkcoin" frames="0-7,0-7,0-7" delay="0.03" goto="empty"/>
+		<Loop id="outline" path="outlinecoin" delay="0.1"/>
+	</pinkcoin>
+	<!--
+	<brightpinkcoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="brightpinkcoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="brightpinkcoin" frames="0-7,0-7,0-7" delay="0.05" goto="empty"/>
+		<Loop id="outline" path="outlinecoin" delay="0.1"/>
+	</brightpinkcoin>
+	-->
+	<cyancoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="cyancoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="cyancoin" frames="0-7,0-7,0-7" delay="0.03" goto="empty"/>
+		<Loop id="outline" path="outlinecoin" delay="0.1"/>
+	</cyancoin>
+	<outlinecoin path="VivHelper/coins/" start="outline">
+		<Center/>
+		<Loop id="idle" path="outlinecoin" delay="0.1"/>
+		<Loop id="empty" path="empty" delay="0.1"/>
+		<Anim id="collect" path="outlinecoin" frames="0-7,0-7,0-7" delay="0.03" goto="empty"/>
+		<Loop id="outline" path="empty" delay="0.1"/>
+	</outlinecoin>
+</Sprites>

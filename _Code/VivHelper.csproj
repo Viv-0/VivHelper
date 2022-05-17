@@ -1,0 +1,286 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{A4558B8C-AECA-4B23-ADBF-8395CBA8BA83}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>VivHelper</RootNamespace>
+    <AssemblyName>VivHelper</AssemblyName>
+    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <LangVersion>9</LangVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>..\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <UseVSHostingProcess>false</UseVSHostingProcess>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="Module, Extensions, Etc\VivHelperAPI.cs" />
+    <Compile Include="Polygon\PolygonCollider.cs" />
+    <Compile Include="Cutscene\ExampleCutscene.cs" />
+    <Compile Include="Effects\Thunder.cs" />
+    <Compile Include="Effects\WindRainFG.cs" />
+    <Compile Include="Entities\AmbienceController.cs" />
+    <Compile Include="Entities\AnimationPlayer.cs" />
+    <Compile Include="Entities\AssociatePlayerStateWithFlag.cs" />
+    <Compile Include="Entities\AudioFixSwapBlock.cs" />
+    <Compile Include="Entities\BadelineBoostCustom.cs" />
+    <Compile Include="Entities\Boosters\UltraCustomBooster.cs" />
+    <Compile Include="Entities\BumperStuff\RefilllessBumper.cs" />
+    <Compile Include="Entities\CassetteTileEntity.cs" />
+    <Compile Include="Entities\CelesteOnTheMoon\FloatyEntities.cs" />
+    <Compile Include="Entities\CelesteOnTheMoon\MoonHooks.cs" />
+    <Compile Include="Entities\CollectibleStuff\Coin.cs" />
+    <Compile Include="Entities\CollectibleStuff\Collectible.cs" />
+    <Compile Include="Entities\CollectibleStuff\CollectibleController.cs" />
+    <Compile Include="Entities\CoreMusicController.cs" />
+    <Compile Include="Entities\CustomCassette.cs" />
+    <Compile Include="Entities\CustomFallingBlock_170.cs" />
+    <Compile Include="Entities\CustomHeightDisplay.cs" />
+    <Compile Include="Entities\CustomTorchV2.cs" />
+    <Compile Include="Entities\DashCountGate.cs" />
+    <Compile Include="Entities\DebrisLimiter.cs" />
+    <Compile Include="Entities\DestructableStaticMovers.cs" />
+    <Compile Include="Entities\EntityWrappers\BumperWrapper.cs" />
+    <Compile Include="Entities\BumperStuff\ExplodeLaunchModifier.cs" />
+    <Compile Include="Entities\Cloud\CloudBase.cs" />
+    <Compile Include="Entities\CornerBoostBlocks\CornerBoostCassetteBlock.cs" />
+    <Compile Include="Entities\CornerBoostBlocks\CornerBoostFallingBlock.cs" />
+    <Compile Include="Entities\CornerBoostBlocks\CornerBoostSwapBlock.cs" />
+    <Compile Include="Entities\CornerBoostBlocks\CornerBoostSwitchGate.cs" />
+    <Compile Include="Entities\CornerBoostBlocks\CornerBoostZipMover.cs" />
+    <Compile Include="Entities\CustomBirdPath.cs" />
+    <Compile Include="Entities\CustomGlider.cs" />
+    <Compile Include="Entities\CustomHangingLamp.cs" />
+    <Compile Include="Entities\CustomHeart\DashCodeHeartController.cs" />
+    <Compile Include="Entities\CustomMrOshiroDoor.cs" />
+    <Compile Include="Entities\CustomRefill.cs" />
+    <Compile Include="Entities\DeathConditionalBlock.cs" />
+    <Compile Include="Entities\DuckThru.cs" />
+    <Compile Include="Entities\EntityWrappers\EntityMuter.cs" />
+    <Compile Include="Entities\EntityWrappers\FunctionRefillAppender.cs" />
+    <Compile Include="Entities\EntityWrappers\RemoveInFramesComponent.cs" />
+    <Compile Include="Entities\EntityWrappers\ShatterSpinnerOnTouchComponent.cs" />
+    <Compile Include="Entities\EntityWrappers\SolidModifierComponent.cs" />
+    <Compile Include="Entities\EntityWrappers\SolidModifier.cs" />
+    <Compile Include="Entities\ExitDashBlock.cs" />
+    <Compile Include="Entities\FlagDecal.cs" />
+    <Compile Include="Entities\FlagIntroCrusher.cs" />
+    <Compile Include="Entities\FlagTalkComponent.cs" />
+    <Compile Include="Entities\FlingBird2_FlingerBird.cs" />
+    <Compile Include="Entities\FloatyFluorescentLight.cs" />
+    <Compile Include="Polygon\PolygonalKillbox.cs" />
+    <Compile Include="Entities\RestrictingFloor.cs" />
+    <Compile Include="Entities\SceneryAdder.cs" />
+    <Compile Include="Entities\SpikeStuff\CornerSpike.cs" />
+    <Compile Include="Entities\SpikeStuff\FourSpike.cs" />
+    <Compile Include="Entities\TheoKillingSpikes.cs" />
+    <Compile Include="Entities\UnstoppingIntroCrusher.cs" />
+    <Compile Include="Entities\FotA Stuff\CBDNTempleCrackedBlock.cs" />
+    <Compile Include="Entities\FotA Stuff\CrystalBombDetonator.cs" />
+    <Compile Include="Entities\FotA Stuff\CrystalBombDetonatorController.cs" />
+    <Compile Include="Entities\FotA Stuff\CrystalBombDetonatorNeutralizer.cs" />
+    <Compile Include="Entities\FotA Stuff\CrystalBombDetonatorRenderer.cs" />
+    <Compile Include="Entities\GrowBlock.cs" />
+    <Compile Include="Entities\HoldableBarrierStuff\HoldableBarrierColorController.cs" />
+    <Compile Include="Entities\HoldableBarrierStuff\HoldableBarrierJumpThru.cs" />
+    <Compile Include="Entities\HoldableBarrierStuff\HoldableBarrierRenderer.cs" />
+    <Compile Include="Entities\HoldableBarrierStuff\OldHoldableBarrier.cs" />
+    <Compile Include="Entities\EntityWrappers\LightningMuter.cs" />
+    <Compile Include="Entities\ImprovedTheoCrystal.cs" />
+    <Compile Include="Entities\CustomFallingBlock_140.cs" />
+    <Compile Include="InputPlaybacks\InputModifierHooks.cs" />
+    <Compile Include="Module, Extensions, Etc\CustomSpriteHandling\CompositeSpritesheet.cs" />
+    <Compile Include="Module, Extensions, Etc\CustomDashStateCh.cs" />
+    <Compile Include="Module, Extensions, Etc\CustomSpriteHandling\FrameAnimation.cs" />
+    <Compile Include="ShapeStuff\Triangulator\CyclicalList.cs" />
+    <Compile Include="ShapeStuff\Triangulator\IndexableCyclicalLinkedList.cs" />
+    <Compile Include="ShapeStuff\Triangulator\LineSegment.cs" />
+    <Compile Include="ShapeStuff\Triangulator\Triangle.cs" />
+    <Compile Include="ShapeStuff\Triangulator\Triangulator.cs" />
+    <Compile Include="ShapeStuff\Triangulator\Vertex.cs" />
+    <Compile Include="Triggers\ChangeRespawnIfFlag.cs" />
+    <Compile Include="Triggers\InfDashTrigger.cs" />
+    <Compile Include="Entities\MoveOnPlayerPlatform.cs" />
+    <Compile Include="Entities\SeekerStuff\InverseSeekerBarrier.cs" />
+    <Compile Include="Entities\Spawnpoints.cs" />
+    <Compile Include="Entities\NWayDashBlock.cs" />
+    <Compile Include="Entities\BumperStuff\DashBumper.cs" />
+    <Compile Include="Entities\OnlyFireBumper.cs" />
+    <Compile Include="Entities\RainbowTorch.cs" />
+    <Compile Include="Entities\ReskinnableBounceBlock.cs" />
+    <Compile Include="Entities\ReskinnablePuffer.cs" />
+    <Compile Include="Entities\SeekerStatueOnFlag.cs" />
+    <Compile Include="Entities\SeekerStuff\SeekerGate.cs" />
+    <Compile Include="Entities\SeekerStuff\SeekerKillBarrier.cs" />
+    <Compile Include="Entities\SpikeStuff\AnimatedSpikes.cs" />
+    <Compile Include="Entities\AsleepHeart\AsleepHeart.cs" />
+    <Compile Include="Entities\BlackoutEntity.cs" />
+    <Compile Include="Entities\BooCrystal\BooMushroom.cs" />
+    <Compile Include="Entities\BooCrystal\GhostBarrier.cs" />
+    <Compile Include="Entities\Boosters\BoostFunctions.cs" />
+    <Compile Include="Entities\Boosters\OrangeBooster.cs" />
+    <Compile Include="Entities\Boosters\WindBooster.cs" />
+    <Compile Include="Entities\CornerBoostBlocks\CornerBoostSolid.cs" />
+    <Compile Include="Entities\CrumbleJumpThruOnTouch.cs" />
+    <Compile Include="Entities\CurvedStuff\CurvedPlatform.cs" />
+    <Compile Include="Entities\CurvedStuff\CustomCurvedZipMover.cs" />
+    <Compile Include="Entities\CustomCoverupWall.cs" />
+    <Compile Include="Entities\CustomDepthTileEntity.cs" />
+    <Compile Include="Entities\CustomFallingBlock_160.cs" />
+    <Compile Include="Entities\CustomLightbeam.cs" />
+    <Compile Include="Entities\CustomPlayerPlayback.cs" />
+    <Compile Include="Entities\CustomTorch.cs" />
+    <Compile Include="Entities\RefillCancelSpaceBox.cs" />
+    <Compile Include="Entities\DashTeleporter.cs" />
+    <Compile Include="Entities\Boosters\PinkBooster.cs" />
+    <Compile Include="Entities\EnterBlock.cs" />
+    <Compile Include="Entities\FlagConditionBlock.cs" />
+    <Compile Include="Entities\FlagDashBlock.cs" />
+    <Compile Include="Entities\InLevelTeleporters.cs" />
+    <Compile Include="Entities\LaserBlock.cs" />
+    <Compile Include="Entities\MultiContactTriggerSpikes.cs" />
+    <Compile Include="Entities\SpikeStuff\BetterAnimatedSpikes.cs" />
+    <Compile Include="Entities\SpinnerStuff\MovingSpinners.cs" />
+    <Compile Include="Entities\TheoKillBarrier.cs" />
+    <Compile Include="Entities\TouchSwitchWall.cs" />
+    <Compile Include="Entities\Watchtowers\BadPlaybackWatchtower.cs" />
+    <Compile Include="Entities\SpikeStuff\RainbowSpikes.cs" />
+    <Compile Include="Entities\RefillCancelSpace.cs" />
+    <Compile Include="Entities\RefillWall.cs" />
+    <Compile Include="Entities\CustomCoreMessage.cs" />
+    <Compile Include="Entities\RippleSpace.cs" />
+    <Compile Include="Entities\RoomWrapController.cs" />
+    <Compile Include="Entities\FloatyBreakBlock.cs" />
+    <Compile Include="Entities\CarryableTorch.cs" />
+    <Compile Include="Entities\SpikeStuff\CustomSpike.cs" />
+    <Compile Include="Entities\SpikeStuff\RainbowTriggerSpikes.cs" />
+    <Compile Include="Entities\SpinnerStuff\AnimatedSpinner.cs" />
+    <Compile Include="Entities\SpinnerStuff\CustomCrystalDebris.cs" />
+    <Compile Include="Entities\SpinnerStuff\CustomSpinner.cs" />
+    <Compile Include="Entities\SeekerStuff\CustomSeeker.cs" />
+    <Compile Include="Entities\SeekerStuff\CustomSeekerCollider.cs" />
+    <Compile Include="Entities\SeekerStuff\CustomSeekerEffectsController.cs" />
+    <Compile Include="Entities\SeekerStuff\CustomSeekerController.cs" />
+    <Compile Include="Entities\SeekerStuff\CustomSeekerGenerator.cs" />
+    <Compile Include="Entities\SeekerStuff\CustomSeekerSpawningController.cs" />
+    <Compile Include="Entities\SpeedPowerup.cs" />
+    <Compile Include="Entities\TemplePortalTorch2.cs" />
+    <Compile Include="Entities\TravelingFlame.cs" />
+    <Compile Include="Entities\Watchtowers\PlatinumWatchtower.cs" />
+    <Compile Include="Entities\Watchtowers\PlaybackWatchtower.cs" />
+    <Compile Include="Entities\Watchtowers\WatchtowerModifiedHud.cs" />
+    <Compile Include="Entities\WrappableFallingBlock.cs" />
+    <Compile Include="Entities\WrappableGlider.cs" />
+    <Compile Include="Entities\WrappableCrushBlock.cs" />
+    <Compile Include="Entities\CurvedStuff\Bezier.cs" />
+    <Compile Include="Entities\CurvedStuff\CurvedPath.cs" />
+    <Compile Include="Entities\CurvedStuff\Curve_Entity.cs" />
+    <Compile Include="Entities\CurvedStuff\VivPathLine.cs" />
+    <Compile Include="Entities\EntityWrappers\WrapperRefillWall.cs" />
+    <Compile Include="Module, Extensions, Etc\PicoFont.cs" />
+    <Compile Include="Polygon\PolygonalTriggerTrigger.cs" />
+    <Compile Include="Triggers\TriggerPersistence.cs" />
+    <Compile Include="Wipes\FastSpotlightWipe.cs" />
+    <Compile Include="Module, Extensions, Etc\Colorblind.cs" />
+    <Compile Include="Module, Extensions, Etc\CustomTrailManager.cs" />
+    <Compile Include="Module, Extensions, Etc\CustomWipeSupport\CustomWipeStructure.cs" />
+    <Compile Include="Module, Extensions, Etc\InvalidParameterException.cs" />
+    <Compile Include="Module, Extensions, Etc\EntityModifyingInterfaces.cs" />
+    <Compile Include="Module, Extensions, Etc\SmarterEntities.cs" />
+    <Compile Include="Module, Extensions, Etc\MTextureExtViv.cs" />
+    <Compile Include="Module, Extensions, Etc\Extensions.cs" />
+    <Compile Include="Module, Extensions, Etc\VivHelper.cs" />
+    <Compile Include="Module, Extensions, Etc\VivHelperCommands.cs" />
+    <Compile Include="Module, Extensions, Etc\VivHelperModule.cs" />
+    <Compile Include="Module, Extensions, Etc\VivHelperModuleSaveData.cs" />
+    <Compile Include="Module, Extensions, Etc\VivHelperModuleSession.cs" />
+    <Compile Include="Module, Extensions, Etc\VivHelperModuleSettings.cs" />
+    <Compile Include="PartOfMe\PartOfMeMirrors.cs" />
+    <Compile Include="PartOfMe\VariantBlocks.cs" />
+    <Compile Include="PartOfMe\VariantKevin.cs" />
+    <Compile Include="PartOfMe\VariantSpecificBooster.cs" />
+    <Compile Include="PartOfMe\VariantSwappingRefills.cs" />
+    <Compile Include="PartOfMe\VariantZipMover.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Entities\BerryStuff\SimpleCustomStrawberry.cs" />
+    <Compile Include="Triggers\ActivateCPP.cs" />
+    <Compile Include="Triggers\InstantLockCamera.cs" />
+    <Compile Include="Triggers\ConfettiTrigger.cs" />
+    <Compile Include="Triggers\FlameTravelTrigger.cs" />
+    <Compile Include="Triggers\FollowerDistanceModifierTrigger.cs" />
+    <Compile Include="Triggers\InstantTeleportTrigger.cs" />
+    <Compile Include="Triggers\InstantTeleportTrigger2.cs" />
+    <Compile Include="Triggers\MultiflagCameraTargetTrigger.cs" />
+    <Compile Include="Triggers\PlayerIndicatorTrigger.cs" />
+    <Compile Include="Triggers\RefillCancelParticleTrigger.cs" />
+    <Compile Include="Triggers\SpriteEntityActor.cs" />
+    <Compile Include="Triggers\TimedFlagTrigger.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include=".editorconfig" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Celeste">
+      <HintPath>..\..\..\Celeste.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="FNA">
+      <HintPath>..\..\..\FNA.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MMHOOK_Celeste">
+      <HintPath>..\..\..\MMHOOK_Celeste.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\..\Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoMod">
+      <HintPath>..\..\..\MonoMod.exe</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoMod.RuntimeDetour">
+      <HintPath>..\..\..\MonoMod.RuntimeDetour.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>..\..\..\MonoMod.Utils.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.XML" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="YamlDotNet">
+      <HintPath>..\..\..\YamlDotNet.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Entities\ArbitraryButton\" />
+    <Folder Include="ShapeStuff\GJK\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

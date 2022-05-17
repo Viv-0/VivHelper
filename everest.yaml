@@ -1,0 +1,6 @@
+- Name: VivHelper
+  Version: 1.8.2
+  DLL: VivHelper.dll
+  Dependencies:
+    - Name: Everest
+      Version: 1.3324.0

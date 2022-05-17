@@ -1,0 +1,108 @@
+modoptions_VivHelperModule=Viv's Helper Settings
+
+modoptions_VivHelperModule_FollowerDist=Modify Player-Follower Distance
+modoptions_VivHelperModule_FollowerDist_sub=Modifies the distance from the player Follower objects{n}(such as Strawberries, Keys, or the Carryable Torch) (Default: 30)
+
+modoptions_VivHelperModule_FollowerDist2= Set Distance Between Followers
+modoptions_VivHelperModule_FollowerDist2_sub=Changes the distance between two Follower objects.{n}(such as Strawberries, Keys, or the Carryable Torch) (Default: 5)
+
+modoptions_VivHelper_RCSBW= RCS Black & White
+modoptions_VivHelper_RCSBW_sub= Changes the Refill Cancel Spaces a pure white texture, which is useful for{n}readability with colorblindness. Recommended to be used with{n}RefillCancelSpace Lines.
+modoptions_VivHelper_RCSL=RefillCancelSpace Lines
+modoptions_VivHelper_RCSL_sub=Creates lines instead of particles which show the rough direction of{n}travel for each line. Useful for reading what RefillCancelSpaces do what. 
+
+modoptions_VivHelper_ResetValues=Reset Values
+# NOTES:
+# The # Symbol at the start of a line counts as a Comment. To include in dialog, use a \#
+# The . Symbol will cause a pause unless escaped with \. (ex: Mr. Oshiro has a pause, Mr\. Oshiro does not)
+# Newlines automatically create a Page Break, unless there is an {n} command on the previous line
+# Commands: Anything inside of curly braces {...} is a command and should not be translated.
+
+# Inline Text Commands:
+# {~}wavy text{/~}
+# {!}impact text{/!}
+# {>> x}changes speed at which characters are displayed{>>}
+# {# 000000}this text is black{#} (uses HEX color values)
+# {+MENU_BEGIN} inserts the dialog from the MENU_BEGIN value (in English, "CLIMB")
+# {n} creates a newline, without a page break
+# {0.5} creates a 0.5 second pause
+# {big}this text is large{/big}
+
+# Gameplay Control Commands (should never change)
+# {trigger x} this triggers an in-game event
+# {anchor} controls the visual position of the textbox in-game
+
+Viv_VivHelper_Open=
+This is a demonstration map which shows most of the functionality of this Helper.
+To access the various entities available for use, dash down onto the Rock blocks corresponding to the object you'd like to look into.
+
+Viv_VivHelper_Return=
+Return to Hub
+
+Viv_VivHelper_Categories=
+Teleporting Devices
+Room Wrap Controller
+Lights N' Stuff
+Custom Seeker
+Curved Entities
+Variant Stuff
+Other Stuff
+
+Viv_VivHelper_TP=
+The Basics
+The TP types
+Extra Information
+
+Viv_VivHelper_tp1_1=
+This is an Instant Teleport Trigger\.
+You might ask "Why can't I see it?," and that's because it's a trigger\. You can't see triggers\.
+What does it do? It instantly (or not instantly if you choose) teleports the player to any point in any room in the map\.
+Because we can't see it, I'll be using Lightbeams to represent where a Teleport Trigger is from this point on\.
+
+Viv_VivHelper_tp1_2=
+This is the teleporter functioning properly. With this Teleport Trigger, currently, every time you teleport, the room you are in is reset, as if you had just transitioned to a new room\.
+The teleport trigger works by sending the player to the proper X and Y Coordinate in the room specified. If that point isnt in the room, or the room doesn't exist, expect weird things to happen\.
+The simplest way to move the player to where you want, currently, is to just add a random trigger in the room you want to teleport to, and copy the X and Y coordinates of that point\.
+Place those coordinates into New Position X and New Position Y, & the room name into Warp Room\.
+
+Viv_VivHelper_tp1_3=
+A common issue people have is that it appears to go offcourse by some small distance\.
+To fix this, it's 9 times out of 10 going to be turning off "Add Trigger Offset\."
+The attribute just makes it so that the teleporting location is dependent on the position of the player relative to the top left of the trigger\.
+This would be used in a number of cases, mainly if the player can dynamically move around in a space with a teleporter\.
+An example is shown here\.
+
+Viv_VivHelper_tp1_4=
+The "Transition Type" is what the screen shows when a player Teleports\.
+There are options of Lightning Strike, a White Flash, the Glitch Effect, or nothing at all\.
+Examples of these three are above\.
+
+Viv_VivHelper_tp2_1=
+The Different Teleport Triggers add more and more functionality\.
+The Basic Teleport Trigger only works with the player's position\.
+The Advanced Teleport Trigger adds a function to change the player's velocity upon exiting the teleporter\.
+The Fully Custom Teleport Trigger adds onto the Advanced Teleport Trigger by allowing a rotation of the player's motion\.
+The latter two makes it much more mechanical, and can be used with gameplay\.
+
+
+Viv_VivHelper_Curve=
+Introduction
+Explanation
+Curved Entities
+
+Viv_VivHelper_Curve_Intro_1=
+This... is a curve\.
+Curves are usable in a lot of cases. The easiest one to explain is actually not exactly a curve though.
+The first use of "curved entities" is really making two lines with different speeds, at the same time.
+This can produce a way more custom Easing system (which is only furthered by the Easing options already given.
+If you want mathy answers to how fast your stuff will move, I can't advise actually doing it. (But I am working on a Desmos graph to show it)
+Just see the examples below.
+
+Viv_VivHelper_Curve_Intro_2=
+Alrighty, now for the real deal\. Curves are curvy lines\. Now, what does that mean?
+If you're math-inclined, like I am, I'll be happy to tell you there's much more info in the Extra_Notes\.txt file in the zipped folder, you don't have to unzip it to read it\.
+But for the folx that aren't, here's the basic premise\. A {#ff8888}Simple{#} Curve is definable by three points\.
+Fortunately, I don't need to give a visual as if you use Ahorn you will be able to see the exact curvature of the Simple Curve\.
+A Cubic Curve is definable by 4 points\. This gives a new line structure with much more options to produce a curve from, albeit harder to wrap your head around\.
+These curves can be used for basically everything (within some level of reason, and also not boosters for a little while yet, for logistical reasons\.){0.4}:(
+Not everything has been fully implemented, however\. Currently, only Zip Movers and Platforms have been implemented\. Swap Blocks and Camera Triggers are coming soon\.

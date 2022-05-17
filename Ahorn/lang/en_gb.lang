@@ -1,0 +1,383 @@
+# -- Entity and Trigger Tooltips --
+#    placements.entities.entityName.tooltips.attr= Tooltip
+#    placements.entities.entityName.names.attr= Name of Attribute
+#    placements.triggers.triggerName.tooltips.attr= Tooltip
+#    placements.triggers.triggerName.names.attr= Name of Attribute
+
+# -- Triggers --
+placements.triggers.VivHelper/BasicInstantTeleportTrigger.tooltips.newPosX= The X coordinate of the teleport location in the room "WarpRoom"\nSetting to -1 sets the "default" which is usually the same (X,Y) but in the new room.
+placements.triggers.VivHelper/BasicInstantTeleportTrigger.tooltips.newPosY= The Y coordinate of the teleport location in the room "WarpRoom"\nSetting to -1 sets the "default" which is usually the same (X,Y) but in the new room.
+placements.triggers.VivHelper/BasicInstantTeleportTrigger.tooltips.WarpRoom= Select or type in the name of the room you want to teleport to.
+placements.triggers.VivHelper/BasicInstantTeleportTrigger.tooltips.TransitionType= Selects a Visual to overlay when teleporting.
+placements.triggers.VivHelper/BasicInstantTeleportTrigger.tooltips.AddTriggerOffset= Sets the player to the new position plus their (vector) distance from the top left of the trigger.\nTurn this off if you're having issues with the position or are setting New Pos X and Y to -1.
+placements.triggers.VivHelper/BasicInstantTeleportTrigger.tooltips.CameraType= Sets the Camera to have the details listed in the Dropdown. Don't put in a custom number, it just can crash the game.
+
+placements.triggers.VivHelper/MainInstantTeleportTrigger.tooltips.newPosX= The X coordinate of the teleport location in the room "WarpRoom"\nSetting to -1 sets the "default" which is usually the same (X,Y) but in the new room.
+placements.triggers.VivHelper/MainInstantTeleportTrigger.tooltips.newPosY= The Y coordinate of the teleport location in the room "WarpRoom"\nSetting to -1 sets the "default" which is usually the same (X,Y) but in the new room.
+placements.triggers.VivHelper/MainInstantTeleportTrigger.tooltips.WarpRoom= Select or type in the name of the room you want to teleport to.
+placements.triggers.VivHelper/MainInstantTeleportTrigger.tooltips.TransitionType= Selects a Visual to overlay when teleporting.
+placements.triggers.VivHelper/MainInstantTeleportTrigger.tooltips.AddTriggerOffset= Sets the player to the new position plus their (vector) distance from the top left of the trigger.\nTurn this off if you're having issues with the position or are setting New Pos X and Y to -1.
+placements.triggers.VivHelper/MainInstantTeleportTrigger.tooltips.ExitVelocityX= Modifies the player's X speed. VelocityModifier determines in what way it is modified.\nA point of reference if you use Add, a dash is "240" speed.
+placements.triggers.VivHelper/MainInstantTeleportTrigger.tooltips.ExitVelocityY= Modifies the player's Y speed. VelocityModifier determines in what way it is modified.\nA point of reference if you use Add, a dash is "240" speed.
+placements.triggers.VivHelper/MainInstantTeleportTrigger.tooltips.VelocityModifier= Changes the way that ExitVelocityX and ExitVelocityY modify the player's speed.
+placements.triggers.VivHelper/MainInstantTeleportTrigger.tooltips.Dreaming= Sets the Dreaming state on or off.
+placements.triggers.VivHelper/MainInstantTeleportTrigger.tooltips.CameraType= Sets the Camera to have the details listed in the Dropdown. Don't put in a custom number, it just can crash the game.
+
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.newPosX= The X coordinate of the teleport location in the room "WarpRoom"\nSetting this to -1 sets the "default" - the player's old (X,Y) but in the new room.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.newPosY= The Y coordinate of the teleport location in the room "WarpRoom"\nSetting this to -1 sets the "default" - the player's old (X,Y) but in the new room.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.WarpRoom= Select or type in the name of the room you want to teleport to.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.TransitionType= Selects a Visual to overlay when teleporting.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.AddTriggerOffset= Sets the player to the new position plus their (vector) distance from the top left of the trigger.\nTurn this off if you're having issues with the position or are setting New Pos X and Y to -1.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.ExitVelocityX= Modifies the player's X speed. VelocityModifier determines in what way it is modified.\nA point of reference if you use Add, a dash is "240" speed.\nIf using ExitVelocityS, do not use this.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.ExitVelocityY= Modifies the player's Y speed. VelocityModifier determines in what way it is modified.\nA point of reference if you use Add, a dash is "240" speed.\nIf using ExitVelocityS, do not use this.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.VelocityModifier= Changes the way that ExitVelocityX/Y/S modify the player's speed.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.Dreaming= Sets the Dreaming state on or off.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.ExitVelocityS= Modifies the total player speed regardless of the direction.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.ZFlagsData= The set of flags needed to turn on or off this teleporter. If all flags are in a state to leave the list on, then the teleporter will turn on.\nExample: "flag1,!flag2,flag3" = if flag1 and flag3 are triggered and flag2 isn't, then activate the teleporter.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.RotationActor= The number (in degrees) used by the Rotation Modifier to change the player's direction. See Rotation Modifier for more info, or this example:\n Rotation Actor: Right, Rotation Modifier: Rotate To Direction = > the player's velocity will be all going to the right.
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.names.RotationType= Rotation Modifier
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.RotationType= Rotates the player's movement exiting the portal. Setting to "Rotate To Direction" will change the player's velocity to the Rotation Actor's direction.\nSetting to "Rotate Degrees from Direction" will rotate the player's potential velocity by {Rotation Actor} degrees (clockwise)
+placements.triggers.VivHelper/CustomInstantTeleportTrigger.tooltips.CameraType= Sets the Camera to have the details listed in the Dropdown. Don't put in a custom number, it just can crash the game.
+
+placements.triggers.VivHelper/MultiflagCameraTargetTrigger.tooltips.lerpStrength= Determines how fast the camera moves to lock into place upon activation.
+placements.triggers.VivHelper/MultiflagCameraTargetTrigger.tooltips.ComplexFlagData= The set of flags or inverse flags (written as !flagname) needed to activate or deactivate the trigger.
+placements.triggers.VivHelper/MultiflagCameraTargetTrigger.tooltips.SingleFlag= If using one flag, place the flagname here.
+placements.triggers.VivHelper/MultiflagCameraTargetTrigger.tooltips.DeleteFlag= Session flag to deactivate the trigger, ignored if left empty. Camera will not reset if player is inside the trigger as it deactivates.
+placements.triggers.VivHelper/MultiflagCameraTargetTrigger.tooltips.xOnly= The camera will only lock on the X axis.
+placements.triggers.VivHelper/MultiflagCameraTargetTrigger.tooltips.yOnly= The camera will only lock on the Y axis.
+
+placements.triggers.VivHelper/FlameTravelTrigger.tooltips.Nodes= The nodes that this trigger can activate on the Traveling Flame associated with it. Write this like you would a list of numbers, example: 0, 1, 2, 3\nNotes: To allow it to activate every node, just type in -1. Also, the first position of the flame is at Node 0.
+placements.triggers.VivHelper/FlameTravelTrigger.names.TravelingFlameID= Traveling Flame ID
+placements.triggers.VivHelper/FlameTravelTrigger.tooltips.TravelingFlameID= The identifier you put onto the Traveling Flame to tie the trigger to it. Must be the same as the ID on the Traveling Flame to work.
+placements.triggers.VivHelper/FlameTravelTrigger.tooltips.removeOnExit= Turning this on makes the trigger one-use.
+
+placements.triggers.VivHelper/FlameLightSwitch.tooltips.Nodes= The nodes that this trigger can activate on the Traveling Flame associated with it. Write this like you would a list of numbers, example: 0, 1, 2, 3\nNotes: To allow it to activate every node, just type in -1. Also, the first position of the flame is at Node 0.
+placements.triggers.VivHelper/FlameLightSwitch.names.TravelingFlameID= Traveling Flame ID
+placements.triggers.VivHelper/FlameLightSwitch.tooltips.TravelingFlameID= The identifier you put onto the Traveling Flame to tie the trigger to it. Must be the same as the ID on the Traveling Flame to work.
+placements.triggers.VivHelper/FlameLightSwitch.tooltips.removeOnExit= Turning this on makes the trigger one-use.
+
+placements.triggers.VivHelper/FollowerDistModTrigger.names.FFDistance= Follower-Follower Distance
+placements.triggers.VivHelper/FollowerDistModTrigger.tooltips.FFDistance= Changes the distance between each follower.\nMinimum value of 1, maximum value of 30.
+placements.triggers.VivHelper/FollowerDistModTrigger.names.FPDistance= Follower-Player Distance
+placements.triggers.VivHelper/FollowerDistModTrigger.tooltips.FPDistance= Changes the distance between the first follower and the player. Values are divided by 10, so 30 = 3.0 pixels.\nMinimum value of 1, maximum value of 128.
+
+placements.triggers.VivHelper/ActivateCPP.names.CPPID= Custom Player Playback ID
+placements.triggers.VivHelper/ActivateCPP.tooltips.CPPID= The ID used to identify the Custom Player Playback with.
+placements.triggers.VivHelper/ActivateCPP.tooltips.onlyOnce= Whether to set it to this state one time or anytime the trigger is entered.
+placements.triggers.VivHelper/ActivateCPP.tooltips.State= Checked = activated
+
+placements.triggers.VivHelper/PlayerIndicatorTrigger.tooltips.state= Whether or not to turn Player Indicator for Refill Cancel Spaces on or off.
+placements.triggers.VivHelper/PlayerIndicatorTrigger.tooltips.revertOnLeave= Whether or not the Player Indicator will return/be removed upon leaving the trigger.
+
+placements.triggers.VivHelper/TimedFlagTrigger.tooltips.mode=Determines how the trigger will activate.
+placements.triggers.VivHelper/TimedFlagTrigger.tooltips.onlyOnce=Whether the trigger should only work once.
+placements.triggers.VivHelper/TimedFlagTrigger.tooltips.death_count=Determines the exact amount of deaths required to activate the flag trigger. Will always trigger if set to -1.
+placements.triggers.VivHelper/TimedFlagTrigger.tooltips.Delay=The time between the flag trigger being triggered and the flag being changed.
+
+placements.triggers.VivHelper/RCSParticleCountTrigger.tooltips.SetValue=The value that this trigger sets.
+placements.triggers.VivHelper/RCSParticleCountTrigger.tooltips.RevertOnLeave=Whether or not the Particle Count is changed back upon leaving the trigger.
+
+
+
+
+# -- Entities --
+placements.entities.VivHelper/CustomTorch.tooltips.Alpha= Refers to the transparency of the light. 0 is fully transparent.
+placements.entities.VivHelper/CustomTorch.tooltips.startFade= Where the light begins to taper off, in pixels.
+placements.entities.VivHelper/CustomTorch.tooltips.endFade= Where the light stops rendering, fading out from Start Fade.
+placements.entities.VivHelper/CustomTorch.tooltips.RegisterRadius= The radius in pixels from which the light will activate.
+placements.entities.VivHelper/CustomTorch.names.Color= Light Color
+placements.entities.VivHelper/CustomTorch.tooltips.Color= The light of the color. Please note: lights can sometimes not illuminate things as well as white light when it is a contrasting color.
+placements.entities.VivHelper/CustomTorch.tooltips.spriteColor= The color the sprite should be tinted.
+placements.entities.VivHelper/CustomTorch.tooltips.startLit= Whether or not the torch starts lit.
+placements.entities.VivHelper/CustomTorch.tooltips.unlightOnDeath= Whether or not to unlight the torch upon player's death or exiting a room.
+
+placements.entities.VivHelper/CurveEntity.tooltips.Identifier= The CurveEntity identifier used to tie this curve to other objects.
+placements.entities.VivHelper/CurveEntity.tooltips.CurvesNumberOfPoints= This is the thing that defines each type of curve. Using "All Simple" makes only 'SimpleCurve's which use three points to define themselves.\nUsing "All Cubic" makes only cubic bezier curves. These are more precise and you can do more with them.\nUsing "Automatic" automates this process. Use this if you don't want to worry about it too much.\nFinally, if you want to customize it, count the number of individual curves you have/want and starting from the starting position of the curve, type in a 3 for a cubic, and type in a 2 for a simple curve. No spaces.
+placements.entities.VivHelper/CurveEntity.tooltips.AhornCurveRenderColor= Meant to differentiate curves in Ahorn. Not rendered in Celeste.
+placements.entities.VivHelper/CurveEntity.tooltips.AhornLineRenderColor= Meant to differentiate lines in Ahorn. Not rendered in Celeste.
+placements.entities.VivHelper/CurveEntity.tooltips.AhornPointRenderColor= Meant to differentiate points in Ahorn. Not rendered in Celeste.
+placements.entities.VivHelper/CurveEntity.tooltips.Spline= A spline is a series of curves that make a closed shape. This will connect the first and last note together with a curve. Do not use spline with 3 points.
+
+placements.entities.VivHelper/RoomWrapController.tooltips.AllEntities= Enabling this makes all wrappable entities (from Viv's Helper) actually wrap in the same directions the player can wrap.
+placements.entities.VivHelper/RoomWrapController.tooltips.AutomateCameraTriggers= Enabling this makes each wall that can normally wrap perfectly wrap when the player "exits" through the wrapper.\nThis is done by placing Multiflag Camera Target Triggers around the edges that are enabled to wrap,\nmeaning that your edges of your map may be cut off to make the wrap seamless. Turn this on\nfirst before making major changes to the edges of your levels.
+placements.entities.VivHelper/RoomWrapController.tooltips.Bottom= Enables the player wrapping from the bottom of the room to the top.
+placements.entities.VivHelper/RoomWrapController.tooltips.BottomExitSpeedAdd= If able, when the player wraps from the top of the level to the bottom, the player gains this much extra velocity upwards.\nThis is used to make gameplay feel smoother.
+placements.entities.VivHelper/RoomWrapController.tooltips.BottomOffset= The offset from the bottom of the level that when entered, the player will wrap to the top of the room.
+placements.entities.VivHelper/RoomWrapController.tooltips.Left= Enables the player wrapping from the left of the room to the right.
+placements.entities.VivHelper/RoomWrapController.tooltips.LeftExitSpeedAdd= If able, when the player wraps from the right of the level to the left, the player gains this much extra velocity to the right.\nThis is used to make gameplay feel smoother.
+placements.entities.VivHelper/RoomWrapController.tooltips.LeftOffset= The offset from the left edge of the level that when entered, the player will wrap to the right edge of the room.
+placements.entities.VivHelper/RoomWrapController.tooltips.Top= Enables the player wrapping from the top of the room to the bottom.
+placements.entities.VivHelper/RoomWrapController.tooltips.TopExitSpeedAdd= If able, when the player wraps from the bottom of the level to the top, the player gains this much extra velocity downwards.\nThis is used to make gameplay feel smoother.
+placements.entities.VivHelper/RoomWrapController.tooltips.TopOffset= The offset from the top of the level that when entered, the player will wrap to the bottom of the room.
+placements.entities.VivHelper/RoomWrapController.tooltips.Right= Enables the player wrapping from the right of the room to the left.
+placements.entities.VivHelper/RoomWrapController.tooltips.RightExitSpeedAdd= If able, when the player wraps from the left of the level to the right, the player gains this much extra velocity to the right.\nThis is used to make gameplay feel smoother.
+placements.entities.VivHelper/RoomWrapController.tooltips.RightOffset= The offset from the right edge of the level that when entered, the player will wrap to the left edge of the room.
+placements.entities.VivHelper/RoomWrapController.tooltips.ZFlagsData= The set of flags needed to turn on or off this room wrap controller. If all flags are in a state to leave the list on, then it will turn on.\nExample: "flag1,!flag2,flag3" = if flag1 and flag3 are triggered and flag2 isn't, then activate the room wrap controller.
+
+placements.entities.VivHelper/TravelingFlame.names.StringID= Identifier
+placements.entities.VivHelper/TravelingFlame.tooltips.StringID= The identifier used to tie this Traveling Flame with a Traveling Flame Operator.
+placements.entities.VivHelper/CustomPlaybackWatchtower.names.IconDirectory= Directory for Icon
+placements.entities.VivHelper/PlatinumWatchtower.names.IconDirectory= Directory for Icon
+
+placements.entities.VivHelper/CustomSeeker.tooltips.Accel=Acceleration.\nDefault Value: 600px/s²
+placements.entities.VivHelper/CustomSeeker.tooltips.aggroSFXPath=The SFX Path for when the Seeker attacks. Leave this\nblank for the default.
+placements.entities.VivHelper/CustomSeeker.tooltips.AttackAccel=The acceleration for when the Seeker is attacking,\nbetween AttackStartSpeed and AttackTargetSpeed.\nDefault Value: 300px/s²
+placements.entities.VivHelper/CustomSeeker.tooltips.AttackMinXDist=The minimum distance for the seeker attacking the player.\nDefault Value: 16px (2 tiles)
+placements.entities.VivHelper/CustomSeeker.tooltips.AttackMaxRotateDegrees=The maximum a seeker can rotate over the course of its attack.\nDefault Value: 35°
+placements.entities.VivHelper/CustomSeeker.tooltips.AttackStartSpeed=The starting speed for when the Seeker begins its attack.\nDefault Value: 180px/s
+placements.entities.VivHelper/CustomSeeker.tooltips.AttackTargetSpeed=The ending (default) top speed for when the Seeker attacks.\nDefault Value: 260px/s
+placements.entities.VivHelper/CustomSeeker.tooltips.AttackWindUpSpeed=Before the seeker attacks, it will wind up, moving at this speed backwards before attacking.\nDefault Value: 60px/s
+placements.entities.VivHelper/CustomSeeker.tooltips.AttackWindUpTime=The time the seeker winds up for before attacking.\nDefault Value: 0.3s
+placements.entities.VivHelper/CustomSeeker.tooltips.boopedSFXPath=The SFX Path for when the Seeker is bounced on. Leave this blank\nfor the default.
+placements.entities.VivHelper/CustomSeeker.tooltips.BounceSpeed=The speed at which the Seeker moves down after being bounced on.\nDefault Value: 200px/s
+placements.entities.VivHelper/CustomSeeker.tooltips.CustomShockwavePath=A custom sprite path to the Shockwave. Must have a Sprites.xml for this to work.\nLeave blank for default.
+placements.entities.VivHelper/CustomSeeker.tooltips.CustomSpritePath=A custom sprite path to the Seeker. Must have a Sprites.xml for this to work.\nLeave blank for default.
+placements.entities.VivHelper/CustomSeeker.tooltips.DirectionDotThreshold=This is a weird one. Basically, it represents the speed at which when the\nSeeker has passed the player will the Seeker's state turn to Skidding.\nDefault Value: 0.4(px???)
+placements.entities.VivHelper/CustomSeeker.tooltips.ExplodeRadius=The radius at which the Seeker explodes when revived.\nDefault Value: 40px (5 tiles, 2.5 in each direction)
+placements.entities.VivHelper/CustomSeeker.tooltips.FarDist=The Distance from the player at which it is considered "Far." When the Seeker is "Far,"\nits speed is multiplied by a factor (which is also customizable)\nDefault Value: 112px (14 tiles)
+placements.entities.VivHelper/CustomSeeker.tooltips.FarDistSpeedMult=The multiplier for the speed of the Seeker when it is "Far."\nDefault Value: 2
+placements.entities.VivHelper/CustomSeeker.tooltips.IdleAccel=The acceleration at which the Seeker travels while Idle.\nDefault Value: 200px/s²
+placements.entities.VivHelper/CustomSeeker.tooltips.IdleSpeed=The max speed at which the Seeker travels while Idle.\nDefault Value: 50px/s
+placements.entities.VivHelper/CustomSeeker.tooltips.MaxNumberOfBounces=The maximum number of Bounces the Seeker can take before dying. Set to -1 for infinite.
+placements.entities.VivHelper/CustomSeeker.tooltips.MaxNumberOfDashes=The maximum number of Attacks the Seeker can make before dying. Works with Final Dash.\nSet to -1 for infinite.
+placements.entities.VivHelper/CustomSeeker.tooltips.MaxNumberOfWallCollides=The maximum number of Wall Collides the Seeker can take before dying. Set to -1 for infinite.
+placements.entities.VivHelper/CustomSeeker.tooltips.ParticleEmitInterval=The interval at which Particles are Emitted during the Attack phase.\nDefault Value: 0.04s. Set to 0 for none.
+placements.entities.VivHelper/CustomSeeker.tooltips.TrailCreateInterval=The interval at which a Trail is made, which follows behind the Seeker.\nDefault Value: 0.06s. Set to 0 for none.
+placements.entities.VivHelper/CustomSeeker.tooltips.PatrolSpeed=The speed at which the Seeker patrols around.\nDefault Value: 25px/s
+placements.entities.VivHelper/CustomSeeker.tooltips.PatrolWaitTime=The delay before the Seeker patrols to its next point, or towards the player.\nDefault Value: 0.4s
+placements.entities.VivHelper/CustomSeeker.tooltips.RegenerationTimerLength=The time it takes for this Seeker to regenerate.\nDefault Value: 1.85s
+placements.entities.VivHelper/CustomSeeker.tooltips.reviveSFXPath=The SFX Path for custom audio for when the Seeker is revived.\nLeave blank for default.
+placements.entities.VivHelper/CustomSeeker.tooltips.SightDistance=The distance away in pixels the Seeker will not spot the player from.\nDefault Value: 160px (20 tiles)
+placements.entities.VivHelper/CustomSeeker.tooltips.SkiddingAccel=The deceleration of the Seeker when it skids (after missing the player and not hitting a wall)\nDefault Value: 200px/s²
+placements.entities.VivHelper/CustomSeeker.tooltips.SpottedLosePlayerTime=The length of time that the Seeker takes to go idle after losing sight of the player.\nDefault Value: 0.6s
+placements.entities.VivHelper/CustomSeeker.tooltips.SpottedMaxYDist=The maximum Y distance the Seeker from which the Seeker can attack from.\nThis is akin to it patrolling up before attacking.\nDefault Value: 24px (3 tiles)
+placements.entities.VivHelper/CustomSeeker.tooltips.SpottedMinAttackTime=The delay after the Seeker spots the player from which it can attack the player.\nDefault Value: 0.2s
+placements.entities.VivHelper/CustomSeeker.tooltips.SpottedTargetSpeed=The maximum speed the Seeker can travel at while Patrolling and Spotting the player.\nDefault Value: 60px/s
+placements.entities.VivHelper/CustomSeeker.tooltips.StrongSkiddingAccel=The deceleration of the Seeker while skidding strongly (after a timer set by SkiddingDelay).\nDefault Value: 400px/s²
+placements.entities.VivHelper/CustomSeeker.tooltips.StrongSkiddingTime=The timer set after skidding to set the Seeker to skid strongly.\nDefault Value: 0.08s
+placements.entities.VivHelper/CustomSeeker.names.StrongSkiddingTime=Skidding Delay
+placements.entities.VivHelper/CustomSeeker.tooltips.StunTime=The length of time the Seeker is Stunned for upon slamming into a wall.\nDefault Value: 0.8s
+placements.entities.VivHelper/CustomSeeker.tooltips.StunXSpeed=The speed the Seeker travels in the X direction (left/right) while stunned.\nDefault Value: 100px/s
+placements.entities.VivHelper/CustomSeeker.tooltips.WallCollideStunThreshold=The requisite speed for when the Seeker hits a wall, it is stunned.\nDefault Value:100px/s
+placements.entities.VivHelper/CustomSeeker.tooltips.StunnedAccel=The acceleration the Seeker has while stunned.\nDefault Value: 150px/s²
+placements.entities.VivHelper/CustomSeeker.tooltips.DeathEffectColor=The color the seeker emits in the circle ring when it dies.\nDefault Value: Hot Pink
+placements.entities.VivHelper/CustomSeeker.tooltips.SeekerColorTint=The tint the Seeker is colored in game. This doesn't mean it's perfect, and using custom sprites,\ndespite being way more labor intensive, is advised.\nDefault Value: "ffffff" or White
+placements.entities.VivHelper/CustomSeeker.tooltips.DisableAllParticles=Disables all particles the Seeker emits.
+placements.entities.VivHelper/CustomSeeker.tooltips.FinalDash=When this is set to true: When the seeker is on its last dash it will\nkeep traveling forward until it hits a wall or goes off screen where it dies.
+placements.entities.VivHelper/CustomSeeker.tooltips.RemoveBounceHitbox=Removes the hitbox the Seeker can be bounced on.
+
+placements.entities.VivHelper/CustomSeekerS.tooltips.Accel=Acceleration.\nDefault Value: 600px/s²
+placements.entities.VivHelper/CustomSeekerS.tooltips.aggroSFXPath=The SFX Path for when the Seeker attacks. Leave this\nblank for the default.
+placements.entities.VivHelper/CustomSeekerS.tooltips.AttackAccel=The acceleration for when the Seeker is attacking,\nbetween AttackStartSpeed and AttackTargetSpeed.\nDefault Value: 300px/s²
+placements.entities.VivHelper/CustomSeekerS.tooltips.AttackMinXDist=The minimum distance for the seeker attacking the player.\nDefault Value: 16px (2 tiles)
+placements.entities.VivHelper/CustomSeekerS.tooltips.AttackStartSpeed=The starting speed for when the Seeker begins its attack.\nDefault Value: 180px/s
+placements.entities.VivHelper/CustomSeekerS.tooltips.AttackTargetSpeed=The ending (default) top speed for when the Seeker attacks.\nDefault Value: 260px/s
+placements.entities.VivHelper/CustomSeekerS.tooltips.AttackWindUpSpeed=Before the seeker attacks, it will wind up, moving at this speed backwards before attacking.\nDefault Value: 60px/s
+placements.entities.VivHelper/CustomSeekerS.tooltips.AttackWindUpTime=The time the seeker winds up for before attacking.\nDefault Value: 0.3s
+placements.entities.VivHelper/CustomSeekerS.tooltips.boopedSFXPath=The SFX Path for when the Seeker is bounced on. Leave this blank\nfor the default.
+placements.entities.VivHelper/CustomSeekerS.tooltips.BounceSpeed=The speed at which the Seeker moves down after being bounced on.\nDefault Value: 200px/s
+placements.entities.VivHelper/CustomSeekerS.tooltips.CustomShockwavePath=A custom sprite path to the Shockwave. Must have a Sprites.xml for this to work.\nLeave blank for default.
+placements.entities.VivHelper/CustomSeekerS.tooltips.CustomSpritePath=A custom sprite path to the Seeker. Must have a Sprites.xml for this to work.\nLeave blank for default.
+placements.entities.VivHelper/CustomSeekerS.tooltips.DirectionDotThreshold=This is a weird one. Basically, it represents the speed at which when the\nSeeker has passed the player will the Seeker's state turn to Skidding.\nDefault Value: 0.4(px???)
+placements.entities.VivHelper/CustomSeekerS.tooltips.ExplodeRadius=The radius at which the Seeker explodes when revived.\nDefault Value: 40px (5 tiles, 2.5 in each direction)
+placements.entities.VivHelper/CustomSeekerS.tooltips.FarDist=The Distance from the player at which it is considered "Far." When the Seeker is "Far,"\nits speed is multiplied by a factor of 2\nDefault Value: 112px (14 tiles)
+placements.entities.VivHelper/CustomSeekerS.tooltips.FarDistSpeedMult=The multiplier for the speed of the Seeker when it is "Far."\nDefault Value: 2
+placements.entities.VivHelper/CustomSeekerS.tooltips.IdleAccel=The acceleration at which the Seeker travels while Idle.\nDefault Value: 200px/s²
+placements.entities.VivHelper/CustomSeekerS.tooltips.IdleSpeed=The max speed at which the Seeker travels while Idle.\nDefault Value: 50px/s
+placements.entities.VivHelper/CustomSeekerS.tooltips.MaxNumberOfBounces=The maximum number of Bounces the Seeker can take before dying. Set to -1 for infinite.
+placements.entities.VivHelper/CustomSeekerS.tooltips.MaxNumberOfDashes=The maximum number of Attacks the Seeker can make before dying. Works with Final Dash.\nSet to -1 for infinite.
+placements.entities.VivHelper/CustomSeekerS.tooltips.MaxNumberOfWallCollides=The maximum number of Wall Collides the Seeker can take before dying. Set to -1 for infinite.
+placements.entities.VivHelper/CustomSeekerS.tooltips.ParticleEmitInterval=The interval at which Particles are Emitted during the Attack phase.\nDefault Value: 0.04s. Set to 0 for none.
+placements.entities.VivHelper/CustomSeekerS.tooltips.TrailCreateInterval=The interval at which a Trail is made, which follows behind the Seeker.\nDefault Value: 0.06s. Set to 0 for none.
+placements.entities.VivHelper/CustomSeekerS.tooltips.PatrolSpeed=The speed at which the Seeker patrols around.\nDefault Value: 25px/s
+placements.entities.VivHelper/CustomSeekerS.tooltips.PatrolWaitTime=The delay before the Seeker patrols to its next point, or towards the player.\nDefault Value: 0.4s
+placements.entities.VivHelper/CustomSeekerS.tooltips.RegenerationTimerLength=The time it takes for this Seeker to regenerate.\nDefault Value: 1.85s
+placements.entities.VivHelper/CustomSeekerS.tooltips.reviveSFXPath=The SFX Path for custom audio for when the Seeker is revived.\nLeave blank for default.
+placements.entities.VivHelper/CustomSeekerS.tooltips.SightDistance=The distance away in pixels the Seeker will not spot the player from.\nDefault Value: 160px (20 tiles)
+placements.entities.VivHelper/CustomSeekerS.tooltips.SkiddingAccel=The deceleration of the Seeker when it skids (after missing the player and not hitting a wall)\nDefault Value: 200px/s²
+placements.entities.VivHelper/CustomSeekerS.tooltips.SpottedLosePlayerTime=The length of time that the Seeker takes to Idle after losing sight of the player.\nDefault Value: 0.6s
+placements.entities.VivHelper/CustomSeekerS.tooltips.SpottedMaxYDist=The maximum Y distance the Seeker from which the Seeker can attack from.\nThis is akin to it patrolling up before attacking.\nDefault Value: 24px (3 tiles)
+placements.entities.VivHelper/CustomSeekerS.tooltips.SpottedMinAttackTime=The delay after the Seeker spots the player from which it can attack the player.\nDefault Value: 0.2s
+placements.entities.VivHelper/CustomSeekerS.tooltips.SpottedTargetSpeed=The maximum speed the Seeker can travel at while Patrolling and Spotting the player.\nDefault Value: 60px/s
+placements.entities.VivHelper/CustomSeekerS.tooltips.StrongSkiddingAccel=The deceleration of the Seeker while skidding strongly (after a timer set by SkiddingDelay).\nDefault Value: 400px/s²
+placements.entities.VivHelper/CustomSeekerS.tooltips.StrongSkiddingTime=The timer set after skidding to set the Seeker to skid strongly.\nDefault Value: 0.08s
+placements.entities.VivHelper/CustomSeekerS.names.StrongSkiddingTime=Skidding Delay
+placements.entities.VivHelper/CustomSeekerS.tooltips.StunTime=The length of time the Seeker is Stunned for upon slamming into a wall.\nDefault Value: 0.8s
+placements.entities.VivHelper/CustomSeekerS.tooltips.StunXSpeed=The speed the Seeker travels in the X direction (left/right) while stunned.\nDefault Value: 100px/s
+placements.entities.VivHelper/CustomSeekerS.tooltips.WallCollideStunThreshold=The requisite speed for when the Seeker hits a wall, it is stunned.\nDefault Value:100px/s
+placements.entities.VivHelper/CustomSeekerS.tooltips.StunnedAccel=The acceleration the Seeker has while stunned.\nDefault Value: 150px/s²
+placements.entities.VivHelper/CustomSeekerS.tooltips.DeathEffectColor=The color the seeker emits in the circle ring when it dies.\nDefault Value: Hot Pink
+placements.entities.VivHelper/CustomSeekerS.tooltips.SeekerColorTint=The tint the Seeker is colored in game. This doesn't mean it's perfect, and using custom sprites,\ndespite being way more labor intensive, is advised.\nDefault Value: "ffffff" or White
+placements.entities.VivHelper/CustomSeekerS.tooltips.DisableAllParticles=Disables all particles the Seeker emits.
+placements.entities.VivHelper/CustomSeekerS.tooltips.FinalDash=When this is set to true: When the seeker is on its last dash it will\nkeep traveling forward until it hits a wall or goes off screen where it dies.
+placements.entities.VivHelper/CustomSeekerS.tooltips.RemoveBounceHitbox=Removes the hitbox the Seeker can be bounced on.
+
+placements.entities.VivHelper/CustomSeekerYaml.tooltips.YamlPath=Place the name of the file you're tying to this Seeker. The file must be placed in a folder in your mod named "Seekers". You can use the same file for multiple seekers.\nYou can use the write_seeker_data command in the debug console without a parameter to generate a Default Seeker in your Mods/VivHelper_YAMLData folder titled seekerDefault.yaml. For an annotated copy, you can look in either the VivHelper zip file, where there is an annotated example, or you can also check a link on the Gamebanana page titled "SeekerYAML Guide" which contains the same example.
+
+placements.entities.VivHelper/CustomSpinner.tooltips.Directory=This is the general directory the spinner goes to. Usually, your subdirectory will be the subtype of each spinner (white, almost always).\nFor any non-animated spinner, you should structure your default sprite as\n..Gameplay/<directory>/fg_<subdirectory>00.png
+placements.entities.VivHelper/CustomSpinner.tooltips.ImageScale=The default sprite for spinners is 24x24px. If you set your sprite canvas to 48x48px, putting an Image Scale of 2 will set it to be the proper size.
+placements.entities.VivHelper/CustomSpinner.tooltips.Scale=This scales the spinner and its hitboxes by this amount. Minimum value is 0.33333.
+placements.entities.VivHelper/CustomSpinner.tooltips.ShatterFlag=The flag that if set to true, will shatter the spinner.
+placements.entities.VivHelper/CustomSpinner.tooltips.BorderColor=This tints the border color of the spinner to this color. Any attached bg spinners will also have this border.
+placements.entities.VivHelper/CustomSpinner.tooltips.Color=This tints the color of the spinner to whatever color you put in here. Attached bg spinners will have a color equal to the middle of the two colors\nof the fg spinners it connects.
+placements.entities.VivHelper/CustomSpinner.tooltips.Depth=This changes the depth of the spinner. Depth determines how late something is drawn, with negative numbers being drawn to the top of the screen.
+placements.entities.VivHelper/CustomSpinner.tooltips.ShatterColor=This tints the color of the debris of the spinner when it shatters.
+placements.entities.VivHelper/CustomSpinner.tooltips.Subdirectory=This is the subdirectory the spinner goes to. Usually, your subdirectory will be the subtype of each spinner (white, almost always).\nFor any non-animated spinner, you should structure your default sprite as\n..Gameplay/<directory>/fg_<subdirectory>00.png
+placements.entities.VivHelper/CustomSpinner.tooltips.Type=This determines if the spinner is a rainbow spinner or a normal spinner.
+placements.entities.VivHelper/CustomSpinner.tooltips.AttachToSolid=The spinner attaches to the surface of the entity or block, and can be moved by them.
+placements.entities.VivHelper/CustomSpinner.tooltips.CustomDebris=If set to true, this changes the path of the debris from it's normal shard to the image you put as <directory>/<subdirectory>/debris.\nIf this is set to true, and you do not have the file, it will error out.
+placements.entities.VivHelper/CustomSpinner.tooltips.DebrisToScale=If set to true, this changes the size of the debris to match the scale of the spinner.
+placements.entities.VivHelper/CustomSpinner.tooltips.shatterOnDash=If set to true, this spinner will shatter when it is dashed into.
+
+
+placements.entities.VivHelper/AnimatedSpinner.tooltips.Directory=This is the general directory the spinner goes to. For an animated spinner, your images should be structured as ..Gameplay/<directory>/<subdirectory>/idle_fg00 (for the default spinner)\nRead the README for more info on setting up Animated spinners.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.ImageScale=The default sprite for spinners is 24x24px. If you set your sprite to 48x48px, putting an Image Scale of 0.5 will set it to be the proper size.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.Scale=This scales the spinner and its hitboxes by this amount. Minimum value is 0.33333.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.ShatterFlag=The flag that if set to true, will shatter the spinner.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.BorderColor=This tints the border color of the spinner to this color. Any attached bg spinners will also have this border.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.Color=This tints the color of the spinner to whatever color you put in here. Attached bg spinners will have a color equal to the middle of the two colors\nof the fg spinners it connects.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.Depth=This changes the depth of the spinner. Depth determines how late something is drawn, with negative numbers being drawn to the top of the screen.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.ShatterColor=This tints the color of the debris of the spinner when it shatters.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.Subdirectories=This is the subdirectory for the animated spinner. You can set a series of subdirectories it can randomly select from by separating them with commas, or only put one to just use that one.\nRead the README for more info on setting up Animated spinners.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.Type=This determines if the spinner is a rainbow spinner or a normal spinner.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.AttachToSolid=The spinner attaches to the surface of the entity or block, and can be moved by them.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.CustomDebris=If set to true, this changes the path of the debris from it's normal shard to the image you put as <directory>/<subdirectory>/debris.\nIf this is set to true, and you do not have the file, it will error out.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.DebrisToScale=If set to true, this changes the size of the debris to match the scale of the spinner.
+placements.entities.VivHelper/AnimatedSpinner.tooltips.shatterOnDash=If set to true, this spinner will shatter when it is dashed into.
+
+placements.entities.VivHelper/LaserBlock.tooltips.ActiveTime=The amount of time the laser can kill for. I suggest not changing this.
+placements.entities.VivHelper/LaserBlock.tooltips.ChargeTime=The amount of time the laser winds up before firing.
+placements.entities.VivHelper/LaserBlock.tooltips.Delay=The amount of time the laser delays before firing again.
+placements.entities.VivHelper/LaserBlock.tooltips.Direction=The directions the lasers fire from this block. Cannot attach to a solid from a face it fires from.
+placements.entities.VivHelper/LaserBlock.tooltips.Directory=The path to the sprites for this laser block.
+placements.entities.VivHelper/LaserBlock.tooltips.Flag=This flag turns the laser block on/off. StartShooting will invert the flag, if this has a value.
+placements.entities.VivHelper/LaserBlock.tooltips.StartDelay=The delay from when the laser block loads in to the first time it fires. Good for offsetting the fire time.
+placements.entities.VivHelper/LaserBlock.tooltips.AttachToSolid=The laser block attaches to the surface of an entity or block it does not shoot from, and can be moved by them.
+placements.entities.VivHelper/LaserBlock.tooltips.Muted=Whether or not the laser firing makes a sound.
+placements.entities.VivHelper/LaserBlock.tooltips.StartShooting=Whether the laser block is turned on upon being loaded in.
+
+placements.entities.VivHelper/BlackoutController.tooltips.Delay=Only works for Flashing type. The delay between switching from on to off.
+placements.entities.VivHelper/BlackoutController.tooltips.StartingState=The state to set for the controller. If Flag, the flag that sets it on or off is "VH_Blackout".
+
+placements.entities.VivHelper/CPP.tooltips.CustomStringID=The Custom ID used to identify this Custom Player Playback. Used in Playback Watchtowers and Hint Watchtowers, as well as\nActivate Custom Player Playback Triggers.
+placements.entities.VivHelper/CPP.tooltips.Color=The color for the Custom Player Playback. Leaving this blank sets it to the default used (the hair color).
+placements.entities.VivHelper/CPP.tooltips.SpeedMultiplier=The speed at which the Custom Player Playback should move at. Don't use custom values less than 1, as this can crash the game or create artifacts.
+placements.entities.VivHelper/CPP.tooltips.tutorial=Determines which tutorial ghost is played.\nFilename is relative to the `Tutorials` folder, and without the .bin extension.
+placements.entities.VivHelper/CPP.tooltips.StartActive=If set to true, the playback will start automatically, unless tagged to a Playback/Hint Watchtower.
+
+placements.entities.VivHelper/CustomStrawberry.tooltips.winged=The strawberry attempts to vertically rise offscreen when the player dashes.
+placements.entities.VivHelper/CustomStrawberry.tooltips.moon=Makes the strawberry render as a space berry.\nDoes not work with wings or nodes in the base game.
+placements.entities.VivHelper/CustomStrawberry.tooltips.checkpointID=Manually determine what checkpoint section strawberries are visually grouped up in, showing up on the start menu during gameplay and level select. Overrides Everest's automatic berry IDs. (Default= -1)
+placements.entities.VivHelper/CustomStrawberry.tooltips.order=Manually determine what order strawberries are visually placed in on the start menu during gameplay and level select.\nOverrides Everest's automatic berry IDs. (Default= -1)
+placements.entities.VivHelper/CustomStrawberry.tooltips.Directory=The name of the XML that the strawberry should use. This should be added to the Graphics/Sprites.xml, and if you have\na Graphics/YourMod/Sprites.xml, make sure it goes into the GFX sprites.\nRead the README for proper structuring.
+
+placements.entities.VivHelper/CustomFallingBlock.tooltips.Accel=The speed at which the falling block increases speed up to max speed.\n(Default: 500px/s²)
+placements.entities.VivHelper/CustomFallingBlock.tooltips.FlagOnGround=The flag which is triggered when the block lands on the ground. Turns back off if it falls again.
+placements.entities.VivHelper/CustomFallingBlock.tooltips.FlagOnFall=The flag which is triggered once the block begins to fall.
+placements.entities.VivHelper/CustomFallingBlock.tooltips.FlagTrigger=The flag which can trigger the falling block to fall.
+placements.entities.VivHelper/CustomFallingBlock.tooltips.ImpactSFX=The sound the falling block makes upon landing.
+placements.entities.VivHelper/CustomFallingBlock.tooltips.ShakeSFX=The sound the falling block makes while shaking, before it begins to fall.
+placements.entities.VivHelper/CustomFallingBlock.tooltips.Direction=The direction (Up, Down, Left, or Right) the falling block "falls" in.
+placements.entities.VivHelper/CustomFallingBlock.tooltips.tiletype=Changes the visual appearance of the wall.
+placements.entities.VivHelper/CustomFallingBlock.tooltips.MaxSpeed=The maximum speed the falling block moves at.
+
+placements.entities.VivHelper/InLevelTeleporter.names.l= Length
+placements.entities.VivHelper/InLevelTeleporter.tooltips.l= The length of the teleporter.
+placements.entities.VivHelper/InLevelTeleporter.names.dir1= Direction - Teleporter 1
+placements.entities.VivHelper/InLevelTeleporter.tooltips.dir1= The Direction teleporter 1 faces.
+placements.entities.VivHelper/InLevelTeleporter.names.dir2= Direction - Teleporter 2
+placements.entities.VivHelper/InLevelTeleporter.tooltips.dir2= The Direction teleporter 2 faces.
+placements.entities.VivHelper/InLevelTeleporter.names.sO1= Speed Exit - Teleporter 1
+placements.entities.VivHelper/InLevelTeleporter.tooltips.sO1= The speed you exit from teleporter 2.
+placements.entities.VivHelper/InLevelTeleporter.names.sO2= Speed Exit - Teleporter 2
+placements.entities.VivHelper/InLevelTeleporter.tooltips.sO2= The speed you exit from teleporter 1.
+placements.entities.VivHelper/InLevelTeleporter.names.eO1= Entities Only - Teleporter 1
+placements.entities.VivHelper/InLevelTeleporter.tooltips.eO1= Whether or not only entities can travel through teleporter 1. Useful for one way teleports within a room.
+placements.entities.VivHelper/InLevelTeleporter.names.eO2= Entities Only - Teleporter 2
+placements.entities.VivHelper/InLevelTeleporter.tooltips.eO2= Whether or not only entities can travel through teleporter 2. Useful for one way teleports within a room.
+placements.entities.VivHelper/InLevelTeleporter.names.flags1= Flags - Teleporter 1
+placements.entities.VivHelper/InLevelTeleporter.tooltips.flags1= When all flags (separated by comma) are set to true, then the teleporter is active in this direction.
+placements.entities.VivHelper/InLevelTeleporter.names.flags2= Flags - Teleporter 2
+placements.entities.VivHelper/InLevelTeleporter.tooltips.flags2= When all flags (separated by comma) are set to true, then the teleporter is active in this direction.
+placements.entities.VivHelper/InLevelTeleporter.names.cW= Camera Warp
+placements.entities.VivHelper/InLevelTeleporter.tooltips.cW= Attempts to set up a Camera Warp to instantly move the camera to the portal's outward position.
+
+
+placements.entities.VivHelper/HoldableBarrierController.tooltips.EdgeColor=The color of the wavy portion of the barrier. Try it out with Orange to\nsee exactly which part this is.
+placements.entities.VivHelper/HoldableBarrierController.tooltips.ParticleColor=The color of the particles.
+placements.entities.VivHelper/HoldableBarrierController.tooltips.ParticleAngle=The angle (in radians) that the particle travels in.
+placements.entities.VivHelper/HoldableBarrierController.tooltips.SolidOnRelease=Setting this to false will make any holdables get stuck inside the barrier.\nSetting this to true will make it act "normally", where it always travels downward until it's out of a solid.
+
+placements.entities.VivHelper/HoldableBarrierController2.tooltips.EdgeColor=The color of the wavy portion of the barrier. Try it out with Orange to\nsee exactly which part this is.
+placements.entities.VivHelper/HoldableBarrierController2.tooltips.ParticleColor=The color of the particles.
+placements.entities.VivHelper/HoldableBarrierController2.tooltips.ParticleAngle=The angle (in degrees) that the particle travels in.
+placements.entities.VivHelper/HoldableBarrierController2.tooltips.SolidOnRelease=Setting this to false will make any holdables get stuck inside the barrier.\nSetting this to true will make it act "normally", where it always travels downward until it's out of a solid.
+
+placements.entities.VivHelper/RainbowTriggerSpikesUp.names.Grouped=Grouping
+placements.entities.VivHelper/RainbowTriggerSpikesLeft.names.Grouped=Grouping
+placements.entities.VivHelper/RainbowTriggerSpikesDown.names.Grouped=Grouping
+placements.entities.VivHelper/RainbowTriggerSpikesRight.names.Grouped=Grouping
+placements.entities.VivHelper/RainbowTriggerSpikesUp.names.type=Texture
+placements.entities.VivHelper/RainbowTriggerSpikesLeft.names.type=Texture
+placements.entities.VivHelper/RainbowTriggerSpikesDown.names.type=Texture
+placements.entities.VivHelper/RainbowTriggerSpikesRight.names.type=Texture
+placements.entities.VivHelper/RainbowTriggerSpikesUp.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+placements.entities.VivHelper/RainbowTriggerSpikesUp.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a normal spike, but cannot be animated.
+placements.entities.VivHelper/RainbowTriggerSpikesLeft.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+placements.entities.VivHelper/RainbowTriggerSpikesLeft.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a normal spike, but cannot be animated.
+placements.entities.VivHelper/RainbowTriggerSpikesRight.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+placements.entities.VivHelper/RainbowTriggerSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a normal spike, but cannot be animated.
+placements.entities.VivHelper/RainbowTriggerSpikesDown.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+placements.entities.VivHelper/RainbowTriggerSpikesDown.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a normal spike, but cannot be animated.
+
+placements.entities.VivHelper/CustomRefill.names.iStamina=Input Stamina
+placements.entities.VivHelper/CustomRefill.tooltips.iStamina=Assuming all other checks are met, this amount of stamina or less triggers collection of the Refill.\nDefault value: 20.0
+placements.entities.VivHelper/CustomRefill.names.iDashes=Input Dashes
+placements.entities.VivHelper/CustomRefill.tooltips.iDashes=Assuming all other checks are met, this number of dashes or less triggers collection of the Refill.\nUse -1 for Default behavior.
+placements.entities.VivHelper/CustomRefill.names.iLogic=Input Logic
+placements.entities.VivHelper/CustomRefill.tooltips.iLogic=Whether or not both stamina and dash checks need to be fulfilled to collect the refill.\nDefault behavior: Or
+placements.entities.VivHelper/CustomRefill.tooltips.BloomPoint=The "constructed" BloomPoint. Written as S|R, where S is a number between 0 and 1 representing\nthe "strength" of the bloom, and R is an integer >2, representing the radius of the bloom.
+placements.entities.VivHelper/CustomRefill.tooltips.VertexLight=The "constructed VertexLight. Written as C,A,I,O; C is the Color as a string or hexcode.\nA is a number between 0 and 1, the opacity (0 = transparent) of the light, I = the point where light starts fading.\nO = the radius of the light.
+placements.entities.VivHelper/CustomRefill.tooltips.Depths=The "constructed" Depth of the Refill. Written as U,T; U is the normal Depth,\n while T is the Depth of the outline.
+placements.entities.VivHelper/CustomRefill.tooltips.Directory=The path to the graphics directory the refill takes from.
+placements.entities.VivHelper/CustomRefill.names.oStamina=Given Stamina
+placements.entities.VivHelper/CustomRefill.tooltips.oStamina=The stamina given to the player upon collection of the refill.
+placements.entities.VivHelper/CustomRefill.names.oDashes=Given Dashes
+placements.entities.VivHelper/CustomRefill.tooltips.oDashes=The number of Dashes given to the player upon collection of the refill.
+placements.entities.VivHelper/CustomRefill.tooltips.ParticleColors=Honestly, don't use this yet. See Documentation for more details.
+placements.entities.VivHelper/CustomRefill.tooltips.ParticleSources=Honestly, don't use this yet. See Documentation for more details.
+placements.entities.VivHelper/CustomRefill.tooltips.RespawnTime=The time the refill takes after collection to respawn.
+placements.entities.VivHelper/CustomRefill.tooltips.Scale=The size multiplier of the hitbox of the refill. At Scale 1.0, hitbox is 2x2 tiles, the default.
+placements.entities.VivHelper/CustomRefill.tooltips.ImageSize=The size of the image you are using in the directory. If you're copying default refills, this is 16.
+placements.entities.VivHelper/CustomRefill.tooltips.ScaleWiggleEffect=The strength of the wiggling effect the refill does.\nReferential to WobbleType.
+placements.entities.VivHelper/CustomRefill.tooltips.UseNumber=The number of uses before this stops respawning.\nSetting this to -1 makes it never despawn.
+placements.entities.VivHelper/CustomRefill.tooltips.WobbleType=The type of wobbling this refill does.
+placements.entities.VivHelper/CustomRefill.tooltips.CustomAudio=Two audio events with "event:/" included, the first is the sound played on touch,\nthe second is the sound played on respawn. Leave blank for smart default.
+placements.entities.VivHelper/CustomRefill.tooltips.FlagToggle=If this is set to a string, the refill will be permanently outlined while the flag is not set.\nUse "!" at the beginning to invert this.
+
+placements.entities.VivHelper/CustomRefillString.names.iStam=Input Stamina
+placements.entities.VivHelper/CustomRefillString.tooltips.iStam=The amount of stamina required to collect the refill.\nAdditional options can be added at the start: <, >, <=, >=, =, !=; If ignored, will be < by default.
+placements.entities.VivHelper/CustomRefillString.names.iDash=Input Dashes
+placements.entities.VivHelper/CustomRefillString.tooltips.iDash=The amount of dashes required to collect the refill.\nAdditional options can be added at the start: <, >, <=, >=, =, !=; If ignored, will be < by default.
+placements.entities.VivHelper/CustomRefillString.names.iLog=Input Logic
+placements.entities.VivHelper/CustomRefillString.tooltips.iLog=| or &, the logic set to determine collection of the refill.\nDefault Value: "|"
+placements.entities.VivHelper/CustomRefillString.tooltips.BloomPoint=The "constructed" BloomPoint. Written as S|R, where S is a number between 0 and 1 representing\nthe "strength" of the bloom, and R is an integer >2, representing the radius of the bloom.
+placements.entities.VivHelper/CustomRefillString.tooltips.VertexLight=The "constructed VertexLight. Written as C,A,I,O; C is the Color as a string or hexcode.\nA is a number between 0 and 1, the opacity (0 = transparent) of the light, I = the point where light starts fading.\nO = the radius of the light.
+placements.entities.VivHelper/CustomRefillString.tooltips.Depths=The "constructed" Depth of the Refill. Written as U,T; U is the normal Depth,\n while T is the Depth of the outline.
+placements.entities.VivHelper/CustomRefillString.tooltips.Directory=The path to the graphics directory the refill takes from.
+placements.entities.VivHelper/CustomRefillString.names.oStamina=Given Stamina
+placements.entities.VivHelper/CustomRefillString.tooltips.oStamina=The stamina given to the player upon collection of the refill.\nAdditional options: "D" == 110, basic arithmetic operations, they work.
+placements.entities.VivHelper/CustomRefillString.names.oDashes=Given Dashes
+placements.entities.VivHelper/CustomRefillString.tooltips.oDashes=The number of Dashes given to the player upon collection of the refill.\nAdditional options: "D" == 110, basic arithmetic operations, they work.
+placements.entities.VivHelper/CustomRefillString.tooltips.ParticleColors=Honestly, don't use this yet. See Documentation for more details.
+placements.entities.VivHelper/CustomRefillString.tooltips.ParticleSources=Honestly, don't use this yet. See Documentation for more details.
+placements.entities.VivHelper/CustomRefillString.tooltips.RespawnTime=The time the refill takes after collection to respawn.
+placements.entities.VivHelper/CustomRefillString.tooltips.Scale=The size multiplier of the hitbox of the refill. At Scale 1.0, hitbox is 2x2 tiles, the default.
+placements.entities.VivHelper/CustomRefillString.tooltips.ImageSize=The size of the image you are using in the directory. If you're copying default refills, this is 16.
+placements.entities.VivHelper/CustomRefillString.tooltips.ScaleWiggleEffect=The strength of the wiggling effect the refill does.\nReferential to WobbleType.
+placements.entities.VivHelper/CustomRefillString.tooltips.UseNumber=The number of uses before this stops respawning.\nSetting this to -1 makes it never despawn.
+placements.entities.VivHelper/CustomRefillString.tooltips.WobbleType=The type of wobbling this refill does.
+placements.entities.VivHelper/CustomRefillString.tooltips.CustomAudio=Two audio events with "event:/" included, the first is the sound played on touch,\nthe second is the sound played on respawn. Leave blank for smart default.
+placements.entities.VivHelper/CustomRefillString.tooltips.FlagToggle=If this is set to a string, the refill will be permanently outlined while the flag is not set.\nUse "!" at the beginning to invert this.
+
+placements.entities.VivHelper/

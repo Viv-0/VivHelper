@@ -1,0 +1,177 @@
+Stuff about Curves.
+
+So curves are weird, and figuring out the speed of the object at a given time is
+really complicated actually. So I've made this to just sort of explain how it works.
+
+Firstly, let's talk about "Uniform" motion versus not. "Uniform" motion is my attempt
+at making the motion Not Jank. This works on the principle of just determining the
+length of the line and then taking the point at the percentage of the line being
+traversed over time.
+Calculating the speed for this is much easier. Firstly find the length of the line.
+This can be done in game with the get_curve_length (string identifier) function in debug.
+Then, determine the speed using this info (for a linear Ease Type).
+Platform = 2s / length
+Zip Mover = **I believe this is 1/(2 * length)(in seconds), but because of how it is coded I'm not 100% certain.
+Swap Mover = WIP
+
+Custom Strawberry: 
+The current version of the Custom Strawberry works with XMLs, and the main point of this is to give you the
+ability to have multiple types of berries in your map. They will amount to normal berries though, and will not
+show up differently in the end screen. To use this, add a Sprites.xml *directly into Graphics* labelled
+<Your Mod Name>_<name of berry>. If you're familiar with custom Strawberries in other maps, we usually replace
+"strawberry" with whatever we want, but in this case we're making a new identifier, so we can have more than one
+type of berry.
+The XML Key that you would put into Ahorn is just <Your Mod Name>_<name of berry>.
+If you need help with this contact me on Discord @Viv#1113
+
+Custom Spinner:
+Custom Spinner must use the path:
+<directory>/fg_<subdirectory>(#)
+custom debris must use:
+<directory>/debris
+
+Animated Spinner:
+Main directory yields to the subset of subdirectories.
+Subdirector*ies* are separated by commas, and will pick randomly from the list of subdirectories given.
+Give one without commas to only use that one directory for that spinner. (No randomness)
+Animated spinners should be structured like
+<directory>/<subdirectory>/idle_fg(#).
+Debris must use <directory>/<subdirectory>/debris
+
+Spinners:
+Image Scale: the default image size is 24x24. If your image uses 48x48, use an Image Scale of 2 to set it to the conventional size.
+Border Color: Currently there is no custom border, however I am currently working on it (it doesnt work at all for animated spinners atm so I'm fixing it.)
+
+Spinners Hitbox Parsing:
+For a custom hitbox, it requires knowledge of the hitbox parser.
+First thing to note, for when you make these hitbox indicators, assume that the scale is 1. The scaling will be applied after the
+hitbox is parsed, so using the same hitbox for a scale 1 and a scale 3 spinner is identical. This is to just make life easier.
+
+Every spinner has a set of Hitboxes, in the default case 2. This allows you to customize exactly what the hitbox is in the spinner.
+The set of hitboxes are separated by Vertical Bars `|`, i.e. A1|A2|A3|...|An
+Each Hitbox "A" consists of two formats, Circle and Rectangle (the two base hitboxes in the game)
+For a Circle, the hitbox looks like this.
+C:(radius);(offsetX),(offsetY)
+For a Rectangle, it's the same format but we add parameters width and height like so
+R:(width),(height);(offsetX),(offsetY)
+where offsetX and offsetY are relative to the center of the spinner.
+The numbers you put into this (besides all needing to be of the appropriate format) must be integers.
+for numbers:
+`*#` means ignore scaling for this number. By default all numbers are scaled.
+`a@b` means add these two numbers together.
+The most complex example I can give to show all different formatting types is the base example:
+`C:6;0,0|R:16,4;-8,*1@-4`
+
+C:6;0,0
+Circle
+radius: 6*scale
+offset: (0,0)*scale (scale multiplier has no effect here, because any number times 0 is 0)
+
+R:16,4;-8,*1@-4
+Rectangle
+width: 16*scale
+height: 4*scale
+offsetX: -8*scale
+offsetY == (1 + -4*scale) = 1 - 4*scale (Note below)
+
+(note:  the reason that the offsetY is so weird is that it always needs to align with a block by default,
+	this makes a clean line that has width that scales with the entity, while also having something
+	that cleanly aligns with the grid in the same way default spinners do)
+
+Corner Boost Blocks:
+So the simple explanation as to what's going on here is like this.
+Normally, Corner Boosts are inconsistent for two reasons. The more minor of the two is that Corner Correction
+is slightly subpixel dependent. The major reason though is a bit more involved. So let's go into it.
+Corner Boosts are wall jumps. This means that you have a 3 pixel space to hit a corner boost to make it work.
+However, this poses a big problem. Normally, when you're hitting a corner boost, you dash to the right. This moves you at 240 speed, or *4* pixels per frame.
+If you happen to be on that 4th pixel, you can't get the corner boost. This is problematic.
+And if you're going *faster* than the speed of a dash, with, say, chained ultras, your odds of making the right pixel window drastically goes down.
+Here's what the corner boost blocks do: It makes it so that your WallJumps have a maximum distance away from the wall of (N) pixels. N is the number of pixels
+you travel per frame. So this means you should always have at least 1 frame where if you hit jump and buffer dash, you should always get the corner boost.
+This ends up losing 1 buffer frame in my tests, but is 100% consistent on the x-axis aside from that change.
+The y-subpixel dependence is because the check for the walljump rounds up. this amounts to a very low chance of not hitting it, and in my opinion it feels more like just being too low.
+
+Reskinnable Puffer:
+In order to reskin the puffer, you need to follow these rules:
+Put in a directory after YourModFolder/Graphics/Atlases/Gameplay/[your directory starts here]
+The folder itself needs to contain a reskin as follows: (note, for all of these you can have as many frames as you want) 
+alertXX.png - is alert (player is near), this plays backwards if player stops being "near"
+alertedXX.png - plays after alert (while player is near)
+explodeXX.png - explodes
+hiddenXX.png - has already exploded
+idleXX.png - player is not near
+recoverXX.png - puffer recovering.
+
+Reskinnable/Animated Hanging Lamp:
+In order to reskin the hanging lamp, you have to add a custom structure to the hanging lamp and it works like this:
+Firstly, you need to add a folder somewhere in your Gameplay folder (Graphics/Atlases/Gameplay/[your folder or sequence of folders here])
+Secondly, for each type of Custom/Animated Hanging Lamp, you need to have one folder for each, containing:
+base00.png - This is the thing that holds the chain up
+chain00.png - This is the thing that holds the lamp up, being held by the base
+lamp00.png - This is the lamp.
+Note that you can add animations to any and all of these, so long as the first animation frame is 00. The animation speed (time between switching frames) is set to 0.2s but can be changed in the Animation Speed parameter in the Custom Hanging Lamp property window.
+
+Wrapper Entities: Refill Wall Wrapper, Coming soon, Bumper Wrapper
+To use a wrapper entity for Refills, use the following steps.
+Place the Entity down in Ahorn, ideally in the center of the space you want it to fill, then save the game and reload so that the refill shows up in-game.
+Go to debug mode and click on the entity. This should show the type and name of the object in the top left of the screen.
+Place down the refill wall wrapper, and insert the *entity type* that appears for that refill, into the field Type Name. (if there is an @ symbol, ignore everything from the @ onward)
+95% of the time this will just work, no need to change Respawn Method Name or Image Variable Name. This is just to future-proof the setup.
+Respawn Time will change the Respawn Time to whatever you want, or you can leave it as default with -1.0 (recommended)
+Depth changes the visual depth, so whether it renders in front of other stuff.
+
+Some examples of Refill names:
+Refill: Celeste.Refill (this isn't what shows up in the entity type field, but please just trust me on that)
+Extra Jump Refill, from Extended Variants: ExtendedVariants.Entities.JumpRefill
+Time Crystal, from Crystalline Helper: vitmod.TimeCrystal
+Plus One Refill, from FrostHelper: FrostHelper.PlusOneRefill
+Shadow Dash Refill, from Cherry Helper: Celeste.Mod.CherryHelper.ShadowDashRefill
+Blue Refill, from DJMapHelper: Celeste.Mod.DJMapHelper.Entities.ColorfulRefill
+
+Dash Code Heart Controller:
+This is a fairly simple entity to use from the get-go if you want something simple, but it has the capacity to be extremely complex.
+Unless you're trying to add your own custom cutscene to this, it should be pretty simple.
+1: Place Dash Code Heart Controller of your type, change your parameters as you see fit.
+1a: the "Key" refers to the sequence of Dash inputs needed to be input, separated by commas. Example: 1a Dash Code == U,L,DR,UR,L,UL
+2: Place Collab Mini Heart or any modded "real" heart (It needs to extend Heart as of rn, if you have any issues with this ping me in Celestecord please.) (FLCC Big Key compatibility coming soon)
+3: Done, this should just work. 
+Some Notes:
+When switching Spawn Types, close and reopen the property window to get the right properties.
+Placing multiple Dash Code Heart Controllers will crash the game. Because of this, I've made it crash with a nice error that tells you that you put two in the room.
+Reflection, Forsaken City and Level Up options can use Nodes, but can also work without them.
+
+
+Feel free to DM me and ask me for help about Custom Coroutines, but this is the general practice
+Custom Cutscenes:
+Custom Cutscenes are wacky. So because we need arbitrary Custom Parameters for cutscenes, and I wanted to make this as accessible as possible.
+The cutscene must be an IEnumerator in a code mod. I will attempt to add functionality for Lua Cutscenes in the future, but no promises there.
+The cutscene IEnumerator must have specific parameters of one of three kinds: (names are just for example)
+Entity heartGem: This is going to be the heartgem that you need to add to the scene by the end of the cutscene, and it is vital that you have it as a parameter.
+To add the heartGem you need to use the code `(Engine.Scene as Level).Add(heartGem);`
+Entity heartGem, Vector2[] nodes: If you want to use nodes, then this will be taken as the nodes you add *to the Controller*. If you leave it with 0 nodes it will default to Entity only
+Entity heartGem, Vector2[] nodes, Dictionary<string, string> CustomParameters: The CustomParameters dictionary effectively allows you to add an arbitrary number of custom parameters, provided you can confidently parse them yourself. An Example parser is provided below.
+
+Dictionary<string, object> ExampleParser(Dictionary<string, string> CustomParams){
+    Dictionary<string, Tuple<Type, object>> parameters = new Dictionary<string, Tuple<Type, object>>;
+    foreach(string s in CustomParams.Keys)
+    {
+        string t = CustomParams[s];
+	if(t[0] == "#") // Color
+	{
+	    parameters[s] = Calc.HexToColor(t.Substring(1));
+	}
+	else if(float.TryParse(t, out float f))
+	{
+	    parameters[s] = f;
+	}
+	else if(int.TryParse(t, out int i))
+	{
+	    parameters[s] = i;
+	}
+	else //string
+	{
+	    parameters[s] = t;
+	}
+    }
+    return parameters;
+}
