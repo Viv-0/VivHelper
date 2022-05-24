@@ -253,8 +253,9 @@ namespace VivHelper.Triggers {
                     Vector2 pDashDir = Vector2.Zero;
                     if (!resetDashes) { pDashes = player.Dashes; }
                     if (VivHelperModule.MatchDashState(player.StateMachine.State)) { pDashDir = player.DashDir; }
-
-                    if (newRoom != currentRoom && level.Tracker.Components.TryGetValue(typeof(TransitionListener), out List<Component> transitionOut)) {
+                    List<Component> transitionOut = new List<Component>();
+                    List<Component> transitionIn = new List<Component>();
+                    if (TransitionListeners && newRoom != currentRoom && level.Tracker.Components.TryGetValue(typeof(TransitionListener), out transitionOut)) {
                         foreach (TransitionListener item in transitionOut) {
                             item.OnOutBegin?.Invoke();
                             item.OnOut?.Invoke(1f);
@@ -316,6 +317,13 @@ namespace VivHelper.Triggers {
                                 follower.Entity.Position += player.TopLeft;
                             follower.Entity.RemoveTag(Tags.Global);
                             level.Session.DoNotLoad.Remove(follower.ParentEntityID);
+                        }
+                    }
+                    if (TransitionListeners && newRoom != currentRoom) {
+                        transitionIn = Scene.Tracker.GetComponentsCopy<TransitionListener>();
+                        transitionIn.RemoveAll((Component c) => transitionOut.Contains(c));
+                        foreach (TransitionListener item in transitionIn) {
+                            item.OnInEnd();
                         }
                     }
                     leader.TransferFollowers();

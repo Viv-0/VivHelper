@@ -933,7 +933,8 @@ namespace VivHelper {
             if (l == null)
                 return false;
             bool b = and_or == "and";
-            if (flags.Length == 1) { if (string.IsNullOrWhiteSpace(flags[0])) return true; else return l.Session.GetFlag(flags[0]); }
+            if (flags == null || flags.Length == 0 || (flags.Length == 1 && flags[0] == ""))
+                return true;
             foreach (string flag in flags) {
                 if (and_or == "or") { b |= flag[0] != '!' ? l.Session.GetFlag(flag) : !l.Session.GetFlag(flag.TrimStart('!')); } else { b &= flag[0] != '!' ? l.Session.GetFlag(flag) : !l.Session.GetFlag(flag.TrimStart('!')); }
             }

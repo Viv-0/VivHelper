@@ -578,5 +578,10 @@ namespace VivHelper {
             }
             return false;
         }
+
+        [MonoMod.MonoModLinkTo("Monocle.Entity", "System.Void Render()")]
+        public static void Entity_Render(Entity entity) {
+            Console.WriteLine("link to Entity::Render failed");
+        }
     }
 }

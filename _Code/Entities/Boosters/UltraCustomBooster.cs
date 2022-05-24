@@ -452,7 +452,7 @@ namespace VivHelper.Entities.Boosters {
                 DashDuration = data.Float("DashDuration", 0.15f),
                 DashRefill = data.Int("DashRefillAmount", -1),
                 DashRefillModifier = data.Bool("DashRefillType", false),
-                DashSolidEffect = data.Enum<DashSolidContact>("DashIntoSolidEffect", DashSolidContact.Ignore),
+                DashSolidEffect = data.Enum<DashSolidContact>("DashIntoSolidEffect", DashSolidContact.Normal),
                 DashSpeed = Math.Abs(data.Float("DashSpeed", 240)),
                 DropHoldable = data.Bool("DropHoldableOnEntry", true),
                 ExtraParameters = data.Attr("ExtraParameters"),
@@ -574,7 +574,7 @@ namespace VivHelper.Entities.Boosters {
                 } else {
                     sprite.RenderPosition = player.Center + playerOffset;
                 }
-                loopingSfx.Position = player.Center + playerOffset - this.Position;
+                loopingSfx.Position = player.Center + playerOffset - Position;
                 loopingSfx.UpdateSfxPosition(); //Cheeky hack
 
                 if (Scene.OnInterval(0.02f)) {

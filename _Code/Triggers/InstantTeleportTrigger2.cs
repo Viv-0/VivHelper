@@ -324,9 +324,8 @@ namespace VivHelper.Triggers {
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
-            Level level = scene as Level;
             if (targetID.Trim() != "-") {
-                if (level == null) { delayAwakeAction = true; return; } else { DelayedAwakeAction(level); }
+                delayAwakeAction = true; 
             }
 
         }
@@ -410,7 +409,11 @@ namespace VivHelper.Triggers {
                         break;
                 }
             } else if (flagsNeeded == null || VivHelperModule.OldGetFlags(Scene as Level, flagsNeeded, "and")) {
-                Handler?.Add(new Coroutine(TeleportMaster(player)));
+                if(Handler == null)
+                    HelperEntities.AllUpdateHelperEntity = new Entity() { Tag = Tags.PauseUpdate | Tags.FrozenUpdate | Tags.TransitionUpdate | Tags.Global | Tags.Persistent };
+                if (Handler.Scene != Scene)
+                    Scene.Add(HelperEntities.AllUpdateHelperEntity);
+                Handler.Add(new Coroutine(TeleportMaster(player)));
             }
         }
 
@@ -447,11 +450,16 @@ namespace VivHelper.Triggers {
                         ExitSide = 8;
                         break;
                 }
-                if (TriggerCheck(ExitSide) && (flagsNeeded == null || VivHelperModule.OldGetFlags(Scene as Level, flagsNeeded, "and")))
-                    Handler?.Add(new Coroutine(TeleportMaster(player)));
+                if (TriggerCheck(ExitSide) && (flagsNeeded == null || VivHelperModule.OldGetFlags(Scene as Level, flagsNeeded, "and"))) {
+                    if (Handler == null)
+                        HelperEntities.AllUpdateHelperEntity = new Entity() { Tag = Tags.PauseUpdate | Tags.FrozenUpdate | Tags.TransitionUpdate | Tags.Global | Tags.Persistent };
+                    if (Handler.Scene != Scene)
+                        Scene.Add(HelperEntities.AllUpdateHelperEntity);
+                    Handler.Add(new Coroutine(TeleportMaster(player)));
+                }
             }
         }
-        private bool TriggerCheck(int ExitSide) {
+        private bool TriggerCheck(int ExitSide) { 
             switch (ExitDirection) {
                 case -2:
                     /* true if:

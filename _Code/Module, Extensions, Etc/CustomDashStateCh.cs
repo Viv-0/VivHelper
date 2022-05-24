@@ -97,11 +97,9 @@ namespace VivHelper {
         public float SuperDashSteerSpeed = 0f;
 
         public bool PrioritizeCornerCorrection = false;
-        public DashSolidContact DashSolidEffect = DashSolidContact.Ignore;
+        public DashSolidContact DashSolidEffect = DashSolidContact.Normal;
         public bool IgnoreWalls = false;
-        public CornerCorrect CornerCorrectionFormat = CornerCorrect.PostHit;
         public float DashKillDotLimit = 0.3f;
-        public float CornerCorrectDotLimit = 0.01f;
 
         //Uses speed magnitude in some speed-relevant checks which can enable speed retention through alternate angles.
         public SpeedMagnitudeCheck SpeedMagnitudeCheck = SpeedMagnitudeCheck.Default;

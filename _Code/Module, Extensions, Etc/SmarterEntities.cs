@@ -13,7 +13,7 @@ namespace VivHelper {
         public static Entity PauseUpdateHelperEntity { get; private set; } = new Entity() { Tag = Tags.PauseUpdate | Tags.Global | Tags.Persistent };
         public static Entity FrozenUpdateHelperEntity { get; private set; } = new Entity() { Tag = Tags.FrozenUpdate | Tags.Global | Tags.Persistent };
         public static Entity TransitionUpdateHelperEntity { get; private set; } = new Entity() { Tag = Tags.TransitionUpdate | Tags.Global | Tags.Persistent };
-        public static Entity AllUpdateHelperEntity { get; private set; } = new Entity() { Tag = Tags.PauseUpdate | Tags.FrozenUpdate | Tags.TransitionUpdate | Tags.Global | Tags.Persistent };
+        public static Entity AllUpdateHelperEntity { get; set; } = new Entity() { Tag = Tags.PauseUpdate | Tags.FrozenUpdate | Tags.TransitionUpdate | Tags.Global | Tags.Persistent };
 
     }
 

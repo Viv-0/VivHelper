@@ -54,11 +54,6 @@ namespace VivHelper.Entities {
             dyn = new DynData<SeekerBarrier>(this);
         }
 
-        public override void Added(Scene scene) {
-            base.Added(scene);
-
-        }
-
         public void OnReflectSeeker2(Seeker seeker) {
             if (!(bool) seeker_dead.GetValue(seeker)) {
                 Entity entity = new Entity(seeker.Position);
@@ -79,6 +74,7 @@ namespace VivHelper.Entities {
         }
 
         public override void Render() {
+            VivHelper.Entity_Render(this);
             foreach (Vector2 particle in dyn.Get<List<Vector2>>("particles")) {
                 Draw.Pixel.Draw(Position + particle, Vector2.Zero, baseColor * 0.5f);
             }

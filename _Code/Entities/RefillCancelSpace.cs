@@ -73,7 +73,7 @@ namespace VivHelper.Entities {
 
         private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
             List<Entity> lE = new List<Entity>();
-            if (self.Scene.Tracker.Entities.ContainsKey(typeof(RefillCancelSpace))) { }
+            if (!self.Scene.Tracker.Entities.ContainsKey(typeof(RefillCancelSpace))) { orig.Invoke(self); return; }
             lE = self.CollideAll<RefillCancelSpace>();
             if (inSpace) {
                 if (p == null || p.Scene == null)
