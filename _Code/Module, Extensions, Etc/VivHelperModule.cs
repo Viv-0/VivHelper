@@ -775,9 +775,10 @@ namespace VivHelper {
         }
 
         private Backdrop Level_OnLoadBackdrop(MapData map, BinaryPacker.Element child, BinaryPacker.Element above) {
-            if (child.Name.Equals("VivHelper/WindRainFG", StringComparison.OrdinalIgnoreCase)) {
+            if (child.Name.Equals("VivHelper/WindRainFG", StringComparison.OrdinalIgnoreCase))
                 return new WindRainFG(new Vector2(child.AttrFloat("scrollx"), child.AttrFloat("scrolly")), child.Attr("colors"), child.AttrFloat("speed"));
-            }
+            else if (child.Name.Equals("VivHelper/CustomRain", StringComparison.OrdinalIgnoreCase))
+                return new CustomRain(new Vector2(child.AttrFloat("scrollx"), child.AttrFloat("scrolly")), child.AttrFloat("angle", 270f), child.AttrFloat("angleDiff", 3f), child.AttrFloat("speedMult", 1f), child.AttrInt("Amount", 240), child.Attr("colors", "161933"), child.AttrFloat("alpha"));
             return null;
         }
 

@@ -32,13 +32,18 @@ namespace VivHelper.Effects {
 
         public float speedMult, alpha;
         private Particle[] particles;
+        private int count;
         private float visibleFade, linearFade;
 
-        public CustomRain(float angle, float angleDiff, float speedMult, int count, string colors, float alpha) {
+        public CustomRain(Vector2 scroll, float angle, float angleDiff, float speedMult, int count, string colors, float alpha) {
+            this.Scroll = scroll;
+            this.count = count;
             particles = new Particle[count];
             List<Color> _colors = VivHelper.ColorsFromString(colors);
+            var _angle = angle * -Calc.DegToRad;
+            var _angleDiff = Math.Abs(angleDiff * Calc.DegToRad);
             for(int i = 0; i < count; i++) {
-                particles[i].Init(angle + Calc.Random.Range(-angleDiff, angleDiff), speedMult, Calc.Random.Choose<Color>(_colors));
+                particles[i].Init(_angle + Calc.Random.Range(-_angleDiff, _angleDiff), speedMult, Calc.Random.Choose<Color>(_colors));
             }
             this.alpha = alpha;
         }
@@ -50,8 +55,8 @@ namespace VivHelper.Effects {
             if (FadeX != null) {
                 linearFade = FadeX.Value((scene as Level).Camera.X + 160f);
             }
-            foreach(Particle p in particles) {
-                p.Position += p.Speed * Engine.DeltaTime;
+            for (int i = 0; i < count; i++) {
+                particles[i].Position += particles[i].Speed * Engine.DeltaTime;
             }
         }
 
