@@ -93,6 +93,14 @@ namespace VivHelper {
             return true;
         }
 
+        public static bool TryGetEntity(this Tracker self, Type t, out Entity entity) {
+            entity = null;
+            if (!self.Entities.ContainsKey(t) || self.Entities[t].Count == 0)
+                return false;
+            entity = self.Entities[t][0];
+            return true;
+        }
+
         public static bool StringIfNotEmpty(this EntityData data, string key, out string value) {
             value = data.Attr(key, null);
             return !string.IsNullOrEmpty(value);

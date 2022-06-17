@@ -148,10 +148,12 @@ namespace VivHelper {
             return c.R.ToString("X") + c.G.ToString("X") + c.B.ToString("X");
         }
 
-        public static int mod(int x, int m) { return (x % m + m) % m; }
-        public static float mod(float x, float m) { return (x % m + m) % m; }
-        public static double mod(double x, double m) { return (x % m + m) % m; }
-        public static long mod(long x, long m) { return (x % m + m) % m; }
+        public static int mod(int x, int m) => (x % m + m) % m;
+        public static float mod(float x, float m) => (x % m + m) % m;
+        public static double mod(double x, double m) => (x % m + m) % m;
+        public static long mod(long x, long m) => (x % m + m) % m;
+
+        public static Vector2 mod(Vector2 x, Vector2 m) => new Vector2(mod(x.X, m.X), mod(x.Y, m.Y));
 
 
         public static void ParticleSourceApplier(ref ParticleType pt, string particleSource) {
@@ -214,8 +216,8 @@ namespace VivHelper {
         }
 
         public static Type GetType(string typeName, bool throwOnNotFound, bool store = true) {
-            if (VivHelperModule.StoredTypesByName.ContainsKey(typeName))
-                return VivHelperModule.StoredTypesByName[typeName];
+            if (VivHelperModule.StoredTypesByName.TryGetValue(typeName, out Type value))
+                return value;
             Type type = FakeAssembly.GetFakeEntryAssembly().GetType(typeName, throwOnNotFound); //bruh I been stupids
             if (type == null) { return null; } //if throwOnNotFound is true, then it will get here, otherwise it throws
             //At this point the type was found so we just add it to the StoredTypesByName (since this is significantly faster)

@@ -51,7 +51,7 @@ namespace VivHelper.Entities.SpikeStuff {
                 c.image.RenderPosition = new Vector2(-1, 1);
                 if (c.InnerSpike)
                 {
-                    c.Collider = new ColliderList(new Hitbox(5, 3, -3, 3), new Hitbox(3, 5, 0, -8));
+                    c.Collider = new ColliderList(new Hitbox(5, 3, 3, -3), new Hitbox(3, 5, 0, -8));
                 }
                 else
                 {
@@ -183,7 +183,7 @@ namespace VivHelper.Entities.SpikeStuff {
                 ColliderList q = Collider as ColliderList;
                 switch ((int) Direction) {
                     case 5:
-                        if (Collide.CheckRect(player, q.colliders[0].Bounds) && player.Speed.Y >= 0f && player.Bottom <= q.colliders[0].Bottom)
+                        if (Collide.CheckRect(player, q.colliders[0].Bounds) && player.Speed.Y >= 0f && player.Bottom <= q.colliders[0].AbsoluteBottom)
                             player.Die(new Vector2(0f, -1f));
                         if (Collide.CheckRect(player, q.colliders[1].Bounds) && player.Speed.X >= 0f)
                             player.Die(new Vector2(-1f, 0f));
@@ -195,7 +195,7 @@ namespace VivHelper.Entities.SpikeStuff {
                             player.Die(new Vector2(-1f, 0f));
                         return;
                     case 9:
-                        if (Collide.CheckRect(player, q.colliders[0].Bounds) && player.Speed.Y >= 0f && player.Bottom <= q.colliders[0].Bottom)
+                        if (Collide.CheckRect(player, q.colliders[0].Bounds) && player.Speed.Y >= 0f && player.Bottom <= q.colliders[0].AbsoluteBottom)
                             player.Die(new Vector2(0f, -1f));
                         if (Collide.CheckRect(player, q.colliders[1].Bounds) && player.Speed.X <= 0f)
                             player.Die(new Vector2(1f, 0f));

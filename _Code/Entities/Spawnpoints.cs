@@ -435,10 +435,9 @@ namespace VivHelper.Entities {
         }
 
         internal static void PostRenderContents(LevelTemplate template, List<LevelTemplate> levels) {
-            if (VivHelperModule.Session.LevelInfoCache == null)
+            if (VivHelperModule.Session?.LevelInfoCache == null)
                 return;
-            LevelInfo info = null;
-            if (!VivHelperModule.Session.LevelInfoCache.TryGetValue(template.Name, out info))
+            if (!VivHelperModule.Session.LevelInfoCache.TryGetValue(template.Name, out LevelInfo info) || template.Spawns == null)
                 return;
             foreach (Vector2 spawn in template.Spawns) {
                 Vector2 pos = new Vector2(template.X + spawn.X, template.Y + spawn.Y);

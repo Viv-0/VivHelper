@@ -33,6 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Effects\CustomRain.cs" />
     <Compile Include="Module, Extensions, Etc\VivHelperAPI.cs" />
     <Compile Include="Polygon\PolygonCollider.cs" />
     <Compile Include="Cutscene\ExampleCutscene.cs" />

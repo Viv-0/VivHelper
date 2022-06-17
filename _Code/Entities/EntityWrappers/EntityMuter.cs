@@ -18,11 +18,12 @@ using FMOD.Studio;
 namespace VivHelper.Entities {
     public class EntityMuterComponent : Component {
         #region Hooks
-        internal static bool mute;
+        internal static int mute;
+        private static FieldInfo SoundSource_instance = typeof(SoundSource).GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance);
 
         // I genuinely think that this is the dumbest thing in my helper. This takes the cake.
         public static void Load() {
-            On.Celeste.SoundSource.Play += SoundSource_Play;
+            On.Celeste.SoundSource.Update += SoundSource_Update;
             On.Celeste.Audio.Play_string += AudioOverride1;
             On.Celeste.Audio.Play_string_Vector2 += AudioOverride2;
             /*hooks = new IDetour[114];
@@ -167,53 +168,72 @@ namespace VivHelper.Entities {
 
 
         public static void Unload() {
-            On.Celeste.SoundSource.Play -= SoundSource_Play;
+            On.Celeste.SoundSource.Update -= SoundSource_Update;
             On.Celeste.Audio.Play_string += AudioOverride1;
             On.Celeste.Audio.Play_string_Vector2 += AudioOverride2;
             //This is an extremely comedic line of code.
             //foreach(IDetour hook in hooks) hook.Dispose();
         }
+
         private static EventInstance AudioOverride1(On.Celeste.Audio.orig_Play_string orig, string path) {
-            if (mute)
+            if (mute != 0)
                 return null;
             return orig(path);
         }
         private static EventInstance AudioOverride2(On.Celeste.Audio.orig_Play_string_Vector2 orig, string path, Vector2 position) {
-            if (mute)
+            if (mute != 0)
                 return null;
             return orig(path, position);
         }
 
-        private static SoundSource SoundSource_Play(On.Celeste.SoundSource.orig_Play orig, SoundSource self, string path, string param, float value) {
-            //Cheeky hackfix for weird seeker bug
-            if (self.Entity != null && self.Entity.Get<EntityMuterComponent>() != null) {
-                self.Stop();
-                return self;
+        private static void SoundSource_Update(On.Celeste.SoundSource.orig_Update orig, SoundSource self) {
+            if (mute != 0) {
+                if (self.Playing) {
+                    switch (mute) {
+                        case 1:
+                            self.Pause();
+                            break;
+                        case -1:
+                            (SoundSource_instance.GetValue(self) as EventInstance).setVolume(0f);
+                            break;
+                    }
+                }
+            } else if (!self.Playing) {
+                switch (mute) {
+                    case 1:
+                        self.Resume();
+                        break;
+                    case -1:
+                        (SoundSource_instance.GetValue(self) as EventInstance).setVolume(1f);
+                        break;
+                }
             }
-            return orig(self, path, param, value);
         }
         #endregion
 
 
-        public EntityMuterComponent() : base(true, false) {
-
+        public string flag;
+        public int val;
+        public EntityMuterComponent(string flag = null, bool contiguousAudio = false) : base(true, false) {
+            this.flag = flag;
+            val = contiguousAudio ? -1 : 1;
         }
 
         public override void Added(Entity entity) {
             base.Added(entity);
-            foreach (SoundSource s in entity.Components.GetAll<SoundSource>()) {
-                if (s.Playing)
-                    s.Stop();
-            }
             entity.PreUpdate += Entity_PreUpdate;
             entity.PostUpdate += Entity_PostUpdate;
         }
 
-        private static void Entity_PreUpdate(Entity obj) {
-            mute = true;
+        private void Entity_PreUpdate(Entity obj) {
+            if (flag == null)
+                mute = val;
+            //mute will always be 0 at Entity_PreUpdate until modified by this function, so we don't need to conditionally set the value.
+            else if (obj.SceneAs<Level>()?.Session?.GetFlag(flag) ?? false)
+                mute = val;
         }
-        private static void Entity_PostUpdate(Entity obj) {
-            mute = false;
+        private void Entity_PostUpdate(Entity obj) {
+            mute = 0;
         }
     }
 
@@ -222,6 +242,7 @@ namespace VivHelper.Entities {
     public class EntityMuter : Entity {
         public List<Type> Types, assignableTypes;
         public bool all;
+        public string flag;
 
         public EntityMuter(EntityData e, Vector2 v) : base(e.Position + v) {
             Collider = new Hitbox(e.Width, e.Height);

@@ -759,6 +759,10 @@ namespace VivHelper.Triggers {
                 }
                 player.Add(Alarm.Create(Alarm.AlarmMode.Oneshot, delegate { player.ForceCameraUpdate = prevForceCam; VivHelperModule.Session.lockCamera = prevLockCam; }, 0.02f, true));
                 level.PauseLock = false;
+                if(flagsSet != null)
+                    foreach (string s in flagsSet)
+                        if (!string.IsNullOrWhiteSpace(s))
+                            level.Session.SetFlag(s);
                 VivHelperModule.Session.TeleportState = false;
                 active = false;
                 RunPersistence(level.Session);

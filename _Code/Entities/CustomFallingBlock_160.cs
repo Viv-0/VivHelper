@@ -12,7 +12,6 @@ using System.Collections;
 using System.Reflection;
 
 namespace VivHelper.Entities {
-    [CustomEntity("VivHelper/CustomFallingBlock")]
     [Tracked]
     public class CustomFallingBlock : Solid {
         private static Dictionary<string, float> angles = new Dictionary<string, float>() { { "right", 0f }, { "down", (float) Math.PI / 2f }, { "left", (float) Math.PI }, { "up", (float) Math.PI * 1.5f } };

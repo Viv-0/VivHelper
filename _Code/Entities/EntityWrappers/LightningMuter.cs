@@ -7,46 +7,37 @@ using Celeste;
 using Monocle;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
-
+using MonoMod.Utils;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/LightningMuter")]
     [Tracked]
     public class LightningMuter : Entity {
         public string flag;
-        public LightningRenderer lr;
+        public string ParentClassRef;
+        public Type type;
 
         public LightningMuter(EntityData data, Vector2 offset) : base(data.Position + offset) {
             flag = data.Attr("flag");
+            ParentClassRef = data.NoEmptyString("AudioPlayingClass");
+
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
             if (string.IsNullOrWhiteSpace(flag))
                 return;
-            lr = scene.Tracker.GetEntity<LightningRenderer>();
-
+            if(ParentClassRef == null && scene.Tracker.TryGetEntity<LightningRenderer>(out var lr)) {
+                lr.Add(new EntityMuterComponent());
+            }
+            if (ParentClassRef != null && VivHelper.TryGetType(ParentClassRef, out type) && scene.Tracker.TryGetEntity(type, out var entity)) {
+                entity.Add(new EntityMuterComponent());
+            }
         }
 
         public override void Update() {
-            base.Update();
-            if (lr == null) {
-                Console.WriteLine("LightningRenderer not found");
-                lr = Scene.Tracker.GetEntity<LightningRenderer>();
-                if (lr == null)
-                    return;
-            }
-            bool b = (Scene as Level).Session.GetFlag(flag);
-
-            if (b) {
-                if (lr.AmbientSfx.Playing) {
-                    lr.AmbientSfx.Stop(false);
-                }
-            } else if (!lr.AmbientSfx.Playing) {
-                lr.StartAmbience();
-            }
-
-
+            RemoveSelf();
         }
+
     }
 }

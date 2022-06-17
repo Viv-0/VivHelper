@@ -229,46 +229,47 @@ namespace VivHelper.Entities {
 
         public override void Update() {
             base.Update();
+            if (draw) {
+                color = VivHelperModule.Settings.ColorblindRCS ? BWEval[TypeAsInt] : ((int) VivHelperModule.Settings.DecreaseParticles != 3 ? colorEval[TypeAsInt] : colorEval2[TypeAsInt]);
+                if ((int) VivHelperModule.Settings.DecreaseParticles != 3) {
+                    List<Vector2> vector = new List<Vector2>();
+                    switch (TypeAsInt) {
+                        case 1:
+                            vector.Add(Vector2.UnitY);
+                            break;
+                        case 2:
+                            vector.Add(Vector2.UnitY.Rotate(0.66667f * (float) Math.PI));
+                            break;
+                        case 3:
+                            vector.Add(Vector2.UnitY.Rotate(0.33333f * (float) Math.PI));
+                            break;
+                        case 4:
+                            vector.Add(Vector2.UnitY.Rotate(1.33333f * (float) Math.PI));
+                            break;
+                        case 5:
+                            vector.Add(Vector2.UnitY.Rotate(1.66667f * (float) Math.PI));
+                            break;
+                        case 6:
+                            vector.Add(Vector2.UnitY.Rotate((float) Math.PI));
+                            break;
+                        case 7:
+                            for (int h = 0; h < 6; h++) { vector.Add(Vector2.UnitY.Rotate((float) Math.PI * h / 3f)); }
+                            break;
+                        default:
+                            throw new Exception("Temp was invalid: " + TypeAsInt);
+                    }
+                    int num = speeds.Length;
+                    int i = 0;
+                    for (int count = particles.Count; i < count; i += 1 + 2 * (int) VivHelperModule.Settings.DecreaseParticles) {
+                        Vector2 value = particles[i];
 
-            color = VivHelperModule.Settings.ColorblindRCS ? BWEval[TypeAsInt] : ((int) VivHelperModule.Settings.DecreaseParticles != 3 ? colorEval[TypeAsInt] : colorEval2[TypeAsInt]);
-            if ((int) VivHelperModule.Settings.DecreaseParticles != 3) {
-                List<Vector2> vector = new List<Vector2>();
-                switch (TypeAsInt) {
-                    case 1:
-                        vector.Add(Vector2.UnitY);
-                        break;
-                    case 2:
-                        vector.Add(Vector2.UnitY.Rotate(0.66667f * (float) Math.PI));
-                        break;
-                    case 3:
-                        vector.Add(Vector2.UnitY.Rotate(0.33333f * (float) Math.PI));
-                        break;
-                    case 4:
-                        vector.Add(Vector2.UnitY.Rotate(1.33333f * (float) Math.PI));
-                        break;
-                    case 5:
-                        vector.Add(Vector2.UnitY.Rotate(1.66667f * (float) Math.PI));
-                        break;
-                    case 6:
-                        vector.Add(Vector2.UnitY.Rotate((float) Math.PI));
-                        break;
-                    case 7:
-                        for (int h = 0; h < 6; h++) { vector.Add(Vector2.UnitY.Rotate((float) Math.PI * h / 3f)); }
-                        break;
-                    default:
-                        throw new Exception("Temp was invalid: " + TypeAsInt);
+                        if (TypeAsInt == 7) { value += vector[Calc.Random.Next(0, vector.Count)] * speeds[i % num] * 1.5f * Engine.DeltaTime; } else { value += vector[Math.Abs((i - 24) * (i + 19) * (i + 21) * (i - 4)) % vector.Count] * speeds[i % num] * Engine.DeltaTime; }
+                        value.Y = mod(value.Y, height - 1f);
+                        value.X = mod(value.X, width - 1f);
+                        particles[i] = value;
+                    }
+                    base.Update();
                 }
-                int num = speeds.Length;
-                int i = 0;
-                for (int count = particles.Count; i < count; i += 1 + 2 * (int) VivHelperModule.Settings.DecreaseParticles) {
-                    Vector2 value = particles[i];
-
-                    if (TypeAsInt == 7) { value += vector[Calc.Random.Next(0, vector.Count)] * speeds[i % num] * 1.5f * Engine.DeltaTime; } else { value += vector[Math.Abs((i - 24) * (i + 19) * (i + 21) * (i - 4)) % vector.Count] * speeds[i % num] * Engine.DeltaTime; }
-                    value.Y = mod(value.Y, height - 1f);
-                    value.X = mod(value.X, width - 1f);
-                    particles[i] = value;
-                }
-                base.Update();
             }
             if (camera != (Scene as Level).Camera) {
                 camera = (Scene as Level).Camera;
