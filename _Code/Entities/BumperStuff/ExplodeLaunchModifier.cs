@@ -32,6 +32,7 @@ namespace VivHelper.Entities {
 
         public static void Unload() {
             On.Celeste.Celeste.Freeze -= _DisableFreeze;
+            On.Monocle.Entity.DebugRender -= AddBumperWrapperCheck;
         }
 
         private static void _DisableFreeze(On.Celeste.Celeste.orig_Freeze orig, float time) {
