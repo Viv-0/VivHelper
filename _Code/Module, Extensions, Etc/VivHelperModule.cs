@@ -343,6 +343,8 @@ namespace VivHelper {
             IL.Monocle.Engine.Update += Engine_Update;
             IL.Monocle.Commands.UpdateClosed += Commands_UpdateClosed;
 
+            
+
             //ModInterop
             typeof(VivHelperAPI).ModInterop();
         }
@@ -533,30 +535,38 @@ namespace VivHelper {
         }
 
         private static void Level_OnEnter(Session session, bool fromSaveData) {
-            if (session.MapData?.Levels.Any(l => l.Entities.Any(e => e.Name == "VivHelper/PreviousBerriesToFlag")) ?? false) {
-                AreaKey area = session.Area;
-                var areaModeStats = Celeste.SaveData.Instance.Areas_Safe[area.ID].Modes[(int) area.Mode];
-                ModeProperties modeProperties = AreaData.Get(area).Mode[(int) area.Mode];
-                int totalStrawberries = modeProperties.TotalStrawberries;
-                if (totalStrawberries <= 0) {
-                    return;
-                }
-                int num5 = ((modeProperties.Checkpoints == null) ? 1 : (modeProperties.Checkpoints.Length + 1));
-                for (int i = 0; i < num5; i++) {
-                    int num6 = ((i == 0) ? modeProperties.StartStrawberries : modeProperties.Checkpoints[i - 1].Strawberries);
-                    for (int j = 0; j < num6; j++) {
-                        EntityData entityData = modeProperties.StrawberriesByCheckpoint[i, j];
-                        if (entityData == null) {
-                            continue;
-                        }
-                        foreach (EntityID strawberry2 in areaModeStats.Strawberries) {
-                            if (entityData.ID == strawberry2.ID && entityData.Level.Name == strawberry2.Level) {
-                                session.SetFlag($"VivHelper_PreviousCollectedBerries_{i}:{j}");
+            if (session.MapData == null)
+                return;
+            foreach(LevelData level in session.MapData.Levels) {
+                foreach(EntityData entity in level.Entities) {
+                    if(entity.Name == "VivHelper/PreviousBerriesToFlag") { 
+                            AreaKey area = session.Area;
+                            var areaModeStats = Celeste.SaveData.Instance.Areas_Safe[area.ID].Modes[(int) area.Mode];
+                            ModeProperties modeProperties = AreaData.Get(area).Mode[(int) area.Mode];
+                            int totalStrawberries = modeProperties.TotalStrawberries;
+                            if (totalStrawberries <= 0) {
+                                continue;
                             }
-                        }
+                            int num5 = ((modeProperties.Checkpoints == null) ? 1 : (modeProperties.Checkpoints.Length + 1));
+                            for (int i = 0; i < num5; i++) {
+                                int num6 = ((i == 0) ? modeProperties.StartStrawberries : modeProperties.Checkpoints[i - 1].Strawberries);
+                                for (int j = 0; j < num6; j++) {
+                                    EntityData entityData = modeProperties.StrawberriesByCheckpoint[i, j];
+                                    if (entityData == null) {
+                                        continue;
+                                    }
+                                    foreach (EntityID strawberry2 in areaModeStats.Strawberries) {
+                                        if (entityData.ID == strawberry2.ID && entityData.Level.Name == strawberry2.Level) {
+                                            session.SetFlag($"VivHelper_PreviousCollectedBerries_{i}:{j}");
+                                        }
+                                    }
+                                }
+                            }
                     }
+                    
                 }
             }
+            
         }
 
         private void Level_Update(On.Celeste.Level.orig_Update orig, Level self) {
@@ -707,27 +717,37 @@ namespace VivHelper {
             if (Levels == null)
                 return;
             SceneryAdder.LoadingThreadAddendum(Levels, self.Level);
-            if (Levels.Any(level => level.Entities?.Any(entity => entity.Name == "VivHelper/HoldableBarrier") ?? false)) {
-                self.Level.Add(new HoldableBarrierRenderer());
-            }
-            //Crystal Bomb Detonator Renderer addition
-            if (Levels.Any(level => level.Entities?.Any(entity => entity.Name == "VivHelper/CrystalBombDetonator") ?? false)) {
-                self.Level.Add(new CrystalBombDetonatorRenderer());
-            }
-            //CollectibleController
-            if (Levels.Any(l => (l.Entities?.Any(e => e.Name == "VivHelper/CollectibleGroup") ?? false) && ((l.Entities?.Any(e => e.Name == "VivHelper/Collectible") ?? false) || (l.BgDecals?.Any(b => b.Texture.StartsWith("VivHelper/coins/")) ?? false || (l.FgDecals?.Any(b2 => b2.Texture.StartsWith("VivHelper/coins/")) ?? false))))) {
-                List<EntityData> datas = new List<EntityData>();
-                foreach (LevelData l in Levels) {
-                    if (l.Entities != null) {
-                        datas.AddRange(l.Entities.Where(e => e.Name == "VivHelper/CollectibleGroup"));
-                    }
+            foreach (LevelData level in Levels) {
+                if (level.Entities == null)
+                    continue;
+                bool b = false;
+                if(level.BgDecals?.Any(b => b.Texture.StartsWith("VivHelper/coins/")) ?? false || (level.FgDecals?.Any(b2 => b2.Texture.StartsWith("VivHelper/coins/")) ?? false)) {
+                    List<EntityData> datas = new List<EntityData>();
+                    foreach (LevelData l in Levels) {
+                        if (l.Entities != null) {
+                            datas.AddRange(l.Entities.Where(e => e.Name == "VivHelper/CollectibleGroup"));
+                        }
 
+                    }
+                    self.Level.Add(new CollectibleController(datas));
                 }
-                self.Level.Add(new CollectibleController(datas));
-            }
-            //CoreMusicController
-            if (Levels.Any(level => level.Entities?.Any(entity => entity.Name == "VivHelper/HoldableBarrier") ?? false)) {
-                self.Level.Add(new HoldableBarrierRenderer());
+                foreach(EntityData entity in level.Entities) {
+                    if (entity.Name == "VivHelper/HoldableBarrier" && self.Entities.FindFirst<HoldableBarrierRenderer>() == null)
+                        self.Level.Add(new HoldableBarrierRenderer());
+                    else if (entity.Name == "VivHelper/CrystalBombDetonator" && self.Entities.FindFirst<CrystalBombDetonatorRenderer>() == null)
+                        self.Level.Add(new CrystalBombDetonatorRenderer());
+                    else if (!b && self.Entities.FindFirst<CollectibleController>() == null && (entity.Name == "VivHelper/CollectibleGroup" || entity.Name == "VivHelper/Collectible")) {
+                        List<EntityData> datas = new List<EntityData>();
+                        foreach (LevelData l in Levels) {
+                            if (l.Entities != null) {
+                                datas.AddRange(l.Entities.Where(e => e.Name == "VivHelper/CollectibleGroup"));
+                            }
+
+                        }
+                        self.Level.Add(new CollectibleController(datas));
+                    } else if (entity.Name == "VivHelper/GoldenBerryToFlag" && self.Entities.FindFirst<GoldenBerryFlagController>() == null)
+                        self.Level.Add(new GoldenBerryFlagController());
+                }
             }
             SpawnPointHooks.AddLevelInfoCache(self.Level.Session);
         }

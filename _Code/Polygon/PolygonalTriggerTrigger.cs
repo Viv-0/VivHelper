@@ -40,7 +40,7 @@ namespace VivHelper.Polygon {
             base.Awake(scene);
             foreach (Entity e in scene.Entities.Where<Entity>((f) => Collide.CheckPoint(f, triggerPoint))) {
                 Type t = e.GetType();
-                if (Types.Contains(t) || assignableTypes.Any((u) => u.IsAssignableFrom(t)) && e.Collider.GetType() != typeof(PolygonCollider)) {
+                if (Types.Contains(t) || assignableTypes.Any((u) => t.IsAssignableFrom(u)) && e.Collider.GetType() != typeof(PolygonCollider)) {
                     Associators.Add(e as Trigger);
                     e.Collidable = false;
                     break;

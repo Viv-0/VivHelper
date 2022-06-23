@@ -18,7 +18,7 @@ using FMOD.Studio;
 namespace VivHelper.Entities {
     public class EntityMuterComponent : Component {
         #region Hooks
-        internal static int mute;
+        internal static int mute = 0;
         private static FieldInfo SoundSource_instance = typeof(SoundSource).GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance);
 
         // I genuinely think that this is the dumbest thing in my helper. This takes the cake.
@@ -169,8 +169,8 @@ namespace VivHelper.Entities {
 
         public static void Unload() {
             On.Celeste.SoundSource.Update -= SoundSource_Update;
-            On.Celeste.Audio.Play_string += AudioOverride1;
-            On.Celeste.Audio.Play_string_Vector2 += AudioOverride2;
+            On.Celeste.Audio.Play_string -= AudioOverride1;
+            On.Celeste.Audio.Play_string_Vector2 -= AudioOverride2;
             //This is an extremely comedic line of code.
             //foreach(IDetour hook in hooks) hook.Dispose();
         }
@@ -208,6 +208,7 @@ namespace VivHelper.Entities {
                         break;
                 }
             }
+            orig(self);
         }
         #endregion
 
@@ -258,7 +259,7 @@ namespace VivHelper.Entities {
             Collidable = true;
             foreach (Entity e in scene.Entities.Where<Entity>((f) => Collide.Check(this, f))) {
                 Type t = e.GetType();
-                if (Types.Contains(t) || assignableTypes.Any((u) => u.IsAssignableFrom(t))) {
+                if (Types.Contains(t) || assignableTypes.Any((u) => t.IsAssignableFrom(u))) {
                     e.Add(new EntityMuterComponent());
                     if (!all)
                         break;

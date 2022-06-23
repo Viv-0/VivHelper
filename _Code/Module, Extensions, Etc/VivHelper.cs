@@ -251,12 +251,12 @@ namespace VivHelper {
                 foreach (string s in strings) {
                     if (s.StartsWith("*")) {
                         Type t = VivHelper.GetType(s.Substring(1), false);
-                        if (t != null && t.IsAssignableFrom(minimumAssignableSubset)) {
+                        if (t != null && minimumAssignableSubset.IsAssignableFrom(t)) {
                             assignableList.Add(t);
                         }
                     } else {
                         Type t = VivHelper.GetType(s, false);
-                        if (t != null && t.IsAssignableFrom(minimumAssignableSubset)) {
+                        if (t != null && minimumAssignableSubset.IsAssignableFrom(t)) {
                             exactList.Add(t);
                         }
                     }

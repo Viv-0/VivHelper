@@ -262,7 +262,7 @@ namespace VivHelper.Entities {
         }
 
         private bool CheckEntity(Type t, Entity e) {
-            if (t.IsAssignableFrom(typeof(HeartGem)) || t.ToString() == "Celeste.Mod.CollabUtils2.Entities.MiniHeart") {
+            if (typeof(HeartGem).IsAssignableFrom(t) || t.ToString() == "Celeste.Mod.CollabUtils2.Entities.MiniHeart") {
                 type = t;
                 retrievedHeartGem = e;
                 e.RemoveSelf();

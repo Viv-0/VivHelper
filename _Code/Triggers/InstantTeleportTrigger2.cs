@@ -773,7 +773,7 @@ namespace VivHelper.Triggers {
             switch (persistence) {
                 //OnlyOnce
                 case TriggerPersistence.OncePerMapPlay:
-                    session.DoNotLoad.Add(this.ID);
+                    session.DoNotLoad.Add(ID);
                     break;
             }
         }

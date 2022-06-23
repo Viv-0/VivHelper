@@ -39,7 +39,7 @@ customSpinner.fieldInformation = {
 }
 
 customSpinner.placements = {
-    name = "custom_spinner",
+    name = "VivHelper/CustomSpinner",
     data = {
         AttachToSolid = true,
         Type = "white",

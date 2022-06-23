@@ -45,7 +45,7 @@ namespace VivHelper.Entities {
         public enum RestrictBoost { NoBoost = -2, OldBehavior = -1, Default = 0, BetterBoost = 1, AlwaysBoost = 2 }
         public static RestrictBoost restrictBoost = 0;
 
-        public static Vector2 ExplodeLaunchMaster(Player self, Vector2 from, bool snapUp, bool sidesOnly) {
+        public static Vector2 ExplodeLaunchMaster(Player self, Vector2 from, bool snapUp, bool sidesOnly, BumperWrapper bw = null) {
             if (sidesOnly)
                 return self.ExplodeLaunch(from, snapUp, sidesOnly);
             switch (bumperWrapperType) {
@@ -57,7 +57,7 @@ namespace VivHelper.Entities {
                 case BumperModifierTypes.EightWay:
                     return EightWayLaunch(self, from);
                 case BumperModifierTypes.Alt4way:
-                    return Alt4WayLaunch(self, from);
+                    return Alt4WayLaunch(self, from, bw);
                 default:
                     if (restrictBoost == RestrictBoost.Default)
                         return self.ExplodeLaunch(from, snapUp, sidesOnly);
@@ -202,27 +202,29 @@ namespace VivHelper.Entities {
             return self.Speed;
         }
 
-        private static Vector2 Alt4WayNormal(Vector2 q) {
+        private static Vector2 Alt4WayNormal(Vector2 q, BumperWrapper bw) {
             float r = q.Angle();
-            if (r >= 1.0472f && r <= 2.0944f) //down angle: if 60 < r < 120 degrees, r := 90 degrees
-                r = 1.5708f; //r = 90 deg
-            else if (-0.6545f <= r && r < 1.0472f) //right angle: if -37.5 <= r < 60 degrees, r := -25 degrees
-                r = -0.436332f;
-            else if ((r > 2.0944f && r <= 3.141593f) || (r > -3.1416f && r < -2.4871f)) //left angle: if 120 < r < 217.5, r := 205 degrees
-                r = -2.70526f;
-            else {
-                r = -1.5708f;
-            }
+            Vector2 v;
+            if (r >= 1.0472f && r <= 2.0944f) //down angle: if 60 < r < 120 degrees
+                v = Calc.AngleToVector(1.5708f, 1f); // 90 deg
+            else if (-0.6545f <= r && r < 1.0472f) { //right angle: if -37.5 <= r < 60 degrees
+                v = Calc.AngleToVector(-0.436332f, 1f); // 335 deg
+                v.Y /= bw.ExplodeMultiplier;
+            } else if ((r > 2.0944f && r <= 3.141593f) || (r > -3.1416f && r < -2.4871f)) { //left angle: if 120 < r < 217.5
+                v = Calc.AngleToVector(-2.70526f, 1f); // 205 deg
+                v.Y /= bw.ExplodeMultiplier;
+            } else
+                v = Calc.AngleToVector(-1.5708f, 1f);
 
-            return Calc.AngleToVector(r, 1f);
+            return v;
         }
 
-        private static Vector2 Alt4WayLaunch(Player self, Vector2 from) {
+        private static Vector2 Alt4WayLaunch(Player self, Vector2 from, BumperWrapper bw) {
             DynData<Player> dyn = new DynData<Player>(self);
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             Celeste.Celeste.Freeze(0.1f);
             dyn.Set<float?>("launchApproachX", null);
-            self.Speed = Alt4WayNormal((self.Center - from).SafeNormalize(-Vector2.UnitY)) * 280f;
+            self.Speed = Alt4WayNormal((self.Center - from).SafeNormalize(-Vector2.UnitY), bw) * 280f;
             if (self.Speed.Y <= 0f) {
                 self.Speed.Y = Math.Min(-150f, self.Speed.Y);
                 self.AutoJump = true;

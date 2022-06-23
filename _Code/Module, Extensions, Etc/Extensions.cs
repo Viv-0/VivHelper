@@ -286,7 +286,7 @@ namespace VivHelper {
                 Dictionary<Type, List<Entity>> entities = self.Scene.Tracker.Entities;
                 bool b = false;
                 foreach (Type key in entities.Keys) {
-                    if (!(types[0].Contains(key) || types[1].Any(t => t.IsAssignableFrom(key)))) { continue; }
+                    if (!(types[0].Contains(key) || types[1].Any(t => key.IsAssignableFrom(t)))) { continue; }
                     entity = Collide.First(self, entities[key]);
                     if (entity != null) {
                         b = true;
@@ -316,7 +316,7 @@ namespace VivHelper {
                 Dictionary<Type, List<Entity>> entities = self.Scene.Tracker.Entities;
                 bool b = false;
                 foreach (Type key in entities.Keys) {
-                    if (!(types[0].Contains(key) || types[1].Any(t => t.IsAssignableFrom(key)))) { continue; }
+                    if (!(types[0].Contains(key) || types[1].Any(t => key.IsAssignableFrom(t)))) { continue; }
                     entity = Collide.First(self, entities[key]);
                     if (entity != null) {
                         b = true;

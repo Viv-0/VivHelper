@@ -25,7 +25,7 @@ namespace VivHelper.Entities {
 
         private Session.CoreModes CoreModeChanger;
         private ExplodeLaunchModifier.BumperModifierTypes bumperLaunchModifier;
-        private float ExplodeMultiplier;
+        public float ExplodeMultiplier;
         private bool SetToNormalState;
         private float newDashCooldown;
         private int newDepth;
@@ -64,8 +64,8 @@ namespace VivHelper.Entities {
             RemoveLight = data.Bool("RemoveLight", false);
             RemoveWobble = data.Bool("RemoveWobble", false);
             bumperLaunchModifier = data.Enum<ExplodeLaunchModifier.BumperModifierTypes>("BumperLaunchType", ExplodeLaunchModifier.BumperModifierTypes.IgnoreAll);
-            ExplodeMultiplier = Math.Max(0f, data.Float("ExplodeStrengthMultiplier", 1f));
-            ExplodeMultiplier = ExplodeMultiplier <= 0f ? 1f : ExplodeMultiplier;
+            ExplodeMultiplier = data.Float("ExplodeStrengthMultiplier", 1f);
+            ExplodeMultiplier = ExplodeMultiplier == 0f ? 1f : ExplodeMultiplier;
             newDashCooldown = Math.Max(0f, data.Float("DashCooldown", 0.2f));
             SetToNormalState = data.Bool("NormalStateOnEnd");
             setDashes = Math.Max(-2, data.Int("SetDashes", -1));
@@ -195,6 +195,8 @@ namespace VivHelper.Entities {
 
 
         private void ReplacementOnPlayer(Player player) {
+            if (dynBumper.Get<float>("respawnTimer") > 0f)
+                return;
             ExplodeLaunchModifier.bumperWrapperType = bumperLaunchModifier;
             int oldDashes = player.Dashes;
             float oldStamina = player.Stamina;
@@ -203,7 +205,7 @@ namespace VivHelper.Entities {
             oldOnCollide(player);
             ExplodeLaunchModifier.DisableFreeze = false;
             if (ExplodeLaunchModifier.DetectFreeze) {
-                ExplodeLaunchModifier.ExplodeLaunchMaster(player, Position, false, false);
+                ExplodeLaunchModifier.ExplodeLaunchMaster(player, Position, false, false, this);
             }
 
 
@@ -234,10 +236,6 @@ namespace VivHelper.Entities {
                 player.StateMachine.State = 0;
             if (RespawnTime >= 0f)
                 dynBumper.Set("respawnTimer", RespawnTime);
-
-        }
-
-        private void AddTween(Entity e, int twNum) {
 
         }
 

@@ -391,12 +391,19 @@ namespace VivHelper.Entities.Boosters {
                     player.Speed = Vector2.Zero;
                 }
                 booster.cannotUseTimer = 0.2f / (booster.customDashState.DashSpeed / 240f);
-                if (booster.customDashState.HeldDash && (player.ExactPosition - boostTarget).LengthSquared() <= 18f)
+                if (booster.customDashState.HeldDash && (player.ExactPosition - boostTarget).LengthSquared() <= 18f) { //magic number, sqrt(18) was roughly max distance from the center we could get for this check, tested at 10000x,10000y (fpu differentials are possible)
+                    if (player.StateMachine.State != VivHelperModule.CustomDashState) {
+                        UltraCustomDash.End(player);
+                    }
                     return;
+                }
             }
             Vector2 vector = boostTarget.Floor();
             player.MoveToX(vector.X);
             player.MoveToY(vector.Y);
+            if (player.StateMachine.State != VivHelperModule.CustomDashState) {
+                UltraCustomDash.End(player);
+            }
         }
     }
 
