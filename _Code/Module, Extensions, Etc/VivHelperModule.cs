@@ -538,28 +538,28 @@ namespace VivHelper {
             foreach(LevelData level in session.MapData.Levels) {
                 foreach(EntityData entity in level.Entities) {
                     if(entity.Name == "VivHelper/PreviousBerriesToFlag") { 
-                            AreaKey area = session.Area;
-                            var areaModeStats = Celeste.SaveData.Instance.Areas_Safe[area.ID].Modes[(int) area.Mode];
-                            ModeProperties modeProperties = AreaData.Get(area).Mode[(int) area.Mode];
-                            int totalStrawberries = modeProperties.TotalStrawberries;
-                            if (totalStrawberries <= 0) {
-                                continue;
-                            }
-                            int num5 = ((modeProperties.Checkpoints == null) ? 1 : (modeProperties.Checkpoints.Length + 1));
-                            for (int i = 0; i < num5; i++) {
-                                int num6 = ((i == 0) ? modeProperties.StartStrawberries : modeProperties.Checkpoints[i - 1].Strawberries);
-                                for (int j = 0; j < num6; j++) {
-                                    EntityData entityData = modeProperties.StrawberriesByCheckpoint[i, j];
-                                    if (entityData == null) {
-                                        continue;
-                                    }
-                                    foreach (EntityID strawberry2 in areaModeStats.Strawberries) {
-                                        if (entityData.ID == strawberry2.ID && entityData.Level.Name == strawberry2.Level) {
-                                            session.SetFlag($"VivHelper_PreviousCollectedBerries_{i}:{j}");
-                                        }
+                        AreaKey area = session.Area;
+                        var areaModeStats = Celeste.SaveData.Instance.Areas_Safe[area.ID].Modes[(int) area.Mode];
+                        ModeProperties modeProperties = AreaData.Get(area).Mode[(int) area.Mode];
+                        int totalStrawberries = modeProperties.TotalStrawberries;
+                        if (totalStrawberries <= 0) {
+                            continue;
+                        }
+                        int num5 = ((modeProperties.Checkpoints == null) ? 1 : (modeProperties.Checkpoints.Length + 1));
+                        for (int i = 0; i < num5; i++) {
+                            int num6 = ((i == 0) ? modeProperties.StartStrawberries : modeProperties.Checkpoints[i - 1].Strawberries);
+                            for (int j = 0; j < num6; j++) {
+                                EntityData entityData = modeProperties.StrawberriesByCheckpoint[i, j];
+                                if (entityData == null) {
+                                    continue;
+                                }
+                                foreach (EntityID strawberry2 in areaModeStats.Strawberries) {
+                                    if (entityData.ID == strawberry2.ID && entityData.Level.Name == strawberry2.Level) {
+                                        session.SetFlag($"VivHelper_PreviousCollectedBerries_{i}:{j}");
                                     }
                                 }
                             }
+                        }
                     }
                     
                 }
