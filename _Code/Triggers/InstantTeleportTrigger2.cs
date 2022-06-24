@@ -327,7 +327,9 @@ namespace VivHelper.Triggers {
             if (targetID.Trim() != "-") {
                 delayAwakeAction = true; 
             }
-
+            if ((scene as Level).Session.DoNotLoad.Contains(ID)) {
+                RemoveSelf();
+            }
         }
 
         public void DelayedAwakeAction(Scene scene) {
