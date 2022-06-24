@@ -535,8 +535,6 @@ namespace VivHelper {
         }
 
         private static void Level_OnEnter(Session session, bool fromSaveData) {
-            if (session.MapData == null)
-                return;
             foreach(LevelData level in session.MapData.Levels) {
                 foreach(EntityData entity in level.Entities) {
                     if(entity.Name == "VivHelper/PreviousBerriesToFlag") { 
