@@ -244,6 +244,7 @@ namespace VivHelper.Triggers {
         public bool freezeGameOnTeleport;
         public TriggerPersistence persistence;
         public EntityID ID;
+        public bool transitionListeners;
         //Handler is the one that actually runs the coroutines for everything because it has Pause and Frozen immunity which is necessary, since sometimes we force the game to pause at the teleport point.
         public Entity Handler => HelperEntities.AllUpdateHelperEntity;
         public Coroutine lockRoom;
@@ -319,6 +320,7 @@ namespace VivHelper.Triggers {
                 customDelay = Math.Max(0f, data.Float("CustomDelay") - delay);
             endCutscene = data.Bool("EndCutsceneOnWarp", true);
             Depth = 5000;
+            transitionListeners = data.Bool("ActAsTransition", true);
 
         }
 
@@ -564,6 +566,7 @@ namespace VivHelper.Triggers {
             }
             level.OnEndOfFrame += delegate //Required to prevent Entity removal or locking the EntityList
             {
+
                 Vector2 triggerOffset = player.TopLeft - this.TopLeft;
                 LevelData levelData = level.Session.MapData.Get(specificRoom);
                 if (setState == null) {
@@ -584,7 +587,7 @@ namespace VivHelper.Triggers {
 
                 //It's crazy how little you need if you base your camera code on CameraTargets
                 Vector2 cameraDifferential = level.Camera.Position - player.CameraTarget;
-
+                Console.WriteLine("pos: " + level.Camera.Position + "\nTarget: " + player.CameraTarget + "\nDifferential: " + cameraDifferential);
                 if (endCutscene)
                     level.EndCutscene();
                 Vector2 oldPlayerPosition = player.TopLeft;
@@ -613,9 +616,22 @@ namespace VivHelper.Triggers {
                 player.ForceCameraUpdate = true;
                 VivHelperModule.Session.lockCamera = 1;
                 player.CleanUpTriggers();
+                foreach (SoundSource component in level.Tracker.GetComponents<SoundSource>()) {
+                    if (component.DisposeOnTransition) {
+                        component.Stop();
+                    }
+                }
                 if (resetDashes) {
                     player.RefillDash();
 
+                }
+                List<Component> transitionOut = new List<Component>();
+                List<Component> transitionIn = new List<Component>();
+                if (transitionListeners && specificRoom != roomName && level.Tracker.Components.TryGetValue(typeof(TransitionListener), out transitionOut)) {
+                    foreach (TransitionListener item in transitionOut) {
+                        item.OnOutBegin?.Invoke();
+                        item.OnOut?.Invoke(1f);
+                    }
                 }
                 //Removes the current level we are in without breaking everything
                 level.Remove(player);
@@ -692,6 +708,14 @@ namespace VivHelper.Triggers {
                     leader.PastPoints[i] += player.Position;
                 }
                 leader.TransferFollowers();
+                if (transitionListeners && specificRoom != roomName) {
+                    transitionIn = Scene.Tracker.GetComponentsCopy<TransitionListener>();
+                    transitionIn.RemoveAll((Component c) => transitionOut.Contains(c));
+                    foreach (TransitionListener item in transitionIn) {
+                        item.OnInEnd();
+                    }
+                }
+                //Handles TrailManager Transforming positions
 
                 player.Facing = facing;
                 //Modifies the player's speed, based on the information put into the TeleportTarget
@@ -700,7 +724,7 @@ namespace VivHelper.Triggers {
                 foreach (Trigger trigger in level.Tracker.GetEntities<Trigger>().Where(t => Collide.Check(player, t) && t.GetType().Name.IndexOf("camera", StringComparison.OrdinalIgnoreCase) > -1)) {
                     VivHelper.PlayerTriggerCheck(player, trigger);
                 }
-                level.Camera.Position = player.CameraTarget - cameraDifferential;
+                level.Camera.Position = player.CameraTarget + cameraDifferential;
                 var CameraPos = level.Camera.Position;
                 //Player state fixes
                 if (VivHelper.DefineSetState(setState, out int state)) {

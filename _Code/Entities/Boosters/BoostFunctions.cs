@@ -16,29 +16,37 @@ namespace VivHelper.Entities.Boosters {
     public static class BoostFunctions {
         public static void Load() {
             On.Celeste.Player.Die += Player_Die;
-            IL.Celeste.Player.BeforeDownTransition += TranslateRedDash;
-            IL.Celeste.Player.BeforeUpTransition += TranslateRedDash;
-            IL.Celeste.Player.OnBoundsH += TranslateRedDash;
-            IL.Celeste.Player.OnBoundsV += TranslateRedDash;
+            IL.Celeste.Player.BeforeDownTransition += il => TranslateRedDash(il, true);
+            IL.Celeste.Player.BeforeUpTransition += il => TranslateRedDash(il, true);
+            IL.Celeste.Player.OnBoundsH += il => TranslateRedDash(il, true);
+            IL.Celeste.Player.OnBoundsV += il => TranslateRedDash(il, true);
+            IL.Celeste.Player.OnCollideH += il => TranslateRedDash(il, false);
+            IL.Celeste.Player.OnCollideV += il => TranslateRedDash(il, false);
             On.Celeste.Player.OnCollideH += Player_OnCollideH;
             On.Celeste.Player.OnCollideV += Player_OnCollideV;
         }
 
         public static void Unload() {
             On.Celeste.Player.Die -= Player_Die;
-            IL.Celeste.Player.BeforeDownTransition -= TranslateRedDash;
-            IL.Celeste.Player.BeforeUpTransition -= TranslateRedDash;
-            IL.Celeste.Player.OnBoundsH -= TranslateRedDash;
-            IL.Celeste.Player.OnBoundsV -= TranslateRedDash;
+            IL.Celeste.Player.BeforeDownTransition -= il => TranslateRedDash(il, true);
+            IL.Celeste.Player.BeforeUpTransition -= il => TranslateRedDash(il, true);
+            IL.Celeste.Player.OnBoundsH -= il => TranslateRedDash(il, true);
+            IL.Celeste.Player.OnBoundsV -= il => TranslateRedDash(il, true);
+            IL.Celeste.Player.OnCollideH -= il => TranslateRedDash(il, false);
+            IL.Celeste.Player.OnCollideV -= il => TranslateRedDash(il, false);
             On.Celeste.Player.OnCollideH -= Player_OnCollideH;
             On.Celeste.Player.OnCollideV -= Player_OnCollideV;
         }
 
-        private static void TranslateRedDash(ILContext il) {
+        private static void TranslateRedDash(ILContext il, bool b) {
             ILCursor cursor = new ILCursor(il);
             while (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchLdcI4(5) && instr.Previous.MatchCallvirt<StateMachine>("get_State"))) {
-                cursor.EmitDelegate<Func<int, int>>(
-                    f => f == VivHelperModule.WindBoostState || f == VivHelperModule.PinkState || f == VivHelperModule.OrangeState || f == VivHelperModule.CustomDashState ? 5 : f);
+                if(b)
+                    cursor.EmitDelegate<Func<int, int>>(
+                        f => f == VivHelperModule.WindBoostState || f == VivHelperModule.PinkState || f == VivHelperModule.OrangeState || f == VivHelperModule.CustomDashState ? 5 : f);
+                else
+                    cursor.EmitDelegate<Func<int, int>>(
+                        f => f == VivHelperModule.WindBoostState || f == VivHelperModule.PinkState || f == VivHelperModule.OrangeState ? 5 : f);
                 cursor.Index += 2;
             }
         }

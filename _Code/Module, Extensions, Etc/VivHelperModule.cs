@@ -343,8 +343,6 @@ namespace VivHelper {
             IL.Monocle.Engine.Update += Engine_Update;
             IL.Monocle.Commands.UpdateClosed += Commands_UpdateClosed;
 
-            
-
             //ModInterop
             typeof(VivHelperAPI).ModInterop();
         }
