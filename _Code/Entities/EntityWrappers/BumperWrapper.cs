@@ -31,7 +31,7 @@ namespace VivHelper.Entities {
         private int newDepth;
         private int setDashes = -2;
         private float setStamina = -2;
-        private int bumperBoost; // -1 = never, 0 = default, 1 = always
+        public ExplodeLaunchModifier.RestrictBoost bumperBoost;
         //node stuff
         private Vector2[] nodes;
         private bool useNodes;
@@ -70,7 +70,7 @@ namespace VivHelper.Entities {
             SetToNormalState = data.Bool("NormalStateOnEnd");
             setDashes = Math.Max(-2, data.Int("SetDashes", -1));
             setStamina = Math.Max(-2, data.Int("SetStamina", -1));
-            bumperBoost = (int) MathHelper.Clamp(data.Int("BumperBoost", 0), -1, 1);
+            bumperBoost = data.BetterEnum<ExplodeLaunchModifier.RestrictBoost>("BumperBoost", ExplodeLaunchModifier.RestrictBoost.Default);
             AnchorName = data.Attr("AnchorName", "anchor");
             if (string.IsNullOrWhiteSpace(AnchorName))
                 AnchorName = "anchor";
@@ -117,11 +117,11 @@ namespace VivHelper.Entities {
             // for Bumpers, since I'm not confident in MethodBody reflection to get me more information, since the methods can vary quite a lot in terms of IL.
             // (Plus how the fuck do you read Action delegates dynamically through IL) The fact that you have to match the TypeName also helps a ton.
             if (entity == null) {
-                Console.WriteLine("Entity is null!");
+                Logger.Log("VivHelperVerbose", "Entity is null!");
                 return false;
             }
             if (type == null) {
-                Console.WriteLine("Type is null???");
+                Logger.Log("VivHelperVerbose", "Type is null???");
                 return false;
             }
             if (type.ToString() != typeName) {

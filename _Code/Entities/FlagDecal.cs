@@ -13,7 +13,6 @@ using System.IO;
 using System.Text.RegularExpressions;
 
 namespace VivHelper.Entities {
-    [CustomEntity("VivHelper/CustomDecal")]
     public class CustomDecal : Entity {
         private class Banner : Component {
             public float WaveSpeed;

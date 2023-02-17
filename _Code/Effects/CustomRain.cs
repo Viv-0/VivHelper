@@ -8,10 +8,10 @@ using Microsoft.Xna.Framework;
 using Monocle;
 
 namespace VivHelper.Effects {
-    
+
     public class CustomRain : Backdrop {
 
-        private struct Particle {
+        public struct Particle {
             public Vector2 Position;
 
             public Vector2 Speed;
@@ -31,9 +31,12 @@ namespace VivHelper.Effects {
         }
 
         public float speedMult, alpha;
-        private Particle[] particles;
-        private int count;
-        private float visibleFade, linearFade;
+        public Particle[] particles;
+        public int count;
+
+        private float visibleFade = 1f;
+
+        private float linearFade = 1f;
 
         public CustomRain(Vector2 scroll, float angle, float angleDiff, float speedMult, int count, string colors, float alpha) {
             this.Scroll = scroll;
@@ -42,7 +45,7 @@ namespace VivHelper.Effects {
             List<Color> _colors = VivHelper.ColorsFromString(colors);
             var _angle = angle * -Calc.DegToRad;
             var _angleDiff = Math.Abs(angleDiff * Calc.DegToRad);
-            for(int i = 0; i < count; i++) {
+            for (int i = 0; i < count; i++) {
                 particles[i].Init(_angle + Calc.Random.Range(-_angleDiff, _angleDiff), speedMult, Calc.Random.Choose<Color>(_colors));
             }
             this.alpha = alpha;
@@ -61,7 +64,7 @@ namespace VivHelper.Effects {
         }
 
         public override void Render(Scene scene) {
-            if (!(alpha <= 0f) && !(visibleFade <= 0f) && !(linearFade <= 0f)) {
+            if (alpha > 0f && visibleFade > 0f && linearFade > 0f) {
                 Camera camera = (scene as Level).Camera;
                 for (int i = 0; i < particles.Length; i++) {
                     Vector2 position = new Vector2(VivHelper.mod(particles[i].Position.X - camera.X - 32f, 384f), VivHelper.mod(particles[i].Position.Y - camera.Y - 32f, 244f));

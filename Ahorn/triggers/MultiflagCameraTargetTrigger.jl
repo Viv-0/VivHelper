@@ -9,7 +9,7 @@ using ..Ahorn, Maple
 	lerpStrength::Number=0.0,
 	xOnly::Bool=false,
 	yOnly::Bool=false,
-	positionMode=String="NoEffect"
+	positionMode::String="NoEffect"
 )
 
 const placements = Ahorn.PlacementDict(

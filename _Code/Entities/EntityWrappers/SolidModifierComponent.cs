@@ -36,7 +36,7 @@ namespace VivHelper {
             orig(self);
             foreach (Solid solid in self.Scene.Tracker.GetEntities<Solid>()) {
                 SolidModifierComponent smc = solid?.Get<SolidModifierComponent>() ?? null;
-                if (smc != null && WJ_CollideCheck(solid, self, smc.CornerBoostBlock)) {
+                if (smc != null && WJ_CollideCheck(solid, self, smc.CornerBoostBlock, (int)self.Facing)) {
                     if ((smc.ContactMod & 1) > 0) {
 
                         smc.HasBeenClimbJumpedOn = 1;
@@ -53,10 +53,11 @@ namespace VivHelper {
 
 
         private static void Player_Update(On.Celeste.Player.orig_Update orig, Player self) {
-            if (self.Scene.Tracker.GetComponent<SolidModifierComponent>() != null) {
-                foreach (SolidModifierComponent smc in self.Scene.Tracker.GetComponents<SolidModifierComponent>())
+            if (self.Scene == null)
+                return;
+            if (self.Scene.Tracker.Components.TryGetValue(typeof(SolidModifierComponent), out var q))
+                foreach (SolidModifierComponent smc in q)
                     smc.HasBeenClimbJumpedOn = Math.Max(0, smc.HasBeenClimbJumpedOn - 1);
-            }
             orig(self);
 
         }
@@ -115,12 +116,15 @@ namespace VivHelper {
             }
         }
 
-        public static bool WJ_CollideCheck(Solid solid, Player player, int a) {
+        // Method is just "check every horizontal position"
+        // Replaces standard CollideCheck by checking every valid point up to the next moved frame
+        public static bool WJ_CollideCheck(Solid solid, Player player, int a, int dir) { // Player is at it's real position
+            if (player.Facing != (Facings) dir || !Input.GrabCheck || SaveData.Instance.Assists.NoGrabbing || player.Stamina <= 0f || player.Holding != null)
+                return false;
             bool b = false;
             int c = a > 0 ? Math.Max(3, (int) Math.Ceiling(Math.Abs(player.Speed.X) * Engine.DeltaTime)) : 3;
             for (int i = 0; i <= c; i++) {
-
-                b |= (a > 1) ? solid.CollideCheck(player, solid.Position - Vector2.UnitX * ((int) player.Facing * i)) : player.CollideCheck(solid, player.Position + Vector2.UnitX * ((int) player.Facing * i));
+                b |= (!ClimbBlocker.EdgeCheck(player.Scene, player, dir * i) && player.CollideCheck(solid, player.Position + Vector2.UnitX * (dir * i))); // Stop fucking with this Viv, it works. This for sure works. Why would you need to change this.
                 if (b)
                     break;
             }

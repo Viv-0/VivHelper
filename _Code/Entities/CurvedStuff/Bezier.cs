@@ -268,7 +268,6 @@ namespace VivHelper.Entities {
                 sum += curves[i].GetBezierLength(25);
                 if (sum > length) { sum -= curves[i].GetBezierLength(25); return curves[i].GetPointFromLength(length - sum); }
             }
-            Console.WriteLine("something's wrong\n\n");
             return curves[curves.Length - 1].GetPoint(1f);
         }
 

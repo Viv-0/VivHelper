@@ -1,7 +1,7 @@
 module VivHelperFallThru
 using ..Ahorn, Maple
 
-@mapdef Entity "VivHelper/FallThru" FallThru(x::Integer, y::Integer, width::Integer=8, surfaceIndex::Int=-1)
+@mapdef Entity "VivHelper/FallThru" FallThru(x::Integer, y::Integer, width::Integer=8, surfaceIndex::Int=-1, FallTime::Number=0.35, IgnoreOnlyThis::Bool=false)
 
 const textures = ["wood", "dream", "temple", "templeB", "cliffside", "reflection", "core", "moon"]
 const placements = Ahorn.PlacementDict(
@@ -21,7 +21,8 @@ const quads = Tuple{Integer, Integer, Integer, Integer}[
 
 Ahorn.editingOptions(entity::FallThru) = Dict{String, Any}(
     "texture" => textures,
-    "surfaceIndex" => Maple.tileset_sound_ids
+    "surfaceIndex" => Maple.tileset_sound_ids,
+    "FallTime" => Number[0.35]
 )
 
 Ahorn.minimumSize(entity::FallThru) = 8, 0

@@ -16,7 +16,7 @@ namespace VivHelper.Entities {
         //This is boutta be a 5 minute speedcode.
         DynData<BirdPath> dyn;
 
-        public CustomBirdPath(EntityID id, EntityData data, Vector2 offset) : base(id, data, offset) {
+        public CustomBirdPath(EntityData data, Vector2 offset, EntityID id) : base(id, data, offset) {
             dyn = new DynData<BirdPath>(this);
             //Removes the old sprite
             Remove(Get<Sprite>());

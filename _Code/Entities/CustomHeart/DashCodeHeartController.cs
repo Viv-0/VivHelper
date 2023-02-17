@@ -15,81 +15,18 @@ using System.Reflection;
 
 namespace VivHelper.Entities {
     [Tracked]
-    [CustomEntity("VivHelper/DashCodeHeartController")]
+    [CustomEntity("VivHelper/DashCodeHeartController = Load", "VivHelper/DashCodeEntitySpawner = LoadEntitySpawner")]
     public class DashCodeHeartController : Entity {
-        private class LevelUpOrb : Entity {
-            public Image Sprite;
 
-            public BloomPoint Bloom;
+        public static Entity Load(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new DashCodeHeartController(entityData, offset, entityData.Nodes);
 
-            private float ease;
-
-            public Vector2 Target;
-
-            public Coroutine Routine;
-
-            public float Ease {
-                get {
-                    return ease;
-                }
-                set {
-                    ease = value;
-                    Sprite.Scale = Vector2.One * ease;
-                    Bloom.Alpha = ease;
-                }
-            }
-
-            public LevelUpOrb(Vector2 position, Color color)
-                : base(position) {
-                Add(Sprite = new Image(GFX.Game["characters/badeline/orb"]));
-                Add(Bloom = new BloomPoint(0f, 32f));
-                Add(Routine = new Coroutine(FloatRoutine()));
-                Sprite.CenterOrigin();
-                base.Depth = -10001;
-            }
-
-            public IEnumerator FloatRoutine() {
-                Vector2 speed = Vector2.Zero;
-                Ease = 0.2f;
-                while (true) {
-                    Vector2 target = Target + Calc.AngleToVector(Calc.Random.NextFloat((float) Math.PI * 2f), 16f + Calc.Random.NextFloat(40f));
-                    float reset = 0f;
-                    while (reset < 1f && (target - Position).Length() > 8f) {
-                        Vector2 value = (target - Position).SafeNormalize();
-                        speed += value * 420f * Engine.DeltaTime;
-                        if (speed.Length() > 90f) {
-                            speed = speed.SafeNormalize(90f);
-                        }
-                        Position += speed * Engine.DeltaTime;
-                        reset += Engine.DeltaTime;
-                        Ease = Calc.Approach(Ease, 1f, Engine.DeltaTime * 4f);
-                        yield return null;
-                    }
-                }
-            }
-
-            public IEnumerator CircleRoutine(float offset) {
-                Vector2 from = Position;
-                float ease = 0f;
-                while (true) {
-                    float angleRadians = Scene.TimeActive * 2f + offset;
-                    Vector2 value = Target + Calc.AngleToVector(angleRadians, 24f);
-                    ease = Calc.Approach(ease, 1f, Engine.DeltaTime * 2f);
-                    Position = from + (value - from) * Monocle.Ease.CubeInOut(ease);
-                    yield return null;
-                }
-            }
-
-            public IEnumerator AbsorbRoutine() {
-                Vector2 from = Position;
-                Vector2 to = Target;
-                for (float p = 0f; p < 1f; p += Engine.DeltaTime) {
-                    float num = Monocle.Ease.BigBackIn(p);
-                    Position = from + (to - from) * num;
-                    Ease = 0.2f + (1f - num) * 0.8f;
-                    yield return null;
-                }
-            }
+        public static Entity LoadEntitySpawner(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
+            var a = new Vector2[entityData.Nodes.Length - 1];
+            for (int i = 0; i < a.Length; i++)
+                a[i] = entityData.Nodes[i + 1];
+            DashCodeHeartController h = new DashCodeHeartController(entityData, offset, a);
+            h.IsHeartGem = false;
+            return h;
         }
 
         private readonly string[] key;
@@ -104,7 +41,7 @@ namespace VivHelper.Entities {
         private bool removeDL = false;
 
         private Type type;
-        private Entity retrievedHeartGem;
+        private Entity retrievedEntity;
         private bool ScaleWigglerExists;
 
 
@@ -130,6 +67,7 @@ namespace VivHelper.Entities {
         private Vector2[] CustomNodes;
         private Dictionary<string, string> CustomParameters = null;
         private int paramNum;
+        public bool IsHeartGem = true;
 
 
         private static int MatchParameterInfo(ParameterInfo[] pI, bool a) {
@@ -165,7 +103,7 @@ namespace VivHelper.Entities {
             }
         }
 
-        public DashCodeHeartController(EntityData data, Vector2 offset) : base(data.Position + offset) {
+        public DashCodeHeartController(EntityData data, Vector2 offset, Vector2[] nodes) : base(data.Position + offset) {
             string k = data.Attr("key", "");
             if (string.IsNullOrWhiteSpace(k)) {
                 RemoveSelf();
@@ -178,22 +116,22 @@ namespace VivHelper.Entities {
             switch (spawnType) {
                 case SpawnTypes.LevelUp:
                     color = VivHelper.ColorFix(data.Attr("Color", "White"), 1f);
-                    if (data.Nodes.Length > 0)
-                        node = data.Nodes[0];
+                    if (nodes.Length > 0)
+                        node = nodes[0];
                     break;
                 case SpawnTypes.FlashSpawn:
                     color = VivHelper.ColorFix(data.Attr("Color", "White"), 1f);
                     break;
                 case SpawnTypes.ForsakenCity:
-                    if (data.Nodes.Length > 0)
-                        node = data.Nodes[0];
+                    if (nodes.Length > 0)
+                        node = nodes[0];
                     break;
                 case SpawnTypes.GlitchSpawn:
                     duration = data.Enum<GlitchDuration>("GlitchLength", GlitchDuration.Medium);
                     break;
                 case SpawnTypes.Reflection:
-                    if (data.Nodes.Length > 0)
-                        node = data.Nodes[0];
+                    if (nodes.Length > 0)
+                        node = nodes[0];
                     break;
                 case SpawnTypes.Custom:
                     //Checking to see if the user messed up and reporting all of the Exceptions in English
@@ -211,7 +149,7 @@ namespace VivHelper.Entities {
                     if (methodInfo.ReturnType != typeof(IEnumerator))
                         throw new InvalidPropertyException("DashCodeHeartController: You added a Custom DashCodeHeartController with a ClassName and a MethodName, however, the Method that was found was not an IEnumerator. (If you used IEnumerator<T>, you can't do that, sorry :/)");
                     bool b1 = false;
-                    if (data.Nodes.Length > 0) { CustomNodes = data.NodesOffset(offset); b1 = true; }
+                    if (nodes.Length > 0) { CustomNodes = nodes; for (int i = 0; i < CustomNodes.Length; i++) CustomNodes[i] += offset; b1 = true; }
                     string CustomParams = data.Attr("CustomParameters", "");
                     CustomParameters = new Dictionary<string, string>();
                     if (!string.IsNullOrWhiteSpace(CustomParams)) {
@@ -234,15 +172,22 @@ namespace VivHelper.Entities {
                 default:
                     break;
             }
-            flag = data.Attr("CompleteFlag", "");
-            Console.WriteLine("Flag: " + flag);
+            flag = data.Attr("CompleteFlag", "DashCode");
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
-            foreach (string s in (scene as Level).Session.Flags)
-                Console.WriteLine(s);
-            if (string.IsNullOrWhiteSpace(flag) || (scene as Level).Session.GetFlag(flag)) { RemoveSelf(); return; }
+            if (!string.IsNullOrWhiteSpace(flag) && (scene as Level).Session.GetFlag(flag)) { RemoveSelf(); return; }
+            if (IsHeartGem) {
+                HeartAwake(scene);
+            } else {
+
+            }
+            Add(dashListener = new DashListener());
+            dashListener.OnDash = DashListenerFunction;
+        }
+
+        public void HeartAwake(Scene scene) {
             bool b = false;
             //We cannot check for a player collider since that is added to the HeartGem in Awake, so we have to check HoldableCollider, since that's added at start.
             foreach (Component tie in scene.Tracker.GetComponents<HoldableCollider>()) {
@@ -252,19 +197,17 @@ namespace VivHelper.Entities {
                 }
             }
             if (!b) {
-                Console.WriteLine("Hey! This didn't find any valid entities.");
                 RemoveSelf();
                 return;
             }
-            Add(dashListener = new DashListener());
-            dashListener.OnDash = DashListenerFunction;
-
         }
+
+
 
         private bool CheckEntity(Type t, Entity e) {
             if (typeof(HeartGem).IsAssignableFrom(t) || t.ToString() == "Celeste.Mod.CollabUtils2.Entities.MiniHeart") {
                 type = t;
-                retrievedHeartGem = e;
+                retrievedEntity = e;
                 e.RemoveSelf();
 
                 return true;
@@ -313,7 +256,7 @@ namespace VivHelper.Entities {
         }
 
         public void MasterCutsceneController() {
-            retrievedHeartGem.Remove(retrievedHeartGem.Get<Sprite>());
+            retrievedEntity.Remove(retrievedEntity.Get<Sprite>());
             switch (spawnType) {
                 case SpawnTypes.ForsakenCity:
                     Add(new Coroutine(ForsakenCitySpawn()));
@@ -333,13 +276,13 @@ namespace VivHelper.Entities {
                 case SpawnTypes.Custom:
                     switch (paramNum) {
                         case 1:
-                            Add(new Coroutine((IEnumerator) customIEnumerator.Invoke(null, new object[] { retrievedHeartGem })));
+                            Add(new Coroutine((IEnumerator) customIEnumerator.Invoke(null, new object[] { retrievedEntity })));
                             break;
                         case 2:
-                            Add(new Coroutine((IEnumerator) customIEnumerator.Invoke(null, new object[] { retrievedHeartGem, CustomNodes })));
+                            Add(new Coroutine((IEnumerator) customIEnumerator.Invoke(null, new object[] { retrievedEntity, CustomNodes })));
                             break;
                         case 3:
-                            Add(new Coroutine((IEnumerator) customIEnumerator.Invoke(null, new object[] { retrievedHeartGem, CustomNodes, CustomParameters })));
+                            Add(new Coroutine((IEnumerator) customIEnumerator.Invoke(null, new object[] { retrievedEntity, CustomNodes, CustomParameters })));
                             break;
                         default:
                             break;
@@ -353,31 +296,31 @@ namespace VivHelper.Entities {
 
         public IEnumerator Spawn() {
             yield return null;
-            Scene.Add(retrievedHeartGem);
+            Scene.Add(retrievedEntity);
             if (!string.IsNullOrWhiteSpace(flag))
                 (Scene as Level).Session.SetFlag(flag);
         }
 
         public IEnumerator ForsakenCitySpawn() {
             ParticleSystem particles = new ParticleSystem(-10000, 100);
-            Vector2 alternatePosition = retrievedHeartGem.Position - new Vector2(96f, 56f);
+            Vector2 alternatePosition = retrievedEntity.Position - new Vector2(96f, 56f);
             particles.Emit(BirdNPC.P_Feather, 24, node ?? alternatePosition, new Vector2(4f, 4f));
             Level level = Scene as Level;
             level.Add(particles);
-            Vector2 gemSpawnPosition = retrievedHeartGem.Position;
-            retrievedHeartGem.Position = node ?? alternatePosition;
-            retrievedHeartGem.Collidable = false;
+            Vector2 gemSpawnPosition = retrievedEntity.Position;
+            retrievedEntity.Position = node ?? alternatePosition;
+            retrievedEntity.Collidable = false;
 
-            level.Add(retrievedHeartGem);
+            level.Add(retrievedEntity);
             yield return 0.85f;
-            Vector2 extraYoffset = new Vector2(0f, Math.Abs(retrievedHeartGem.Position.Y - gemSpawnPosition.Y) * -1.15f);
-            SimpleCurve curve = new SimpleCurve(retrievedHeartGem.Position, gemSpawnPosition, (retrievedHeartGem.Position + gemSpawnPosition) / 2f + extraYoffset);
+            Vector2 extraYoffset = new Vector2(0f, Math.Abs(retrievedEntity.Position.Y - gemSpawnPosition.Y) * -1.15f);
+            SimpleCurve curve = new SimpleCurve(retrievedEntity.Position, gemSpawnPosition, (retrievedEntity.Position + gemSpawnPosition) / 2f + extraYoffset);
             for (float t = 0f; t < 1f; t += Engine.DeltaTime) {
                 yield return null;
-                retrievedHeartGem.Position = curve.GetPoint(Ease.CubeInOut(t));
+                retrievedEntity.Position = curve.GetPoint(Ease.CubeInOut(t));
             }
             yield return 0.5f;
-            retrievedHeartGem.Collidable = true;
+            retrievedEntity.Collidable = true;
             particles.RemoveSelf();
             if (!string.IsNullOrWhiteSpace(flag))
                 (Scene as Level).Session.SetFlag(flag);
@@ -387,7 +330,7 @@ namespace VivHelper.Entities {
 
         public IEnumerator ReflectionSpawn() {
             Audio.Play("event:/game/06_reflection/supersecret_heartappear");
-            Vector2 pos = retrievedHeartGem.Position;
+            Vector2 pos = retrievedEntity.Position;
             Entity dummy = new Entity(pos) {
                 Depth = 1
             };
@@ -418,7 +361,7 @@ namespace VivHelper.Entities {
             }
             (Scene as Level).Flash(Color.White);
             Scene.Remove(dummy);
-            Scene.Add(retrievedHeartGem);
+            Scene.Add(retrievedEntity);
             if (!string.IsNullOrWhiteSpace(flag))
                 (Scene as Level).Session.SetFlag(flag);
             yield return 0.1f;
@@ -428,7 +371,7 @@ namespace VivHelper.Entities {
         public IEnumerator FlashSpawn() {
             yield return null;
             (Scene as Level).Flash(color, false);
-            Scene.Add(retrievedHeartGem);
+            Scene.Add(retrievedEntity);
             if (!string.IsNullOrWhiteSpace(flag))
                 (Scene as Level).Session.SetFlag(flag);
             yield return 0.1f;
@@ -446,8 +389,8 @@ namespace VivHelper.Entities {
                     size -= Engine.DeltaTime;
                     yield return null;
                 }
-                LevelUpOrb orb = new LevelUpOrb(node ?? retrievedHeartGem.Position, color);
-                orb.Target = retrievedHeartGem.Position;
+                LevelUpOrb orb = new LevelUpOrb(node ?? retrievedEntity.Position, color);
+                orb.Target = retrievedEntity.Position;
                 orb.Routine.Replace(orb.CircleRoutine((orbs.Count + 1) / 8f * ((float) Math.PI * 2f)));
                 Scene.Add(orb);
                 orbs.Add(orb);
@@ -457,7 +400,7 @@ namespace VivHelper.Entities {
                 orb3.Routine.Replace(orb3.AbsorbRoutine());
             }
             yield return 1f;
-            Scene.Add(retrievedHeartGem);
+            Scene.Add(retrievedEntity);
             foreach (LevelUpOrb orb in orbs) { orb.RemoveSelf(); }
             orbs.Clear();
             if (!string.IsNullOrWhiteSpace(flag))
@@ -506,7 +449,7 @@ namespace VivHelper.Entities {
                     rumble = i / j;
                     if (rumble < 0.5f && !b) {
                         b = true;
-                        Scene.Add(retrievedHeartGem);
+                        Scene.Add(retrievedEntity);
                     }
                 }
                 Remove(d);
@@ -516,13 +459,13 @@ namespace VivHelper.Entities {
                 Glitch.Value = 0f;
                 yield return (duration - 0.4f);
                 Glitch.Value = 0.45f;
-                Scene.Add(retrievedHeartGem);
+                Scene.Add(retrievedEntity);
                 yield return 0.2f;
                 Glitch.Value = 0f;
             } else {
                 Glitch.Value = 0.3f;
                 yield return duration / 3;
-                Scene.Add(retrievedHeartGem);
+                Scene.Add(retrievedEntity);
                 yield return duration / 1.5;
                 Glitch.Value = 0f;
             }
@@ -535,7 +478,7 @@ namespace VivHelper.Entities {
             yield return 0.2f;
             level.Frozen = true;
             base.Tag = Tags.FrozenUpdate;
-            Vector2 pos = retrievedHeartGem.Position;
+            Vector2 pos = retrievedEntity.Position;
             BloomPoint bloom = new BloomPoint(pos, 1f, 32f);
             Glitch.Value = 0.1f;
             yield return 0.6f;
@@ -543,17 +486,17 @@ namespace VivHelper.Entities {
                 Tag = Tags.FrozenUpdate
             };
             level.Add(particles);
-            retrievedHeartGem.Tag = Tags.FrozenUpdate;
-            retrievedHeartGem.Collidable = false;
-            retrievedHeartGem.Visible = false;
-            level.Add(retrievedHeartGem);
+            retrievedEntity.Tag = Tags.FrozenUpdate;
+            retrievedEntity.Collidable = false;
+            retrievedEntity.Visible = false;
+            level.Add(retrievedEntity);
             yield return null;
             Glitch.Value = 0.3f;
             yield return 1.2f;
             level.Displacement.AddBurst(pos, 20f, 0f, 3000f);
             Glitch.Value = 0.7f;
             yield return 2f;
-            retrievedHeartGem.Visible = true;
+            retrievedEntity.Visible = true;
             yield return 2f;
             Glitch.Value = 0.3f;
             yield return 2f;
@@ -563,7 +506,7 @@ namespace VivHelper.Entities {
             Remove(bloom);
             Glitch.Value = 0f;
             level.Frozen = false;
-            retrievedHeartGem.Collidable = true;
+            retrievedEntity.Collidable = true;
         }
 
         private void RenderDisplacement() {

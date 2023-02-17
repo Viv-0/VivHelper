@@ -11,6 +11,10 @@ using Microsoft.Xna.Framework;
 using System.Collections;
 
 namespace VivHelper.Entities {
+    /// <summary>
+    /// OLDER VERSION
+    /// </summary>
+
     [CustomEntity("VivHelper/FunctionRefillAppender")]
     public class FunctionRefillAppender : Entity {
         public List<Type> Types, assignableTypes;
@@ -36,8 +40,7 @@ namespace VivHelper.Entities {
             Collidable = true;
             foreach (PlayerCollider tie in CollideAllByComponent<PlayerCollider>()) {
                 Entity entity = tie.Entity;
-                Type t = tie.Entity.GetType();
-                if (Types.Contains(t) || assignableTypes.Any((u) => t.IsAssignableFrom(u))) {
+                if (VivHelper.MatchTypeFromTypeSet(entity.GetType(), Types, assignableTypes)) {
                     Action<Player> oldOnCollide = tie.OnCollide;
                     entity.Remove(entity.Get<PlayerCollider>());
                     entity.Add(new PlayerCollider(delegate (Player p) {
@@ -56,7 +59,7 @@ namespace VivHelper.Entities {
 
 
         public void SetRefillActions(string dashes, string stamina) {
-            if (dashes == null || dashes == "D")
+            if (string.IsNullOrWhiteSpace(dashes) || dashes == "D")
                 replaceDashes = (int i) => i;
             else {
                 int b = 0;
@@ -80,8 +83,8 @@ namespace VivHelper.Entities {
                     }
                 }
             }
-            if (stamina == null || stamina == "D")
-                replaceDashes = (int i) => i;
+            if (string.IsNullOrWhiteSpace(stamina) || stamina == "D")
+                replaceStamina = (float i) => 110f;
             else {
                 int c = 0;
                 if (stamina[0] == '+' || stamina[0] == '-') {
@@ -89,7 +92,7 @@ namespace VivHelper.Entities {
                     stamina = stamina.Substring(1);
                 }
                 if (!FloatParser(stamina, out float outStam)) {
-                    replaceStamina = (float i) => i;
+                    replaceStamina = (float i) => 110f;
                 } else {
                     switch (c) {
                         case -1:

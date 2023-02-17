@@ -13,6 +13,8 @@ using VivHelper.Entities.SeekerStuff;
 using Celeste.Mod;
 using System.IO;
 using MonoMod.Utils;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 using System.Reflection;
 
 namespace VivHelper.Entities {
@@ -22,8 +24,37 @@ namespace VivHelper.Entities {
         "VivHelper/CustomSeeker = Custom",
         "VivHelper/CustomSeekerYaml = Yaml")]
     public class CustomSeeker : Actor {
-        public static void Load() { }
-        public static void Unload() { }
+        public static void Load() { IL.Celeste.SeekerEffectsController.Update += SeekerEffectsController_Update; }
+
+        public static void Unload() { IL.Celeste.SeekerEffectsController.Update -= SeekerEffectsController_Update; }
+
+        private static void SeekerEffectsController_Update(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            if (cursor.TryGotoNext(instr => instr.MatchLdloc(5), instr => instr.MatchLdcR4(0), instr => instr.MatchBltUn(out _))) {
+                cursor.Emit(OpCodes.Ldloc_1);
+                cursor.Emit(OpCodes.Ldloca, 4);
+                cursor.Emit(OpCodes.Ldloca, 5);
+                cursor.Emit(OpCodes.Call, typeof(CustomSeeker).GetMethod(nameof(AddSeekerCheck)));
+            }
+            while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchCallvirt<Tracker>("CountEntities"))) {
+                cursor.Emit(OpCodes.Ldloc_1);
+                cursor.Emit(OpCodes.Call, typeof(CustomSeeker).GetMethod(nameof(AddSeekerCount)));
+            }
+        }
+
+        public static void AddSeekerCheck(Player player, ref float num, ref float num2) {
+            foreach (CustomSeeker entity2 in player.Scene.Tracker.GetEntities<CustomSeeker>()) {
+                float num3 = Vector2.DistanceSquared(player.Center, entity2.Center);
+                if (!entity2.Regenerating) {
+                    num = ((!(num < 0f)) ? Math.Min(num, num3) : num3);
+                }
+                if (entity2.Attacking) {
+                    num2 = ((!(num2 < 0f)) ? Math.Min(num2, num3) : num3);
+                }
+            }
+        }
+
+        public static int AddSeekerCount(int i, Player player) => i + (player?.Scene?.Tracker?.TryCountEntities<CustomSeeker>() ?? 0);
 
         protected struct PatrolPoint {
             public Vector2 Point;
@@ -57,14 +88,6 @@ namespace VivHelper.Entities {
                 Engine.Scene.Add(recoverBlast);
             }
         }
-
-        public static ParticleType P_Attack = Seeker.P_Attack;
-
-        public static ParticleType P_HitWall = Seeker.P_HitWall;
-
-        public static ParticleType P_Stomp = Seeker.P_Stomp;
-
-        public static ParticleType P_Regen = Seeker.P_Regen;
 
         public static ParticleType P_BreakOut = Seeker.P_BreakOut;
 
@@ -281,7 +304,7 @@ namespace VivHelper.Entities {
         protected float ParticleEmitInterval;
         protected float TrailCreateInterval;
         protected float RegenerateTimerMult = 1f;
-        protected bool disableAllParticles;
+        protected bool disableAllParticles, AlwaysSeePlayer, IgnoreCamera;
         protected Color tint;
         protected bool RemoveBounceHitbox;
         protected Color DeathEffectColor;
@@ -351,6 +374,8 @@ namespace VivHelper.Entities {
             numberOfBounces = 0;
             maxNumberOfBounces = data.Int("MaxNumberOfBounces", -1);
             legacyPathfindingBehavior = !data.Bool("NewPathfindingBehavior", false);
+            AlwaysSeePlayer = data.Bool("AlwaysSeePlayer");
+            IgnoreCamera = data.Bool("SpottedNoCameraLimit");
             deLagValue = Calc.Clamp((float) data.Int("aiDelag", 6), 1, 30) / 60f;
 
             DeathEffectColor = VivHelper.ColorFix(data.Attr("DeathEffectColor", "HotPink"));
@@ -513,7 +538,7 @@ namespace VivHelper.Entities {
             State.State = 6;
             sprite.Scale = new Vector2(1.4f, 0.6f);
             if (!disableAllParticles) {
-                SceneAs<Level>().Particles.Emit(P_Stomp, 8, base.Center - Vector2.UnitY * 5f, new Vector2(6f, 3f));
+                SceneAs<Level>().Particles.Emit(Seeker.P_Stomp, 8, base.Center - Vector2.UnitY * 5f, new Vector2(6f, 3f));
             }
         }
 
@@ -525,7 +550,7 @@ namespace VivHelper.Entities {
             if (player == null) {
                 return false;
             }
-            if (State.State != 2 && (!SceneAs<Level>().InsideCamera(base.Center) || Vector2.DistanceSquared(base.Center, player.Center) > SightDistSq)) {
+            if (State.State != 2 && !(IgnoreCamera ? false : SceneAs<Level>().InsideCamera(base.Center)) && Vector2.DistanceSquared(base.Center, player.Center) > SightDistSq) {
                 return false;
             }
             Vector2 value = (player.Center - base.Center).Perpendicular().SafeNormalize(2f);
@@ -751,7 +776,7 @@ namespace VivHelper.Entities {
                 direction = 0f;
                 x = base.Left;
             }
-            if (!disableAllParticles) { SceneAs<Level>().Particles.Emit(P_HitWall, 12, new Vector2(x, base.Y), Vector2.UnitY * 4f, direction); }
+            if (!disableAllParticles) { SceneAs<Level>().Particles.Emit(Seeker.P_HitWall, 12, new Vector2(x, base.Y), Vector2.UnitY * 4f, direction); }
             if (data.Hit is DashSwitch) {
                 (data.Hit as DashSwitch).OnDashCollide(null, Vector2.UnitX * Math.Sign(Speed.X));
             }
@@ -876,7 +901,7 @@ namespace VivHelper.Entities {
         }
 
         protected virtual int PatrolUpdate() {
-            if (canSeePlayer) {
+            if (canSeePlayer || AlwaysSeePlayer) {
                 return 2;
             }
             if (patrolWaitTimer > 0f) {
@@ -948,7 +973,7 @@ namespace VivHelper.Entities {
         }
 
         protected virtual int SpottedUpdate() {
-            if (!canSeePlayer) {
+            if (!canSeePlayer && !AlwaysSeePlayer) {
                 spottedLosePlayerTimer -= Engine.DeltaTime;
                 if (spottedLosePlayerTimer < 0f) {
                     return 0;
@@ -1027,7 +1052,7 @@ namespace VivHelper.Entities {
                     if (base.Scene.OnInterval(ParticleEmitInterval)) {
                         if (SceneAs<Level>().InsideCamera(Position, 10f)) {
                             Vector2 vector2 = (-Speed).SafeNormalize();
-                            SceneAs<Level>().Particles.Emit(P_Attack, 2, Position + vector2 * 4f, Vector2.One * 4f, vector2.Angle());
+                            SceneAs<Level>().Particles.Emit(Seeker.P_Attack, 2, Position + vector2 * 4f, Vector2.One * 4f, vector2.Angle());
                         }
                     }
                 }
@@ -1156,7 +1181,7 @@ namespace VivHelper.Entities {
             if (!disableAllParticles) {
                 for (float num = 0f; num < (float) Math.PI * 2f; num += 0.17453292f) {
                     Vector2 position = base.Center + Calc.AngleToVector(num + Calc.Random.Range(-(float) Math.PI / 90f, (float) Math.PI / 90f), Calc.Random.Range(12, 18));
-                    level.Particles.Emit(P_Regen, position, num);
+                    level.Particles.Emit(Seeker.P_Regen, position, num);
                 }
             }
             shaker.On = false;

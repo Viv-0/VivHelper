@@ -10,7 +10,6 @@ using Celeste.Mod.VivHelper;
 using Celeste.Mod.Entities;
 
 namespace VivHelper.Effects {
-    [CustomEntity("VivHelper/WindRainFG")]
     public class WindRainFG : Backdrop {
         private struct Particle {
             public Vector2 Position;
@@ -82,17 +81,17 @@ namespace VivHelper.Effects {
                 float colFade = 0.5f * Alpha * linearFade * visibleFade;
                 Camera camera = (scene as Level).Camera;
                 for (int i = 0; i < particles.Length; i++) {
+                    float t = (float) Math.Pow((particles[i].Speed - 400) / 400, 1.1);
+                    var u = Calc.Angle(Calc.AngleToVector(particles[i].Rotation, (t + 1) * 400) + (scene as Level).Wind * windStrength);
                     Vector2 position = new Vector2(mod(particles[i].Position.X - camera.X - 32f, 384f), mod(particles[i].Position.Y - camera.Y - 32f, 244f));
                     Draw.Pixel.DrawCentered(position,
                                             Colors[(int) (i * mod(i * (i + 2) * Math.Abs(i - 7.5f), Math.Abs((2 * i - 1) * i - 3)) * (i + 4.5f)) % Colors.Length],
                                             particles[i].Scale,
-                                            particles[i].Rotation);
+                                            u);
                 }
             }
         }
 
-        private float mod(float x, float m) {
-            return (x % m + m) % m;
-        }
+        private float mod(float x, float m) => VivHelper.mod(x, m);
     }
 }
