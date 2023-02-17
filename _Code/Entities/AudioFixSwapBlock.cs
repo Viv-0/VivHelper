@@ -55,7 +55,7 @@ namespace VivHelper.Entities {
         public DynData<SwapBlock> dyn;
 
         public AudioFixSwapBlock(EntityData data, Vector2 offset) : base(data, offset) {
-            dyn = new DynData<SwapBlock>(this); //This doesn't actually ever optimize more than this. so dont worry about it.
+            dyn = new DynData<SwapBlock>(this);
         }
     }
 }

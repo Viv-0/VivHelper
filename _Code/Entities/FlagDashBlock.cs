@@ -36,7 +36,7 @@ namespace VivHelper.Entities {
 
         public CustomDashBlock(EntityData data, Vector2 offset, EntityID id)
             : base(data, offset, id) {
-            base.Depth = Depths.Solids;
+            base.Depth = -12999;
             this.id = id;
             permanent = data.Bool("permanent", defaultValue: true);
             width = data.Width;
@@ -108,7 +108,7 @@ namespace VivHelper.Entities {
                     }
                 }
             }
-            DestroyStaticMovers();
+            DisableStaticMovers();
             if (flagBreak != "") {
                 (Scene as Level)?.Session?.SetFlag(flagBreak);
             }

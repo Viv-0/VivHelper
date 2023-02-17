@@ -19,10 +19,10 @@ namespace VivHelper.Entities {
         "VivHelper/RainbowSpikesRight = LoadRight"
     )]
     public class RainbowSpikes : CustomSpike {
-        public static Entity LoadUp(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new RainbowSpikes(entityData, offset, DirectionPlus.Up);
-        public static Entity LoadDown(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new RainbowSpikes(entityData, offset, DirectionPlus.Down);
-        public static Entity LoadLeft(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new RainbowSpikes(entityData, offset, DirectionPlus.Left);
-        public static Entity LoadRight(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new RainbowSpikes(entityData, offset, DirectionPlus.Right);
+        public static Entity LoadUp(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new RainbowSpikes(entityData, offset, Directions.Up);
+        public static Entity LoadDown(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new RainbowSpikes(entityData, offset, Directions.Down);
+        public static Entity LoadLeft(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new RainbowSpikes(entityData, offset, Directions.Left);
+        public static Entity LoadRight(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new RainbowSpikes(entityData, offset, Directions.Right);
 
         public const string TentacleType = "tentacles";
 
@@ -50,8 +50,8 @@ namespace VivHelper.Entities {
 
         private float timer;
 
-        public RainbowSpikes(Vector2 position, Vector2 o, int size, DirectionPlus direction, string type, bool doNotAttach, bool wallbounce, bool allway, bool groundRefill)
-            : base(position, direction, size, wallbounce, groundRefill, allway) {
+        public RainbowSpikes(Vector2 position, Vector2 o, int size, Directions direction, string type, bool doNotAttach, bool wallbounce, bool allway)
+            : base(position, direction, size, wallbounce, allway) {
             base.Depth = -1;
             this.size = size;
             overrideType = type;
@@ -68,8 +68,8 @@ namespace VivHelper.Entities {
             AddTag(Tags.TransitionUpdate);
         }
 
-        public RainbowSpikes(EntityData data, Vector2 offset, DirectionPlus dir)
-            : this(data.Position + offset, offset, GetSize(data.Height, data.Width, dir), dir, data.Attr("type", "default"), data.Bool("DoNotAttach", false), data.Bool("OverrideWallBounce"), data.Bool("KillFromAnyDirection", false), data.Bool("groundRefill", false)) {
+        public RainbowSpikes(EntityData data, Vector2 offset, Directions dir)
+            : this(data.Position + offset, offset, GetSize(data.Height, data.Width, dir), dir, data.Attr("type", "default"), data.Bool("DoNotAttach", false), data.Bool("OverrideWallBounce"), data.Bool("KillFromAnyDirection", false)) {
             string str = data.Attr("Color", "");
             oneColor = (str == "" ? Color.Transparent : VivHelper.ColorFix(str));
 
@@ -98,25 +98,25 @@ namespace VivHelper.Entities {
             for (int j = 0; j < size / 8; j++) {
                 Image image = new Image(Calc.Random.Choose(atlasSubtextures));
                 switch (Direction) {
-                    case DirectionPlus.Up:
+                    case Directions.Up:
                         image.JustifyOrigin(0.5f, 1f);
                         image.Position = Vector2.UnitX * ((float) j + 0.5f) * 8f + Vector2.UnitY;
                         break;
-                    case DirectionPlus.Down:
+                    case Directions.Down:
                         image.JustifyOrigin(0.5f, 0f);
                         image.Position = Vector2.UnitX * ((float) j + 0.5f) * 8f - Vector2.UnitY;
                         break;
-                    case DirectionPlus.Right:
+                    case Directions.Right:
                         image.JustifyOrigin(0f, 0.5f);
                         image.Position = Vector2.UnitY * ((float) j + 0.5f) * 8f - Vector2.UnitX;
                         break;
-                    case DirectionPlus.Left:
+                    case Directions.Left:
                         image.JustifyOrigin(1f, 0.5f);
                         image.Position = Vector2.UnitY * ((float) j + 0.5f) * 8f + Vector2.UnitX;
                         break;
                 }
                 Add(image);
-                try { SetSpikeColor(); } catch { }
+                try { SetSpikeColor(); } catch { Console.WriteLine("Setting RainbowSpikeColor failed on first pass!"); }
             }
         }
 
@@ -136,22 +136,22 @@ namespace VivHelper.Entities {
         private void AddTentacle(float i) {
             Sprite sprite = VivHelperModule.spriteBank.Create("tentacles");
             sprite.Play(Calc.Random.Next(3).ToString(), restart: true, randomizeFrame: true);
-            sprite.Position = ((Direction == DirectionPlus.Up || Direction == DirectionPlus.Down) ? Vector2.UnitX : Vector2.UnitY) * (i + 0.5f) * 16f;
+            sprite.Position = ((Direction == Directions.Up || Direction == Directions.Down) ? Vector2.UnitX : Vector2.UnitY) * (i + 0.5f) * 16f;
             sprite.Scale.X = Calc.Random.Choose(-1, 1);
             sprite.SetAnimationFrame(Calc.Random.Next(sprite.CurrentAnimationTotalFrames));
-            if (Direction == DirectionPlus.Up) {
+            if (Direction == Directions.Up) {
                 sprite.Rotation = -(float) Math.PI / 2f;
                 float y = sprite.Y;
                 sprite.Y = y + 1f;
-            } else if (Direction == DirectionPlus.Right) {
+            } else if (Direction == Directions.Right) {
                 sprite.Rotation = 0f;
                 float y = sprite.X;
                 sprite.X = y - 1f;
-            } else if (Direction == DirectionPlus.Left) {
+            } else if (Direction == Directions.Left) {
                 sprite.Rotation = (float) Math.PI;
                 float y = sprite.X;
                 sprite.X = y + 1f;
-            } else if (Direction == DirectionPlus.Down) {
+            } else if (Direction == Directions.Down) {
                 sprite.Rotation = (float) Math.PI / 2f;
                 float y = sprite.Y;
                 sprite.Y = y - 1f;
@@ -205,13 +205,13 @@ namespace VivHelper.Entities {
             switch (Direction) {
                 default:
                     return false;
-                case DirectionPlus.Up:
+                case Directions.Up:
                     return CollideCheckOutside(solid, Position + Vector2.UnitY);
-                case DirectionPlus.Down:
+                case Directions.Down:
                     return CollideCheckOutside(solid, Position - Vector2.UnitY);
-                case DirectionPlus.Left:
+                case Directions.Left:
                     return CollideCheckOutside(solid, Position + Vector2.UnitX);
-                case DirectionPlus.Right:
+                case Directions.Right:
                     return CollideCheckOutside(solid, Position - Vector2.UnitX);
             }
         }

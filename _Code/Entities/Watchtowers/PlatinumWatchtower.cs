@@ -425,6 +425,7 @@ namespace VivHelper.Entities {
         }
 
         private IEnumerator RunHint(int hintNum) {
+            Console.WriteLine(hints[hintNum].dialog);
             if (hints[hintNum].dialog != "") { yield return Textbox.Say(hints[hintNum].dialog); }
             if (hints[hintNum].playback != null) {
                 if (cpp != null) { cpp.Restart(); Scene.Remove(cpp); (Scene as Level).Session.SetFlag("VH-CPP_" + cpp.customID, false); }

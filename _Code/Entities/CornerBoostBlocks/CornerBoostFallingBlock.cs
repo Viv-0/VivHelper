@@ -90,7 +90,7 @@ namespace VivHelper.Entities {
 
                     return VivHelper.TryGetAlivePlayer(out Player player) && (
                         HasPlayerRider() || (
-                        Input.Jump.Pressed && ((bool) VivHelperModule.playerWallJump.Invoke(player, VivHelper.oneOne) || (bool) VivHelperModule.playerWallJump.Invoke(player, VivHelper.negOne))));
+                        Input.Jump.Pressed && ((bool) VivHelperModule.playerWallJump.Invoke(player, new object[] { 1 }) || (bool) VivHelperModule.playerWallJump.Invoke(player, new object[] { 1 }))));
 
                 case 1:
                     return HasPlayerRider();

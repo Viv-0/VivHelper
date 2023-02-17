@@ -185,12 +185,12 @@ namespace VivHelper.Entities {
                     foreach (CassetteTileEntity item2 in group) {
                         item2.Collidable = true;
                         item2.EnableStaticMovers();
-                        shiftSize.Invoke(this, VivHelper.negOne);
+                        shiftSize.Invoke(this, new object[] { -1 });
 
                     }
                 }
             } else if (!Activated && Collidable) {
-                shiftSize.Invoke(this, VivHelper.oneOne);
+                shiftSize.Invoke(this, new object[] { 1 });
                 Collidable = false;
                 DisableStaticMovers();
             }

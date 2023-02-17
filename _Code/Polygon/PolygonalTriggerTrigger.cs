@@ -11,7 +11,7 @@ using VivHelper.Colliders;
 
 namespace VivHelper.Polygon {
     [CustomEntity("VivHelper/PolygonTriggerTrigger")]
-    public class PolygonalTriggerTrigger : AbstractPolygonTrigger {
+    public class PolygonalTriggerTrigger : Trigger {
         public string flagToggle;
         public bool onlyOnce;
         public List<Trigger> Associators;
@@ -24,7 +24,9 @@ namespace VivHelper.Polygon {
         public PolygonalTriggerTrigger(EntityData data, Vector2 offset) : base(data, offset) {
             triggerPoint = Position;
             onlyOnce = data.Bool("oneUse", false);
-            Collider = new PolygonCollider(data.NodesOffset(offset), this, true);
+            var q = data.NodesOffset(offset);
+            Position = PolygonCollider.GetCentroidOfNonComplexPolygon(q);
+            Collider = new PolygonCollider(q, this);
             string r = data.Attr("Types", "");
             assignableTypes = new List<Type>();
             Types = new List<Type>();
@@ -37,7 +39,8 @@ namespace VivHelper.Polygon {
         public override void Awake(Scene scene) {
             base.Awake(scene);
             foreach (Entity e in scene.Entities.Where<Entity>((f) => Collide.CheckPoint(f, triggerPoint))) {
-                if (VivHelper.MatchTypeFromTypeSet(e.GetType(), Types, assignableTypes) && e.Collider.GetType() != typeof(PolygonCollider)) {
+                Type t = e.GetType();
+                if (Types.Contains(t) || assignableTypes.Any((u) => t.IsAssignableFrom(u)) && e.Collider.GetType() != typeof(PolygonCollider)) {
                     Associators.Add(e as Trigger);
                     e.Collidable = false;
                     break;
@@ -46,6 +49,12 @@ namespace VivHelper.Polygon {
             Collidable = true;
         }
 
+        internal static float Percentage(float val, float min, float max) => (val - min) / (max - min);
+
+        private Vector2 GetPercentageOfBoundingBox(Vector2 playerCenter) =>
+            new Vector2(Percentage(playerCenter.X, Collider.AbsoluteLeft, Collider.AbsoluteRight), Percentage(playerCenter.Y, Collider.AbsoluteTop, Collider.AbsoluteBottom));
+
+
         public override void OnEnter(Player player) {
             base.OnEnter(player);
             foreach (Trigger associator in Associators) {
@@ -53,7 +62,7 @@ namespace VivHelper.Polygon {
                     continue; //Inverse check is faster
 
                 Vector2 oldPosition = player.Position;
-                Vector2 relPos = GetPercentageOfBoundingBox_Safe(player.Center).Value;
+                Vector2 relPos = GetPercentageOfBoundingBox(player.Center);
                 player.Position = associator.TopLeft + new Vector2(associator.Width * relPos.X, associator.Height * relPos.Y);
                 associator.Triggered = true;
                 associator.OnEnter(player);
@@ -68,7 +77,7 @@ namespace VivHelper.Polygon {
                     continue; //Inverse check is faster
 
                 Vector2 oldPosition = player.Position;
-                Vector2 relPos = GetPercentageOfBoundingBox_Safe(player.Center).Value;
+                Vector2 relPos = GetPercentageOfBoundingBox(player.Center);
                 player.Position = associator.TopLeft + new Vector2(associator.Width * relPos.X, associator.Height * relPos.Y);
                 associator.OnStay(player);
                 player.Position = oldPosition;
@@ -83,12 +92,16 @@ namespace VivHelper.Polygon {
                     continue; //Inverse check is faster
 
                 Vector2 oldPosition = player.Position;
-                Vector2 relPos = GetPercentageOfBoundingBox_Safe(player.Center).Value;
+                Vector2 relPos = GetPercentageOfBoundingBox(player.Center);
                 player.Position = associator.TopLeft + new Vector2(associator.Width * relPos.X, associator.Height * relPos.Y);
                 associator.OnLeave(player);
                 associator.Triggered = false;
                 player.Position = oldPosition;
             }
+        }
+
+        public override void Render() {
+            Collider.Render((Scene as Level).Camera, Color.Red);
         }
     }
 }

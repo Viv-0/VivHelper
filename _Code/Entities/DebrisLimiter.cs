@@ -12,11 +12,11 @@ namespace VivHelper.Entities {
     [Tracked]
     [CustomEntity("VivHelper/DebrisLimiter")]
     public class DebrisLimiter : Entity {
-        public float limiter;
+        public int limiter;
         public bool random;
         public static bool locker;
         public DebrisLimiter(EntityData data, Vector2 offset) : base() {
-            limiter = Calc.Clamp(data.Int("limiter", 0), 0, 32) / 32f;
+            limiter = Calc.Clamp(data.Int("limiter", 0), 0, 32);
         }
 
         public override void Added(Scene scene) {

@@ -16,29 +16,17 @@ using MonoMod.RuntimeDetour;
 using System.Reflection;
 
 namespace VivHelper.Entities {
-    [CustomEntity("VivHelper/BadelineBoostNoRefill = BaddyBoostNoRefill", "VivHelper/BadelineBoostCustomRefill = BaddyBoostCustom", "VivHelper/BadelineBoostCustom = BaddyBoostCustom")]
+    [CustomEntity("VivHelper/BadelineBoostNoRefill = BaddyBoostCustom", "VivHelper/BadelineBoostCustomRefill = BaddyBoostCustom", "VivHelper/BadelineBoostCustom = BaddyBoostCustom")]
     [Tracked]
     public class BadelineBoostCustom : BadelineBoost {
         #region Hooks
-        private static Func<BadelineBoost, Player> baddyboost_holding = typeof(BadelineBoost).GetField("holding", BindingFlags.NonPublic | BindingFlags.Instance).CreateFastGetter<BadelineBoost, Player>();
+
         private static IDetour hook_BadelineBoost_AddCustomRefill;
-        private static FieldInfo player_dashCooldownTimer = typeof(Player).GetField("dashCooldownTimer", BindingFlags.NonPublic | BindingFlags.Instance);
-
         public static void Load() {
-            using (new DetourContext { After = { "*" } }) {
-                MethodInfo n = typeof(BadelineBoost).GetMethod("BoostRoutine", BindingFlags.Instance | BindingFlags.NonPublic).GetStateMachineTarget();
-                hook_BadelineBoost_AddCustomRefill = new ILHook(n, (il) => BoostRoutineAddCustomRefillTraits(n.DeclaringType.GetField("<>4__this"), il)); //Fixes "visual" bug with BadelineBoost, and replaces the Action within the Alarm to be a new function that resolves itself.
-
-                On.Celeste.BadelineBoost.BoostRoutine += BadelineBoost_BoostRoutine;
-                IL.Celeste.Player.BadelineBoostLaunch += BaddyBoostLaunchMod;
-            }
-        }
-
-        public static void Unload() {
-            hook_BadelineBoost_AddCustomRefill?.Dispose();
-            hook_BadelineBoost_AddCustomRefill = null;
-            On.Celeste.BadelineBoost.BoostRoutine -= BadelineBoost_BoostRoutine;
-            IL.Celeste.Player.BadelineBoostLaunch -= BaddyBoostLaunchMod;
+            MethodInfo n = typeof(BadelineBoost).GetMethod("BoostRoutine", BindingFlags.Instance | BindingFlags.NonPublic).GetStateMachineTarget();
+            hook_BadelineBoost_AddCustomRefill = new ILHook(n, (il) => BoostRoutineAddCustomRefillTraits(n.DeclaringType.GetField("<>4__this"), il)); //Fixes "visual" bug with BadelineBoost, and replaces the Action within the Alarm to be a new function that resolves itself.
+            On.Celeste.BadelineBoost.BoostRoutine += BadelineBoost_BoostRoutine;
+            IL.Celeste.Player.BadelineBoostLaunch += BaddyBoostLaunchMod;
         }
 
         public const string BadelineBoostMultCacheName = "VH_BBLM";
@@ -48,11 +36,11 @@ namespace VivHelper.Entities {
             while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdcR4(-330f))) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate<Func<float, Player, float>>((f, p) => {
-                    DynamicData d = DynamicData.For(p);
+                    DynData<Player> d = new DynData<Player>(p);
                     float q = f;
-                    if (d.Get(BadelineBoostMultCacheName) != null) {
-                        q *= (float) d.Get(BadelineBoostMultCacheName);
-                        d.Set(BadelineBoostMultCacheName, null);
+                    if (d[BadelineBoostMultCacheName] != null) {
+                        q *= (float) d[BadelineBoostMultCacheName];
+                        d[BadelineBoostMultCacheName] = null;
                     }
                     return q;
                 });
@@ -76,10 +64,9 @@ namespace VivHelper.Entities {
 
         }
         internal static IEnumerator BaddyBoostCustomRefillIEnum(BadelineBoostCustom b, Player p, int dash, float stam) {
-            BaddyBoostCustomRefill(b, p, dash, stam);
-            yield return null; //Wacky ExtVar override shit
-            BaddyBoostCustomRefill(b, p, dash, stam);
-            yield return null; //Weird bug with SwapImmediately, with the wacky extvar override shit.
+            yield return null; //Normally the hook into BadelineBoost::BoostRoutine from ExtendedVariants will call on this IEnumerator instruction, so we want to delay this for 1 frame so we override the change made by Extended Variants that we don't actually want.
+            //I made it a IEnumerator because an Alarm will ignore PauseMenu, and an IEnumerator won't, so there's never an instance where this becomes a problem.
+            yield return null; //Lmao XD 1 frame didn't work so we try two now.
             BaddyBoostCustomRefill(b, p, dash, stam);
         }
         internal static void BaddyBoostCustomRefill(BadelineBoostCustom b, Player p, int dash, float stam) {
@@ -106,7 +93,7 @@ namespace VivHelper.Entities {
                             cursor.Emit(OpCodes.Ldfld, f);
                             cursor.EmitDelegate<Func<BadelineBoost, bool>>((b) => {
                                 if (b is BadelineBoostCustom) {
-                                    Player d = baddyboost_holding(b);
+                                    Player d = new DynData<BadelineBoost>(b).Get<Player>("holding");
                                     d.Dashes = (b as BadelineBoostCustom).replaceDashes(d.Dashes, d.Inventory.Dashes); //replaceDashes is a Func<int, int> which takes in the current Dashes and outputs a new value for Dashes
                                     d.Stamina = (b as BadelineBoostCustom).replaceStamina(d.Stamina, 110f); //replaceStamina is a Func<float, float> which takes in the current Stamina and outputs a new value for Stamina
                                     return true;
@@ -117,22 +104,22 @@ namespace VivHelper.Entities {
 
                             cursor2.Emit(OpCodes.Ldarg_0);
                             cursor2.Emit(OpCodes.Ldfld, f);
-                            cursor2.EmitDelegate<Action<BadelineBoost>>((b) => { if (b is BadelineBoostCustom && (b as BadelineBoostCustom).FloorPositionOnLaunch) baddyboost_holding.Invoke(b).Position.Floor(); });
+                            cursor2.EmitDelegate<Action<BadelineBoost>>((b) => { if (b is BadelineBoostCustom && (b as BadelineBoostCustom).FloorPositionOnLaunch) new DynData<BadelineBoost>(b).Get<Player>("holding").Position.Floor(); });
 
                             cursor3.Emit(OpCodes.Ldarg_0);
                             cursor3.Emit(OpCodes.Ldfld, f);
                             cursor3.EmitDelegate<Func<Player, BadelineBoost, Player>>((p, b) => {
                                 if (b is BadelineBoostCustom b2) {
                                     if (b2.LaunchStrengthMultiplier == null) {
-                                        int ind = DynamicData.For(b).Get<int>("nodeIndex");
+                                        int ind = new DynData<BadelineBoost>(b).Get<int>("nodeIndex");
                                         if (ind > b2.LaunchStrengthMultiplierSet.Length) {
                                             Console.WriteLine("Uhoh.");
                                             //Do nothing here
                                         } else {
-                                            DynamicData.For(p).Add(BadelineBoostMultCacheName, b2.LaunchStrengthMultiplierSet[ind]);
+                                            new DynData<Player>(p)[BadelineBoostMultCacheName] = b2.LaunchStrengthMultiplierSet[ind];
                                         }
                                     } else {
-                                        DynamicData.For(p).Add(BadelineBoostMultCacheName, b2.LaunchStrengthMultiplier);
+                                        new DynData<Player>(p)[BadelineBoostMultCacheName] = b2.LaunchStrengthMultiplier;
                                     }
                                 }
                                 return p;
@@ -161,8 +148,7 @@ namespace VivHelper.Entities {
         }
         #endregion
 
-        public static Entity BaddyBoostNoRefill(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new BadelineBoostCustom(entityData, offset, true);
-        public static Entity BaddyBoostCustom(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new BadelineBoostCustom(entityData, offset, false);
+        public static Entity BaddyBoostCustom(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new BadelineBoostCustom(entityData, offset);
         /// <summary>
         /// arg1: player.Dashes
         /// arg2: player.Inventory.Dashes
@@ -178,11 +164,11 @@ namespace VivHelper.Entities {
         public float[] LaunchStrengthMultiplierSet;
         public string DashLogic, StamLogic;
 
-        public BadelineBoostCustom(EntityData data, Vector2 offset, bool noRefillOverride) : base(data, offset) {
+        public BadelineBoostCustom(EntityData data, Vector2 offset) : base(data, offset) {
             replaceDashes = (i, j) => i;
             replaceStamina = (i, j) => i;
-            if (noRefillOverride || (data.Has("NoDashRefill") && !data.Has("DashesLogic"))) {
-                DashLogic = data.Bool("NoDashRefill") || noRefillOverride ? "+0" : "D";
+            if (data.Has("NoDashRefill") && !data.Has("DashesLogic")) {
+                DashLogic = data.Bool("NoDashRefill") ? "+0" : "D";
             } else {
                 DashLogic = data.Attr("DashesLogic", "");
             }

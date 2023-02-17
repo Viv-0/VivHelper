@@ -88,11 +88,11 @@ namespace VivHelper.Entities {
             hook_MapEditor_orig_Render = new ILHook(typeof(MapEditor).GetMethod("orig_Render", BindingFlags.Public | BindingFlags.Instance), MapEditor_Render);
 
             hook_Level_orig_Pause = new ILHook(typeof(Level).GetMethod("orig_Pause", BindingFlags.Public | BindingFlags.Instance), Level_OrigPauseHook);
-            IL.Celeste.Editor.MapEditor.RenderKeys += MapEditor_RenderKeys;
             //For the time being, QuickRetry button is bugged.
 
             //            IL.Celeste.MapData.CanTransitionTo += MapData_CanTransitionTo;
         }
+
         public static void Unload() {
             On.Celeste.Player.Added += Player_Added;
 
@@ -106,7 +106,6 @@ namespace VivHelper.Entities {
             hook_MapEditor_orig_Render?.Dispose();
 
             hook_Level_orig_Pause?.Dispose();
-            IL.Celeste.Editor.MapEditor.RenderKeys -= MapEditor_RenderKeys;
             //            IL.Celeste.MapData.CanTransitionTo -= MapData_CanTransitionTo;
         }
 
@@ -204,7 +203,7 @@ namespace VivHelper.Entities {
                     li.InterRoomRespawnSet.Add(e.Position + e.Level.Position, new InterRoomRespawnData {
                         roomName = temp[_temp].Item1,
                         position = temp[_temp].Item2,
-                        Flag = e.NoEmptyString("Flags") ?? e.NoEmptyString("Flag")
+                        Flag = e.NoEmptyString("Flag")
                     });
 
                     VivHelperModule.Session.LevelInfoCache[e.Level.Name] = li;
@@ -231,9 +230,9 @@ namespace VivHelper.Entities {
                 LevelTemplate template = levels.FirstOrDefault((l) => l.Name == levelData.Name); //Checks if the template has previously been removed
                 if (template == null) {
                     if (area.GetLevelSet() != "Into The Jungle") {
-                        Logger.Log(LogLevel.Verbose, "VivHelper", "Comparing to " + levelData.Name);
+                        Console.WriteLine("Comparing to " + levelData.Name);
                         foreach (LevelTemplate t in levels) {
-                            Logger.Log(LogLevel.Verbose, "VivHelper", t.Name);
+                            Console.WriteLine(t.Name);
                         }
                     }
                     continue;
@@ -338,23 +337,21 @@ namespace VivHelper.Entities {
         }
 
         private static bool SkipReload(Level level) {
-            if (VivHelperModule.Session.LevelInfoCache.TryGetValue(level.Session.Level, out var val)) {
-                Dictionary<Vector2, NoResetRespawnData> NoResetRespawns = val.NoResetRespawns;
-                bool b = VivHelperModule.Session.PausedRetryCheck;
-                VivHelperModule.Session.PausedRetryCheck = false;
-                Vector2? v = level.Session.RespawnPoint;
-                if (!v.HasValue)
-                    return false;
-                if (NoResetRespawns.ContainsKey(v.Value)) {
-                    // if NoResetRespawns is onretry, always return true, otherwise, only act if this is not from a Retry
-                    if (NoResetRespawns[level.Session.RespawnPoint.Value].NoResetOnRetry || !b) {
-                        PlayerSpriteMode playerSpriteMode = ((!level.Session.Inventory.Backpack) ? PlayerSpriteMode.MadelineNoBackpack : PlayerSpriteMode.Madeline);
-                        Player player = (Player) Level_loadNewPlayer.Invoke(level, new object[2] { v.Value, playerSpriteMode });
-                        player.IntroType = Player.IntroTypes.Respawn;
-                        level.Add(player);
-                        level.DoScreenWipe(true);
-                        return true;
-                    }
+            Dictionary<Vector2, NoResetRespawnData> NoResetRespawns = VivHelperModule.Session.LevelInfoCache[level.Session.Level].NoResetRespawns;
+            bool b = VivHelperModule.Session.PausedRetryCheck;
+            VivHelperModule.Session.PausedRetryCheck = false;
+            Vector2? v = level.Session.RespawnPoint;
+            if (!v.HasValue)
+                return false;
+            if (NoResetRespawns.ContainsKey(v.Value)) {
+                // if NoResetRespawns is onretry, always return true, otherwise, only act if this is not from a Retry
+                if (NoResetRespawns[level.Session.RespawnPoint.Value].NoResetOnRetry || !b) {
+                    PlayerSpriteMode playerSpriteMode = ((!level.Session.Inventory.Backpack) ? PlayerSpriteMode.MadelineNoBackpack : PlayerSpriteMode.Madeline);
+                    Player player = (Player) Level_loadNewPlayer.Invoke(level, new object[2] { v.Value, playerSpriteMode });
+                    player.IntroType = Player.IntroTypes.Respawn;
+                    level.Add(player);
+                    level.DoScreenWipe(true);
+                    return true;
                 }
             }
             return false;
@@ -454,18 +451,6 @@ namespace VivHelper.Entities {
                 }
             }
         }
-
-
-
-        private static void MapEditor_RenderKeys(ILContext il) {
-            ILCursor cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdarg(0), instr => instr.MatchLdfld<MapEditor>("mapData"), instr => instr.MatchLdfld<MapData>("Levels"))) {
-                cursor.Emit(OpCodes.Call, typeof(SpawnPointHooks).GetMethod("LimitKeyRendering"));
-            }
-        }
-
-        public static List<LevelData> LimitKeyRendering(List<LevelData> origLevels) => new List<LevelData>(origLevels).Where(l => !l.Entities.Any(e => e.Name == "VivHelper/HideRoomInMap")).ToList();
-
 
     }
 

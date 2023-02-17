@@ -20,7 +20,7 @@ namespace VivHelper.Entities.Boosters {
         public static void PinkBegin(Player player) {
             player.RefillDash();
             player.RefillStamina();
-            CustomBooster.dyn = DynamicData.For(player);
+            CustomBooster.dyn = new DynData<Player>(player);
             timer = CustomBooster.timerStart;
             canDash = false;
         }
@@ -31,7 +31,7 @@ namespace VivHelper.Entities.Boosters {
             while (true) {
                 Vector2 v = player.Speed;
                 player.DashDir = v;
-                CustomBooster.dyn.Set("gliderBoostDir", v);
+                CustomBooster.dyn.Set<Vector2>("gliderBoostDir", v);
                 (player.Scene as Level).DirectionalShake(player.DashDir, 0.2f);
                 if (player.DashDir.X != 0f) {
                     player.Facing = (Facings) Math.Sign(player.DashDir.X);
@@ -59,7 +59,7 @@ namespace VivHelper.Entities.Boosters {
             }
 
 
-            int j = (int) BoostFunctions.rdU.Invoke(player, Everest._EmptyObjectArray);
+            int j = (int) BoostFunctions.rdU.Invoke(player, new object[] { });
             j = j == 5 ? VivHelperModule.PinkState : j;
 
             return j;

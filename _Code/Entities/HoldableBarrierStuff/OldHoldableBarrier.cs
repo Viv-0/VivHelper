@@ -97,12 +97,13 @@ namespace VivHelper.Entities {
             //We want to make the barrier solid for any actor that has a Holdable Component and is not being held currently.
             //Somehow this never breaks. I have no clue how this never breaks lmao.
             Holdable h = self.Get<Holdable>();
-            if (self is Player || h == null || h.IsHeld ||
-                !self.Scene.Tracker.Entities.TryGetValue(typeof(HoldableBarrier), out var b1) ||
-                !self.Scene.Tracker.Entities.TryGetValue(typeof(HoldableBarrierJumpThru), out var b2)) {
+            if (self is Player || h == null || h.IsHeld) {
                 return orig(self, moveV, c, pusher);
 
             }
+            //We now know that there is a Holdable Component to this entity, and that it is not being currently held.
+            var b1 = self.Scene.Tracker.GetEntities<HoldableBarrier>();
+            var b2 = self.Scene.Tracker.GetEntities<HoldableBarrierJumpThru>();
             b1.ForEach(entity => entity.Collidable = true); //Just learned that this is doable on an enumerable. Very cool.
             b2.ForEach(entity => entity.Collidable = true);
             bool t = orig(self, moveV, c, pusher);
@@ -116,11 +117,12 @@ namespace VivHelper.Entities {
             //We want to make the barrier solid for any actor that has a Holdable Component and is not being held currently.
             //Somehow this never breaks. I have no clue how this never breaks lmao.
             Holdable h = self.Get<Holdable>();
-            if (h == null || h.IsHeld ||
-                !self.Scene.Tracker.Entities.TryGetValue(typeof(HoldableBarrier), out var b1) ||
-                !self.Scene.Tracker.Entities.TryGetValue(typeof(HoldableBarrierJumpThru), out var b2)) {
+            if (h == null || h.IsHeld) {
                 return orig(self, d);
             }
+            //We now know that there is a Holdable Component to this entity, and that it is not being currently held.
+            var b1 = self.Scene.Tracker.GetEntities<HoldableBarrier>();
+            var b2 = self.Scene.Tracker.GetEntities<HoldableBarrierJumpThru>();
             b1.ForEach(entity => entity.Collidable = true); //Just learned that this is doable on an enumerable. Very cool.
             b2.ForEach(entity => entity.Collidable = true);
             bool t = orig(self, d);
@@ -138,11 +140,8 @@ namespace VivHelper.Entities {
             HoldableBarrierColorController hbcc;
             if (!self.Scene.Tracker.TryGetEntity<HoldableBarrierColorController>(out hbcc))
                 hbcc = null;
-            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(HoldableBarrier), out var b1) ||
-                !self.Scene.Tracker.Entities.TryGetValue(typeof(HoldableBarrierJumpThru), out var b2)) {
-                orig(self, force);
-                return;
-            }
+            var b1 = self.Scene.Tracker.Entities[typeof(HoldableBarrier)];
+            var b2 = self.Scene.Tracker.Entities[typeof(HoldableBarrierJumpThru)];
 
             if (b1.Count + b2.Count > 0) {
                 //Modified check sets all barriers to collidable, in the case of not collidable we now first move it out of the way if its being problematic (weird inverse motion bug)

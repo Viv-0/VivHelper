@@ -7,7 +7,6 @@ using Celeste;
 using Monocle;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using System.Runtime.CompilerServices;
 
 namespace VivHelper {
     /// <summary>
@@ -149,13 +148,17 @@ namespace VivHelper {
             animationTimer -= (float) Math.Sign(animationTimer) * currentAnimation.Delay;
             if (currentFrame < 0 || currentFrame >= currentAnimation.Frames.Length) {
                 string currentAnimationID = CurrentAnimationID;
-                OnLastFrame?.Invoke(CurrentAnimationID);
+                if (OnLastFrame != null) {
+                    OnLastFrame(CurrentAnimationID);
+                }
                 if (!(currentAnimationID == CurrentAnimationID)) {
                     return;
                 }
                 if (currentAnimation.Goto != null) {
                     CurrentAnimationID = currentAnimation.Goto.Choose();
-                    OnChange?.Invoke(LastAnimationID, CurrentAnimationID);
+                    if (OnChange != null) {
+                        OnChange(LastAnimationID, CurrentAnimationID);
+                    }
                     LastAnimationID = CurrentAnimationID;
                     currentAnimation = animations[LastAnimationID];
                     if (currentFrame < 0) {
@@ -163,7 +166,9 @@ namespace VivHelper {
                     } else {
                         currentFrame = 0;
                     }
-                    OnLoop?.Invoke(CurrentAnimationID);
+                    if (OnLoop != null) {
+                        OnLoop(CurrentAnimationID);
+                    }
                 } else {
                     if (currentFrame < 0) {
                         currentFrame = 0;
@@ -175,7 +180,9 @@ namespace VivHelper {
                     CurrentAnimationID = "";
                     currentAnimation = null;
                     animationTimer = 0f;
-                    OnFinish?.Invoke(currentAnimationID2);
+                    if (OnFinish != null) {
+                        OnFinish(currentAnimationID2);
+                    }
                 }
             }
         }
@@ -204,7 +211,9 @@ namespace VivHelper {
 
         public void Play(string id, bool restart = false, bool randomizeFrame = false) {
             if (CurrentAnimationID != id || restart) {
-                OnChange?.Invoke(LastAnimationID, id);
+                if (OnChange != null) {
+                    OnChange(LastAnimationID, id);
+                }
                 string text3 = (LastAnimationID = (CurrentAnimationID = id));
                 currentAnimation = animations[id];
                 Animating = currentAnimation.Delay > 0f;

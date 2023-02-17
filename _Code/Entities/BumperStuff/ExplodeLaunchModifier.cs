@@ -44,6 +44,7 @@ namespace VivHelper.Entities {
         public static BumperModifierTypes bumperWrapperType = 0;
 
         public enum RestrictBoost { NoBoost = -2, OldBehavior = -1, Default = 0, BetterBoost = 1, AlwaysBoost = 2 }
+        public static RestrictBoost restrictBoost = 0;
 
         public static Vector2 ExplodeLaunchMaster(Player self, Vector2 from, bool snapUp, bool sidesOnly, BumperWrapper bw = null) {
             if (sidesOnly)
@@ -51,22 +52,22 @@ namespace VivHelper.Entities {
             switch (bumperWrapperType) {
 
                 case BumperModifierTypes.Cardinal:
-                    return CardinalLaunch(self, from, bw?.bumperBoost ?? RestrictBoost.Default);
+                    return CardinalLaunch(self, from);
                 case BumperModifierTypes.Diagonal:
                     return DiagonalLaunch(self, from);
                 case BumperModifierTypes.EightWay:
-                    return EightWayLaunch(self, from, bw?.bumperBoost ?? RestrictBoost.Default);
+                    return EightWayLaunch(self, from);
                 case BumperModifierTypes.Alt4way:
                     return Alt4WayLaunch(self, from, bw);
                 default:
-                    if (bw == null || bw.bumperBoost == RestrictBoost.Default)
+                    if (restrictBoost == RestrictBoost.Default)
                         return self.ExplodeLaunch(from, snapUp, sidesOnly);
                     else
-                        return ExplodeLaunch(self, from, snapUp, bw.bumperBoost);
+                        return ExplodeLaunch(self, from, snapUp);
             }
         }
 
-        private static Vector2 ExplodeLaunch(Player self, Vector2 from, bool snapUp, RestrictBoost restrictBoost) {
+        private static Vector2 ExplodeLaunch(Player self, Vector2 from, bool snapUp) {
             DynData<Player> dyn = new DynData<Player>(self);
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             if (restrictBoost == RestrictBoost.BetterBoost)
@@ -108,7 +109,7 @@ namespace VivHelper.Entities {
             return vector;
         }
 
-        private static Vector2 CardinalLaunch(Player self, Vector2 from, RestrictBoost restrictBoost) {
+        private static Vector2 CardinalLaunch(Player self, Vector2 from) {
             DynData<Player> dyn = new DynData<Player>(self);
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             if (restrictBoost == RestrictBoost.BetterBoost)
@@ -170,7 +171,7 @@ namespace VivHelper.Entities {
             return Calc.AngleToVector((float) Math.PI * -0.25f, 1f);
         }
 
-        private static Vector2 EightWayLaunch(Player self, Vector2 from, RestrictBoost restrictBoost) {
+        private static Vector2 EightWayLaunch(Player self, Vector2 from) {
             DynData<Player> dyn = new DynData<Player>(self);
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             if (restrictBoost == RestrictBoost.BetterBoost)
