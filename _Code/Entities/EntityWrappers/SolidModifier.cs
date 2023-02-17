@@ -74,8 +74,8 @@ namespace VivHelper.Entities {
             base.Awake(scene);
             foreach (Solid solid in CollideAll<Solid>()) {
                 Type t = solid.GetType();
-                if (t == null) { throw new Exception("Please report this to Viv on Discord @Vividiem#1113 asap, thank you"); } //Added this get because of a very bizarre crash that occurred once ever.
-                if (VivHelper.MatchTypeFromTypeSet(t, Types, assignableTypes)) //Added the count check because of a weird bug.
+                if (t == null) { throw new Exception("Please report this to Viv on Discord @Viv#1113 asap, thank you"); } //Added this get because of a very bizarre crash that occurred once ever.
+                if ((Types.Count > 0 && Types.Contains(t)) || (assignableTypes.Count > 0 && assignableTypes.Any((u) => t.IsAssignableFrom(u)))) //Added the count check because of a weird bug.
                 {
                     solid.AddOrAddToSolidModifierComponent(new SolidModifierComponent(cornerboost, bufferClimbJumpTrigger, touchTrigger, bottomTouch));
                     if (!all)

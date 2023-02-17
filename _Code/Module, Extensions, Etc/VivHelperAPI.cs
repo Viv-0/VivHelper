@@ -14,7 +14,7 @@ namespace VivHelper.Module__Extensions__Etc {
 
     [ModExportName("VivHelperAPI")]
     public static class VivHelperAPI {
-        public static Collider ProducePolygonColliderFromPoints(Vector2[] pts, Entity owner) => new PolygonCollider(pts, owner, true);
+        public static Collider ProducePolygonColliderFromPoints(Vector2[] pts, Entity owner) => new PolygonCollider(pts, owner);
         public static Vector2 GetCentroidOfNonComplexPolygon(Vector2[] pts) => PolygonCollider.GetCentroidOfNonComplexPolygon(pts);
 
         /// <summary>

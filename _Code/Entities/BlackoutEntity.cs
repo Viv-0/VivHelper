@@ -15,6 +15,28 @@ namespace VivHelper.Entities {
     public class Blockout {
         public static float alphaFade = 1f;
         private static Dictionary<Entity, int> origDepths = new Dictionary<Entity, int>();
+        public static void Load() {
+            On.Monocle.Entity.Update += Blackout;
+            /*On.Celeste.Lookout.Update += BlackoutLK;
+            On.Celeste.PlayerPlayback.Update += BlackoutPP;
+            On.Celeste.Player.Update += BlackoutP;
+            On.Celeste.Glider.Update += BlackoutG;
+            On.Celeste.TheoCrystal.Update += BlackoutTC;*/
+            On.Celeste.LightingRenderer.BeforeRender += LightHook;
+            On.Celeste.BloomRenderer.Apply += BloomRendererHook;
+        }
+
+        public static void Unload() {
+            On.Monocle.Entity.Update -= Blackout;
+            /*On.Celeste.Lookout.Update -= BlackoutLK;
+            On.Celeste.PlayerPlayback.Update -= BlackoutPP;
+            On.Celeste.Player.Update -= BlackoutP;
+            On.Celeste.Glider.Update -= BlackoutG;
+            On.Celeste.TheoCrystal.Update -= BlackoutTC;*/
+            On.Celeste.LightingRenderer.BeforeRender -= LightHook;
+            On.Celeste.BloomRenderer.Apply -= BloomRendererHook;
+
+        }
         //All the hooks are the same, because I need to do the same
         #region Useless Hooks
         public static void BlackoutLK(On.Celeste.Lookout.orig_Update orig, Lookout self) {

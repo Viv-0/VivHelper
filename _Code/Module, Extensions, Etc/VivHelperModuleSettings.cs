@@ -65,5 +65,6 @@ namespace VivHelper {
             VivHelperModule.Settings.DisableStaminaFlash = false;
             VivHelperModule.Settings.SetFlashColorToHair = false;
         }
+
     }
 }

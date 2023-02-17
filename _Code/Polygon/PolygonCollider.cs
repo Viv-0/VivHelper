@@ -70,7 +70,7 @@ namespace VivHelper.Colliders {
         /// </summary>
         /// <param name="vectors">Put in the Vector2 of nodes, with the offset of the room in here</param>
         /// <param name="startPos">Put in the Entity</param>
-        public PolygonCollider(Vector2[] vectors, Entity owner, bool setPositionAsCenter) {
+        public PolygonCollider(Vector2[] vectors, Entity owner) {
             /// Defines the "center point" as the centroid of the given polygon. Currently, there is 0 check for centroid outside the convex hull which for sure means that the polygon is noncomplex.
             /// I believe the exact limit uses some definition for a concave hull, if someone wants to math this out and let me know go for it
             if (vectors.Length < 3)
@@ -79,11 +79,10 @@ namespace VivHelper.Colliders {
             int sign = 0;
             float[] z = new float[4];
             _center = GetCentroidOfNonComplexPolygon(vectors);
-            if (setPositionAsCenter)
-                owner.Position = _center;
             convex = GetConvexity(vectors, ref z);
             offset = _center - owner.Position;
             AABB = new Rectangle((int) (offset.X + z[0]), (int) (offset.Y + z[2]), (int) (z[1] - z[0]), (int) (z[3] - z[2]));
+            Console.WriteLine(AABB.ToString());
             Points = vectors;
             Triangulator.Triangulator.Triangulate(vectors, Triangulator.WindingOrder.Clockwise, out TriangulatedPoints, out Indices);
         }
@@ -120,6 +119,10 @@ namespace VivHelper.Colliders {
                     }
                 }
             }
+            Console.WriteLine("Left: " + z[0]);
+            Console.WriteLine("Right: " + z[1]);
+            Console.WriteLine("Top: " + z[2]);
+            Console.WriteLine("Bottom: " + z[3]);
             return endvalue;
         }
         public override Collider Clone() {

@@ -34,17 +34,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Effects\CustomRain.cs" />
-    <Compile Include="Entities\BronzeBerry.cs" />
-    <Compile Include="Entities\BumperStuff\CustomBumper.cs" />
-    <Compile Include="Entities\CustomHeart\DashCodeEntitySpawner.cs" />
-    <Compile Include="Entities\CustomHeart\HeartSpawnFeatures.cs" />
     <Compile Include="Entities\GoldenBerryFlagController.cs" />
-    <Compile Include="Module, Extensions, Etc\pseudoconsts.cs" />
-    <Compile Include="Module, Extensions, Etc\RetrievedAPIs\GravityHelperAPI.cs" />
-    <Compile Include="Module, Extensions, Etc\TeleporterFunctions.cs" />
     <Compile Include="Module, Extensions, Etc\VivHelperAPI.cs" />
-    <Compile Include="Polygon\AbstractPolygonTrigger.cs" />
     <Compile Include="Polygon\PolygonCollider.cs" />
+    <Compile Include="Cutscene\ExampleCutscene.cs" />
     <Compile Include="Effects\Thunder.cs" />
     <Compile Include="Effects\WindRainFG.cs" />
     <Compile Include="Entities\AmbienceController.cs" />
@@ -83,7 +76,7 @@
     <Compile Include="Entities\CustomMrOshiroDoor.cs" />
     <Compile Include="Entities\CustomRefill.cs" />
     <Compile Include="Entities\DeathConditionalBlock.cs" />
-    <Compile Include="Entities\FallThru.cs" />
+    <Compile Include="Entities\DuckThru.cs" />
     <Compile Include="Entities\EntityWrappers\EntityMuter.cs" />
     <Compile Include="Entities\EntityWrappers\FunctionRefillAppender.cs" />
     <Compile Include="Entities\EntityWrappers\RemoveInFramesComponent.cs" />
@@ -207,7 +200,6 @@
     <Compile Include="Entities\EntityWrappers\WrapperRefillWall.cs" />
     <Compile Include="Module, Extensions, Etc\PicoFont.cs" />
     <Compile Include="Polygon\PolygonalTriggerTrigger.cs" />
-    <Compile Include="Triggers\TeleporterRework.cs" />
     <Compile Include="Triggers\TriggerPersistence.cs" />
     <Compile Include="Wipes\FastSpotlightWipe.cs" />
     <Compile Include="Module, Extensions, Etc\Colorblind.cs" />
@@ -257,10 +249,6 @@
       <HintPath>..\..\..\FNA.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="KeraLua">
-      <HintPath>..\..\..\KeraLua.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="MMHOOK_Celeste">
       <HintPath>..\..\..\MMHOOK_Celeste.dll</HintPath>
       <Private>False</Private>
@@ -281,10 +269,6 @@
       <HintPath>..\..\..\MonoMod.Utils.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="NLua">
-      <HintPath>..\..\..\NLua.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -298,8 +282,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Entities\ArbitraryButton\" />
-    <Folder Include="Entities\BetterVanilla\" />
-    <Folder Include="Entities\VanillaCustom\" />
     <Folder Include="ShapeStuff\GJK\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

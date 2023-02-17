@@ -35,7 +35,7 @@ Ahorn.editingOptions(entity::CustomPlayerPlayback) = Dict{String, Any}(
 
 Ahorn.nodeLimits(entity::CustomPlayerPlayback) = 0, 2
 
-const sprite = "characters/player_playback/sitDown00"
+const sprite = "characters/player/sitDown00"
 
 function Ahorn.selection(entity::CustomPlayerPlayback)
     x, y = Ahorn.position(entity)

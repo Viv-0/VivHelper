@@ -14,21 +14,19 @@ using System.Reflection;
 using MonoMod.RuntimeDetour;
 using Mono.Cecil;
 using FMOD.Studio;
-using Celeste.Mod;
 
 namespace VivHelper.Entities {
     public class EntityMuterComponent : Component {
         #region Hooks
         internal static int mute = 0;
-        public static FieldInfo SoundSource_instance = typeof(SoundSource).GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance);
+        private static FieldInfo SoundSource_instance = typeof(SoundSource).GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance);
 
         // I genuinely think that this is the dumbest thing in my helper. This takes the cake.
         public static void Load() {
             On.Celeste.SoundSource.Update += SoundSource_Update;
             On.Celeste.Audio.Play_string += AudioOverride1;
             On.Celeste.Audio.Play_string_Vector2 += AudioOverride2;
-            On.Celeste.MoveBlock.SoundFollowsDebrisCenter += MoveBlock_SoundFollowsDebrisCenter;
-            /* hooks = new IDetour[114];
+            /*hooks = new IDetour[114];
             MethodInfo tempMethodInfo;
             hooks[0] = new ILHook(typeof(BadelineBoost).GetMethod("Update", (BindingFlags)52), ArbitraryAudioPlayBlock);
             hooks[1] = new ILHook(typeof(BirdNPC).GetMethod("<.ctor>b__20_0", (BindingFlags)52), ArbitraryAudioPlayBlock);
@@ -167,26 +165,24 @@ namespace VivHelper.Entities {
             hooks[112] = new ILHook(typeof(Water).GetMethod("Update"), ArbitraryAudioPlayBlock);
             hooks[113] = new ILHook(typeof(WhiteBlock).GetMethod("Activate", (BindingFlags)52), ArbitraryAudioPlayBlock);*/
         }
+
+
         public static void Unload() {
             On.Celeste.SoundSource.Update -= SoundSource_Update;
             On.Celeste.Audio.Play_string -= AudioOverride1;
             On.Celeste.Audio.Play_string_Vector2 -= AudioOverride2;
-            On.Celeste.MoveBlock.SoundFollowsDebrisCenter -= MoveBlock_SoundFollowsDebrisCenter;
             //This is an extremely comedic line of code.
             //foreach(IDetour hook in hooks) hook.Dispose();
         }
-        
-
-        private static System.Collections.IEnumerator MoveBlock_SoundFollowsDebrisCenter(On.Celeste.MoveBlock.orig_SoundFollowsDebrisCenter orig, MoveBlock self, EventInstance instance, object debris) {
-            if(instance != null) yield return new SwapImmediately(orig(self, instance, debris));
-        }
 
         private static EventInstance AudioOverride1(On.Celeste.Audio.orig_Play_string orig, string path) {
-            if (mute != 0) return null;
+            if (mute != 0)
+                return null;
             return orig(path);
         }
         private static EventInstance AudioOverride2(On.Celeste.Audio.orig_Play_string_Vector2 orig, string path, Vector2 position) {
-            if (mute != 0) return null;
+            if (mute != 0)
+                return null;
             return orig(path, position);
         }
 
@@ -198,9 +194,7 @@ namespace VivHelper.Entities {
                             self.Pause();
                             break;
                         case -1:
-                            EventInstance i = SoundSource_instance.GetValue(self) as EventInstance;
-                            if (i.getVolume(out _, out float finalVol) == FMOD.RESULT.OK && finalVol != 0f)
-                                i.setVolume(0f);
+                            (SoundSource_instance.GetValue(self) as EventInstance).setVolume(0f);
                             break;
                     }
                 }
@@ -210,9 +204,7 @@ namespace VivHelper.Entities {
                         self.Resume();
                         break;
                     case -1:
-                        EventInstance i = SoundSource_instance.GetValue(self) as EventInstance;
-                        if (i.getVolume(out _, out float finalVol) == FMOD.RESULT.OK && finalVol != 1f)
-                            i.setVolume(1f);
+                        (SoundSource_instance.GetValue(self) as EventInstance).setVolume(1f);
                         break;
                 }
             }
@@ -223,7 +215,7 @@ namespace VivHelper.Entities {
 
         public string flag;
         public int val;
-        public EntityMuterComponent(string flag = null, bool contiguousAudio = true) : base(true, false) {
+        public EntityMuterComponent(string flag = null, bool contiguousAudio = false) : base(true, false) {
             this.flag = flag;
             val = contiguousAudio ? -1 : 1;
         }
@@ -235,11 +227,11 @@ namespace VivHelper.Entities {
         }
 
         private void Entity_PreUpdate(Entity obj) {
-
-            if (string.IsNullOrEmpty(flag) || (obj.SceneAs<Level>()?.Session?.GetFlag(flag) ?? false)){
+            if (flag == null)
                 mute = val;
-            }
             //mute will always be 0 at Entity_PreUpdate until modified by this function, so we don't need to conditionally set the value.
+            else if (obj.SceneAs<Level>()?.Session?.GetFlag(flag) ?? false)
+                mute = val;
         }
         private void Entity_PostUpdate(Entity obj) {
             mute = 0;
@@ -266,13 +258,14 @@ namespace VivHelper.Entities {
             base.Awake(scene);
             Collidable = true;
             foreach (Entity e in scene.Entities.Where<Entity>((f) => Collide.Check(this, f))) {
-                if (VivHelper.MatchTypeFromTypeSet(e.GetType(), Types, assignableTypes)) {
+                Type t = e.GetType();
+                if (Types.Contains(t) || assignableTypes.Any((u) => t.IsAssignableFrom(u))) {
                     e.Add(new EntityMuterComponent());
                     if (!all)
                         break;
                 }
+
             }
-            RemoveSelf();
         }
     }
 }

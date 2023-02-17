@@ -28,7 +28,7 @@ namespace VivHelper.Entities.Boosters {
 
             Player player = VivHelper.GetPlayer();
             if (CustomBooster.dyn == null) {
-                CustomBooster.dyn = DynamicData.For(player);
+                CustomBooster.dyn = new DynData<Player>(player);
             }
             yield return DashFix();
             player.Speed = CustomBooster.CorrectDashPrecision(CustomBooster.dyn?.Get<Vector2>("lastAim") ?? Vector2.Zero) * 240f;
@@ -38,7 +38,7 @@ namespace VivHelper.Entities.Boosters {
             while (true) {
                 Vector2 v = player.Speed;
                 player.DashDir = v;
-                CustomBooster.dyn.Set("gliderBoostDir", v);
+                CustomBooster.dyn.Set<Vector2>("gliderBoostDir", v);
                 (player.Scene as Level).DirectionalShake(player.DashDir, 0.2f);
                 if (player.DashDir.X != 0f) {
                     player.Facing = (Facings) Math.Sign(player.DashDir.X);
@@ -80,7 +80,7 @@ namespace VivHelper.Entities.Boosters {
                 (Engine.Scene as Level).ParticlesBG.Emit(WindBooster.P_Burst, 2, player.Center + new Vector2(0f, -2f), new Vector2(3f, 3f), (float) Math.PI / 2f);
             }
 
-            int j = (int) BoostFunctions.rdU.Invoke(player, Everest._EmptyObjectArray);
+            int j = (int) BoostFunctions.rdU.Invoke(player, new object[] { });
             j = j == 5 ? VivHelperModule.WindBoostState : j;
 
             return j;

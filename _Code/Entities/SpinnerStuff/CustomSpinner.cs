@@ -14,13 +14,9 @@ using VHM = VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     [Tracked]
-    [CustomEntity("VivHelper/CustomSpinner = Load")]
+    [CustomEntity("VivHelper/CustomSpinner")]
     public class CustomSpinner : Entity {
-        public static Entity Load(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            return new CustomSpinner(entityData, offset);
-        }
-
-        public enum Types {
+        protected enum Types {
             White = 0, //default
             RainbowClassic, CustomRainbow
         }
@@ -58,13 +54,13 @@ namespace VivHelper.Entities {
                             Color color1 = image.Color;
                             Vector2 position = image.Position;
                             image.Color = color;
-                            image.Position = position - Vector2.UnitY;
+                            image.Position = position + new Vector2(0f, -1f);
                             image.Render();
-                            image.Position = position + Vector2.UnitY;
+                            image.Position = position + new Vector2(0f, 1f);
                             image.Render();
-                            image.Position = position - Vector2.UnitX;
+                            image.Position = position + new Vector2(-1f, 0f);
                             image.Render();
-                            image.Position = position + Vector2.UnitX;
+                            image.Position = position + new Vector2(1f, 0f);
                             image.Render();
                             image.Color = color1;
                             image.Position = position;
@@ -81,13 +77,13 @@ namespace VivHelper.Entities {
                             Color color1 = image.Color;
                             Vector2 position = image.Position;
                             image.Color = color;
-                            image.Position = position - Vector2.UnitY;
+                            image.Position = position + new Vector2(0f, -1f);
                             image.Render();
-                            image.Position = position + Vector2.UnitY;
+                            image.Position = position + new Vector2(0f, 1f);
                             image.Render();
-                            image.Position = position - Vector2.UnitX;
+                            image.Position = position + new Vector2(-1f, 0f);
                             image.Render();
-                            image.Position = position + Vector2.UnitX;
+                            image.Position = position + new Vector2(1f, 0f);
                             image.Render();
                             image.Color = color1;
                             image.Position = position;
@@ -116,7 +112,7 @@ namespace VivHelper.Entities {
         private string[] hitboxString;
 
         protected Color color;
-        public Color borderColor;
+        protected Color borderColor;
 
         public float scale, imageScale;
 
@@ -153,25 +149,25 @@ namespace VivHelper.Entities {
         public CustomSpinner(EntityData data, Vector2 offset) : base(data.Position + offset) {
             ID = data.ID;
 
-            type = data.Enum<Types>("Type", Types.White);
             AttachToSolid = data.Bool("AttachToSolid");
-            if (data.Has("ref")) {
-                string s = data.Attr("ref", "VivHelper/customSpinner/white/fg_white00");
-                int q = s.LastIndexOf('/');
-                directory = s.Substring(0, q);
-                subdirectory = s.Substring(q + 3);
-            } else {
-                directory = data.Attr("Directory").TrimStart(' ').TrimEnd('/', ' ');
-                if (directory == "") { directory = "VivHelper/customSpinner/white"; }
-                subdirectory = data.Attr("Subdirectory", "");
-                if (subdirectory != "") {
-                    subdirectory = "_" + subdirectory;
-                }
-            }
+            directory = data.Attr("Directory" /* */).TrimStart(' ').TrimEnd('/', ' ');
+            if (directory == "") { directory = "VivHelper/customSpinner/white"; }
+            type = data.Enum<Types>("Type", Types.White);
+            subdirectory = data.Attr("Subdirectory", "");
             string hitboxS = data.Attr("HitboxType", data.Bool("removeRectHitbox", false) ? "C:6" : "C:6|R:16,4;-8,*1@-4");
-            if (hitboxS == "")
+            if (string.IsNullOrWhiteSpace(hitboxS))
                 hitboxS = "C:6|R:16,4;-8,*1@-4";
             hitboxString = hitboxS.Split('|'); //Splits SMaster into string[] S, see Parsing Instructions below
+            if (data.Bool("FrostHelper", false) || (data.Has("CurrentVersion") && subdirectory == "")) {
+                subdirectory = "";
+            } else {
+                if (subdirectory == "") {
+                    subdirectory = "white";
+                }
+                subdirectory = "_" + subdirectory;
+            }
+
+
 
             bgdirectory = directory + "/bg";
             fgdirectory = directory + "/fg";
@@ -279,13 +275,13 @@ namespace VivHelper.Entities {
                 }
             } else {
                 base.Update();
-                if (type == Types.RainbowClassic || type == Types.CustomRainbow && Scene.OnInterval(0.08f, offset)) {
+                if (type == Types.RainbowClassic || type == Types.CustomRainbow && base.Scene.OnInterval(0.08f, offset)) {
                     UpdateHue();
                 }
-                if (Scene.OnInterval(0.25f, offset) && !InView()) {
+                if (base.Scene.OnInterval(0.25f, offset) && !InView()) {
                     Visible = false;
                 }
-                if (Collider != null && Scene.OnInterval(0.05f, offset)) {
+                if (base.Scene.OnInterval(0.05f, offset)) {
                     Player entity = base.Scene.Tracker.GetEntity<Player>();
                     if (entity != null) {
                         Collidable = (Math.Abs(entity.X - base.X) < 128f && Math.Abs(entity.Y - base.Y) < 128f);
@@ -324,7 +320,8 @@ namespace VivHelper.Entities {
                     foreach (CustomSpinner entity in base.Scene.Tracker.GetEntities<CustomSpinner>()) {
                         if (entity.createConnectors && entity.ID > ID && !(entity is MovingSpinner) && entity.AttachToSolid == AttachToSolid && (entity.Position - Position).LengthSquared() < (float) Math.Pow((double) (12 * (scale + entity.scale)), 2)) {
                             float e = Calc.Angle(entity.Position, Position);
-                            AddSprite(Vector2.Lerp(Position + Vector2.UnitX.RotateTowards(-e, 6.3f), entity.Position + Vector2.UnitX.RotateTowards(e, 6.3f), 0.5f) - Position, (entity.scale + scale) / 2f, Color.Lerp(entity.color, color, 0.5f), isSeeded);
+                            float t = Calc.Angle(Position, entity.Position);
+                            AddSprite(Vector2.Lerp(Position + Vector2.UnitX.RotateTowards(t, 6.3f), entity.Position + Vector2.UnitX.RotateTowards(e, 6.3f), 0.5f) - Position, (entity.scale + scale) / 2f, Color.Lerp(entity.color, color, 0.5f), isSeeded);
                         }
                     }
                 }
@@ -466,7 +463,7 @@ namespace VivHelper.Entities {
             if (InView()) {
                 Audio.Play("event:/game/06_reflection/fall_spike_smash", Position);
                 Color color = shatterColor;
-                CustomCrystalDebris.Burst(Position, color, boss, (int)(8f*scale), customDebris ? directory + "/debris" : "particles/shard", debrisToScale ? scale : 1f);
+                CustomCrystalDebris.Burst(Position, color, boss, 8, customDebris ? directory + "/debris" : "particles/shard", debrisToScale ? scale : 1f);
             }
             border?.RemoveSelf();
             filler?.RemoveSelf();
@@ -476,10 +473,6 @@ namespace VivHelper.Entities {
         #region ParseHitbox
 
         public ColliderList ParseHitboxType(string[] S, float scale) {
-            if(S.Length == 0 || (S.Length == 1 && string.IsNullOrWhiteSpace(S[0]))) {
-                Collidable = false;
-                return null;
-            }
             List<Collider> colliders = new List<Collider>();
             /*At this point, string[] S is a string where each string should be formatted like this:
              * SMaster = A1|A2|A3|A4...|An, S[k] = Ak

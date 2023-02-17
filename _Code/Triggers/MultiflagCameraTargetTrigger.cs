@@ -15,8 +15,6 @@ namespace VivHelper.Triggers {
     class MultiflagCameraTargetTrigger : CameraTargetTrigger {
         public string[] flags;
         private Level level;
-        public MultiflagCameraTargetTrigger(EntityData data, Vector2 offset) : this(data, offset, null) { }
-
         public MultiflagCameraTargetTrigger(EntityData data, Vector2 offset, string[] flagArray = null) : base(data, offset) {
             if (flagArray != null) { flags = flagArray; } else if (data.Attr("ComplexFlagData", "") == "") { flags = new string[1]; flags[0] = data.Attr("SingleFlag", ""); } else { flags = data.Attr("ComplexFlagData", "").Split(','); }
         }

@@ -9,5 +9,6 @@ using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
 
 namespace VivHelper.Entities {
-    
+    //public class CustomCassette : Cassette
+
 }

@@ -230,8 +230,10 @@ namespace VivHelper.Entities {
                 }
                 if ((CollectOnExplicitType != null && CollectOnExplicitType.Length > 0) || (CollectOnExtensibleType != null && CollectOnExtensibleType.Length > 0)) {
                     foreach (var e in Scene.Entities.getListOfEntities()) {
-                        if (CollideCheck(e) && VivHelper.MatchTypeFromTypeSet(e.GetType(), CollectOnExplicitType, CollectOnExtensibleType)) {
-                            Collect();
+                        if (CollideCheck(e)) {
+                            if ((CollectOnExplicitType?.Contains(e.GetType()) ?? false) || (CollectOnExtensibleType?.Any(t => e.GetType().IsAssignableFrom(t)) ?? false)) {
+                                Collect();
+                            }
                         }
                     }
                 }

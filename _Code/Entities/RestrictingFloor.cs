@@ -154,7 +154,7 @@ namespace VivHelper.Entities {
         public Image[] tiles;
         public Color color;
         public Vector2 imageOffset;
-        public bool left;
+        public bool Left;
 
         public RestrictingWall(EntityData data, Vector2 offset) : base(data.Position) {
             StaminaLossMultiplier = data.Bool("NoGrabbing", false) ? -1 : Math.Max(data.Float("StaminaLossMultiplier", 1f), 0);
@@ -165,7 +165,7 @@ namespace VivHelper.Entities {
             DisableWallbounce = data.Bool("DisableWallbounce");
             DisableWallboost = data.Bool("DisableWallBoost");
             color = data.Color("color", Color.White);
-            left = data.Bool("Left", false);
+            Left = data.Bool("Left", false);
             if (data.Bool("AttachToSolid", true)) {
                 Add(new StaticMover() {
                     OnEnable = OnEnable,
@@ -194,7 +194,7 @@ namespace VivHelper.Entities {
         }
 
         private bool IsRiding(Solid solid) {
-            return left ? CollideCheckOutside(solid, Position + Vector2.UnitX) : CollideCheckOutside(solid, Position - Vector2.UnitX);
+            return Left ? CollideCheckOutside(solid, Position + Vector2.UnitX) : CollideCheckOutside(solid, Position - Vector2.UnitX);
         }
 
         private void OnShake(Vector2 amount) {

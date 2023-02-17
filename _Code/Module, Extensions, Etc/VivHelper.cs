@@ -15,20 +15,12 @@ using Mono.Cecil;
 using MonoMod.RuntimeDetour;
 using MonoMod.Cil;
 using System.Text.RegularExpressions;
-using System.Runtime.InteropServices;
-using Microsoft.Xna.Framework.Graphics;
-using System.Runtime.CompilerServices;
-using System.Linq.Expressions;
 
 namespace VivHelper {
     /// <summary>
     /// Helper functions for VivHelper
     /// </summary>
     public static class VivHelper {
-
-        public static object[] oneOne = new object[1] { 1 };
-        public static object[] negOne = new object[1] { -1 };
-
         #region ParsingGroupsFromString
 
 
@@ -39,12 +31,6 @@ namespace VivHelper {
                 ts[i] = tParser(s[i]);
             }
             return ts;
-        }
-
-        internal static bool DialogTryGet(string dialogRef, out string temp) {
-            temp = null;
-            if (Dialog.Has(dialogRef)) { temp = Dialog.Get(dialogRef); return true; }
-            return false;
         }
 
         public static Dictionary<string, T> ParseDictFromString<T>(string val, char groupSeparator, char keyValSeparator, Func<string, T> tParser) {
@@ -122,14 +108,14 @@ namespace VivHelper {
         }
 
         public static Color ColorFix(string s) {
-            if (ColorHelper.ContainsKey(s.ToLower()))
-                return ColorHelper[s.ToLower()];
+            if (ColorHelper.ContainsKey(s))
+                return ColorHelper[s];
             return AdvHexToColor(s);
         }
 
         public static Color ColorFix(string s, float alpha) {
-            if (ColorHelper.ContainsKey(s.ToLower()))
-                return ColorHelper[s.ToLower()];
+            if (ColorHelper.ContainsKey(s))
+                return ColorHelper[s];
             return Extensions.ColorCopy(AdvHexToColor(s), alpha);
         }
 
@@ -137,28 +123,29 @@ namespace VivHelper {
             string hexplus = hex.Trim('#');
             if (hexplus.StartsWith("0x"))
                 hexplus = hexplus.Substring(2);
-            uint result;
-            if (hexplus.Length == 6 && uint.TryParse(hexplus, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out result)) {
-                return Calc.HexToColor((int) result);
+            int result;
+            if (hexplus.Length == 6 && int.TryParse(hexplus, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out result)) {
+                return Calc.HexToColor(result);
             } else if (hexplus.Length == 8 && hexplus.Substring(0, 2) == "00" && Regex.IsMatch(hexplus.Substring(2), "[^0-9a-f]")) //Optimized check to determine Regex matching for a hex number, marginally faster for a check where you dont need the end value.
               {
                 return Color.Transparent;
-            } else if (uint.TryParse(hexplus.Substring(0,2) + hexplus.Substring(6,2) + hexplus.Substring(4,2) + hexplus.Substring(2,2), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out result)) { 
-                return UintToColor(result);
-            } else
-                Console.WriteLine(hexplus.Substring(2).Reverse());
+            } else if (int.TryParse(hexplus, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out result)) {
+                return AdvHexToColor(result);
+            }
             return Color.Transparent;
         }
 
-        public static Color UintToColor(uint hex) {
+        public static Color AdvHexToColor(int hex) {
             Color result = default(Color);
-            result.PackedValue = hex;
+            result.A = (byte) (hex >> 24);
+            result.R = (byte) (hex >> 16);
+            result.G = (byte) (hex >> 8);
+            result.B = (byte) hex;
             return result;
         }
 
-        public static string ColorToHex(Color c, bool rgba = false) {
-            string t = c.R.ToString("X") + c.G.ToString("X") + c.B.ToString("X");
-            return rgba ? t + c.A.ToString("X") : c.A.ToString("X") + t;
+        public static string ColorToHex(Color c) {
+            return c.R.ToString("X") + c.G.ToString("X") + c.B.ToString("X");
         }
 
         public static int mod(int x, int m) => (x % m + m) % m;
@@ -229,13 +216,13 @@ namespace VivHelper {
         }
 
         public static Type GetType(string typeName, bool throwOnNotFound, bool store = true) {
-            if (VivHelperModule.StoredTypesByName?.TryGetValue(typeName, out Type value) ?? false)
+            if (VivHelperModule.StoredTypesByName.TryGetValue(typeName, out Type value))
                 return value;
             Type type = FakeAssembly.GetFakeEntryAssembly().GetType(typeName, throwOnNotFound); //bruh I been stupids
             if (type == null) { return null; } //if throwOnNotFound is true, then it will get here, otherwise it throws
             //At this point the type was found so we just add it to the StoredTypesByName (since this is significantly faster)
             if (store)
-                VivHelperModule.StoredTypesByName?.Add(typeName, type);
+                VivHelperModule.StoredTypesByName.Add(typeName, type);
             return type;
         }
         public static bool TryGetType(string typeName, out Type type, bool store = true) {
@@ -289,14 +276,6 @@ namespace VivHelper {
             exactList = lists[0].ToArray();
             assignableList = lists[1].ToArray();
             return;
-        }
-
-        public static bool MatchTypeFromTypeSet(Type t, IEnumerable<Type> exactList, IEnumerable<Type> assignableList) {
-            if (t == null)
-                return false;
-            if (exactList.Any(e => e == t))
-                return true;
-            return assignableList.Any(e => e.IsAssignableFrom(t)); // I have had so many fucking issues with this code.  
         }
 
         public static Dictionary<string, Func<int>> IntParserEntityValues_Default(this Entity e) {
@@ -415,37 +394,31 @@ namespace VivHelper {
             trigger.OnStay(player);
         }
 
-        private static string[] manualStates = new string[26] {
-            "Normal", "Climb", "Dash", "Swim", "Boost", "RedDash", "HitSquash", "Launch", "Pickup", "DreamDash", "SummitLaunch", "Dummy",
-            "IntroWalk", "IntroJump", "IntroRespawn", "IntroWakeUp", "BirdDashTutorial", "Frozen", "ReflectionFall", "StarFly",
-            "TempleFall", "CassetteFly", "Attract", "IntroMoonJump", "FlingBird", "IntroThinkForABit"
-        };
-
         public static bool DefineSetState(string input, out int output) {
             if (int.TryParse(input, out output)) {
                 if (output < 0)
                     return false;
                 if (output > 25)
                     throw new InvalidPropertyException("You tried to put in a custom state value over 25. I recommend retrieving the classname or using the default values provided in the dropdown.");
+
+            } else {
+                List<string> subset = input.Split('.').ToList();
+                if (subset.Count < 2)
+                    throw new InvalidPropertyException("You input an invalid custom state.");
+                string fieldName = subset.Last();
+                subset.RemoveAt(subset.Count - 1);
+                string temp1 = string.Join(".", subset); //This is everything but the fieldname, which should be the classname path, Array Resizing was slower in this case.
+                if (!VivHelper.TryGetType(temp1, out Type type))
+                    throw new InvalidPropertyException("The custom state class path was invalid!");
+                FieldInfo field = type.GetField(fieldName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic); //If its nonpublic this would make me angy.
+                if (field == null)
+                    throw new InvalidPropertyException("The custom state field name was invalid!");
+                if (field.FieldType != typeof(int))
+                    throw new InvalidPropertyException("The custom state field was found but not shown to be a valid field (it is not an integer)");
+                output = (int) field.GetValue(null);
                 return true;
-            } 
-            output = Array.IndexOf(manualStates, input); if (output >= 0) return true;
-            output = Array.IndexOf(manualStates, "St" + input); if (output >= 0) return true;
-            List<string> subset = input.Split('.').ToList();
-            if (subset.Count < 2)
-                throw new InvalidPropertyException("You input an invalid custom state.");
-            string fieldName = subset.Last();
-            subset.RemoveAt(subset.Count - 1);
-            string temp1 = string.Join(".", subset); //This is everything but the fieldname, which should be the classname path, Array Resizing was slower in this case.
-            if (!VivHelper.TryGetType(temp1, out Type type))
-                throw new InvalidPropertyException("The custom state class path was invalid!");
-            FieldInfo field = type.GetField(fieldName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic); //If its nonpublic this would make me angy.
-            if (field == null)
-                throw new InvalidPropertyException("The custom state field name was invalid!");
-            if (field.FieldType != typeof(int))
-                throw new InvalidPropertyException("The custom state field was found but not shown to be a valid field (it is not an integer)");
-            output = (int) field.GetValue(null);
-            return true;
+            }
+            return false;
         }
 
         public static bool CompareEntityIDs(EntityID a, EntityID b) {
@@ -483,17 +456,6 @@ namespace VivHelper {
             return l;
         }
 
-        internal static Vector4[] ColorArrToVec4Arr(Color[] colors) {
-            Vector4[] ret = new Vector4[colors.Length];
-            for (int i = 0; i < colors.Length; i++)
-                ret[i] = colors[i].ToVector4();
-            return ret;
-        }
-        internal static void ColorArrToVec4Arr(Color[] colors, ref Vector4[] to) {
-            for (int i = 0; i < colors.Length; i++)
-                to[i] = colors[i].ToVector4();
-        }
-
         internal static FieldInfo autotiler_lookup = typeof(Autotiler).GetField("lookup", BindingFlags.NonPublic | BindingFlags.Instance);
         internal static MethodInfo Ignore = typeof(Autotiler).GetNestedType("TerrainType", BindingFlags.NonPublic).GetMethod("Ignore", BindingFlags.Public | BindingFlags.Instance);
         public static bool TilesetConnect(char Base, char Compare) {
@@ -508,7 +470,7 @@ namespace VivHelper {
             if (Engine.Commands.Open) {
                 Engine.Commands.Log(input);
             } else {
-                Commands_UpdateClosed?.Invoke(Engine.Commands, Everest._EmptyObjectArray);
+                Commands_UpdateClosed?.Invoke(Engine.Commands, new object[] { });
                 Engine.Commands.Log(input + (Celeste.Celeste.PlayMode != Celeste.Celeste.PlayModes.Debug ? "Type q and press [ENTER] to exit." : ""));
             }
         }
@@ -623,87 +585,5 @@ namespace VivHelper {
         public static void Entity_Render(Entity entity) {
             Console.WriteLine("link to Entity::Render failed");
         }
-
-        [MonoMod.MonoModLinkTo("Monocle.Entity", "System.Void Awake(Monocle.Scene)")]
-        public static void Entity_Awake(Entity entity, Scene scene) {
-            Console.WriteLine("link to Entity::Awake failed");
-        }
-
-        public static uint int2uint(int i) {
-            FloatIntUnion u;
-            u.u = 0;
-            u.i = i;
-            return u.u;
-        }
-
-        [StructLayout(LayoutKind.Explicit)]
-        public struct FloatIntUnion {
-            [FieldOffset(0)]
-            public int i;
-            [FieldOffset(0)]
-            public float f;
-            [FieldOffset(0)]
-            public uint u;
-
-            private FloatIntUnion(float f) {
-                i = 0;
-                u = 0;
-                this.f = f;
-            }
-
-            private FloatIntUnion NextAfter(float y) {
-                if (float.IsNaN(f) || float.IsNaN(y))
-                    return new FloatIntUnion(f + y);
-                if (f == y)
-                    return new FloatIntUnion(y);  // nextafter(0, -0) = -0
-
-                if (f == 0) {
-                    i = 1;
-                    return new FloatIntUnion(y > 0 ? f : -f);
-                }
-                if ((f > 0) == (y > f))
-                    i++;
-                else
-                    i--;
-                return new FloatIntUnion(f);
-            }
-
-            public static float FloatsDistanceAway(float x, int dist) {
-                FloatIntUnion u = FloatsDistAway(VivHelper.NextAfter(x, dist > 0 ? x + 1 : x - 1), dist > 0 ? dist - 1 : dist + 1);
-                return u.f;
-            }
-
-            private static FloatIntUnion FloatsDistAway(float f, int dist) => FloatsDistAway(new FloatIntUnion(f), dist);
-
-            private static FloatIntUnion FloatsDistAway(FloatIntUnion u, int dist) {
-                if (dist == 0)
-                    return u;
-                return FloatsDistAway(u.NextAfter(dist > 0 ? u.f + 1 : u.f - 1), dist > 0 ? dist - 1 : dist + 1);
-            }
-        }
-
-        public static float NextAfter(float x, float y) {
-            if (float.IsNaN(x) || float.IsNaN(y))
-                return x + y;
-            if (x == y)
-                return y;  // nextafter(0, -0) = -0
-
-            FloatIntUnion u;
-            u.i = 0;
-            u.f = x;  // shut up the compiler
-
-            if (x == 0) {
-                u.i = 1;
-                return y > 0 ? u.f : -u.f;
-            }
-            if ((x > 0) == (y > x))
-                u.i++;
-            else
-                u.i--;
-            return u.f;
-        }
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static float FloatsDistanceAway(float x, int dist) { return FloatIntUnion.FloatsDistanceAway(x, dist); }
     }
 }

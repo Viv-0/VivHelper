@@ -19,7 +19,7 @@ namespace VivHelper.Entities {
 
         public override void Update() {
             base.Update();
-            if (Scene is Level level && Scene.Tracker.TryGetEntity<Player>(out Player player) && !player.Dead)
+            if(Scene is Level level && Scene.Tracker.TryGetEntity<Player>(out Player player) && !player.Dead)
                 level.Session?.SetFlag("VivHelper/PlayerHasGoldenBerry", level.Session.GrabbedGolden); //If Session is null it skips the func call.
         }
     }
