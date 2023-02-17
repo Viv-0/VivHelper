@@ -72,6 +72,7 @@ namespace VivHelper.Entities {
         public bool IsTriggeredByCrushBlock;
         public bool metaTriggered;
         public bool legacy;
+        public int RoomWrap;
 
         public bool HasStartedFalling {
             get;
@@ -127,6 +128,7 @@ namespace VivHelper.Entities {
             flagOnly = data.Bool("flagOnly");
             legacy = !data.Bool("Legacy"); //well I fucked up the code but it's resolvable by just inverting this, 1.6.0.2 -> 1.6.0.3
             DashBlock = data.Bool("BreakDashBlocks", true);
+            RoomWrap = data.Int("RoomWrapMaxRev", 0);
         }
 
         public static CustomFallingBlock CreateFinalBossBlock(EntityData data, Vector2 offset) {
@@ -149,7 +151,16 @@ namespace VivHelper.Entities {
             if (flagTrigger != "" && (base.Scene as Level).Session.GetFlag(flagTrigger) && !Triggered && !metaTriggered) { if (legacy) Triggered = true; else metaTriggered = true; }
             if (Triggered && flagOnFall != "" && !(base.Scene as Level).Session.GetFlag(flagOnFall))
                 (base.Scene as Level).Session.SetFlag(flagOnFall, true);
-
+            if (RoomWrap != 0 && VivHelperModule.FindWC(Scene) is { } wC) {
+                Level l = SceneAs<Level>();
+                bool b = false;
+                if (Right < (float) l.Bounds.Left + 8f + wC.playerOffsets[3] && wC.scrollL) { MoveToX((float) l.Bounds.Right - 8f + wC.playerOffsets[1]); b = true; }
+                if (Left > (float) l.Bounds.Right - 8f + wC.playerOffsets[1] && wC.scrollR) { MoveToX((float) l.Bounds.Left + 8f + wC.playerOffsets[3] - Width); b = true; }
+                if (Top < (float) l.Bounds.Top + 8f + wC.playerOffsets[0] && wC.scrollT) { MoveToY((float) l.Bounds.Bottom - 8f + wC.playerOffsets[2] - Height); b = true; }
+                if (Bottom > (float) l.Bounds.Bottom - 8f + wC.playerOffsets[2] && wC.scrollB) { MoveToY((float) l.Bounds.Top + 8f + wC.playerOffsets[0]); b = true; }
+                if (b)
+                    RoomWrap--;
+            }
         }
 
         public override void OnShake(Vector2 amount) {

@@ -8,8 +8,13 @@ using System.Collections.Generic;
 using static VivHelper.VivHelper;
 using MonoMod.Utils;
 using System.Linq;
-
-
+using System.Runtime.CompilerServices;
+using Mono.Cecil.Cil;
+using VivHelper.Entities;
+using FMOD.Studio;
+using YamlDotNet.Core.Tokens;
+using System.Linq.Expressions;
+using YamlDotNet.Helpers;
 
 namespace VivHelper {
     public static class Extensions {
@@ -65,7 +70,7 @@ namespace VivHelper {
         public static List<Entity> FindAll(this EntityList self, params Type[] types) {
             List<Type> _types = types.ToList();
             List<Entity> list = new List<Entity>();
-            foreach (var entity in VivHelper.getListOfEntities(self)) //getListOfEntities is faster. In the future I'm gonna make a FastFieldInfo but for now we have single use cases
+            foreach (Entity entity in VivHelper.getListOfEntities(self)) //getListOfEntities is faster. In the future I'm gonna make a FastFieldInfo but for now we have single use cases
             {
                 if (_types.Contains(entity.GetType())) {
                     list.Add(entity);
@@ -99,6 +104,17 @@ namespace VivHelper {
                 return false;
             entity = self.Entities[t][0];
             return true;
+        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static bool TryGetEntities<T>(this Tracker self, out List<Entity> entities) {
+            return TryGetEntities(self, typeof(T), out entities);
+        }
+
+        public static bool TryGetEntities(this Tracker self, Type type, out List<Entity> entities) {
+            entities = null;
+            if (self.Entities.TryGetValue(type, out entities))
+                return true;
+            return false;
         }
 
         public static bool StringIfNotEmpty(this EntityData data, string key, out string value) {
@@ -286,7 +302,8 @@ namespace VivHelper {
                 Dictionary<Type, List<Entity>> entities = self.Scene.Tracker.Entities;
                 bool b = false;
                 foreach (Type key in entities.Keys) {
-                    if (!(types[0].Contains(key) || types[1].Any(t => key.IsAssignableFrom(t)))) { continue; }
+                    if (VivHelper.MatchTypeFromTypeSet(key, types[0], types[1]))
+                        continue;
                     entity = Collide.First(self, entities[key]);
                     if (entity != null) {
                         b = true;
@@ -340,8 +357,7 @@ namespace VivHelper {
         public static MTexture MTexture(this EntityData self, string key, MTexture defaultValue = null, Atlas atlas = null) {
             if (atlas == null)
                 atlas = GFX.Game;
-            string value = null;
-            if (!self.StringIfNotEmpty(key, out value)) {
+            if (!self.StringIfNotEmpty(key, out string value)) {
                 return defaultValue;
             }
             atlas.PushFallback(null);
@@ -350,11 +366,13 @@ namespace VivHelper {
             return texture;
         }
 
-        public static Color Color(this EntityData self, string key, Color? defaultValue = null) {
+        public static Color Color(this EntityData self, string key, Color? defaultValue = null, List<string> defaultColorParametrization = null) {
             Color _defaultValue = Microsoft.Xna.Framework.Color.White;
             if (defaultValue != null)
                 _defaultValue = defaultValue.Value;
-            if (self.StringIfNotEmpty(key, out string val)) {
+            if (defaultColorParametrization?.Count > 0 && defaultColorParametrization.Contains(key))
+                return _defaultValue;
+            else if (self.StringIfNotEmpty(key, out string val)) {
                 return ColorFixWithNull(val) ?? _defaultValue;
             } else
                 return _defaultValue;
@@ -391,6 +409,20 @@ namespace VivHelper {
                 return defaultValue;
         }
 
+        public static T BetterEnum<T>(this EntityData self, string key, T defaultValue) where T : struct {
+            if (!self.Has(key))
+                return defaultValue;
+            if (self.Values[key] is int i) {
+                var vals = Enum.GetValues(typeof(T));
+                for (int h = 0; h < (vals?.Length ?? 0); h++) { int g = (int)vals.GetValue(h); if (g == i) return (T)Enum.Parse(typeof(T), (string)Enum.GetNames(typeof(T)).GetValue(h)); }
+                return defaultValue;
+            } else {
+                if (Enum.TryParse<T>((string) self.Values[key], ignoreCase: true, out var result))
+                    return result;
+                return defaultValue;
+            }
+        }
+
         public static EntityData ConjoinEntityData(EntityData priority, EntityData appender) {
             //All values presented here are cloned already excluding values.
             EntityData priorCopy = new EntityData {
@@ -414,7 +446,7 @@ namespace VivHelper {
 
         public static bool CollideCheck<T>(this Entity self, out T t) where T : Entity {
             t = null;
-            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(T), out var q))
+            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(T), out List<Entity> q))
                 return false;
             foreach (Entity b in q) {
                 if (Collide.Check(self, b)) { t = (T) b; return true; }
@@ -424,7 +456,7 @@ namespace VivHelper {
 
         public static bool CollideCheck<T>(this Entity self, Vector2 at, out T t) where T : Entity {
             t = null;
-            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(T), out var q))
+            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(T), out List<Entity> q))
                 return false;
             foreach (Entity b in q) {
                 if (Collide.Check(self, b, at)) { t = (T) b; return true; }
@@ -432,11 +464,46 @@ namespace VivHelper {
             return false;
         }
 
+        public static List<Entity> CollideAll(this Entity self, Type type) {
+            if (type == null || !self.Scene.Tracker.Entities.TryGetValue(type, out List<Entity> q))
+                return new List<Entity>(0);
+            return Collide.All(self, q);
+        }
+        public static List<Entity> CollideAll(this Entity self, Type type, Vector2 at) {
+            if (type == null || !self.Scene.Tracker.Entities.TryGetValue(type, out List<Entity> q))
+                return new List<Entity>(0);
+            return Collide.All(self, q, at);
+        }
+
+        public static List<Entity> CollideAll(this Entity self, Func<Type, bool> predicate) {
+            if (predicate == null || self.Scene.Tracker?.Entities == null)
+                return new List<Entity>(0);
+            List<Type> c = new List<Type>();
+            List<Entity> into = new List<Entity>();
+            foreach (KeyValuePair<Type, List<Entity>> kvp in self.Scene.Tracker.Entities) {
+                if (predicate(kvp.Key)) {
+                    Collide.All(self, kvp.Value, into);
+                }
+            }
+            return into;
+        }
+        public static List<Entity> CollideAll(this Entity self, Func<Type, bool> predicate, Vector2 at) {
+            if (predicate == null || self.Scene.Tracker?.Entities == null)
+                return new List<Entity>(0);
+            List<Type> c = new List<Type>();
+            List<Entity> into = new List<Entity>();
+            foreach (KeyValuePair<Type, List<Entity>> kvp in self.Scene.Tracker.Entities) {
+                if (predicate(kvp.Key)) {
+                    Collide.All(self, kvp.Value, into, at);
+                }
+            }
+            return into;
+        }
+
 
         public static bool CollideAnyWhere<T>(this Entity self, Predicate<T> predicate, out T firstMatch) where T : Entity {
-            List<Entity> entities;
             firstMatch = null;
-            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(T), out entities))
+            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(T), out List<Entity> entities))
                 return false;
             foreach (Entity e in entities) {
                 T t = e as T;
@@ -461,9 +528,8 @@ namespace VivHelper {
             return false;
         }
         public static bool CollideAnyWhere<T>(this Entity self, Predicate<T> predicate, Vector2 at, out T firstMatch) where T : Entity {
-            List<Entity> entities;
             firstMatch = null;
-            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(T), out entities))
+            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(T), out List<Entity> entities))
                 return false;
             foreach (Entity e in entities) {
                 T t = e as T;
@@ -489,8 +555,7 @@ namespace VivHelper {
         }
         //Goddamn I need to optimize this out
         public static bool CollideAnySetMatchWhere<T>(this Entity self, params Predicate<T>[] predicates) where T : Entity {
-            List<Entity> entities;
-            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(T), out entities))
+            if (!self.Scene.Tracker.Entities.TryGetValue(typeof(T), out List<Entity> entities))
                 return false;
             if (predicates.Length > 31) //Slow version. This really isn't likely, but at least we accounted for it.
             {
@@ -583,6 +648,61 @@ namespace VivHelper {
                 if (entity.Scene == scene)
                     entity.Awake(scene);
             }
+        }
+
+        public static int TryCountEntities<T>(this Tracker tracker) where T : Entity {
+            if (!tracker.Entities.ContainsKey(typeof(T)))
+                return 0;
+            else
+                return tracker.Entities[typeof(T)].Count();
+        }
+    }
+    public static class FastFieldInfoHelper {
+        public static T CreateDynamicMethod<T>(string methodName, Action<ILProcessor> generator) where T : Delegate {
+            Type TType = typeof(T);
+            Type[] genTypes = TType.GenericTypeArguments;
+            bool isFunc = TType.Name.Contains("Func");
+
+            var method = new DynamicMethodDefinition(methodName,
+                isFunc ? genTypes.Last() : null,
+                isFunc ? genTypes.Take(genTypes.Length - 1).ToArray() : genTypes
+                );
+
+            generator(method.GetILProcessor());
+
+            return method.Generate().CreateDelegate<T>();
+        }
+        public static Func<TDeclaring, TField> CreateFastGetter<TDeclaring, TField>(this FieldInfo field)
+       => CreateAnyFastGetter<Func<TDeclaring, TField>>(field);
+
+        public static Action<TField> CreateFastStaticGetter<TDeclaring, TField>(this FieldInfo field)
+            => CreateAnyFastGetter<Action<TField>>(field);
+
+        public static T CreateAnyFastGetter<T>(this FieldInfo field) where T : Delegate
+            => CreateDynamicMethod<T>($"VH_{field.DeclaringType.FullName}.dyn_fastGet_{field.Name}", (il) => {
+                if (field.IsStatic) {
+                    il.Emit(OpCodes.Ldsfld, field);
+                } else {
+                    il.Emit(OpCodes.Ldarg_0);
+                    il.Emit(OpCodes.Ldfld, field);
+                }
+
+                il.Emit(OpCodes.Ret);
+            });
+
+        public static Entity FindFirst(this EntityList self, Type t) {
+            foreach (Entity e in self.getListOfEntities()) {
+                if (e.GetType() == t)
+                    return e;
+            }
+            return null;
+        }
+        public static void SetVolume(this SoundSource self, float volume) {
+            if(self == null) return;
+            float vol = Calc.Clamp(volume, 0f, 1f);
+            EventInstance i = (EventInstance)EntityMuterComponent.SoundSource_instance.GetValue(self);
+            if (i != null && i.getVolume(out _, out float finalVol) == FMOD.RESULT.OK && finalVol != vol)
+                i.setVolume(vol);
         }
     }
 }

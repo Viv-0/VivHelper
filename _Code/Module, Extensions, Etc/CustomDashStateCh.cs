@@ -29,7 +29,7 @@ namespace VivHelper {
     }
     public enum DashSolidContact {
         Ignore = -1,
-        Normal = 0,
+        Default = 0,
         Kill = 1,
         Bounce = 2
     }
@@ -67,9 +67,11 @@ namespace VivHelper {
 
     public class CustomDashStateCh {
         public static Dictionary<string, EntityData> presetCustomBoosterStates = new Dictionary<string, EntityData>();
-
+        // Whether or not the dash ends when hitting the boundary of a room (that isn't a transition)
         public bool BreakOnBounds = true;
+        // Whether or not the dash can end by entering a dream block
         public bool CanEnterDreamBlock = true;
+        // How long to freeze the game after executing the dash behavior in seconds
         public float FreezeFrames = 0.05f;
 
         //Determines whether or not to force the Initial Dash Direction to a specific value
@@ -87,7 +89,9 @@ namespace VivHelper {
         //the time the dash takes. The "length" the dash is, is just DashSpeed * DashDuration. Default value 0.15.
         //If the value is set to <0, this becomes identical to a RedDash, and combined with HeldDash boolean acts as the default behavior for the HeldDash variant, (superdash version will allow for steering)
         public float DashDuration = 0.15f;
+        // Dashes for as long as you hold the dash button. Defaults to Infinite delay time inside a bubble, and candashexit = false
         public bool HeldDash = false;
+        // Determines whether or not you can leave a bubble via dashing. Held Dash is forced false, because you dash exit upon releasing dash
         public bool CanDashExit = true;
 
         //offsets the player-input direction by AngleOffset degrees, default value 0
@@ -95,10 +99,11 @@ namespace VivHelper {
 
         //changes the steering speed of the dash in degrees per frame, assuming a normal 60fps gamerate. If set to 0, SuperDashing is disabled. Default null.
         public float SuperDashSteerSpeed = 0f;
-
+        //Technical. Ask Viv about it if you need it
         public bool PrioritizeCornerCorrection = false;
-        public DashSolidContact DashSolidEffect = DashSolidContact.Normal;
-        public bool IgnoreWalls = false;
+        //What to do when the player hits a solid from the dash state
+        public DashSolidContact DashSolidEffect = DashSolidContact.Default;
+        // If DashSolidEffect = Kill, at what angle does it count as "crashing" into the wall = kill, versus a "graze" = no kill. Dot Limit is defined by the DotProduct
         public float DashKillDotLimit = 0.3f;
 
         //Uses speed magnitude in some speed-relevant checks which can enable speed retention through alternate angles.
@@ -121,29 +126,38 @@ namespace VivHelper {
              Adds StamValue to the player's Stamina */
 
         // Dash Bonus Handlers
+        // Time you can dash after doing a custom dash/bubble, in seconds
         public float dashCooldownTime = 0.2f;
+        // Time you can regain a dash after doing a custom dash/bubble, in seconds
         public float dashRefillCooldownTime = 0.1f;
+        // Timer you can get a boost from the dash in seconds *after* dash ends.
         public float gliderBoostTime = 0.55f;
 
         //Refill Params
-
+        // Normal = Green Bubble, Kill = Yellow Bubble, No FastBubble = Grey Bubble with Timer (timer set to 0, == grey bubble)
         public FastBubbleState FastBubbleState = FastBubbleState.Normal;
         //if set <0, fastbubbleTimer will wait for dash input, regardless of FastBubbleState. If ==0, the bubble will dash immediately i.e. Gray Booster.
         public float FastBubbleTimer = 0.25f;
+        // Whether or not to drop the holdable (jelly, theo) when entering the bubble
         public bool DropHoldable = true;
-
+        // Order of operations for when to Refill the player's dashes while in a bubble
         public RefillTiming RefillTiming = RefillTiming.BoostBegin;
-
+        // If FastBubbleKill, flashes this color.
         public Color FlashColor = Color.Red;
-
+        // WIP: Disables Bubble State Retention
         public bool DisableRetentionTech = false;
-
+        // If true, can break dash blocks, hit kevins, etc.
         public bool ImpactsObjectsAsDash = true;
+        // If true, the dash direction does not change if you hit ground. Dashes do this, but RedDashes do not.
         public bool OverrideDashDirResetOnGround = true;
+        // If true, when moving in a direction not straight down, you can jump on the ground to get a wavedash. RedBubbles do not do this, but regular dashes do
+        public bool CanWavedashOut = true;
 
         // Voodoo Magic
+        // Allows for mods to use APIs to hook in extra behaviors, such as Shadow Dash, Sun Dash, Time Crystal, etc.
         public string ExtraParameters = string.Empty;
 
+        public bool IsRedDashEsque => HeldDash || DashDuration < 0;
 
         public void HandleParameters(CustomDashActionTypes actionForm, Player player) {
             foreach (string q in ExtraParameters.Split(',')) {
@@ -243,12 +257,6 @@ namespace VivHelper {
         }
 
         public static void LoadPresets() {
-            presetCustomBoosterStates.Add("OrangeBooster", new EntityData {
-                Values = new Dictionary<string, object>
-                {
-                    {"DashDuration", -1f },
-                }
-            });
             presetCustomBoosterStates.Add("Default", new EntityData {
                 Values = new Dictionary<string, object>
                 {

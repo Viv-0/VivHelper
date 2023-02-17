@@ -18,21 +18,29 @@ namespace VivHelper.Entities {
         public Type type;
 
         public LightningMuter(EntityData data, Vector2 offset) : base(data.Position + offset) {
-            flag = data.Attr("flag");
+            flag = data.NoEmptyString("flag");
             ParentClassRef = data.NoEmptyString("AudioPlayingClass");
-
+            Depth = 1000000000;
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
-            if (string.IsNullOrWhiteSpace(flag))
-                return;
-            if(ParentClassRef == null && scene.Tracker.TryGetEntity<LightningRenderer>(out var lr)) {
-                lr.Add(new EntityMuterComponent());
+            if (ParentClassRef == null){
+                if(scene.Tracker.TryGetEntity<LightningRenderer>(out var lr)){
+                    lr.PreUpdate += Lr_PreUpdate;
+                }
             }
-            if (ParentClassRef != null && VivHelper.TryGetType(ParentClassRef, out type) && scene.Tracker.TryGetEntity(type, out var entity)) {
-                entity.Add(new EntityMuterComponent());
+            else if (VivHelper.TryGetType(ParentClassRef, out type) && scene.Tracker.TryGetEntity(type, out var entity)) {
+                entity.Add(new EntityMuterComponent(flag));
             }
+        }
+
+        private void Lr_PreUpdate(Entity obj) {
+            if(obj is LightningRenderer lr) {
+                if(string.IsNullOrWhiteSpace(flag) || (lr.SceneAs<Level>()?.Session?.GetFlag(flag) ?? false)) lr.StopAmbience(); else lr.StartAmbience();
+            }
+            
+            
         }
 
         public override void Update() {

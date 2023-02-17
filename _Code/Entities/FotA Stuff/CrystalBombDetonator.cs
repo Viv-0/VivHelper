@@ -139,18 +139,15 @@ namespace VivHelper.Entities {
         private void CheckForBombs() {
             if (inDestruction)
                 return; //If it's being destroyed, don't destroy any more bombs. This shouldn't ever crash.
-            foreach (Entity bomb in CollideAll<Actor>()) {
-                string s = bomb.GetType().ToString();
-                if (s.Contains("CrystalBomb") && !s.Contains("Detonator")) {
-                    bombExplosionMethod = bomb.GetType().GetMethod("Explode", BindingFlags.Instance | BindingFlags.NonPublic);
-                    if (bombExplosionMethod != null)
-                        bombExplosionMethod.Invoke(bomb, null);
-                    else {
-                        Console.WriteLine("Yo why does it not work");
-                    }
-                    if (!Flashing)
-                        OnTriggerDetonation();
+            foreach (Entity bomb in this.CollideAll(s => s.Name.Contains("CrystalBomb") && !s.Name.Contains("Detonator"))) {
+                bombExplosionMethod = bomb.GetType().GetMethod("Explode", BindingFlags.Instance | BindingFlags.NonPublic);
+                if (bombExplosionMethod != null)
+                    bombExplosionMethod.Invoke(bomb, null);
+                else {
+                    Console.WriteLine("Yo why does it not work");
                 }
+                if (!Flashing)
+                    OnTriggerDetonation();
             }
         }
     }

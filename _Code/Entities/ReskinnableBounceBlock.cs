@@ -191,7 +191,7 @@ namespace VivHelper.Entities {
             BounceEndTime = data.Float("BounceEndTime", 0.05f);
             coreState = data.Enum<Session.CoreModes>("CoreState", Session.CoreModes.None);
 
-            directory = data.Attr("Directory", "objects/bumpblocknew").TrimEnd('/');
+            directory = data.Attr("Directory", "objects/BumpBlockNew").TrimEnd('/');
             state = States.Waiting;
             startPos = Position;
             hotImages = BuildSprite(GFX.Game[directory + "/fire00"]);

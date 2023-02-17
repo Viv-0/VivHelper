@@ -1,0 +1,6 @@
+C:\Users\beelk\Applications\Celeste\Mods\VivHelper\_Code\obj\Release\VivHelper.csproj.AssemblyReference.cache
+C:\Users\beelk\Applications\Celeste\Mods\VivHelper\_Code\obj\Release\VivHelper.csproj.CoreCompileInputs.cache
+C:\Users\beelk\Applications\Celeste\Mods\VivHelper\_Code\obj\Release\VivHelper.dll
+C:\Users\beelk\Applications\Celeste\Mods\VivHelper\_Code\obj\Release\VivHelper.pdb
+C:\Users\beelk\Applications\Celeste\Mods\VivHelper\VivHelper.dll
+C:\Users\beelk\Applications\Celeste\Mods\VivHelper\VivHelper.pdb

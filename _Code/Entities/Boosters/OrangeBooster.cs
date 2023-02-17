@@ -12,7 +12,7 @@ using Celeste.Mod.VivHelper;
 using System.Collections;
 using System.Reflection;
 using MonoMod.Utils;
-
+using Celeste.Mod;
 
 namespace VivHelper.Entities.Boosters {
     public class OrangeBoost {
@@ -23,7 +23,7 @@ namespace VivHelper.Entities.Boosters {
             player.RefillDash();
             player.RefillStamina();
 
-            CustomBooster.dyn = new DynData<Player>(player);
+            CustomBooster.dyn = DynamicData.For(player);
             timer = 0.25f;
         }
 
@@ -34,7 +34,7 @@ namespace VivHelper.Entities.Boosters {
             while (true) {
                 Vector2 v = player.Speed;
                 player.DashDir = v;
-                CustomBooster.dyn.Set<Vector2>("gliderBoostDir", v);
+                CustomBooster.dyn.Set("gliderBoostDir", v);
                 (player.Scene as Level).DirectionalShake(player.DashDir, 0.2f);
                 if (player.DashDir.X != 0f) {
                     player.Facing = (Facings) Math.Sign(player.DashDir.X);
@@ -55,7 +55,7 @@ namespace VivHelper.Entities.Boosters {
         public static int Update(Player player) {
             player.LastBooster = null;
             if (CustomBooster.dyn == null) {
-                CustomBooster.dyn = new DynData<Player>(player);
+                CustomBooster.dyn = DynamicData.For(player);
             }
             Vector2 v = CustomBooster.dyn.Get<Vector2>("boostTarget");
             while (timer > 0) {
@@ -69,7 +69,7 @@ namespace VivHelper.Entities.Boosters {
             }
 
 
-            int j = (int) BoostFunctions.rdU.Invoke(player, new object[] { });
+            int j = (int) BoostFunctions.rdU.Invoke(player, Everest._EmptyObjectArray);
             j = j == 5 ? VivHelperModule.OrangeState : j;
 
             return j;

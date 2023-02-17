@@ -4,6 +4,7 @@ using Celeste.Mod.VivHelper;
 using FMOD;
 using Microsoft.Xna.Framework;
 using Monocle;
+using MonoMod.Utils;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -114,17 +115,6 @@ namespace VivHelper.Triggers {
             }
         }
 
-        private void Transition(TransitionType transition, Player player) {
-            if (transition == TransitionType.Lightning) {
-                level.Flash(Color.White);
-                level.Shake();
-                level.Add(new LightningStrike(new Vector2(player.X + 60f, player.Y - 180), 10, 200f));
-                level.Add(new LightningStrike(new Vector2(player.X + 220f, player.Y - 180), 40, 200f, 0.25f));
-                Audio.Play("event:/new_content/game/10_farewell/lightning_strike");
-            }
-
-        }
-
         private void TeleportMaster(Player player) {
             if (delay > 0)
                 Add(new Coroutine(OnEntrySequence(player)));
@@ -134,7 +124,6 @@ namespace VivHelper.Triggers {
 
 
         public override void OnEnter(Player player) {
-            Console.WriteLine(VivHelperModule.OldGetFlags(level, flags, "and"));
             if (onExit) {
                 ///Code by Oppenheimer
 
@@ -207,146 +196,153 @@ namespace VivHelper.Triggers {
         private void Teleport(Player player) {
             triggered = true;
             float temp4 = transition == TransitionType.GlitchEffect ? 0.5f : 0f;
-            Tween tween = Tween.Create(Tween.TweenMode.Oneshot, null, Engine.DeltaTime, start: true);
-            tween.OnComplete = delegate {
-
-                level.OnEndOfFrame += delegate {
-                    Tween tween1 = Tween.Create(Tween.TweenMode.Oneshot, null, 0.3f, start: true);
-                    tween1.OnUpdate = delegate (Tween t) {
-                        Glitch.Value = temp4 * (t.Eased);
-                    };
-                    player.Add(tween1);
-                    LevelData levelData = level.Session.MapData.Get(newRoom);
-                    //Instantiates all the variables of the previous player object into something we can use later.
-                    Facings facing = player.Facing;
-                    Vector2 levelOffset = level.LevelOffset;
-                    Vector2[] vals = new Vector2[5];
-                    vals[0] = player.Position - levelOffset;
-                    vals[1] = level.Camera.Position - levelOffset;
-                    vals[2] = player.Position.X < this.Position.X ? player.Position - this.Position + new Vector2(8, 0) : player.Position - this.Position;
-                    vals[3] = level.CameraOffset;
-                    vals[4] = level.Camera.Position - player.CameraTarget;
-                    Tuple<Vector2, Vector2, bool, bool> c = new Tuple<Vector2, Vector2, bool, bool>(player.CameraAnchor, player.CameraAnchorLerp, player.CameraAnchorIgnoreX, player.CameraAnchorIgnoreY);
-                    Leader leader = player.Leader;
-                    Dictionary<Entity, Vector2> followerOffsetPair = new Dictionary<Entity, Vector2>();
-                    foreach (Follower follower in leader.Followers) {
-                        if (follower.Entity != null) {
-                            if (wackyFollowerOverride)
-                                followerOffsetPair[follower.Entity] = follower.Entity.Position - player.TopLeft;
-                            else
-                                follower.Entity.Position -= player.TopLeft;
-                            follower.Entity.AddTag(Tags.Global);
-                            if (!VivHelper.CompareEntityIDs(follower.ParentEntityID, EntityID.None))
-                                level.Session.DoNotLoad.Add(follower.ParentEntityID);
-                        }
-                    }
-                    for (int i = 0; i < leader.PastPoints.Count; i++) {
-                        leader.PastPoints[i] -= player.Position;
-                    }
-                    int state = player.StateMachine.State;
-                    //Changed from atpx8's edit. We don't want Persistent goldenberries to be removed through the transition so we need to take it after the follower manager.
-                    player.CleanUpTriggers();
-                    player.CameraAnchorIgnoreX = true;
-                    player.CameraAnchorIgnoreY = true;
-
-                    int pDashes = 0; //This should be player.Dashes if resetDashes is true, if it's false it's unused.
-                    Vector2 pDashDir = Vector2.Zero;
-                    if (!resetDashes) { pDashes = player.Dashes; }
-                    if (VivHelperModule.MatchDashState(player.StateMachine.State)) { pDashDir = player.DashDir; }
-                    List<Component> transitionOut = new List<Component>();
-                    List<Component> transitionIn = new List<Component>();
-                    if (TransitionListeners && newRoom != currentRoom && level.Tracker.Components.TryGetValue(typeof(TransitionListener), out transitionOut)) {
-                        foreach (TransitionListener item in transitionOut) {
-                            item.OnOutBegin?.Invoke();
-                            item.OnOut?.Invoke(1f);
-                        }
-                    }
-
-                    //Removes the current level we are in without breaking everything
-                    level.Remove(player);
-                    level.Entities.Remove(level.Entities.FindAll(VivHelperModule.UnloadTypesWhenTeleporting)); //Apparently Awake is called in a FlingBird to save it to the EntityList and we don't want that.
-                    level.UnloadLevel();
-
-
-                    //Sets the future values of the player. This code is modified from the Teleport Trigger to accommodate more things.
-                    level.Session.Level = newRoom;
-                    level.Session.Dreaming = dreaming;
-                    //Sets up the new Player position to v. This is done before the player is added to account for mod interoperability
-                    Vector2 v;
-                    if (newPos.X >= 0 && newPos.X <= level.Bounds.X + level.Bounds.Width - level.LevelOffset.X &&
-                        newPos.Y >= 0 && newPos.Y <= level.Bounds.Y + level.Bounds.Height - level.LevelOffset.Y) {
-                        v = level.LevelOffset + newPos;
-                        if (addTriggerOffset) { v += vals[2]; }
-
-                    } else if (vals[0].X >= 0 && vals[0].X <= level.Bounds.X + level.Bounds.Width - level.LevelOffset.X &&
-                          vals[0].Y >= 0 && vals[0].Y <= level.Bounds.Y + level.Bounds.Height - level.LevelOffset.Y) {
-                        v = level.LevelOffset + vals[0];
-                    } else {
-                        v = new Vector2(1, 1);
-                    }
-                    if (levelData.Spawns.Count == 0)
-                        level.Session.RespawnPoint = v;
-                    else
-                        level.Session.RespawnPoint = level.GetSpawnPoint(v);
-                    level.Session.FirstLevel = false;
-                    level.Add(player);
-                    ;
-                    level.LoadLevel(Player.IntroTypes.Transition);
-                    if (!resetDashes) { player.Dashes = pDashes; }
-                    //Sets the Player's position
-                    player.Position = v;
-                    ModifySpeed(player);
-                    if (legacyCamera == 2 || legacyCamera == 4)
-                        NewCamera(level, player, vals, c);
-                    else
-                        CameraStuff(level, player, level.LevelOffset + vals[1]);
-                    if (forceNormalState) {
-                        player.StateMachine.State = 0;
-                    } else {
-                        if (VivHelperModule.MatchDashState(player.StateMachine.State)) { player.DashDir = pDashDir.RotateTowards(player.Speed.Angle(), 6.3f); }
-                        if (state == 10) { player.SummitLaunch(player.Position.X); }
-                    }
-                    for (int i = 0; i < leader.PastPoints.Count; i++) {
-                        leader.PastPoints[i] += player.Position;
-                    }
-                    foreach (Follower follower in leader.Followers) {
-                        if (follower.Entity != null) {
-                            if (wackyFollowerOverride)
-                                follower.Entity.Position = player.TopLeft + followerOffsetPair[follower.Entity];
-                            else
-                                follower.Entity.Position += player.TopLeft;
-                            follower.Entity.RemoveTag(Tags.Global);
-                            level.Session.DoNotLoad.Remove(follower.ParentEntityID);
-                        }
-                    }
-                    if (TransitionListeners && newRoom != currentRoom) {
-                        transitionIn = Scene.Tracker.GetComponentsCopy<TransitionListener>();
-                        transitionIn.RemoveAll((Component c) => transitionOut.Contains(c));
-                        foreach (TransitionListener item in transitionIn) {
-                            item.OnInEnd();
-                        }
-                    }
-                    leader.TransferFollowers();
-                    player.Facing = facing;
-                    player.Hair.MoveHairBy(level.LevelOffset - levelOffset);
-
-                    /*if (level.Wipe != null)
-                    {
-                        level.Wipe.Cancel();
-                    }*/
-                    Tween tween2 = Tween.Create(Tween.TweenMode.Oneshot, null, 0.3f, start: true);
-                    tween2.OnUpdate = delegate (Tween t) {
-                        Glitch.Value = temp4 * (1f - t.Eased);
-                    };
-                    player.Add(tween2);
-                    if (transition == TransitionType.ColorFlash) { level.Flash(flashColor, false); }
-                    Transition(transition, player);
-                    if (timeSlowDown != 0f) {
-                        Add(new Coroutine(VivHelperModule.TimeSlowDown(timeSlowDown, .1f)));
-                    }
+            level.OnEndOfFrame += delegate {
+                Tween tween1 = Tween.Create(Tween.TweenMode.Oneshot, null, 0.3f, start: true);
+                tween1.OnUpdate = delegate (Tween t) {
+                    Glitch.Value = temp4 * (t.Eased);
                 };
+                player.Add(tween1);
+                LevelData levelData = level.Session.MapData.Get(newRoom);
+                //Instantiates all the variables of the previous player object into something we can use later.
+                Facings facing = player.Facing;
+                Vector2 levelOffset = level.LevelOffset;
+                Vector2[] vals = new Vector2[5];
+                vals[0] = player.Position - levelOffset;
+                vals[1] = level.Camera.Position - levelOffset;
+                vals[2] = player.Position.X < this.Position.X ? player.Position - this.Position + new Vector2(8, 0) : player.Position - this.Position;
+                vals[3] = level.CameraOffset;
+                vals[4] = level.Camera.Position - player.CameraTarget;
+                Tuple<Vector2, Vector2, bool, bool> c = new Tuple<Vector2, Vector2, bool, bool>(player.CameraAnchor, player.CameraAnchorLerp, player.CameraAnchorIgnoreX, player.CameraAnchorIgnoreY);
+                Leader leader = player.Leader;
+                Dictionary<Entity, Vector2> followerOffsetPair = new Dictionary<Entity, Vector2>();
+                foreach (Follower follower in leader.Followers) {
+                    if (follower.Entity != null) {
+                        if (wackyFollowerOverride)
+                            followerOffsetPair[follower.Entity] = follower.Entity.Position - player.TopLeft;
+                        else
+                            follower.Entity.Position -= player.TopLeft;
+                        follower.Entity.AddTag(Tags.Global);
+                        if (!VivHelper.CompareEntityIDs(follower.ParentEntityID, EntityID.None))
+                            level.Session.DoNotLoad.Add(follower.ParentEntityID);
+                    }
+                }
+                for (int i = 0; i < leader.PastPoints.Count; i++) {
+                    leader.PastPoints[i] -= player.Position;
+                }
+                int state = player.StateMachine.State;
+                //Changed from atpx8's edit. We don't want Persistent goldenberries to be removed through the transition so we need to take it after the follower manager.
+                player.CleanUpTriggers();
+                player.CameraAnchorIgnoreX = true;
+                player.CameraAnchorIgnoreY = true;
+
+                int pDashes = 0; //This should be player.Dashes if resetDashes is true, if it's false it's unused.
+                Vector2 pDashDir = Vector2.Zero;
+                if (!resetDashes) { pDashes = player.Dashes; }
+                if (VivHelperModule.MatchDashState(player.StateMachine.State)) { pDashDir = player.DashDir; }
+                List<Component> transitionOut = new List<Component>();
+                List<Component> transitionIn = new List<Component>();
+                if (TransitionListeners && newRoom != currentRoom && level.Tracker.Components.TryGetValue(typeof(TransitionListener), out var u)) {
+                    transitionOut = new List<Component>(u);
+                }
+                //Removes the current level we are in without breaking everything
+                level.Remove(player);
+                level.Entities.Remove(level.Entities.FindAll(VivHelperModule.UnloadTypesWhenTeleporting)); //Apparently Awake is called in a FlingBird to save it to the EntityList and we don't want that.
+                level.UnloadLevel();
+
+
+                //Sets the future values of the player. This code is modified from the Teleport Trigger to accommodate more things.
+                level.Session.Level = newRoom;
+                level.Session.Dreaming = dreaming;
+                //Sets up the new Player position to v. This is done before the player is added to account for mod interoperability
+                Vector2 v;
+                if (newPos.X >= 0 && newPos.X <= level.Bounds.X + level.Bounds.Width - level.LevelOffset.X &&
+                    newPos.Y >= 0 && newPos.Y <= level.Bounds.Y + level.Bounds.Height - level.LevelOffset.Y) {
+                    v = level.LevelOffset + newPos;
+                    if (addTriggerOffset) { v += vals[2]; }
+
+                } else if (vals[0].X >= 0 && vals[0].X <= level.Bounds.X + level.Bounds.Width - level.LevelOffset.X &&
+                      vals[0].Y >= 0 && vals[0].Y <= level.Bounds.Y + level.Bounds.Height - level.LevelOffset.Y) {
+                    v = level.LevelOffset + vals[0];
+                } else {
+                    v = level.LevelOffset + new Vector2(1, 1);
+                }
+                if (levelData.Spawns.Count == 0)
+                    level.Session.RespawnPoint = v;
+                else
+                    level.Session.RespawnPoint = level.GetSpawnPoint(v);
+                level.Session.FirstLevel = false;
+                level.Add(player);
+                ;
+                level.LoadLevel(Player.IntroTypes.Transition);
+                if (!resetDashes) { player.Dashes = pDashes; }
+                //Sets the Player's position
+                Vector2 diff = v - player.Position;
+                player.Position = v;
+                player.Hair.MoveHairBy(diff);
+                ModifySpeed(player);
+                if (legacyCamera == 2 || legacyCamera == 4)
+                    NewCamera(level, player, vals, c);
+                else
+                    CameraStuff(level, player, level.LevelOffset + vals[1]);
+                if (forceNormalState) {
+                    player.StateMachine.State = 0;
+                } else {
+                    if (VivHelperModule.MatchDashState(player.StateMachine.State)) { player.DashDir = pDashDir.RotateTowards(player.Speed.Angle(), 6.3f); }
+                    if (state == 10) { player.SummitLaunch(player.Position.X); }
+                }
+                for (int i = 0; i < leader.PastPoints.Count; i++) {
+                    leader.PastPoints[i] += player.Position;
+                }
+                foreach (Follower follower in leader.Followers) {
+                    if (follower.Entity != null) {
+                        if (wackyFollowerOverride)
+                            follower.Entity.Position = player.TopLeft + followerOffsetPair[follower.Entity];
+                        else
+                            follower.Entity.Position += player.TopLeft;
+                        follower.Entity.RemoveTag(Tags.Global);
+                        level.Session.DoNotLoad.Remove(follower.ParentEntityID);
+                    }
+                }
+                if (TransitionListeners && newRoom != currentRoom && level.Tracker.Components.TryGetValue(typeof(TransitionListener), out var w)) {
+                    transitionIn = new List<Component>(w);
+                    transitionIn.RemoveAll((Component c) => transitionOut.Contains(c));
+                    foreach (TransitionListener item in transitionOut) {
+                        item?.OnOutBegin?.Invoke();
+                        item?.OnOut?.Invoke(1f); // We want to instantly set to the values in
+                    }
+                    foreach (TransitionListener item in transitionIn) {
+                        item?.OnInBegin?.Invoke();
+                        item?.OnIn?.Invoke(1f);
+                        item?.OnInEnd?.Invoke();
+                    }
+                }
+                //atpx8 map lava fixes
+                DummyStupidLavaFunction(level);
+                leader.TransferFollowers();
+                player.Facing = facing;
+                player.Hair.MoveHairBy(level.LevelOffset - levelOffset);
+
+                /*if (level.Wipe != null)
+                {
+                    level.Wipe.Cancel();
+                }*/
+                Tween tween2 = Tween.Create(Tween.TweenMode.Oneshot, null, 0.3f, start: true);
+                tween2.OnUpdate = delegate (Tween t) {
+                    Glitch.Value = temp4 * (1f - t.Eased);
+                };
+                player.Add(tween2);
+                if (transition == TransitionType.ColorFlash) { level.Flash(flashColor, false); }
+                else if (transition == TransitionType.Lightning) {
+                    level.Flash(Color.White);
+                    level.Shake();
+                    level.Add(new LightningStrike(new Vector2(player.X + 60f, player.Y - 180), 10, 200f));
+                    level.Add(new LightningStrike(new Vector2(player.X + 220f, player.Y - 180), 40, 200f, 0.25f));
+                    Audio.Play("event:/new_content/game/10_farewell/lightning_strike");
+                }
+                if (timeSlowDown != 0f) {
+                    Add(new Coroutine(VivHelperModule.TimeSlowDown(timeSlowDown, .1f)));
+                }
             };
-            player.Add(tween);
         }
 
         private void ModifySpeed(Player player) {
@@ -403,5 +399,27 @@ namespace VivHelper.Triggers {
 
         }
 
+
+        internal static void DummyStupidLavaFunction(Level level) {
+            if (level == null)
+                return;
+            LavaRect t = null, b = null;
+            if (level.Tracker.TryGetEntity(typeof(SandwichLava), out Entity _a) && _a is SandwichLava a) {
+                a.Y = (float) a.SceneAs<Level>().Camera.Bottom - 10f;
+                DynamicData d = DynamicData.For(a);
+                t = d.Get<LavaRect>("topRect");
+                t.Position.Y = d.Get<float>("TopOffset") - t.Height;
+                b = d.Get<LavaRect>("bottomRect");
+                b.Position.Y = 0;
+            }
+            if (VivHelper.TryGetType("Celeste.Mod.MaxHelpingHand.Entities.CustomSandwichLava", out Type _t) && level.Tracker.TryGetEntity(_t, out Entity c)) {
+                c.Y = (float) c.SceneAs<Level>().Camera.Bottom - 10f;
+                DynamicData d = new DynamicData(_t, c);
+                t = d.Get<LavaRect>("topRect");
+                t.Position.Y = d.Get<float>("TopOffset") - t.Height + d.Get<float>("sandwichDisplacement");
+                b = d.Get<LavaRect>("bottomRect");
+                b.Position.Y = -d.Get<float>("sandwichDisplacement");
+            }
+        }
     }
 }
