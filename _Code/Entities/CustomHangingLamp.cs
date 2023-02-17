@@ -30,6 +30,8 @@ namespace VivHelper.Entities {
 
         private float AnimSpeed;
 
+        private float lightDistance;
+
         private bool drawOutline;
 
         public CustomHangingLamp(EntityData e, Vector2 position) {
@@ -104,6 +106,8 @@ namespace VivHelper.Entities {
                 h2 = new Hitbox(cW, cH, -(cW / 2f), Length - cH);
                 base.Collider = new ColliderList(h1, h2);
             }
+            lightDistance = Length - cH / 2f;
+            light.Position = Vector2.UnitY * lightDistance;
             drawOutline = e.Bool("DrawOutline", true);
         }
 
@@ -143,8 +147,8 @@ namespace VivHelper.Entities {
                     sprites[i].Rotation = rotation;
                 }
             }
-            Vector2 vector = Calc.AngleToVector(rotation + (float) Math.PI / 2f, (float) Length - 4f);
-            Vector2 vector3 = (bloom.Position = (light.Position = vector));
+            Vector2 vector = Calc.AngleToVector(rotation + (float) Math.PI / 2f, lightDistance);
+            bloom.Position = light.Position = vector;
             sfx.Position = vector;
         }
 

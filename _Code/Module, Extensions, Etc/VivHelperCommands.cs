@@ -140,7 +140,6 @@ namespace VivHelper {
             }
             MouseState state = Mouse.GetState();
             Vector2 vector = new Vector2(state.X, state.Y);
-            Console.WriteLine(vector);
             Camera camera = level.Camera;
             int num2 = (int) Math.Round((float) Engine.Instance.GraphicsDevice.PresentationParameters.BackBufferWidth / (float) camera.Viewport.Width);
             Vector2 value = vector;
@@ -177,13 +176,6 @@ namespace VivHelper {
                     }
                 }
             }
-        }
-
-        [Command("test", "")]
-        public static void TriangulationTest() {
-            Triangulator.Triangulator.Triangulate(new Vector2[] { new Vector2(100, 100), new Vector2(400, 100), new Vector2(300, 200), new Vector2(500, 300), new Vector2(200, 300) }, Triangulator.WindingOrder.Clockwise, out var a, out var b);
-            Console.WriteLine("Vertices:\n" + string.Join(", ", a));
-            Console.WriteLine("Indices:\n" + string.Join(", ", b));
         }
     }
 }

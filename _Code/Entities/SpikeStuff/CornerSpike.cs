@@ -7,17 +7,19 @@ using Celeste;
 using Monocle;
 using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
+using VivHelper.Module__Extensions__Etc;
 
 namespace VivHelper.Entities.SpikeStuff {
 
     [Tracked]
     [CustomEntity("VivHelper/CornerSpike")]
     public class CornerSpike : CustomSpike {
+
         internal static Dictionary<string, Action<CornerSpike>> attrToAction = new Dictionary<string, Action<CornerSpike>>(4)
         {
             {"UpLeft", c =>
             {
-                c.Direction = (Directions)5; //Up = 1 + Left = 4
+                c.Direction = (DirectionPlus)5; //Up = 1 + Left = 4
                 c.image.JustifyOrigin(Vector2.One);
                 c.image.RenderPosition = Vector2.One;
                 if (c.InnerSpike)
@@ -32,9 +34,9 @@ namespace VivHelper.Entities.SpikeStuff {
             },
             {"DownLeft", c =>
             {
-                c.Direction = (Directions)6; //Down = 2 + Left = 4
+                c.Direction = (DirectionPlus)6; //Down = 2 + Left = 4
                 c.image.JustifyOrigin(Vector2.UnitX);
-                c.image.RenderPosition = new Vector2(1, -1);
+                c.image.RenderPosition = pseudoconsts.UR;
                 if (c.InnerSpike)
                 {
                     c.Collider = new ColliderList(new Hitbox(5, 3, -8, 0), new Hitbox(3, 5, -3, 3));
@@ -46,9 +48,9 @@ namespace VivHelper.Entities.SpikeStuff {
             } },
             {"UpRight", c =>
             {
-                c.Direction = (Directions)9; //Up = 1 + Right = 8
+                c.Direction = (DirectionPlus)9; //Up = 1 + Right = 8
                 c.image.JustifyOrigin(Vector2.UnitY);
-                c.image.RenderPosition = new Vector2(-1, 1);
+                c.image.RenderPosition = pseudoconsts.DL;
                 if (c.InnerSpike)
                 {
                     c.Collider = new ColliderList(new Hitbox(5, 3, 3, -3), new Hitbox(3, 5, 0, -8));
@@ -60,7 +62,7 @@ namespace VivHelper.Entities.SpikeStuff {
             } },
             {"DownRight", c =>
             {
-                c.Direction = (Directions)10; //Down = 2 + Right = 8
+                c.Direction = (DirectionPlus)10; //Down = 2 + Right = 8
                 c.image.JustifyOrigin(Vector2.Zero);
                 c.image.RenderPosition = -Vector2.One;
                 if (c.InnerSpike)
@@ -81,7 +83,8 @@ namespace VivHelper.Entities.SpikeStuff {
         private Vector2 imageOffset;
         private bool killFormat;
 
-        public CornerSpike(EntityData data, Vector2 offset) : base(data.Position + offset, Directions.Other, 0, false, false) {
+        public CornerSpike(EntityData data, Vector2 offset) : base(data.Position + offset, DirectionPlus.Other, 0) {
+
             var a = data.Attr("EdgeDirection", "");
             string b = a;
             if (a.Trim().StartsWith("Inner")) {
@@ -157,14 +160,14 @@ namespace VivHelper.Entities.SpikeStuff {
         }
 
         private bool IsRiding(Solid solid) {
-            switch ((int) Direction) {
-                case 5: //UpLeft
+            switch (Direction) {
+                case DirectionPlus.UpLeft:
                     return CollideCheckOutside(solid, Position + Vector2.One);
-                case 6: //DownLeft
-                    return CollideCheckOutside(solid, Position + new Vector2(1, -1));
-                case 9: //UpRight
-                    return CollideCheckOutside(solid, Position + new Vector2(-1, 1));
-                case 10: //DownRight
+                case DirectionPlus.DownLeft:
+                    return CollideCheckOutside(solid, Position + pseudoconsts.UR);
+                case DirectionPlus.UpRight:
+                    return CollideCheckOutside(solid, Position + pseudoconsts.DL);
+                case DirectionPlus.DownRight:
                     return CollideCheckOutside(solid, Position - Vector2.One);
                 default:
                     return false;
@@ -172,54 +175,63 @@ namespace VivHelper.Entities.SpikeStuff {
         }
 
         private bool IsRiding(JumpThru jumpThru) {
-            if (Direction != 0) {
+            if (Direction != 0)
                 return false;
-            }
             return CollideCheck(jumpThru, Position + Vector2.UnitY);
         }
 
         protected override void OnCollide(Player player) {
-            if (InnerSpike) {
+            if (killFormat) {
+                base.OnCollide(player);
+            } else if (InnerSpike) {
+                var isDreamDash = player.StateMachine.State == Player.StDreamDash;
+                bool invert = VivHelperModule.gravityHelperLoaded && GravityHelperAPI.IsPlayerInverted();
                 ColliderList q = Collider as ColliderList;
-                switch ((int) Direction) {
-                    case 5:
-                        if (Collide.CheckRect(player, q.colliders[0].Bounds) && player.Speed.Y >= 0f && player.Bottom <= q.colliders[0].AbsoluteBottom)
+                switch (Direction) {
+                    case DirectionPlus.UpLeft:
+                        if (Collide.CheckRect(player, q.colliders[0].Bounds) &&
+                                (invert ? player.Speed.Y <= 0 && (!isDreamDash || player.Bottom <= q.colliders[0].AbsoluteBottom) :
+                                player.Speed.Y >= 0f && player.Bottom <= q.colliders[0].AbsoluteBottom))
                             player.Die(new Vector2(0f, -1f));
                         if (Collide.CheckRect(player, q.colliders[1].Bounds) && player.Speed.X >= 0f)
                             player.Die(new Vector2(-1f, 0f));
                         return;
-                    case 6:
-                        if (Collide.CheckRect(player, q.colliders[0].Bounds) && player.Speed.Y <= 0f)
+                    case DirectionPlus.DownLeft:
+                        if (Collide.CheckRect(player, q.colliders[0].Bounds) &&
+                                (invert ? player.Speed.Y >= 0f && (!isDreamDash || player.Top >= q.colliders[0].AbsoluteTop) :
+                                player.Speed.Y <= 0f))
                             player.Die(new Vector2(0f, -1f));
                         if (Collide.CheckRect(player, q.colliders[1].Bounds) && player.Speed.X >= 0f)
                             player.Die(new Vector2(-1f, 0f));
                         return;
-                    case 9:
-                        if (Collide.CheckRect(player, q.colliders[0].Bounds) && player.Speed.Y >= 0f && player.Bottom <= q.colliders[0].AbsoluteBottom)
+                    case DirectionPlus.UpRight:
+                        if (Collide.CheckRect(player, q.colliders[0].Bounds) &&
+                                (invert ? player.Speed.Y <= 0 && (!isDreamDash || player.Bottom <= q.colliders[0].AbsoluteBottom) :
+                                player.Speed.Y >= 0f && player.Bottom <= q.colliders[0].AbsoluteBottom))
                             player.Die(new Vector2(0f, -1f));
                         if (Collide.CheckRect(player, q.colliders[1].Bounds) && player.Speed.X <= 0f)
                             player.Die(new Vector2(1f, 0f));
                         return;
-                    case 10:
-                        if (Collide.CheckRect(player, q.colliders[0].Bounds) && player.Speed.Y <= 0f)
+                    case DirectionPlus.DownRight:
+                        if (Collide.CheckRect(player, q.colliders[0].Bounds) &&
+                                (invert ? player.Speed.Y >= 0f && (!isDreamDash || player.Top >= q.colliders[0].AbsoluteTop) :
+                                player.Speed.Y <= 0f))
                             player.Die(new Vector2(0f, -1f));
                         if (Collide.CheckRect(player, q.colliders[1].Bounds) && player.Speed.X <= 0f)
                             player.Die(new Vector2(1f, 0f));
                         return;
                 }
-            } else if (killFormat) {
-                base.OnCollide(player);
             } else {
                 Vector2 v = Vector2.One;
-                switch ((int) Direction) {
-                    case 5:
+                switch (Direction) {
+                    case DirectionPlus.UpLeft:
                         v = -Vector2.One;
                         break;
-                    case 6:
-                        v = new Vector2(-1, 1);
+                    case DirectionPlus.DownLeft:
+                        v = pseudoconsts.DL;
                         break;
-                    case 9:
-                        v = new Vector2(1, -1);
+                    case DirectionPlus.UpRight:
+                        v = pseudoconsts.UR;
                         break;
                 }
                 if (player.Speed.Length() <= 0.05f || Vector2.Dot(Vector2.Normalize(v), Vector2.Normalize(player.Speed)) < 0f)

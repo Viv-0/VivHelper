@@ -20,7 +20,7 @@ namespace VivHelper.Entities {
         internal Vector2 prevPos; internal Color prevColor;
 
         public PolygonalKillbox(EntityData data, Vector2 offset) : base(data, offset) {
-            Collider = new PolygonCollider(data.NodesWithPosition(offset), this);
+            Collider = new PolygonCollider(data.NodesWithPosition(offset), this, true);
             flag = data.Attr("Flag", null);
             Visible = true;
             Collidable = true;

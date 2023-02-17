@@ -8,15 +8,20 @@ using Monocle;
 using Celeste.Mod;
 using Microsoft.Xna.Framework;
 using System.Reflection;
+using VivHelper.Module__Extensions__Etc;
 
 namespace VivHelper.Entities {
     [Flags]
-    public enum Directions {
+    public enum DirectionPlus {
         Other = 0,
         Up = 1,
         Down = 2,
         Left = 4,
-        Right = 8
+        UpLeft = 5,
+        DownLeft = 6,
+        Right = 8,
+        UpRight = 9,
+        DownRight = 10
     }
 
     //A wrapper class for Custom Spikes so that we can add one IL hook to deal with all spiked wall wallbounces. Does not work for non-cardinal spikes.
@@ -37,69 +42,89 @@ namespace VivHelper.Entities {
 
         public bool CanWallbounce;
         public bool OverrideDirectionParity;
+        public bool CanRefillOnGroundWhenNoKill;
         public PlayerCollider playerCollider;
-        public Directions Direction;
+        public DirectionPlus Direction;
         public bool NoRefillDash = true;
-        public CustomSpike(Vector2 position, Directions dir, int size, bool canWallbounce = false, bool allway = false, bool blockLedge = true) : base(position) {
+        public CustomSpike(Vector2 position, DirectionPlus dir, int size, bool canWallbounce = false, bool canRefillOnGroundIfNoKill = false, bool allway = false, bool blockLedge = true) : base(position) {
             Direction = dir;
             CanWallbounce = canWallbounce;
+            CanRefillOnGroundWhenNoKill = canRefillOnGroundIfNoKill;
             OverrideDirectionParity = allway;
             if (size > 0) {
+                bool c = true;
                 switch (dir) {
-                    case Directions.Up:
+                    case DirectionPlus.Up:
                         base.Collider = new Hitbox(size, 3f, 0f, -3f);
-                        if (blockLedge)
-                            Add(new LedgeBlocker());
+
                         break;
-                    case Directions.Down:
+                    case DirectionPlus.Down:
                         base.Collider = new Hitbox(size, 3f);
+                        c = false;
                         break;
-                    case Directions.Left:
+                    case DirectionPlus.Left:
                         base.Collider = new Hitbox(3f, size, -3f);
-                        if (blockLedge)
-                            Add(new LedgeBlocker());
                         break;
-                    case Directions.Right:
+                    case DirectionPlus.Right:
                         base.Collider = new Hitbox(3f, size);
-                        if (blockLedge)
-                            Add(new LedgeBlocker());
                         break;
+                    default:
+                        return;
                 }
+                if (blockLedge)
+                    Add(new LedgeBlocker() { Blocking = c });
+                if (VivHelperModule.gravityHelperLoaded) {
+                    Add(GravityHelperAPI.CreatePlayerGravityListener((_, args, f) => {
+                        var ledgeBlocker = Components.Get<LedgeBlocker>();
+                        if (Direction == DirectionPlus.Up)
+                            ledgeBlocker.Blocking = args == 0;
+                        else if (Direction == DirectionPlus.Down)
+                            ledgeBlocker.Blocking = args == 1;
+                    }));
+                }
+
             }
         }
 
+        //This is bad code i dont recommend you do it this way
         protected virtual void OnCollide(Player player) {
             if (OverrideDirectionParity) { player.Die(Vector2.Zero); return; }
-
             bool b = true;
             Vector2 v = Vector2.Zero;
-            var c = (int) Direction;
-            if ((c & 1) > 0) {
-                b &= player.Speed.Y >= 0f && (c > 1 || player.Bottom <= Bottom);
+            var c = Direction;
+            if ((c & DirectionPlus.Up) > 0) {
+                if (VivHelperModule.gravityHelperLoaded && GravityHelperAPI.IsPlayerInverted())
+                    b &= player.Speed.Y <= 0f && (c > DirectionPlus.Up || (player.StateMachine.State == Player.StDreamDash && player.Bottom <= Bottom));
+                else
+                    b &= player.Speed.Y >= 0f && (c > DirectionPlus.Up || player.Bottom <= Bottom);
+                if (!b)
+                    return;
                 v.Y -= 1;
+            }
+            if ((c & DirectionPlus.Down) > 0) {
+                if (VivHelperModule.gravityHelperLoaded && GravityHelperAPI.IsPlayerInverted())
+                    b &= player.Speed.Y >= 0f && (c > DirectionPlus.Down || player.Top >= Top);
+                else  b &= player.Speed.Y <= 0f;       
                 if (!b)
                     return;
-            }
-            if ((c & 2) > 0) {
-                b &= player.Speed.Y <= 0;
                 v.Y += 1;
-                if (!b)
-                    return;
             }
-            if ((c & 4) > 0) {
+            if ((c & DirectionPlus.Left) > 0) {
                 b &= player.Speed.X >= 0;
+                if (!b)
+                    return;
                 v.X -= 1;
-                if (!b)
-                    return;
             }
-            if ((c & 8) > 0) {
+            if ((c & DirectionPlus.Right) > 0) {
                 b &= player.Speed.X <= 0;
-                v.X += 1;
                 if (!b)
                     return;
+                v.X += 1;
             }
             player.Die(v);
         }
-        public static int GetSize(int h, int w, Directions dir) => (int) dir >= 4 ? h : w;
+
+        public static int GetSize(int h, int w, DirectionPlus dir) => (int) dir >= 4 ? h : w;
+
     }
 }

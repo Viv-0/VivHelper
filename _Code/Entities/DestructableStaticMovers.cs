@@ -74,8 +74,7 @@ namespace VivHelper.Entities {
             Collidable = true;
             if (replace) {
                 foreach (Entity e in scene.Entities.Where<Entity>((f) => f.Get<StaticMover>() != null && Collide.Check(this, f))) {
-                    Type t = e.GetType();
-                    if (Types.Contains(t) || assignableTypes.Any((u) => t.IsAssignableFrom(u))) {
+                    if (VivHelper.MatchTypeFromTypeSet(e.GetType(), Types, assignableTypes)) {
                         RemovableStaticMover.MakeStaticMoverRemovable(e);
                         if (!all)
                             break;
@@ -83,8 +82,7 @@ namespace VivHelper.Entities {
                 }
             } else {
                 foreach (Entity e in scene.Entities.Where<Entity>((f) => Collide.Check(this, f))) {
-                    Type t = e.GetType();
-                    if (Types.Contains(t) || assignableTypes.Any((u) => t.IsAssignableFrom(u))) {
+                    if (VivHelper.MatchTypeFromTypeSet(e.GetType(), Types, assignableTypes)) {
                         e.Add(new RemovableStaticMover());
                         if (!all)
                             break;

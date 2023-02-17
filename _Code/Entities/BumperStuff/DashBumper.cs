@@ -258,11 +258,6 @@ namespace VivHelper.Entities {
             return ret.FourWayNormal();
         }
 
-        public override void DebugRender(Camera camera) {
-            base.DebugRender(camera);
-
-        }
-
         private void OnShake(Vector2 pos) {
             foreach (Component component in base.Components) {
                 if (component is Image) {

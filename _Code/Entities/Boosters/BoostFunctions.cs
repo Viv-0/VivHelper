@@ -11,19 +11,24 @@ using MonoMod.Utils;
 using System.Collections;
 using MonoMod.RuntimeDetour;
 using MonoMod.Cil;
+using Mono.Cecil.Cil;
 
 namespace VivHelper.Entities.Boosters {
     public static class BoostFunctions {
         public static void Load() {
             On.Celeste.Player.Die += Player_Die;
+            On.Celeste.Player.OnCollideH += Player_OnCollideH;
+            On.Celeste.Player.OnCollideV += Player_OnCollideV;
             IL.Celeste.Player.BeforeDownTransition += il => TranslateRedDash(il, true);
             IL.Celeste.Player.BeforeUpTransition += il => TranslateRedDash(il, true);
             IL.Celeste.Player.OnBoundsH += il => TranslateRedDash(il, true);
             IL.Celeste.Player.OnBoundsV += il => TranslateRedDash(il, true);
             IL.Celeste.Player.OnCollideH += il => TranslateRedDash(il, false);
             IL.Celeste.Player.OnCollideV += il => TranslateRedDash(il, false);
-            On.Celeste.Player.OnCollideH += Player_OnCollideH;
-            On.Celeste.Player.OnCollideV += Player_OnCollideV;
+            IL.Celeste.DashBlock.OnDashed += TranslateRedDash2;
+            On.Celeste.Player.Bounce += Player_Bounce;
+            On.Celeste.Player.SuperBounce += Player_SuperBounce;
+
         }
 
         public static void Unload() {
@@ -32,25 +37,53 @@ namespace VivHelper.Entities.Boosters {
             IL.Celeste.Player.BeforeUpTransition -= il => TranslateRedDash(il, true);
             IL.Celeste.Player.OnBoundsH -= il => TranslateRedDash(il, true);
             IL.Celeste.Player.OnBoundsV -= il => TranslateRedDash(il, true);
-            IL.Celeste.Player.OnCollideH -= il => TranslateRedDash(il, false);
-            IL.Celeste.Player.OnCollideV -= il => TranslateRedDash(il, false);
             On.Celeste.Player.OnCollideH -= Player_OnCollideH;
             On.Celeste.Player.OnCollideV -= Player_OnCollideV;
+            IL.Celeste.Player.OnCollideH -= il => TranslateRedDash(il, false);
+            IL.Celeste.Player.OnCollideV -= il => TranslateRedDash(il, false);
+            On.Celeste.Player.Bounce -= Player_Bounce;
+            On.Celeste.Player.SuperBounce -= Player_SuperBounce;
         }
 
         private static void TranslateRedDash(ILContext il, bool b) {
             ILCursor cursor = new ILCursor(il);
             while (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchLdcI4(5) && instr.Previous.MatchCallvirt<StateMachine>("get_State"))) {
-                if(b)
-                    cursor.EmitDelegate<Func<int, int>>(
-                        f => f == VivHelperModule.WindBoostState || f == VivHelperModule.PinkState || f == VivHelperModule.OrangeState || f == VivHelperModule.CustomDashState ? 5 : f);
-                else
-                    cursor.EmitDelegate<Func<int, int>>(
-                        f => f == VivHelperModule.WindBoostState || f == VivHelperModule.PinkState || f == VivHelperModule.OrangeState ? 5 : f);
+                cursor.EmitDelegate<Func<int, int>>(
+                    f => f == VivHelperModule.WindBoostState || f == VivHelperModule.PinkState || f == VivHelperModule.OrangeState || f == VivHelperModule.CustomDashState ? 5 : f);
                 cursor.Index += 2;
             }
         }
+        private static void TranslateRedDash2(ILContext il) {
+            ILCursor cursor = new ILCursor(il);
+            while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdcI4(5) && instr.Previous.MatchCallvirt<StateMachine>("get_State"))) {
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.Emit(OpCodes.Ldfld, typeof(Player).GetField("StateMachine"));
+                cursor.Emit(OpCodes.Callvirt, typeof(StateMachine).GetMethod("get_State"));
+                cursor.Emit(OpCodes.Call, typeof(BoostFunctions).GetMethod("TransRedDash2"));
+            }
+        }
 
+        public static int TransRedDash(int orig, int pState) {
+            return pState == VivHelperModule.PinkState || pState == VivHelperModule.WindBoostState || pState == VivHelperModule.OrangeState ||
+                (pState == VivHelperModule.CustomDashState && VivHelperModule.Session.CurrentBooster is UltraCustomBooster booster && booster.customDashState.DashDuration < 0) ? pState : orig;
+        }
+        public static int TransRedDash2(int orig, int pState) {
+            return pState == VivHelperModule.PinkState || pState == VivHelperModule.WindBoostState || pState == VivHelperModule.OrangeState ? pState : orig;
+        }
+        private static void Player_Bounce(On.Celeste.Player.orig_Bounce orig, Player self, float fromY) {
+            int pState = self.StateMachine.State;
+            if ((pState == VivHelperModule.PinkState || pState == VivHelperModule.WindBoostState || pState == VivHelperModule.OrangeState || pState == VivHelperModule.CustomDashState) && VivHelperModule.Session.CurrentBooster is { } booster) {
+                booster.PlayerReleased();
+            }
+            orig(self, fromY);
+        }
+        private static void Player_SuperBounce(On.Celeste.Player.orig_SuperBounce orig, Player self, float fromY) {
+            int pState = self.StateMachine.State;
+            if ((pState == VivHelperModule.PinkState || pState == VivHelperModule.WindBoostState || pState == VivHelperModule.OrangeState || pState == VivHelperModule.CustomDashState) && VivHelperModule.Session.CurrentBooster is { } booster) {
+                booster.PlayerReleased();
+            }
+            orig(self, fromY);
+        }
 
         public static void Player_OnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player self, CollisionData data) {
             if (self.StateMachine.State != VivHelperModule.CustomDashState) {
@@ -106,9 +139,11 @@ namespace VivHelper.Entities.Boosters {
                 case DashSolidContact.Ignore:
                     if (customDashState.ImpactsObjectsAsDash && data.Hit != null && data.Hit.OnDashCollide != null) {
                         data.Hit.OnDashCollide.Invoke(self, data.Direction);
+                        if (customDashState.DashDuration < 0)
+                            return;
                     }
                     break;
-                case DashSolidContact.Normal:
+                case DashSolidContact.Default:
                     if (data.Hit == null || data.Hit.OnCollide == null || !customDashState.ImpactsObjectsAsDash || data.Direction.X != (float) Math.Sign(self.DashDir.X)) { break; } else {
                         switch (data.Hit.OnDashCollide(self, data.Direction)) {
                             case DashCollisionResults.Rebound:
@@ -151,6 +186,11 @@ namespace VivHelper.Entities.Boosters {
             self.Speed.X = 0f;
             dyn.Set("dashAttackTimer", 0f);
             dyn.Set("gliderBoostTimer", 0f);
+            if (customDashState.DashDuration < 0f) {
+                Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+                self.SceneAs<Level>().Displacement.AddBurst(self.Center, 0.5f, 8f, 48f, 0.4f, Ease.QuadOut, Ease.QuadOut);
+                self.StateMachine.State = 6;
+            }
         }
 
         public static void Player_OnCollideV(On.Celeste.Player.orig_OnCollideV orig, Player self, CollisionData data) {
@@ -184,10 +224,12 @@ namespace VivHelper.Entities.Boosters {
                 case DashSolidContact.Ignore:
                     if (customDashState.ImpactsObjectsAsDash && data.Hit != null && data.Hit.OnDashCollide != null) {
                         data.Hit.OnDashCollide.Invoke(self, data.Direction);
+                        if (customDashState.DashDuration < 0)
+                            return;
                     }
                     break;
-                case DashSolidContact.Normal:
-                    if (!customDashState.ImpactsObjectsAsDash || data.Hit == null || data.Hit.OnDashCollide == null || data.Direction.Y != (float) Math.Sign(self.DashDir.Y))  { break; } else {
+                case DashSolidContact.Default:
+                    if (!customDashState.ImpactsObjectsAsDash || data.Hit == null || data.Hit.OnDashCollide == null || data.Direction.Y != (float) Math.Sign(self.DashDir.Y)) { break; } else {
                         switch (data.Hit.OnDashCollide(self, data.Direction)) {
                             case DashCollisionResults.Rebound:
                                 self.Rebound();
@@ -209,6 +251,11 @@ namespace VivHelper.Entities.Boosters {
             self.Speed.Y = 0f;
             dyn.Set("dashAttackTimer", 0f);
             dyn.Set("gliderBoostTimer", 0f);
+            if (customDashState.DashDuration < 0f) {
+                Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
+                self.SceneAs<Level>().Displacement.AddBurst(self.Center, 0.5f, 8f, 48f, 0.4f, Ease.QuadOut, Ease.QuadOut);
+                self.StateMachine.State = 6;
+            }
         }
 
         internal static bool CornerCorrectionV(Player self, DynamicData dyn, bool canEnterDreamBlock) {
@@ -267,7 +314,7 @@ namespace VivHelper.Entities.Boosters {
                         self.MuffleLanding = false;
                     }
                     if (self.Speed.Y >= 80f) {
-                        Dust.Burst(self.Position, new Vector2(0f, -1f).Angle(), 8, (ParticleType)VivHelper.player_DustParticleFromSurfaceIndex(self, num2));
+                        Dust.Burst(self.Position, new Vector2(0f, -1f).Angle(), 8, (ParticleType) VivHelper.player_DustParticleFromSurfaceIndex(self, num2));
                     }
                     dyn.Set("playFootstepOnLand", 0f);
                 }
@@ -297,7 +344,7 @@ namespace VivHelper.Entities.Boosters {
                         dyn.Set("varJumpTimer", 0f);
                     }
                 }
-                if (canEnterDreamBlock && (bool)VivHelper.player_DreamDashCheck(self, Vector2.UnitY * Math.Sign(self.Speed.Y))) {
+                if (canEnterDreamBlock && (bool) VivHelper.player_DreamDashCheck(self, Vector2.UnitY * Math.Sign(self.Speed.Y))) {
                     self.StateMachine.State = 9;
                     dyn.Set("dashAttackTimer", 0f);
                     dyn.Set("gliderBoostTimer", 0f);
@@ -332,7 +379,7 @@ namespace VivHelper.Entities.Boosters {
             return dir;
         }
 
-        public static DynData<Player> dyn;
+        public static DynamicData dyn;
 
         public bool BoostingPlayer { get; protected set; }
         public CustomBooster(Vector2 position) : base(position) { }
@@ -350,8 +397,9 @@ namespace VivHelper.Entities.Boosters {
         }
 
         public void ExitCustomDash() {
-            if (VivHelperModule.Session.CurrentBooster == this)
+            if (VivHelperModule.Session.CurrentBooster == this) {
                 VivHelperModule.Session.CurrentBooster = null;
+            }
         }
     }
 }

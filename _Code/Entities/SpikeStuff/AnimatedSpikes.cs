@@ -9,7 +9,7 @@ using Monocle;
 using Microsoft.Xna.Framework;
 using MonoMod.Utils;
 using MonoMod;
-
+using VivHelper.Entities.SpikeStuff;
 
 namespace VivHelper.Entities {
     [CustomEntity(
@@ -20,10 +20,10 @@ namespace VivHelper.Entities {
     )]
     public class AnimatedSpikes : Spikes {
 
-        public static Entity LoadUp(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new AnimatedSpikes(entityData, offset, Directions.Up);
-        public static Entity LoadDown(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new AnimatedSpikes(entityData, offset, Directions.Down);
-        public static Entity LoadLeft(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new AnimatedSpikes(entityData, offset, Directions.Left);
-        public static Entity LoadRight(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new AnimatedSpikes(entityData, offset, Directions.Right);
+        public static Entity LoadUp(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Int("version", 0) > 1 ? new BetterAnimatedSpikes(entityData, offset, DirectionPlus.Up) : new AnimatedSpikes(entityData, offset, Celeste.Spikes.Directions.Up);
+        public static Entity LoadDown(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Int("version", 0) > 1 ? new BetterAnimatedSpikes(entityData, offset, DirectionPlus.Down) : new AnimatedSpikes(entityData, offset, Celeste.Spikes.Directions.Down);
+        public static Entity LoadLeft(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Int("version", 0) > 1 ? new BetterAnimatedSpikes(entityData, offset, DirectionPlus.Left) : new AnimatedSpikes(entityData, offset, Celeste.Spikes.Directions.Left);
+        public static Entity LoadRight(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Int("version", 0) > 1 ? new BetterAnimatedSpikes(entityData, offset, DirectionPlus.Right) : new AnimatedSpikes(entityData, offset, Celeste.Spikes.Directions.Right);
 
 
         public Sprite sprite;

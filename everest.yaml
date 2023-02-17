@@ -1,6 +1,9 @@
 - Name: VivHelper
-  Version: 1.9.4
+  Version: 1.10.1
   DLL: VivHelper.dll
   Dependencies:
     - Name: Everest
       Version: 1.3324.0
+  OptionalDependencies: # only used for Lonn as a precautionary measure to load VivHelper *after* LoennExtended by JaThePlayer. Reasoning is because I am creating wrapper hooks and I don't have Detour Context to wrap over
+    - Name: LoennExtended
+      Version: 1.2.0

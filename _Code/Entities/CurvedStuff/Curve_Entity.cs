@@ -28,7 +28,6 @@ namespace VivHelper.Entities {
             string degreeString = data.Attr("CurvesNumberOfPoints", "Automatic");
             spline = data.Bool("Spline", false);
             identifier = data.Attr("Identifier", "").Trim();
-            Console.WriteLine(identifier);
             Vector2[] points = data.NodesWithPosition(offset);
             pointsLength = points.Length;
             if (pointsLength < 3) { throw new Exception("Not enough points to produce a curve."); } else if (pointsLength == 3) { if (spline) throw new Exception("Not enough points to produce a spline."); else bezier = new BezierSystem(new Bezier2[] { new Bezier2(points[0], points[1], points[2]) }); } else if (pointsLength == 4) {

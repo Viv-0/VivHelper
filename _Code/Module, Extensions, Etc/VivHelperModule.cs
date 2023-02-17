@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -43,22 +43,29 @@ namespace VivHelper {
         public static int BooState, PinkState, OrangeState, WindBoostState, CustomDashState, CustomBoostState;
 
         public static bool maxHelpingHandLoaded { get; private set; }
+        public static EverestModule mhhModule;
         public static bool extVariantsLoaded { get; private set; }
+
+        public static bool gravityHelperLoaded { get; private set; }
 
         public static bool CelesteTASLoaded { get; private set; }
         private static EverestModule CelesteTASModuleInstance;
         private static MethodInfo CelesteTAS_EntityDebugColor;
+        private static MethodInfo CelesteTAS_TriggerDebugColor;
         private static Hook hook_Scene_OccasionalCelesteTASDataCheck;
 
         internal static bool createdCassetteManager;
         public static Color? EntityDebugColor { get; private set; } = null;
+        public static Color? TriggerDebugColor { get; private set; } = null;
 
         internal static string CommandDebugString;
 
         public static Type[] UnloadTypesWhenTeleporting = null; //Any entity which resets the loaded count of entities of that type, see FlingBird.
 
         public static string[] UnspawnedEntityNames = new string[]
-        { "VivHelper/CollectibleGroup", "VivHelper/MapRespriter", "VivHelper/HideRoomInMap", "VivHelper/CustomDashStateDefiner", "VivHelper/PreviousBerriesToFlag", "VivHelper/DisableArbitrarySpawnInDebug" };
+        { "VivHelper/CollectibleGroup", "VivHelper/MapRespriter", "VivHelper/HideRoomInMap",
+          "VivHelper/CustomDashStateDefiner", "VivHelper/PreviousBerriesToFlag", "VivHelper/DisableArbitrarySpawnInDebug"
+        };
 
         public VivHelperModule() {
             Instance = this;
@@ -95,147 +102,147 @@ namespace VivHelper {
             }; //Somehow this is more efficient lmao
             VivHelper.ColorHelper = new Dictionary<string, Color>()
             {
-                { "Transparent", Color.Transparent},
-                { "AliceBlue", Color.AliceBlue},
-                { "AntiqueWhite", Color.AntiqueWhite},
-                { "Aqua", Color.Aqua},
-                { "Aquamarine", Color.Aquamarine},
-                { "Azure", Color.Azure},
-                { "Beige", Color.Beige},
-                { "Bisque", Color.Bisque},
-                { "Black", Color.Black},
-                { "BlanchedAlmond", Color.BlanchedAlmond},
-                { "Blue", Color.Blue},
-                { "BlueViolet", Color.BlueViolet},
-                { "Brown", Color.Brown},
-                { "BurlyWood", Color.BurlyWood},
-                { "CadetBlue", Color.CadetBlue},
-                { "Chartreuse", Color.Chartreuse},
-                { "Chocolate", Color.Chocolate},
-                { "Coral", Color.Coral},
-                { "CornflowerBlue", Color.CornflowerBlue},
-                { "Cornsilk", Color.Cornsilk},
-                { "Crimson", Color.Crimson},
-                { "Cyan", Color.Cyan},
-                { "DarkBlue", Color.DarkBlue},
-                { "DarkCyan", Color.DarkCyan},
-                { "DarkGoldenrod", Color.DarkGoldenrod},
-                { "DarkGray", Color.DarkGray},
-                { "DarkGreen", Color.DarkGreen},
-                { "DarkKhaki", Color.DarkKhaki},
-                { "DarkMagenta", Color.DarkMagenta},
-                { "DarkOliveGreen", Color.DarkOliveGreen},
-                { "DarkOrange", Color.DarkOrange},
-                { "DarkOrchid", Color.DarkOrchid},
-                { "DarkRed", Color.DarkRed},
-                { "DarkSalmon", Color.DarkSalmon},
-                { "DarkSeaGreen", Color.DarkSeaGreen},
-                { "DarkSlateBlue", Color.DarkSlateBlue},
-                { "DarkSlateGray", Color.DarkSlateGray},
-                { "DarkTurquoise", Color.DarkTurquoise},
-                { "DarkViolet", Color.DarkViolet},
-                { "DeepPink", Color.DeepPink},
-                { "DeepSkyBlue", Color.DeepSkyBlue},
-                { "DimGray", Color.DimGray},
-                { "DodgerBlue", Color.DodgerBlue},
-                { "Firebrick", Color.Firebrick},
-                { "FloralWhite", Color.FloralWhite},
-                { "ForestGreen", Color.ForestGreen},
-                { "Fuchsia", Color.Fuchsia},
-                { "Gainsboro", Color.Gainsboro},
-                { "GhostWhite", Color.GhostWhite},
-                { "Gold", Color.Gold},
-                { "Goldenrod", Color.Goldenrod},
-                { "Gray", Color.Gray},
-                { "Green", Color.Green},
-                { "GreenYellow", Color.GreenYellow},
-                { "Honeydew", Color.Honeydew},
-                { "HotPink", Color.HotPink},
-                { "IndianRed", Color.IndianRed},
-                { "Indigo", Color.Indigo},
-                { "Ivory", Color.Ivory},
-                { "Khaki", Color.Khaki},
-                { "Lavender", Color.Lavender},
-                { "LavenderBlush", Color.LavenderBlush},
-                { "LawnGreen", Color.LawnGreen},
-                { "LemonChiffon", Color.LemonChiffon},
-                { "LightBlue", Color.LightBlue},
-                { "LightCoral", Color.LightCoral},
-                { "LightCyan", Color.LightCyan},
-                { "LightGoldenrodYellow", Color.LightGoldenrodYellow},
-                { "LightGray", Color.LightGray},
-                { "LightGreen", Color.LightGreen},
-                { "LightPink", Color.LightPink},
-                { "LightSalmon", Color.LightSalmon},
-                { "LightSeaGreen", Color.LightSeaGreen},
-                { "LightSkyBlue", Color.LightSkyBlue},
-                { "LightSlateGray", Color.LightSlateGray},
-                { "LightSteelBlue", Color.LightSteelBlue},
-                { "LightYellow", Color.LightYellow},
-                { "Lime", Color.Lime},
-                { "LimeGreen", Color.LimeGreen},
-                { "Linen", Color.Linen},
-                { "Magenta", Color.Magenta},
-                { "Maroon", Color.Maroon},
-                { "MediumAquamarine", Color.MediumAquamarine},
-                { "MediumBlue", Color.MediumBlue},
-                { "MediumOrchid", Color.MediumOrchid},
-                { "MediumPurple", Color.MediumPurple},
-                { "MediumSeaGreen", Color.MediumSeaGreen},
-                { "MediumSlateBlue", Color.MediumSlateBlue},
-                { "MediumSpringGreen", Color.MediumSpringGreen},
-                { "MediumTurquoise", Color.MediumTurquoise},
-                { "MediumVioletRed", Color.MediumVioletRed},
-                { "MidnightBlue", Color.MidnightBlue},
-                { "MintCream", Color.MintCream},
-                { "MistyRose", Color.MistyRose},
-                { "Moccasin", Color.Moccasin},
-                { "NavajoWhite", Color.NavajoWhite},
-                { "Navy", Color.Navy},
-                { "OldLace", Color.OldLace},
-                { "Olive", Color.Olive},
-                { "OliveDrab", Color.OliveDrab},
-                { "Orange", Color.Orange},
-                { "OrangeRed", Color.OrangeRed},
-                { "Orchid", Color.Orchid},
-                { "PaleGoldenrod", Color.PaleGoldenrod},
-                { "PaleGreen", Color.PaleGreen},
-                { "PaleTurquoise", Color.PaleTurquoise},
-                { "PaleVioletRed", Color.PaleVioletRed},
-                { "PapayaWhip", Color.PapayaWhip},
-                { "PeachPuff", Color.PeachPuff},
-                { "Peru", Color.Peru},
-                { "Pink", Color.Pink},
-                { "Plum", Color.Plum},
-                { "PowderBlue", Color.PowderBlue},
-                { "Purple", Color.Purple},
-                { "Red", Color.Red},
-                { "RosyBrown", Color.RosyBrown},
-                { "RoyalBlue", Color.RoyalBlue},
-                { "SaddleBrown", Color.SaddleBrown},
-                { "Salmon", Color.Salmon},
-                { "SandyBrown", Color.SandyBrown},
-                { "SeaGreen", Color.SeaGreen},
-                { "SeaShell", Color.SeaShell},
-                { "Sienna", Color.Sienna},
-                { "Silver", Color.Silver},
-                { "SkyBlue", Color.SkyBlue},
-                { "SlateBlue", Color.SlateBlue},
-                { "SlateGray", Color.SlateGray},
-                { "Snow", Color.Snow},
-                { "SpringGreen", Color.SpringGreen},
-                { "SteelBlue", Color.SteelBlue},
-                { "Tan", Color.Tan},
-                { "Teal", Color.Teal},
-                { "Thistle", Color.Thistle},
-                { "Tomato", Color.Tomato},
-                { "Turquoise", Color.Turquoise},
-                { "Violet", Color.Violet},
-                { "Wheat", Color.Wheat},
-                { "White", Color.White},
-                { "WhiteSmoke", Color.WhiteSmoke},
-                { "Yellow", Color.Yellow},
-                { "YellowGreen", Color.YellowGreen}
+                { "transparent", Color.Transparent},
+                { "aliceblue", Color.AliceBlue},
+                { "antiquewhite", Color.AntiqueWhite},
+                { "aqua", Color.Aqua},
+                { "aquamarine", Color.Aquamarine},
+                { "azure", Color.Azure},
+                { "beige", Color.Beige},
+                { "bisque", Color.Bisque},
+                { "black", Color.Black},
+                { "blanchedalmond", Color.BlanchedAlmond},
+                { "blue", Color.Blue},
+                { "blueviolet", Color.BlueViolet},
+                { "brown", Color.Brown},
+                { "burlywood", Color.BurlyWood},
+                { "cadetblue", Color.CadetBlue},
+                { "chartreuse", Color.Chartreuse},
+                { "chocolate", Color.Chocolate},
+                { "coral", Color.Coral},
+                { "cornflowerblue", Color.CornflowerBlue},
+                { "cornsilk", Color.Cornsilk},
+                { "crimson", Color.Crimson},
+                { "cyan", Color.Cyan},
+                { "darkblue", Color.DarkBlue},
+                { "darkcyan", Color.DarkCyan},
+                { "darkgoldenrod", Color.DarkGoldenrod},
+                { "darkgray", Color.DarkGray},
+                { "darkgreen", Color.DarkGreen},
+                { "darkkhaki", Color.DarkKhaki},
+                { "darkmagenta", Color.DarkMagenta},
+                { "darkolivegreen", Color.DarkOliveGreen},
+                { "darkorange", Color.DarkOrange},
+                { "darkorchid", Color.DarkOrchid},
+                { "darkred", Color.DarkRed},
+                { "darksalmon", Color.DarkSalmon},
+                { "darkseagreen", Color.DarkSeaGreen},
+                { "darkslateblue", Color.DarkSlateBlue},
+                { "darkslategray", Color.DarkSlateGray},
+                { "darkturquoise", Color.DarkTurquoise},
+                { "darkviolet", Color.DarkViolet},
+                { "deeppink", Color.DeepPink},
+                { "deepskyblue", Color.DeepSkyBlue},
+                { "dimgray", Color.DimGray},
+                { "dodgerblue", Color.DodgerBlue},
+                { "firebrick", Color.Firebrick},
+                { "floralwhite", Color.FloralWhite},
+                { "forestgreen", Color.ForestGreen},
+                { "fuchsia", Color.Fuchsia},
+                { "gainsboro", Color.Gainsboro},
+                { "ghostwhite", Color.GhostWhite},
+                { "gold", Color.Gold},
+                { "goldenrod", Color.Goldenrod},
+                { "gray", Color.Gray},
+                { "green", Color.Green},
+                { "greenyellow", Color.GreenYellow},
+                { "honeydew", Color.Honeydew},
+                { "hotpink", Color.HotPink},
+                { "indianred", Color.IndianRed},
+                { "indigo", Color.Indigo},
+                { "ivory", Color.Ivory},
+                { "khaki", Color.Khaki},
+                { "lavender", Color.Lavender},
+                { "lavenderblush", Color.LavenderBlush},
+                { "lawngreen", Color.LawnGreen},
+                { "lemonchiffon", Color.LemonChiffon},
+                { "lightblue", Color.LightBlue},
+                { "lightcoral", Color.LightCoral},
+                { "lightcyan", Color.LightCyan},
+                { "lightgoldenrodyellow", Color.LightGoldenrodYellow},
+                { "lightgray", Color.LightGray},
+                { "lightgreen", Color.LightGreen},
+                { "lightpink", Color.LightPink},
+                { "lightsalmon", Color.LightSalmon},
+                { "lightseagreen", Color.LightSeaGreen},
+                { "lightskyblue", Color.LightSkyBlue},
+                { "lightslategray", Color.LightSlateGray},
+                { "lightsteelblue", Color.LightSteelBlue},
+                { "lightyellow", Color.LightYellow},
+                { "lime", Color.Lime},
+                { "limegreen", Color.LimeGreen},
+                { "linen", Color.Linen},
+                { "magenta", Color.Magenta},
+                { "maroon", Color.Maroon},
+                { "mediumaquamarine", Color.MediumAquamarine},
+                { "mediumblue", Color.MediumBlue},
+                { "mediumorchid", Color.MediumOrchid},
+                { "mediumpurple", Color.MediumPurple},
+                { "mediumseagreen", Color.MediumSeaGreen},
+                { "mediumslateblue", Color.MediumSlateBlue},
+                { "mediumspringgreen", Color.MediumSpringGreen},
+                { "mediumturquoise", Color.MediumTurquoise},
+                { "mediumvioletred", Color.MediumVioletRed},
+                { "midnightblue", Color.MidnightBlue},
+                { "mintcream", Color.MintCream},
+                { "mistyrose", Color.MistyRose},
+                { "moccasin", Color.Moccasin},
+                { "navajowhite", Color.NavajoWhite},
+                { "navy", Color.Navy},
+                { "oldlace", Color.OldLace},
+                { "olive", Color.Olive},
+                { "olivedrab", Color.OliveDrab},
+                { "orange", Color.Orange},
+                { "orangered", Color.OrangeRed},
+                { "orchid", Color.Orchid},
+                { "palegoldenrod", Color.PaleGoldenrod},
+                { "palegreen", Color.PaleGreen},
+                { "paleturquoise", Color.PaleTurquoise},
+                { "palevioletred", Color.PaleVioletRed},
+                { "papayawhip", Color.PapayaWhip},
+                { "peachpuff", Color.PeachPuff},
+                { "peru", Color.Peru},
+                { "pink", Color.Pink},
+                { "plum", Color.Plum},
+                { "powderblue", Color.PowderBlue},
+                { "purple", Color.Purple},
+                { "red", Color.Red},
+                { "rosybrown", Color.RosyBrown},
+                { "royalblue", Color.RoyalBlue},
+                { "saddlebrown", Color.SaddleBrown},
+                { "salmon", Color.Salmon},
+                { "sandybrown", Color.SandyBrown},
+                { "seagreen", Color.SeaGreen},
+                { "seashell", Color.SeaShell},
+                { "sienna", Color.Sienna},
+                { "silver", Color.Silver},
+                { "skyblue", Color.SkyBlue},
+                { "slateblue", Color.SlateBlue},
+                { "slategray", Color.SlateGray},
+                { "snow", Color.Snow},
+                { "springgreen", Color.SpringGreen},
+                { "steelblue", Color.SteelBlue},
+                { "tan", Color.Tan},
+                { "teal", Color.Teal},
+                { "thistle", Color.Thistle},
+                { "tomato", Color.Tomato},
+                { "turquoise", Color.Turquoise},
+                { "violet", Color.Violet},
+                { "wheat", Color.Wheat},
+                { "white", Color.White},
+                { "whitesmoke", Color.WhiteSmoke},
+                { "yellow", Color.Yellow},
+                { "yellowgreen", Color.YellowGreen}
             }; //Somehow this is more efficient lmao     
         }
 
@@ -268,7 +275,6 @@ namespace VivHelper {
             string mainDir = Everest.PathEverest;
             SeekerFolderPath = Path.Combine(mainDir, "Mods", "Cache", "VivHelper_YAMLData");
             playerWallJump = typeof(Player).GetMethod("WallJumpCheck", BindingFlags.Instance | BindingFlags.NonPublic);
-            StoredTypesByName = new Dictionary<string, Type>();
             VariantKevin.P_Activate_Maddy = new ParticleType(CrushBlock.P_Activate) { Color = Calc.HexToColor("AC3232") };
             VariantKevin.P_Activate_Baddy = new ParticleType(CrushBlock.P_Activate) { Color = Calc.HexToColor("9B3FB5") };
             CreateFastDelegates();
@@ -287,6 +293,7 @@ namespace VivHelper {
         private static IDetour hook_Player_origUpdate;
 
         public override void Load() {
+            StoredTypesByName = new Dictionary<string, Type>();
             On.Celeste.Leader.Update += newLeaderUpdate;
             On.Celeste.TouchSwitch.ctor_Vector2 += AddCustomSeekerCollision;
             On.Celeste.Player.ctor += Player_ctor;
@@ -302,7 +309,6 @@ namespace VivHelper {
             BooMushroom.Load();
             SpeedPowerup.Load();
             RefillCancel.Load();
-            Blockout.Load();
             HoldableBarrier.Load();
             On.Celeste.Strawberry.OnCollect += CustomBerryCheck;
             //SeekerState.Load();
@@ -317,6 +323,7 @@ namespace VivHelper {
             ExplodeLaunchModifier.Load();
             SpawnPointHooks.Load();
             SeekerKillBarrier.Load();
+            BadelineBoostCustom.Load();
             type = typeof(Key).GetHashCode();
             //Custom Falling Block Kevin Trigger
             crushBlockCrushDir = typeof(CrushBlock).GetField("crushDir", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -332,8 +339,11 @@ namespace VivHelper {
             On.Celeste.Level.Update += Level_Update;
 
             MoonHooks.Load();
+
+            CustomSeeker.Load();
+
             BoostFunctions.Load();
-            TeleportV2Hooks.Load();
+            Module__Extensions__Etc.TeleportV2Hooks.Load();
             Collectible.Load();
             WrappableCrushBlockReskinnable.Load();
             AudioFixSwapBlock.Load();
@@ -343,16 +353,27 @@ namespace VivHelper {
             IL.Monocle.Engine.Update += Engine_Update;
             IL.Monocle.Commands.UpdateClosed += Commands_UpdateClosed;
 
+            BronzeBerry.Load();
+
             //ModInterop
             typeof(VivHelperAPI).ModInterop();
+
+            //Tester.Load();
         }
 
         public override void LoadContent(bool firstLoad) {
             base.LoadContent(firstLoad);
             spriteBank = new SpriteBank(GFX.Game, "Graphics/VivHelper/Sprites.xml");
 
-            maxHelpingHandLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.9.3" });
+            if (Everest.Loader.TryGetDependency(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.16.5" }, out mhhModule)) {
+                maxHelpingHandLoaded = true;
+                
+            }
             extVariantsLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "ExtendedVariantMode", VersionString = "0.21.0" });
+            gravityHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "GravityHelper", VersionString = "1.1.10" });
+            if (gravityHelperLoaded) {
+                typeof(GravityHelperAPI).ModInterop();
+            }
 
             //Collectible coins require this
             Collectible.P_Flash = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark) { Color = Color.White };
@@ -450,12 +471,11 @@ namespace VivHelper {
             };
             SpawnPoint._texture = GFX.Game["VivHelper/player_outline"];
 
-
-
             //Loads in mod-related variables
             CelesteTASLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "CelesteTAS", VersionString = "3.4.18" });
             if (CelesteTASLoaded && VivHelper.TryGetModule(new EverestModuleMetadata { Name = "CelesteTAS", VersionString = "3.4.18" }, out CelesteTASModuleInstance)) {
                 CelesteTAS_EntityDebugColor = CelesteTASModuleInstance.SettingsType.GetProperty("EntityHitboxColor", BindingFlags.Instance | BindingFlags.Public)?.GetGetMethod(false);
+                CelesteTAS_TriggerDebugColor = CelesteTASModuleInstance.SettingsType.GetProperty("TriggerHitboxColor", BindingFlags.Instance|BindingFlags.Public)?.GetGetMethod(false);
                 hook_Scene_OccasionalCelesteTASDataCheck = new Hook(typeof(Scene).GetMethod("BeforeUpdate", BindingFlags.Public | BindingFlags.Instance), typeof(VivHelperModule).GetMethod("Scene_BeforeUpdate", BindingFlags.NonPublic | BindingFlags.Static));
             }
         }
@@ -477,7 +497,6 @@ namespace VivHelper {
             BooMushroom.Unload();
             SpeedPowerup.Unload();
             RefillCancel.Unload();
-            Blockout.Unload();
             HoldableBarrier.Unload();
             //SeekerState.Unload();
             Everest.Events.Level.OnLoadBackdrop -= Level_OnLoadBackdrop;
@@ -491,6 +510,7 @@ namespace VivHelper {
             ExplodeLaunchModifier.Unload();
             SeekerKillBarrier.Unload();
             hook_CrushBlock_AttackSequence?.Dispose();
+            BadelineBoostCustom.Unload();
 
             hook_Scene_OccasionalCelesteTASDataCheck?.Dispose();
             SpawnPointHooks.Unload();
@@ -499,9 +519,10 @@ namespace VivHelper {
             On.Celeste.Level.Update -= Level_Update;
 
             MoonHooks.Unload();
+            CustomSeeker.Unload();
 
             BoostFunctions.Unload();
-            TeleportV2Hooks.Unload();
+            Module__Extensions__Etc.TeleportV2Hooks.Unload();
             Collectible.Unload();
             On.Celeste.Mod.Meta.MapMeta.ApplyTo -= parseCustomWipes;
             WrappableCrushBlockReskinnable.Unload();
@@ -511,18 +532,27 @@ namespace VivHelper {
 
             IL.Monocle.Engine.Update -= Engine_Update;
             IL.Monocle.Commands.UpdateClosed -= Commands_UpdateClosed;
+
+            BronzeBerry.Unload();
         }
 
         private static void Scene_BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
             orig(self);
-
             if (self.OnRawInterval(self.Paused ? 3f : 40f)) {
                 try {
-                    EntityDebugColor = (Color) CelesteTAS_EntityDebugColor.Invoke(CelesteTASModuleInstance._Settings, new object[] { });
+                    EntityDebugColor = (Color) CelesteTAS_EntityDebugColor.Invoke(CelesteTASModuleInstance._Settings, Everest._EmptyObjectArray);
                 } catch {
                     EntityDebugColor = null;
                 }
-            }
+                try {
+                    TriggerDebugColor = (Color) CelesteTAS_TriggerDebugColor.Invoke(CelesteTASModuleInstance._Settings, Everest._EmptyObjectArray);
+                } catch {
+                    TriggerDebugColor = null;
+                }
+            }/*
+            if (self.Tracker.TryGetEntities<Atom>(out List<Entity> entities)) {
+                entities.ForEach(e => { if (e is Atom a) a.ChangedDepths(); });
+            }*/
         }
 
         private void parseCustomWipes(On.Celeste.Mod.Meta.MapMeta.orig_ApplyTo orig, Celeste.Mod.Meta.MapMeta self, AreaData area) {
@@ -533,11 +563,11 @@ namespace VivHelper {
         }
 
         private static void Level_OnEnter(Session session, bool fromSaveData) {
-            foreach(LevelData level in session.MapData.Levels) {
-                foreach(EntityData entity in level.Entities) {
-                    if(entity.Name == "VivHelper/PreviousBerriesToFlag") { 
+            foreach (LevelData level in session.MapData.Levels) {
+                foreach (EntityData entity in level.Entities) {
+                    if (entity.Name == "VivHelper/PreviousBerriesToFlag") {
                         AreaKey area = session.Area;
-                        var areaModeStats = Celeste.SaveData.Instance.Areas_Safe[area.ID].Modes[(int) area.Mode];
+                        AreaModeStats areaModeStats = Celeste.SaveData.Instance.Areas_Safe[area.ID].Modes[(int) area.Mode];
                         ModeProperties modeProperties = AreaData.Get(area).Mode[(int) area.Mode];
                         int totalStrawberries = modeProperties.TotalStrawberries;
                         if (totalStrawberries <= 0) {
@@ -559,15 +589,16 @@ namespace VivHelper {
                             }
                         }
                     }
-                    
+
                 }
             }
-            
+
         }
 
         private void Level_Update(On.Celeste.Level.orig_Update orig, Level self) {
-
+            self.Session?.SetFlag("VH_Photosensitive", Celeste.Settings.Instance.DisableFlashes);
             orig(self);
+            self.Session?.SetFlag("VivHelper/IsPlayerAlive", self.Tracker.TryGetEntity<Player>(out var p) && !p.Dead);
             //Blockout Hook moved from Blockout hooks, legacy
             if (!self.FrozenOrPaused) {
                 // progressively fade in or out.
@@ -580,8 +611,6 @@ namespace VivHelper {
             if (Session.DebrisLimiter == 1) { self.RemoveSelf(); return; } else if (Session.DebrisLimiter > 0) {
                 if (!Calc.Chance(Calc.Random, Session.DebrisLimiter)) { self.RemoveSelf(); }
             }
-
-
         }
 
         private void Player_ReflectionFallUpdate(ILContext il) {
@@ -669,10 +698,6 @@ namespace VivHelper {
             }
         }
 
-
-
-
-
         #region BoostHooks
         //Represents the "edge" that the player is closest to exiting.
         internal static Vector2[] directionSet = new Vector2[] { Vector2.UnitX, Vector2.UnitY, Vector2.UnitX * -1f, Vector2.UnitY * -1f };
@@ -682,7 +707,6 @@ namespace VivHelper {
         }
         #endregion
 
-
         public static void BreakHook(On.Celeste.DashBlock.orig_Break_Vector2_Vector2_bool_bool orig, DashBlock self, Vector2 a, Vector2 b, bool c, bool d) {
             if (self is CustomDashBlock) { (self as CustomDashBlock).Break2(a, b, c, d); } else { orig(self, a, b, c, d); }
         }
@@ -690,7 +714,7 @@ namespace VivHelper {
         private static void Level_LoadingThread(ILContext il) {
             ILCursor cursor = new ILCursor(il);
             cursor.GotoNext(instr => instr.MatchRet());
-            if (cursor.TryGotoPrev(instr => instr.MatchLdarg(0))) {
+            if (cursor.TryGotoPrev(instr => instr.MatchLdarg(0), instr => instr.MatchLdcI4(1), instr => instr.MatchCallvirt<LevelLoader>("set_Loaded"))) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate<Action<LevelLoader>>(LoadingThreadMod);
             }
@@ -700,14 +724,10 @@ namespace VivHelper {
             if (UnloadTypesWhenTeleporting == null)
                 UnloadTypesWhenTeleporting = new Type[] { typeof(FlingBird), VivHelper.GetType("Celeste.Mod.JackalHelper.Entities.BraveBird", false), VivHelper.GetType("Celeste.Mod.JackalHelper.Entities.AltBraveBird", false) };
             //Add all of the HelperEntities
-            if (!self.Level.Contains(HelperEntities.FrozenUpdateHelperEntity))
-                self.Level.Add(HelperEntities.FrozenUpdateHelperEntity);
-            if (!self.Level.Contains(HelperEntities.PauseUpdateHelperEntity))
-                self.Level.Add(HelperEntities.PauseUpdateHelperEntity);
-            if (!self.Level.Contains(HelperEntities.TransitionUpdateHelperEntity))
-                self.Level.Add(HelperEntities.TransitionUpdateHelperEntity);
-            if (!self.Level.Contains(HelperEntities.AllUpdateHelperEntity))
+            if (!(self.Level.Entities.ToAdd.Contains(HelperEntities.AllUpdateHelperEntity) || self.Level.Entities.Contains(HelperEntities.AllUpdateHelperEntity))) {
+                HelperEntities.AllUpdateHelperEntity = new HelperEntity() { Tag = Tags.FrozenUpdate | Tags.Persistent | Tags.PauseUpdate | Tags.Global | Tags.PauseUpdate };
                 self.Level.Add(HelperEntities.AllUpdateHelperEntity);
+            }
             //Holdable Barrier Renderer addition
             List<LevelData> Levels = self.Level.Session?.MapData?.Levels ?? null;
             if (Levels == null)
@@ -716,8 +736,12 @@ namespace VivHelper {
             foreach (LevelData level in Levels) {
                 if (level.Entities == null)
                     continue;
-                bool b = false;
-                if(level.BgDecals?.Any(b => b.Texture.StartsWith("VivHelper/coins/")) ?? false || (level.FgDecals?.Any(b2 => b2.Texture.StartsWith("VivHelper/coins/")) ?? false)) {
+                bool collCont = false;
+                bool hbR = false;
+                bool cbdR = false;
+                bool gbfC = false;
+                bool sG = false;
+                if (level.BgDecals?.Any(b => b.Texture.StartsWith("VivHelper/coins/")) ?? false || (level.FgDecals?.Any(b2 => b2.Texture.StartsWith("VivHelper/coins/")) ?? false)) {
                     List<EntityData> datas = new List<EntityData>();
                     foreach (LevelData l in Levels) {
                         if (l.Entities != null) {
@@ -727,28 +751,35 @@ namespace VivHelper {
                     }
                     self.Level.Add(new CollectibleController(datas));
                 }
-                foreach(EntityData entity in level.Entities) {
-                    if (entity.Name == "VivHelper/HoldableBarrier" && self.Entities.FindFirst<HoldableBarrierRenderer>() == null)
+                foreach (EntityData entity in level.Entities) {
+                    if (entity.Name == "VivHelper/HoldableBarrier" && !hbR) {
                         self.Level.Add(new HoldableBarrierRenderer());
-                    else if (entity.Name == "VivHelper/CrystalBombDetonator" && self.Entities.FindFirst<CrystalBombDetonatorRenderer>() == null)
+                        hbR = true;
+                    } else if (entity.Name == "VivHelper/CrystalBombDetonator" && !cbdR) {
                         self.Level.Add(new CrystalBombDetonatorRenderer());
-                    else if (!b && self.Entities.FindFirst<CollectibleController>() == null && (entity.Name == "VivHelper/CollectibleGroup" || entity.Name == "VivHelper/Collectible")) {
+                        cbdR = true;
+                    } else if (!collCont && (entity.Name == "VivHelper/CollectibleGroup" || entity.Name == "VivHelper/Collectible")) {
                         List<EntityData> datas = new List<EntityData>();
                         foreach (LevelData l in Levels) {
                             if (l.Entities != null) {
                                 datas.AddRange(l.Entities.Where(e => e.Name == "VivHelper/CollectibleGroup"));
                             }
-
                         }
+                        collCont = true;
                         self.Level.Add(new CollectibleController(datas));
-                    } else if (entity.Name == "VivHelper/GoldenBerryToFlag" && self.Entities.FindFirst<GoldenBerryFlagController>() == null)
+                    } else if (entity.Name == "VivHelper/GoldenBerryToFlag" && !gbfC) {
                         self.Level.Add(new GoldenBerryFlagController());
+                        gbfC = true;
+                    } /*else if (!sG && entity.Name == "VivHelper/CustomSpinner" && entity.Values.ContainsKey("test")) {
+                        self.Level.Add(new SpinnerGrouper());
+                        sG = true;
+                    }*/
                 }
             }
             SpawnPointHooks.AddLevelInfoCache(self.Level.Session);
         }
 
-        private static string[] rainbowObjects = new string[] {"VivHelper/CustomSpinner", "VivHelper/AnimatedSpinner",
+        private static string[] rainbowObjects = new string[] {"VivHelper/CustomSpinnerV2", "VivHelper/CustomSpinner", "VivHelper/AnimatedSpinner",
         "VivHelper/RainbowSpikesUp", "VivHelper/RainbowSpikesDown", "VivHelper/RainbowSpikesLeft", "VivHelper/RainbowSpikesRight",
         "VivHelper/RainbowTriggerSpikesUp", "VivHelper/RainbowTriggerSpikesDown", "VivHelper/RainbowTriggerSpikesLeft", "VivHelper/RainbowTriggerSpikesRight"};
         private static MethodInfo player_get_CameraTarget = typeof(Player).GetProperty("CameraTarget", BindingFlags.Public | BindingFlags.Instance).GetGetMethod();
@@ -792,7 +823,7 @@ namespace VivHelper {
 
         private Backdrop Level_OnLoadBackdrop(MapData map, BinaryPacker.Element child, BinaryPacker.Element above) {
             if (child.Name.Equals("VivHelper/WindRainFG", StringComparison.OrdinalIgnoreCase))
-                return new WindRainFG(new Vector2(child.AttrFloat("scrollx"), child.AttrFloat("scrolly")), child.Attr("colors"), child.AttrFloat("speed"));
+                return new WindRainFG(new Vector2(child.AttrFloat("scrollx"), child.AttrFloat("scrolly")), child.Attr("colors"), child.AttrFloat("windStrength"));
             else if (child.Name.Equals("VivHelper/CustomRain", StringComparison.OrdinalIgnoreCase))
                 return new CustomRain(new Vector2(child.AttrFloat("scrollx"), child.AttrFloat("scrolly")), child.AttrFloat("angle", 270f), child.AttrFloat("angleDiff", 3f), child.AttrFloat("speedMult", 1f), child.AttrInt("Amount", 240), child.Attr("colors", "161933"), child.AttrFloat("alpha"));
             return null;
@@ -858,32 +889,24 @@ namespace VivHelper {
                     cursor.Index++;
                     cursor.Emit(OpCodes.Ldarg_0);
                     cursor.Emit(OpCodes.Ldloc, varDef);
-                    cursor.EmitDelegate<Func<bool, Player, Vector2, bool>>((b, player, v) => {
-                        if (b)
-                            return true;
-                        else
-                            return ModifiedSolidCollideCheck(player, v);
-                    }); //replaces it with my modified collide check which works with CornerBoost Components.
+                    cursor.Emit(OpCodes.Ldarg_1);
+                    cursor.Emit(OpCodes.Call, typeof(VivHelperModule).GetMethod("ModifiedSolidCollideCheck", BindingFlags.Static| BindingFlags.NonPublic));
                 }
             }
 
         }
 
-        private static bool ModifiedSolidCollideCheck(Player player, Vector2 at) {
-
-            bool a = false;
-            Vector2 position = player.Position;
-            player.Position = at;
-            foreach (Solid solid in player.Scene.Tracker.Entities[typeof(Solid)]) {
-                if (solid.Get<SolidModifierComponent>() != null)
-                    a |= SolidModifierComponent.WJ_CollideCheck(solid, player, solid.Get<SolidModifierComponent>().CornerBoostBlock);
-                else
-                    a |= player.CollideCheck(solid);
-                if (a)
-                    break;
+        private static bool ModifiedSolidCollideCheck(bool orig, Player player, Vector2 at, int dir) {
+            if (!orig) {
+                foreach (Solid solid in player.Scene.Tracker.Entities[typeof(Solid)]) {
+                    var t = solid.Get<SolidModifierComponent>();
+                    if (t != null && t.CornerBoostBlock != 0)
+                        orig |= SolidModifierComponent.WJ_CollideCheck(solid, player, t.CornerBoostBlock, dir);
+                    if (orig)
+                        break;
+                }
             }
-            player.Position = position;
-            return a;
+            return orig;
         }
 
         private void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
@@ -893,7 +916,7 @@ namespace VivHelper {
             OrangeState = self.StateMachine.AddState(OrangeBoost.Update, OrangeBoost.Coroutine, OrangeBoost.Begin, OrangeBoost.End);
             WindBoostState = self.StateMachine.AddState(WindBoost.Update, WindBoost.Coroutine, WindBoost.Begin, WindBoost.End);
             CustomBoostState = self.StateMachine.AddState(UltraCustomBoost.Update, UltraCustomBoost.Coroutine, UltraCustomBoost.Begin, UltraCustomBoost.End);
-            CustomDashState = self.StateMachine.AddState(UltraCustomDash.Update, UltraCustomDash.Coroutine, UltraCustomDash.Begin, UltraCustomDash.End);
+            CustomDashState = self.StateMachine.AddState(UltraCustomDash.CDashUpdate, UltraCustomDash.CDashRoutine, UltraCustomDash.CDashBegin, UltraCustomDash.CDashEnd);
         }
 
 
@@ -1027,5 +1050,8 @@ namespace VivHelper {
             else
                 CommandDebugString = (CommandDebugString == null ? message : CommandDebugString + "\n" + message);
         }
+
+
+
     }
 }

@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using MonoMod.Utils;
-using Celeste.Mod.Entities; 
+using Celeste.Mod.Entities;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/TheoKillBarrier")]
@@ -22,7 +22,7 @@ namespace VivHelper.Entities {
         }
 
         public void OnHoldable(Holdable h) {
-            if(h.Entity is TheoCrystal tc)
+            if (h.Entity is TheoCrystal tc)
                 tc.Die();
         }
 

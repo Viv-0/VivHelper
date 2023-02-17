@@ -15,9 +15,13 @@ using MonoMod.Utils;
 using System.Reflection;
 using VivHelper.Entities.Boosters;
 using VivHelper;
+using Celeste.Mod;
+using VivHelper.Module__Extensions__Etc;
 
 namespace VivHelper.Entities.Boosters {
     public static class UltraCustomDash {
+
+
 
         //Current expected values is 6: AnonHelper CloudRefill, AnonHelper JellyRefill, CherryHelper ShadowDash, ChronoHelper ShatterDash, Crystalline TimeCrystalDash, Crystalline StarPower Dash
         public static Dictionary<string, CustomDashActions> customDashSpecialHandlers = new Dictionary<string, CustomDashActions>(6);
@@ -26,9 +30,9 @@ namespace VivHelper.Entities.Boosters {
         internal static Vector2 beforeDashSpeed; //Just incase we need it, this is inherently faster than retrieving from DynData.
 
         // This duplicates the behavior of DashBegin but with DynData. This *shouldn't* be problematic given that the player DynamicData has most likely already been stored via Boost.
-        public static void Begin(Player player) {
+        public static void CDashBegin(Player player) {
             if (CustomBooster.dyn?.Target != player)
-                CustomBooster.dyn = new DynData<Player>(player);
+                CustomBooster.dyn = DynamicData.For(player);
             CustomDashStateCh customDashState = VivHelperModule.Session.customDashState;
             if (VivHelperModule.Session.CurrentBooster != null && VivHelperModule.Session.CurrentBooster is UltraCustomBooster booster)
                 customDashState = booster.customDashState;
@@ -41,33 +45,33 @@ namespace VivHelper.Entities.Boosters {
             }
             bool onGround = CustomBooster.dyn.Get<bool>("onGround");
             bool demoDashed = CustomBooster.dyn.Get<bool>("demoDashed");
-            CustomBooster.dyn.Set<bool>("calledDashEvents", true);
-            CustomBooster.dyn.Set<bool>("dashStartedOnGround", onGround);
-            CustomBooster.dyn.Set<bool>("launched", false);
-            CustomBooster.dyn.Set<bool>("canCurveDash", customDashState.SuperDashSteerSpeed > 0f);
+            CustomBooster.dyn.Set("calledDashEvents", true);
+            CustomBooster.dyn.Set("dashStartedOnGround", onGround);
+            CustomBooster.dyn.Set("launched", false);
+            CustomBooster.dyn.Set("canCurveDash", customDashState.SuperDashSteerSpeed > 0f);
             if (customDashState.FreezeFrames > 0) {
                 Celeste.Celeste.Freeze(customDashState.FreezeFrames);
             }
-            CustomBooster.dyn.Set<float>("dashCooldownTimer", customDashState.dashCooldownTime);
-            CustomBooster.dyn.Set<float>("dashRefillCooldownTimer", customDashState.dashRefillCooldownTime);
-            CustomBooster.dyn.Set<bool>("StartedDashing", true);
-            CustomBooster.dyn.Set<float>("wallSlideTimer", 1.2f);
-            CustomBooster.dyn.Set<float>("dashTrailTimer", 0.1f);
-            CustomBooster.dyn.Set<int>("dashTrailCounter", 1);
+            CustomBooster.dyn.Set("dashCooldownTimer", customDashState.dashCooldownTime);
+            CustomBooster.dyn.Set("dashRefillCooldownTimer", customDashState.dashRefillCooldownTime);
+            CustomBooster.dyn.Set("StartedDashing", true);
+            CustomBooster.dyn.Set("wallSlideTimer", 1.2f);
+            CustomBooster.dyn.Set("dashTrailTimer", 0.1f);
+            CustomBooster.dyn.Set("dashTrailCounter", 1);
             if (!SaveData.Instance.Assists.DashAssist) {
                 Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             }
             float dashAttackTimer = 0.15f; //Default for 0 dash duration.
             float gliderBoostTimer = 0.4f;
-            if (customDashState.DashDuration < 0 && customDashState.HeldDash) {
+            if (customDashState.DashDuration < 0) {
                 dashAttackTimer = float.MaxValue; //a nice fix for HeldDash
                 gliderBoostTimer = float.MaxValue; //These are just set so that it's not 0 on begin. Technically, if this is the case it's set to some value every frame it's occurring.
             } else {
                 dashAttackTimer += customDashState.DashDuration;
                 gliderBoostTimer += customDashState.DashDuration;
             }
-            CustomBooster.dyn.Set<float>("dashAttackTimer", dashAttackTimer);
-            CustomBooster.dyn.Set<float>("gliderBoostTimer", gliderBoostTimer);
+            CustomBooster.dyn.Set("dashAttackTimer", dashAttackTimer);
+            CustomBooster.dyn.Set("gliderBoostTimer", gliderBoostTimer);
             beforeDashSpeed = player.Speed;
             player.Speed = Vector2.Zero;
             player.DashDir = Vector2.Zero;
@@ -90,12 +94,16 @@ namespace VivHelper.Entities.Boosters {
                 playerDashAssist.Offset = (VivHelperModule.Session.CurrentBooster == null) ? Vector2.Zero : new Vector2(0f, -4f);
             }
         }
-        public static int Update(Player player) {
+        public static int CDashUpdate(Player player) {
             CustomDashStateCh customDashState = VivHelperModule.Session.customDashState;
             if (VivHelperModule.Session.CurrentBooster != null && VivHelperModule.Session.CurrentBooster is UltraCustomBooster booster) {
                 customDashState = booster.customDashState;
             }
-            CustomBooster.dyn.Set<bool>("StartedDashing", false);
+            if(customDashState.CanDashExit && player.CanDash) {
+                Console.WriteLine("test");
+                return player.StartDash();
+            }
+            CustomBooster.dyn.Set("StartedDashing", false);
             float dashTrailTimer = CustomBooster.dyn.Get<float>("dashTrailTimer");
             float dashCounter = CustomBooster.dyn.Get<int>("dashTrailCounter");
             if (dashTrailTimer > 0f && dashCounter > 0) {
@@ -106,7 +114,7 @@ namespace VivHelper.Entities.Boosters {
                     dashTrailTimer = 0.1f;
                 }
             }
-            CustomBooster.dyn.Set<float>("dashTrailTimer", dashTrailTimer);
+            CustomBooster.dyn.Set("dashTrailTimer", dashTrailTimer);
             if (customDashState.SuperDashSteerSpeed > 0f) {
                 if (Input.Aim.Value != Vector2.Zero && player.Speed != Vector2.Zero) {
                     Vector2 aimVector = Input.GetAimVector();
@@ -121,57 +129,56 @@ namespace VivHelper.Entities.Boosters {
                 //We don't want this superdash code to occur that occurs in normal dashes here.
             }
             player.DashDir = CustomBooster.CorrectDashPrecision(player.DashDir);
+
+            if (Math.Abs(player.Speed.X) < 0.005)
+                player.Speed.X = 0;
+            if (Math.Abs(player.Speed.Y) < 0.005)
+                player.Speed.Y = 0;
             if (player.Holding == null && player.DashDir != Vector2.Zero && Input.GrabCheck && !CustomBooster.dyn.Get<bool>("IsTired") && player.CanUnDuck) {
                 foreach (Holdable component in player.Scene.Tracker.GetComponents<Holdable>()) {
-                    if (component.Check(player) && (bool) VivHelper.player_Pickup.Invoke(player, new object[] { component })) {
+                    if (component.Check(player) && (bool) VivHelper.player_Pickup.Invoke(player, component)) {
                         return Player.StPickup;
                     }
                 }
             }
             if (Math.Abs(player.DashDir.Y) < 0.1f) {
                 foreach (JumpThru entity in player.Scene.Tracker.GetEntities<JumpThru>()) {
-                    if (player.CollideCheck(entity) && player.Bottom - entity.Top <= 6f && !(bool) VivHelper.player_DashCorrectCheck(Vector2.UnitY * (entity.Top - player.Bottom))) {
+                    if (player.CollideCheck(entity) && player.Bottom - entity.Top <= 6f && !(bool) VivHelper.player_DashCorrectCheck.Invoke(player, Vector2.UnitY * (entity.Top - player.Bottom))) {
                         player.MoveVExact((int) (entity.Top - player.Bottom));
                     }
                 }
                 if (player.CanUnDuck && Input.Jump.Pressed && CustomBooster.dyn.Get<float>("jumpGraceTimer") > 0f) {
-                    VivHelper.player_SuperJump(player, new object[] { });
+                    VivHelper.player_SuperJump(player, Everest._EmptyObjectArray);
                     return 0;
                 }
             }
             //Optimized Dash Update behaviors
             if (Input.Jump.Pressed && player.CanUnDuck) {
-                if ((bool) VivHelper.player_WallJumpCheck(player, new object[] { 1 })) {
+                if ((bool) VivHelper.player_WallJumpCheck(player, VivHelper.oneOne)) {
                     if (Math.Abs(player.DashDir.X) <= 0.2f && player.DashDir.Y <= -0.75f) {
-                        VivHelper.player_SuperWallJump(player, new object[] { -1 });
+                        VivHelper.player_SuperWallJump(player, VivHelper.negOne);
                     } else if (player.Facing == Facings.Right && Input.GrabCheck && player.Stamina > 0f && player.Holding == null && !ClimbBlocker.Check(player.Scene, player, player.Position + Vector2.UnitX * 3f)) {
-                        VivHelper.player_ClimbJump(player, new object[] { });
+                        VivHelper.player_ClimbJump(player, Everest._EmptyObjectArray);
                     } else {
-                        VivHelper.player_WallJump(player, new object[] { -1 });
+                        VivHelper.player_WallJump(player, VivHelper.negOne);
                     }
                     return 0;
                 }
-                if ((bool) VivHelper.player_WallJumpCheck(player, new object[] { -1 })) {
+                if ((bool) VivHelper.player_WallJumpCheck(player, VivHelper.negOne)) {
                     if (Math.Abs(player.DashDir.X) <= 0.2f && player.DashDir.Y <= -0.75f) {
-                        VivHelper.player_SuperWallJump(player, new object[] { 1 });
+                        VivHelper.player_SuperWallJump(player, VivHelper.oneOne);
                     } else if (player.Facing == Facings.Left && Input.GrabCheck && player.Stamina > 0f && player.Holding == null && !ClimbBlocker.Check(player.Scene, player, player.Position - Vector2.UnitX * 3f)) {
-                        VivHelper.player_ClimbJump(player, new object[] { });
+                        VivHelper.player_ClimbJump(player, Everest._EmptyObjectArray);
                     } else {
-                        VivHelper.player_WallJump(player, new object[] { 1 });
+                        VivHelper.player_WallJump(player, VivHelper.oneOne);
                     }
                     return 0;
                 }
-            }
-            //DashIntoSolid handled in a hook to Player::orig_Update
-            Level level = player.Scene as Level;
-            if (player.Speed != Vector2.Zero && level.OnInterval(0.02f)) {
-                ParticleType type = ((!CustomBooster.dyn.Get<bool>("wasDashB")) ? Player.P_DashA : ((player.Sprite.Mode != PlayerSpriteMode.MadelineAsBadeline) ? Player.P_DashB : Player.P_DashBadB));
-                level.ParticlesFG.Emit(type, player.Center + Calc.Random.Range(Vector2.One * -2f, Vector2.One * 2f), player.DashDir.Angle());
             }
             return VivHelperModule.CustomDashState;
         }
 
-        public static IEnumerator Coroutine(Player player) {
+        public static IEnumerator CDashRoutine(Player player) {
             var customDashState = VivHelperModule.Session.customDashState;
             if (VivHelperModule.Session.CurrentBooster is UltraCustomBooster booster) {
                 customDashState = booster.customDashState;
@@ -214,7 +221,7 @@ namespace VivHelper.Entities.Boosters {
             if (player.CollideCheck<Water>()) {
                 player.Speed *= 0.75f;
             }
-            CustomBooster.dyn.Set<Vector2>("gliderBoostDir", value);
+            CustomBooster.dyn.Set("gliderBoostDir", value);
             level.DirectionalShake(player.DashDir, 0.2f);
             if (player.DashDir.X != 0f) {
                 player.Facing = (Facings) Math.Sign(player.DashDir.X);
@@ -259,18 +266,20 @@ namespace VivHelper.Entities.Boosters {
                 t = float.MaxValue;
             else
                 t += Engine.DeltaTime;
-            while (t > 0f && (customDashState.HeldDash ? Input.Dash.Check || Input.CrouchDash.Check : CustomBooster.dyn.Get<float>("dashCooldownTimer") > 0f || (!Input.DashPressed && !Input.CrouchDashPressed))) //Handles everything nicely
+            while (t > 0f &&
+                  (customDashState.HeldDash ? Input.Dash.Check || Input.CrouchDash.Check :
+                  (!customDashState.CanDashExit || CustomBooster.dyn.Get<float>("dashCooldownTimer") > 0f || (!Input.DashPressed && !Input.CrouchDashPressed)))) //Handles everything nicely
             {
-                if (dashDurationOrig < 0 && customDashState.HeldDash) {
-                    CustomBooster.dyn.Set<float>("gliderBoostTimer", 0.30f);
-                    CustomBooster.dyn.Set<float>("dashAttackTimer", 0.15f);
+                if (customDashState.IsRedDashEsque) {
+                    CustomBooster.dyn.Set("gliderBoostTimer", 0.30f);
+                    CustomBooster.dyn.Set("dashAttackTimer", 0.15f);
                 }
                 yield return null;
                 t -= Engine.DeltaTime;
             }
             scale = new Vector2(Math.Abs(player.Sprite.Scale.X) * (float) player.Facing, player.Sprite.Scale.Y);
             TrailManager.Add(player, scale, player.GetCurrentTrailColor());
-            CustomBooster.dyn.Set<int>("dashTrailCounter", 0);
+            CustomBooster.dyn.Set("dashTrailCounter", 0);
             player.AutoJump = true;
             player.AutoJumpTimer = 0f;
             if (CustomDashStateCh.DashEndControl(customDashState.DashEndType, player.DashDir)) {
@@ -284,9 +293,9 @@ namespace VivHelper.Entities.Boosters {
             player.StateMachine.State = 0;
         }
 
-        public static void End(Player player) {
+        public static void CDashEnd(Player player) {
             VivHelperModule.Session.CurrentBooster?.ExitCustomDash(); //Fixes a rather rare order issue.
-            CustomBooster.dyn.Set<bool>("demoDashed", false);
+            CustomBooster.dyn.Set("demoDashed", false);
         }
     }
 
@@ -303,17 +312,17 @@ namespace VivHelper.Entities.Boosters {
             self.StateMachine.State = VivHelperModule.CustomBoostState;
             self.Speed = Vector2.Zero;
             if (CustomBooster.dyn?.Target != self)
-                CustomBooster.dyn = new DynData<Player>(self);
-            CustomBooster.dyn.Set<Vector2>("boostTarget", booster.Center);
+                CustomBooster.dyn = DynamicData.For(self);
+            CustomBooster.dyn.Set("boostTarget", booster.Center);
             if (booster.customDashState.DisableRetentionTech) {
-                CustomBooster.dyn.Set<float>("wallSpeedRetentionTimer", 0f);
-                CustomBooster.dyn.Set<Vector2>("wallSpeedRetained", Vector2.Zero);
+                CustomBooster.dyn.Set("wallSpeedRetentionTimer", 0f);
+                CustomBooster.dyn.Set("wallSpeedRetained", Vector2.Zero);
             }
         }
 
         public static void Begin(Player player) {
             if (CustomBooster.dyn?.Target != player)
-                CustomBooster.dyn = new DynData<Player>(player);
+                CustomBooster.dyn = DynamicData.For(player);
             VivHelperModule.Session.CurrentBooster = StoredBooster;
             StoredBooster.storedSpeed = player.Speed;
             if (player.Holding != null && StoredBooster.customDashState.DropHoldable) {
@@ -330,12 +339,14 @@ namespace VivHelper.Entities.Boosters {
             var booster = VivHelperModule.Session.CurrentBooster as UltraCustomBooster;
             var customDashState = booster?.customDashState ?? VivHelperModule.Session.customDashState;
             if (customDashState != null) {
+                GravityHelperAPI.BeginOverride?.Invoke();
                 Vector2 vector = Input.Aim.Value * 3f;
                 Vector2 vector2 = Calc.Approach(player.ExactPosition, CustomBooster.dyn.Get<Vector2>("boostTarget") - player.Collider.Center + vector, 80f * Engine.DeltaTime);
                 player.MoveToX(vector2.X);
                 player.MoveToY(vector2.Y);
+                GravityHelperAPI.EndOverride?.Invoke();
                 if (customDashState.FastBubbleState != FastBubbleState.NoFastBubble && (Input.Dash.Pressed || Input.CrouchDash.Pressed)) {
-                    CustomBooster.dyn.Set<bool>("demoDashed", Input.CrouchDashPressed);
+                    CustomBooster.dyn.Set("demoDashed", Input.CrouchDashPressed);
                     if (!customDashState.HeldDash) {
                         Input.Dash.ConsumePress();
                         Input.CrouchDash.ConsumeBuffer();
@@ -393,7 +404,7 @@ namespace VivHelper.Entities.Boosters {
                 booster.cannotUseTimer = 0.2f / (booster.customDashState.DashSpeed / 240f);
                 if (booster.customDashState.HeldDash && (player.ExactPosition - boostTarget).LengthSquared() <= 18f) { //magic number, sqrt(18) was roughly max distance from the center we could get for this check, tested at 10000x,10000y (fpu differentials are possible)
                     if (player.StateMachine.State != VivHelperModule.CustomDashState) {
-                        UltraCustomDash.End(player);
+                        UltraCustomDash.CDashEnd(player);
                     }
                     return;
                 }
@@ -402,7 +413,7 @@ namespace VivHelper.Entities.Boosters {
             player.MoveToX(vector.X);
             player.MoveToY(vector.Y);
             if (player.StateMachine.State != VivHelperModule.CustomDashState) {
-                UltraCustomDash.End(player);
+                UltraCustomDash.CDashEnd(player);
             }
         }
     }
@@ -424,6 +435,7 @@ namespace VivHelper.Entities.Boosters {
         public Sprite sprite;
         public CompositeSpritesheet compositeSprite;
         public Entity outline;
+        private Wiggler wiggler; 
 
         public float respawnTimer;
         public float cannotUseTimer;
@@ -453,13 +465,13 @@ namespace VivHelper.Entities.Boosters {
                 data = _data;
 
 
+
             customDashState = new CustomDashStateCh {
                 AngleOffset = -Calc.DegToRad * VivHelper.mod((data.Float("DashSpeed", 240) < 0 ? -180 : 0) + data.Float("AngleOffset", 0), 360), //This is done in this way to handle Angle modulus 360.
                 CanDashExit = data.Bool("CanDashExit", true),
                 DashDuration = data.Float("DashDuration", 0.15f),
                 DashRefill = data.Int("DashRefillAmount", -1),
                 DashRefillModifier = data.Bool("DashRefillType", false),
-                DashSolidEffect = data.Enum<DashSolidContact>("DashIntoSolidEffect", DashSolidContact.Normal),
                 DashSpeed = Math.Abs(data.Float("DashSpeed", 240)),
                 DropHoldable = data.Bool("DropHoldableOnEntry", true),
                 ExtraParameters = data.Attr("ExtraParameters"),
@@ -476,8 +488,13 @@ namespace VivHelper.Entities.Boosters {
                 dashCooldownTime = data.Float("DashCooldownTime", 0.2f),
                 dashRefillCooldownTime = data.Float("DashRefillCooldownTime", 0.1f),
                 DashEndType = data.Int("DashEndFormat", -2),
-                DashEndMultiplier = data.Float("DashEndMultiplier", 0.6666f)
+                DashEndMultiplier = data.Float("DashEndMultiplier", 0.6666f),
+                ImpactsObjectsAsDash = true
             };
+            string t = data.Attr("DashIntoSolidEffect", "Normal");
+            if (!Enum.TryParse<DashSolidContact>(t, out customDashState.DashSolidEffect)) {
+                customDashState.DashSolidEffect = customDashState.DashDuration < 0 ? DashSolidContact.Ignore : DashSolidContact.Default;
+            }
             useComposite = !data.Bool("UseSpritesFromXML", false);
             if (useComposite) {
                 MTexture m = GFX.Game[data.NoEmptyStringReplace("SpriteReference", "VivHelper/boosters/hiCustomBooster")];
@@ -533,7 +550,10 @@ namespace VivHelper.Entities.Boosters {
             Add(loopingSfx = new SoundSource());
             dashListener.OnDash = OnPlayerDashed;
             RespawnTime = Math.Max(0, data.Float("RespawnTime", 1f));
-
+            Add(wiggler = Wiggler.Create(0.5f, 4f, delegate (float f)
+            {
+                if(useComposite) compositeSprite.Scale = Vector2.One * (1f + f * 0.25f); else sprite.Scale = Vector2.One * (1f + f * 0.25f); 
+            }));
         }
 
         public override void Added(Scene scene) {
@@ -589,7 +609,8 @@ namespace VivHelper.Entities.Boosters {
                 }
                 yield return null;
             }
-            PlayerReleased();
+            if(BoostingPlayer)
+                PlayerReleased();
             if (player.StateMachine.State == VivHelperModule.CustomBoostState) {
                 if (useComposite)
                     compositeSprite.Visible = false;
@@ -648,6 +669,7 @@ namespace VivHelper.Entities.Boosters {
                     sprite.Play("inside");
                     sprite.FlipX = player.Facing == Facings.Left;
                 }
+                wiggler.Start();
             }
         }
 

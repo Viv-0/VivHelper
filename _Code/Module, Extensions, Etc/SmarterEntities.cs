@@ -10,12 +10,21 @@ using MonoMod.Utils;
 
 namespace VivHelper {
     public static class HelperEntities {
-        public static Entity PauseUpdateHelperEntity { get; private set; } = new Entity() { Tag = Tags.PauseUpdate | Tags.Global | Tags.Persistent };
-        public static Entity FrozenUpdateHelperEntity { get; private set; } = new Entity() { Tag = Tags.FrozenUpdate | Tags.Global | Tags.Persistent };
-        public static Entity TransitionUpdateHelperEntity { get; private set; } = new Entity() { Tag = Tags.TransitionUpdate | Tags.Global | Tags.Persistent };
-        public static Entity AllUpdateHelperEntity { get; set; } = new Entity() { Tag = Tags.PauseUpdate | Tags.FrozenUpdate | Tags.TransitionUpdate | Tags.Global | Tags.Persistent };
 
+        public static HelperEntity AllUpdateHelperEntity;
+
+        public static Entity GetHelperEntity(Scene scene) {
+            if (scene.Tracker.TryGetEntity<HelperEntity>(out var e))
+                return e;
+            return null;
+        }
     }
+
+    /// <summary>
+    /// Simple Wrapper class used solely for determining Helper objects. Helper objects are objects that have tags referential to their use case.
+    /// </summary>
+    [Tracked]
+    public class HelperEntity : Entity { }
 
     public class DebugEntity : Entity {
 

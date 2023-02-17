@@ -1,0 +1,236 @@
+mods.VivHelper.name=VivHelper
+-- EFFECTS
+
+style.effects.VivHelper/CustomRain.name=Custom Rain
+style.effects.VivHelper/WindRainFG.name=Wind Rain
+
+-- TRIGGERS
+
+triggers.VivHelper/ActivateCPPTrigger.placements.name.main=Activate Custom Player Playback Trigger
+triggers.VivHelper/ActivateCPPTrigger.placements.description.main=Triggers the activation of a given Custom Player Playback according to its ID when entered.
+triggers.VivHelper/ActivateCPPTrigger.attributes.name.CPPID=Player Playback ID
+triggers.VivHelper/ActivateCPPTrigger.attributes.description.CPPID=The ID assigned to the specific Player Playback you want to activate.
+triggers.VivHelper/ActivateCPPTrigger.attributes.name.state=On/Off
+triggers.VivHelper/ActivateCPPTrigger.attributes.description.state=Whether to Activate or Deactivate the given Player Playback.
+triggers.VivHelper/ActivateCPPTrigger.attributes.name.onlyOnce=Only Once
+triggers.VivHelper/ActivateCPPTrigger.attributes.description.onlyOnce=If checked, the trigger will delete itself after being used. (per retry)
+triggers.VivHelper/ActivateCPPTrigger.attributes.name.mode=Mode
+triggers.VivHelper/ActivateCPPTrigger.attributes.description.mode=When the trigger is set off, see the dropdown for options.
+
+triggers.VivHelper/ChangeRespawnIfFlag.placements.name.main=Change Respawn If Flag Set Trigger
+triggers.VivHelper/ChangeRespawnIfFlag.placements.description.main=Changes the Player's Respawn Point if a given flag is set when entered.
+triggers.VivHelper/ChangeRespawnIfFlag.attributes.name.flag=Flag
+triggers.VivHelper/ChangeRespawnIfFlag.attributes.description.flag=The Flag to check in order to determine whether to change the respawn.
+
+triggers.VivHelper/ConfettiTrigger.placements.name.main=Confetti Trigger
+triggers.VivHelper/ConfettiTrigger.placements.description.main=Spawns confetti when entered!
+triggers.VivHelper/ConfettiTrigger.attributes.name.onlyOnce=Only Once
+triggers.VivHelper/ConfettiTrigger.attributes.description.onlyOnce=If checked, the trigger will delete itself after being used. (per retry)
+triggers.VivHelper/ConfettiTrigger.attributes.name.permanent=Permanent
+triggers.VivHelper/ConfettiTrigger.attributes.description.permanent=If checked, the trigger will delete itself after being used. (per chapter play)
+triggers.VivHelper/ConfettiTrigger.attributes.name.RepeatOnCycle=Repeat On Cycle
+triggers.VivHelper/ConfettiTrigger.attributes.description.RepeatOnCycle=Spawns confetti repeated on a timer of this length. 0 means it does not repeat.
+
+triggers.VivHelper/InfDashTrigger.placements.name.main=Infinite Dash Trigger
+triggers.VivHelper/InfDashTrigger.placements.description.main=Gives you infinite dashes while in the region
+triggers.VivHelper/InstantCatchupTrigger.placements.name.main=Instant Catchup Trigger
+triggers.VivHelper/InstantCatchupTrigger.placements.description.main=When triggered, locks the camera to the appropriate position, with no smooth grade between points.
+triggers.VivHelper/DisableRefillCancelSpaceIndicator.placements.name.main=Disable RCS Visual 
+
+triggers.VivHelper/BasicInstantTeleportTrigger.placements.name.main=Instant Teleport Trigger (Old, Basic)
+triggers.VivHelper/BasicInstantTeleportTrigger.placements.description.main=Teleports the player to a room and specified position.
+triggers.VivHelper/BasicInstantTeleportTrigger.attributes.description.newPosX= The X coordinate of the teleport location in the room "WarpRoom"\nSetting to -1 sets the "default" which is usually the same (X,Y) but in the new room.
+triggers.VivHelper/BasicInstantTeleportTrigger.attributes.description.newPosY= The Y coordinate of the teleport location in the room "WarpRoom"\nSetting to -1 sets the "default" which is usually the same (X,Y) but in the new room.
+triggers.VivHelper/BasicInstantTeleportTrigger.attributes.description.WarpRoom= Select or type in the name of the room you want to teleport to.
+triggers.VivHelper/BasicInstantTeleportTrigger.attributes.description.TransitionType= Selects a Visual to overlay when teleporting.
+triggers.VivHelper/BasicInstantTeleportTrigger.attributes.description.AddTriggerOffset= Sets the player to the new position plus their (vector) distance from the top left of the trigger.\nTurn this off if you're having issues with the position or are setting New Pos X and Y to -1.
+triggers.VivHelper/BasicInstantTeleportTrigger.attributes.description.CameraType= Sets the Camera to have the details listed in the Dropdown. Don't put in a custom number, it just can crash the game.
+
+triggers.VivHelper/MainInstantTeleportTrigger.placements.name.main=Instant Teleport Trigger (Old)
+triggers.VivHelper/MainInstantTeleportTrigger.placements.description.main=Teleports the player to a room and specified position.
+triggers.VivHelper/MainInstantTeleportTrigger.attributes.description.newPosX= The X coordinate of the teleport location in the room "WarpRoom"\nSetting to -1 sets the "default" which is usually the same (X,Y) but in the new room.
+triggers.VivHelper/MainInstantTeleportTrigger.attributes.description.newPosY= The Y coordinate of the teleport location in the room "WarpRoom"\nSetting to -1 sets the "default" which is usually the same (X,Y) but in the new room.
+triggers.VivHelper/MainInstantTeleportTrigger.attributes.description.WarpRoom= Select or type in the name of the room you want to teleport to.
+triggers.VivHelper/MainInstantTeleportTrigger.attributes.description.TransitionType= Selects a Visual to overlay when teleporting.
+triggers.VivHelper/MainInstantTeleportTrigger.attributes.description.AddTriggerOffset= Sets the player to the new position plus their (vector) distance from the top left of the trigger.\nTurn this off if you're having issues with the position or are setting New Pos X and Y to -1.
+triggers.VivHelper/MainInstantTeleportTrigger.attributes.description.ExitVelocityX= Modifies the player's X speed. VelocityModifier determines in what way it is modified.\nA point of reference if you use Add, a dash is "240" speed.
+triggers.VivHelper/MainInstantTeleportTrigger.attributes.description.ExitVelocityY= Modifies the player's Y speed. VelocityModifier determines in what way it is modified.\nA point of reference if you use Add, a dash is "240" speed.
+triggers.VivHelper/MainInstantTeleportTrigger.attributes.description.VelocityModifier= Changes the way that ExitVelocityX and ExitVelocityY modify the player's speed.
+triggers.VivHelper/MainInstantTeleportTrigger.attributes.description.Dreaming= Sets the Dreaming state on or off.
+triggers.VivHelper/MainInstantTeleportTrigger.attributes.description.CameraType= Sets the Camera to have the details listed in the Dropdown. Don't put in a custom number, it just can crash the game.
+
+triggers.VivHelper/CustomInstantTeleportTrigger.placements.name.main=Instant Teleport Trigger (Old, Custom)
+triggers.VivHelper/CustomInstantTeleportTrigger.placements.description.main=Teleports the player to a room and specified position.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.newPosX= The X coordinate of the teleport location in the room "WarpRoom"\nSetting this to -1 sets the "default" - the player's old (X,Y) but in the new room.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.newPosY= The Y coordinate of the teleport location in the room "WarpRoom"\nSetting this to -1 sets the "default" - the player's old (X,Y) but in the new room.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.WarpRoom= Select or type in the name of the room you want to teleport to.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.TransitionType= Selects a Visual to overlay when teleporting.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.AddTriggerOffset= Sets the player to the new position plus their (vector) distance from the top left of the trigger.\nTurn this off if you're having issues with the position or are setting New Pos X and Y to -1.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.ExitVelocityX= Modifies the player's X speed. VelocityModifier determines in what way it is modified.\nA point of reference if you use Add, a dash is "240" speed.\nIf using ExitVelocityS, do not use this.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.ExitVelocityY= Modifies the player's Y speed. VelocityModifier determines in what way it is modified.\nA point of reference if you use Add, a dash is "240" speed.\nIf using ExitVelocityS, do not use this.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.VelocityModifier= Changes the way that ExitVelocityX/Y/S modify the player's speed.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.Dreaming= Sets the Dreaming state on or off.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.ExitVelocityS= Modifies the total player speed regardless of the direction.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.name.ZFlagsData=Required Flags
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.ZFlagsData= The set of flags needed to turn on or off this teleporter. If all flags are in a state to leave the list on, then the teleporter will turn on.\nExample: "flag1,!flag2,flag3" = if flag1 and flag3 are triggered and flag2 isn't, then activate the teleporter.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.RotationActor= The number (in degrees) used by the Rotation Modifier to change the player's direction. See Rotation Modifier for more info, or this example:\n Rotation Actor: Right, Rotation Modifier: Rotate To Direction = > the player's velocity will be all going to the right.
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.name.RotationType= Rotation Modifier
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.RotationType= Rotates the player's movement exiting the portal. Setting to "Rotate To Direction" will change the player's velocity to the Rotation Actor's direction.\nSetting to "Rotate Degrees from Direction" will rotate the player's potential velocity by {Rotation Actor} degrees (clockwise)
+triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.CameraType= Sets the Camera to have the details listed in the Dropdown. Don't put in a custom number, it just can crash the game.
+
+triggers.VivHelper/TeleportTarget.placements.name.main=Teleport Target
+triggers.VivHelper/TeleportTarget.placements.description.main=The point by which a player teleports using a (new) Teleport Trigger
+triggers.VivHelper/TeleportTarget.attributes.name.TargetID=ID
+triggers.VivHelper/TeleportTarget.attributes.description.TargetID=The ID by which to link a Teleport Trigger to a target.
+triggers.VivHelper/TeleportTarget.attributes.description.SetState=Whether or not to set the player state upon exiting the teleport. Set "-1" for Default behavior.
+
+triggers.VivHelper/ITPT1Way.placements.name.main=Teleport Trigger
+triggers.VivHelper/ITPT1Way.placements.description.main=Teleports a player to an associated Target in another room.
+triggers.VivHelper/ITPT1Way.attributes.name.ExitDirection=Direction Control 
+# TODO: attributes for ITPT1Way
+
+triggers.VivHelper/ITPT1Way.placements.name.flash=Teleport Trigger (Flash)
+triggers.VivHelper/ITPT1Way.placements.description.flash=Teleports a player to an associated Target in another room.
+triggers.VivHelper/ITPT1Way.placements.name.lightning=Teleport Trigger (Lightning)
+triggers.VivHelper/ITPT1Way.placements.description.lightning=Teleports a player to an associated Target in another room.
+triggers.VivHelper/ITPT1Way.placements.name.glitch=Teleport Trigger (Glitch)
+triggers.VivHelper/ITPT1Way.placements.description.glitch=Teleports a player to an associated Target in another room.
+triggers.VivHelper/ITPT1Way.placements.name.wipe=Teleport Trigger (Wipe)
+triggers.VivHelper/ITPT1Way.placements.description.wipe=Teleports a player to an associated Target in another room.
+
+triggers.VivHelper/MultiflagCameraTargetTrigger.placements.name.main=Multiflag Camera Target Trigger
+# TODO: attributes to this trigger
+
+################## ENTITIES ######################
+
+entities.VivHelper/BumperWrapper.placements.name.main=Bumper Wrapper
+entities.VivHelper/BumperWrapper.placements.description.main=Place this over a Bumper to change its internal properties
+
+
+entities.VivHelper/DashCodeHeartController.placements.name.forsakencity=Dash Code Heart Controller (Forsaken City)
+entities.VivHelper/DashCodeHeartController.placements.name.reflection=Dash Code Heart Controller (Reflection)
+entities.VivHelper/DashCodeHeartController.placements.name.levelup=Dash Code Heart Controller (Level Up)
+entities.VivHelper/DashCodeHeartController.placements.name.flashspawn=Dash Code Heart Controller (Flash)
+entities.VivHelper/DashCodeHeartController.placements.name.glitchspawn=Dash Code Heart Controller (Glitch)
+entities.VivHelper/DashCodeHeartController.placements.name.custom=Dash Code Heart Controller (Custom Code)
+entities.VivHelper/DashCodeHeartController.placements.description.forsakencity=Place this in a room with a Heart or MiniHeart to "attach" a dash code to spawn the heart in a given room.
+entities.VivHelper/DashCodeHeartController.placements.description.reflection=Place this in a room with a Heart or MiniHeart to "attach" a dash code to spawn the heart in a given room.
+entities.VivHelper/DashCodeHeartController.placements.description.levelup=Place this in a room with a Heart or MiniHeart to "attach" a dash code to spawn the heart in a given room.
+entities.VivHelper/DashCodeHeartController.placements.description.flashspawn=Place this in a room with a Heart or MiniHeart to "attach" a dash code to spawn the heart in a given room.
+entities.VivHelper/DashCodeHeartController.placements.description.glitchspawn=Place this in a room with a Heart or MiniHeart to "attach" a dash code to spawn the heart in a given room.
+entities.VivHelper/DashCodeHeartController.placements.description.custom=Place this in a room with a Heart or MiniHeart to "attach" a dash code to spawn the heart in a given room.
+
+entities.VivHelper/EntityMuter.placements.name.main=Entity Muter
+entities.VivHelper/EntityMuter.placements.description.main=Mutes most entities it collides with.
+
+entities.VivHelper/FunctionRefillAppender.placements.name.main=Dash/Stamina Refill Modifier
+entities.VivHelper/FunctionRefillAppender.placements.description.main=Place over an entity to have its change the amount of dashes/stamina you get from acting on it.
+
+entities.VivHelper/SolidModifier.placements.name.main=~ Solid Modifier (Blank)
+entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to be impacted by triggering on touch or improves cornerboosts on the block.
+entities.VivHelper/SolidModifier.placements.name.cb=Cornerboost Block Modifier
+entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to improve cornerboosts on the block.
+entities.VivHelper/SolidModifier.placements.name.touch=Touch Contact Modifier
+entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to change what counts as "touching" a block.
+
+entities.VivHelper/AnimatedSpikesUp.placements.name.main=Animated Spikes (Up)
+entities.VivHelper/AnimatedSpikesLeft.placements.name.main=Animated Spikes (Left)
+entities.VivHelper/AnimatedSpikesRight.placements.name.main=Animated Spikes (Right)
+entities.VivHelper/AnimatedSpikesDown.placements.name.main=Animated Spikes (Down)
+entities.VivHelper/AnimatedSpikes.attributes.description.directory=The entire spike directory, starting from Graphics/Atlases/Gameplay, *excluding* the numbers at the end.
+entities.VivHelper/AnimatedSpikes.attributes.description.Color=The tinting color for the animated sprite. Allows for "Rainbow" as a parameter to rainbow-ify the spike.
+
+
+entities.VivHelper/AudioFixSwapBlock.placements.name.normal=Audio Fixed Swap Block (Normal)
+entities.VivHelper/AudioFixSwapBlock.placements.name.moon=Audio Fixed Swap Block (Moon)
+entities.VivHelper/AudioFixSwapBlock.placements.description.normal=Swap Block, except it never infinitely plays the pullback audio.
+entities.VivHelper/AudioFixSwapBlock.placements.description.moon=Swap Block, except it never infinitely plays the pullback audio.
+entities.VivHelper/AudioFixSwapBlock.attributes.description.theme=The visual theme of the swap block.
+
+entities.VivHelper/BadelineBoostCustomRefill.placements.name.main=Badeline Boost (Custom Refill)
+entities.VivHelper/BadelineBoostCustomRefill.attributes.description.lockCamera=Upon activation, the camera cannot pan away from the entity.
+entities.VivHelper/BadelineBoostCustomRefill.attributes.description.canSkip=Badeline will skip to the next position if the player is too far to the right of the current one  (100 pixels).
+entities.VivHelper/BadelineBoostCustomRefill.attributes.description.finalCh9Boost=Whether this boost should be able to end the level, transporting the player to room "end-granny". If the player has a golden berry, and this isn't a golden boost, they are transported to the golden room "end-golden" instead.\nRequires a Blackhole in the background, does not work if it is in the foreground.
+entities.VivHelper/BadelineBoostCustomRefill.attributes.description.finalCh9GoldenBoost=Used to indicate that we are in the golden room and boosting out. Prevents the check in finalCh9Boost, and always ends the level if finalCh9Boost is also set.
+entities.VivHelper/BadelineBoostCustomRefill.attributes.description.finalCh9Dialog=If finalCh9Boost is also set and doesn't go to golden room, this will trigger the Farewell ending dialog.
+entities.VivHelper/BadelineBoostCustomRefill.attributes.description.DashesLogic=Uses a specific format to define the change in dashes the player receives.
+entities.VivHelper/BadelineBoostCustomRefill.attributes.description.StaminaLogic=Uses a specific format to define the change in stamina the player receives.
+
+entities.VivHelper/BadelineBoostNoRefill.placements.name.main=Badeline Boost (No Refill)
+entities.VivHelper/BadelineBoostNoRefill.attributes.description.lockCamera=Upon activation, the camera cannot pan away from the entity.
+entities.VivHelper/BadelineBoostNoRefill.attributes.description.canSkip=Badeline will skip to the next position if the player is too far to the right of the current one  (100 pixels).
+entities.VivHelper/BadelineBoostNoRefill.attributes.description.finalCh9Boost=Whether this boost should be able to end the level, transporting the player to room "end-granny". If the player has a golden berry, and this isn't a golden boost, they are transported to the golden room "end-golden" instead.\nRequires a Blackhole in the background, does not work if it is in the foreground.
+entities.VivHelper/BadelineBoostNoRefill.attributes.description.finalCh9GoldenBoost=Used to indicate that we are in the golden room and boosting out. Prevents the check in finalCh9Boost, and always ends the level if finalCh9Boost is also set.
+entities.VivHelper/BadelineBoostNoRefill.attributes.description.finalCh9Dialog=If finalCh9Boost is also set and doesn't go to golden room, this will trigger the Farewell ending dialog.
+entities.VivHelper/BadelineBoostNoRefill.attributes.description.NoDashRefill=If true, the amount of dashes the player has doesn't change from before launching with Badeline.
+entities.VivHelper/BadelineBoostNoRefill.attributes.description.NoStaminaRefill=If true, the amount of stamina the player has doesn't change from before launching with Badeline.
+
+entities.VivHelper/CassetteTileEntity.placements.name.0=Cassette Tile Entity (0 - Blue)
+entities.VivHelper/CassetteTileEntity.placements.name.1=Cassette Tile Entity (1 - Rose)
+entities.VivHelper/CassetteTileEntity.placements.name.2=Cassette Tile Entity (2 - Bright Sun)
+entities.VivHelper/CassetteTileEntity.placements.name.3=Cassette Tile Entity (3 - Malachite)
+entities.VivHelper/CassetteTileEntity.attributes.description.index=The colour of the cassette block.
+entities.VivHelper/CassetteTileEntity.attributes.description.tempo=The tempo of the cassette blocks. The first cassette block with a tempo other than 1.0 decides the tempo for all cassette blocks in the room. A multiplier of 1.0 triggers one beat every 10 frames. Refer to the cassette section in map metadata for details.
+entities.VivHelper/CassetteTileEntity.attributes.description.tiletype=Changes the visual appearance of the Cassette Tile Entity
+entities.VivHelper/CassetteTileEntity.attributes.description.enabledTint=Customizable color for when the Cassette Tile Entity is solid.
+entities.VivHelper/CassetteTileEntity.attributes.description.disabledTint=Customizable color for when the Cassette Tile Entity is not solid.
+entities.VivHelper/CassetteTileEntity.attributes.name.ConnectTilesets=Connect On Tilesets
+entities.VivHelper/CassetteTileEntity.attributes.description.ConnectTilesets=When true, whether or not the cassette blocks should visually connect is determined by if the tilesets of those Cassette Blocks link (in game only)
+
+entities.VivHelper/CustomCoreMessage.placements.name.main=Custom Core Message
+entities.VivHelper/CustomCoreMessage.attributes.description.line=Which line of the dialogue to use.
+entities.VivHelper/CustomCoreMessage.attributes.description.dialog=The dialogue key to use.
+entities.VivHelper/CustomCoreMessage.attributes.name.TextColor1=Text Color
+entities.VivHelper/CustomCoreMessage.attributes.description.TextColor1=The color of the drawn text.
+entities.VivHelper/CustomCoreMessage.attributes.description.OutlineColor=The color of the outline of the text. Leave empty to disable outlines.
+entities.VivHelper/CustomCoreMessage.attributes.description.EaseType=The type of easing determined by the Render Distance (or nodes if added)
+entities.VivHelper/CustomCoreMessage.attributes.description.Scale=The size of the text on screen
+entities.VivHelper/CustomCoreMessage.attributes.description.AlwaysRender=Whether or not to always render the text if it is on screen. Equivalent to DefaultFadedValue of 1
+entities.VivHelper/CustomCoreMessage.attributes.description.PauseType=What the Core Message should do when the game is Paused. Vanilla behavior (Shown) will make it appear above the pause menu.
+entities.VivHelper/CustomCoreMessage.attributes.description.LockPosition=If true, the rendering position is static to the world position, while if false it slowly fades in and out while moving from left to right slightly.
+
+entities.VivHelper/CornerBoostBlock.placements.name.main=CornerBoost Tile Entity
+entities.VivHelper/CornerBoostZipMover.placements.name.normal=CornerBoost Zip Mover (Normal)
+entities.VivHelper/CornerBoostZipMover.placements.name.moon=CornerBoost Zip Mover (Moon)
+entities.VivHelper/CornerBoostZipMover.attributes.description.theme=The visual theme of the zip mover.
+entities.VivHelper/CornerBoostSwapBlock.placements.name.normal=CornerBoost Swap Block (Normal)
+entities.VivHelper/CornerBoostSwapBlock.placements.name.moon=Swap Block (Moon)
+entities.VivHelper/CornerBoostSwapBlock.attributes.description.theme=The visual theme of the swap block.
+entities.VivHelper/CornerBoostDreamBlock.placements.name.dream_block=CornerBoost Dream Block
+entities.VivHelper/CornerBoostDreamBlock.attributes.description.fastMoving=Changes the dream block between two speeds.
+entities.VivHelper/CornerBoostDreamBlock.attributes.description.oneUse=Determines whether the dream block should disappear after one use.
+entities.VivHelper/CornerBoostDreamBlock.attributes.description.below=Determines whether the dream block should render in the background or foreground.
+entities.VivHelper/CornerBoostFallingBlock.placements.name.falling_block=CornerBoost Falling Block
+entities.VivHelper/CornerBoostFallingBlock.attributes.description.climbFall=After a delay, the block will physically fall down until it comes into contact with another block.
+entities.VivHelper/CornerBoostFallingBlock.attributes.description.tiletype=Changes the visual appearance of the falling block.
+entities.VivHelper/CornerBoostFallingBlock.attributes.description.behind=Whether the block should visually be further behind in the scene or not.
+entities.VivHelper/CornerBoostCassetteBlock.placements.name.cassette_block_0=CornerBoost Cassette Block (0 - Blue)
+entities.VivHelper/CornerBoostCassetteBlock.placements.name.cassette_block_1=CornerBoost Cassette Block (1 - Rose)
+entities.VivHelper/CornerBoostCassetteBlock.placements.name.cassette_block_2=CornerBoost Cassette Block (2 - Bright Sun)
+entities.VivHelper/CornerBoostCassetteBlock.placements.name.cassette_block_3=CornerBoost Cassette Block (3 - Malachite)
+entities.VivHelper/CornerBoostCassetteBlock.attributes.description.index=The colour of the cassette block.
+entities.VivHelper/CornerBoostCassetteBlock.attributes.description.tempo=The tempo of the cassette blocks. The first cassette block with a tempo other than 1.0 decides the tempo for all cassette blocks in the room. A multiplier of 1.0 triggers one beat every 10 frames. Refer to the cassette section in map metadata for details.
+
+entities.VivHelper/Cornerspike.placements.name.main=CornerSpike (Up Right)
+
+entities.VivHelper/CrumbleJumpThru.placements.name.main=Crumbling JumpThru
+
+entities.VivHelper/CustomCoreBlock.placements.name.C=Custom Bounce Block
+entities.VivHelper/CustomCoreBlock.placements.name.R=Reskinnable Bounce Block
+entities.VivHelper/CustomCoreBlock.placements.name.RC=Custom Bounce Block (Reskinnable)
+
+entities.VivHelper/CustomCoverupWall.placements.name.main=Custom Coverup Wall
+
+entities.VivHelper/CustomDashBlock.placements.name.main=Custom Dash Block
+
+entities.VivHelper/CustomDepthTileEntity.placements.name.main=Custom Depth Tile Entity
+
+entities.VivHelper/CustomFallingBlock.placements.name.main=Custom Falling Block
+
+entities.VivHelper/CustomHangingLamp.placements.name.main=Custom Hanging Lamp
+
+entities.VivHelper/CustomLightbeam.placements.name.main=Custom Lightbeam
+
+entities.VivHelper/CPP.placements.name.main=Custom Playback Ghost
+
+entities.VivHelper/CustomRefill.placements.name.main=Custom Refill

@@ -97,7 +97,7 @@ namespace VivHelper.Entities {
 
         private int size;
 
-        private Directions direction;
+        private DirectionPlus direction;
 
         private string overrideType;
 
@@ -125,29 +125,29 @@ namespace VivHelper.Entities {
         }
 
         public static Entity LoadUp(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            return new RainbowTriggerSpikes(entityData, offset, Directions.Up, entityData.Width);
+            return new RainbowTriggerSpikes(entityData, offset, DirectionPlus.Up, entityData.Width);
         }
 
         public static Entity LoadDown(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            return new RainbowTriggerSpikes(entityData, offset, Directions.Down, entityData.Width);
+            return new RainbowTriggerSpikes(entityData, offset, DirectionPlus.Down, entityData.Width);
         }
 
         public static Entity LoadLeft(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            return new RainbowTriggerSpikes(entityData, offset, Directions.Left, entityData.Height);
+            return new RainbowTriggerSpikes(entityData, offset, DirectionPlus.Left, entityData.Height);
         }
 
         public static Entity LoadRight(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            return new RainbowTriggerSpikes(entityData, offset, Directions.Right, entityData.Height);
+            return new RainbowTriggerSpikes(entityData, offset, DirectionPlus.Right, entityData.Height);
         }
 
-        public RainbowTriggerSpikes(EntityData data, Vector2 offset, Directions dir, int size)
+        public RainbowTriggerSpikes(EntityData data, Vector2 offset, DirectionPlus dir, int size)
             : this(data.Position + offset, offset, size, dir, data.Attr("type", "default"), data.Bool("Grouped", false), data.Bool("DoNotAttach", false)) {
 
             string str = data.Attr("Color", "");
             oneColor = (str == "" ? Color.Transparent : VivHelper.ColorFix(str));
         }
 
-        public RainbowTriggerSpikes(Vector2 position, Vector2 offset, int size, Directions direction, string overrideType, bool grouped, bool doNotAttach)
+        public RainbowTriggerSpikes(Vector2 position, Vector2 offset, int size, DirectionPlus direction, string overrideType, bool grouped, bool doNotAttach)
             : base(position, direction, size, blockLedge: false) {
             this.size = size;
             if (grouped && !VivHelperModule.maxHelpingHandLoaded) {
@@ -157,23 +157,23 @@ namespace VivHelper.Entities {
             this.overrideType = overrideType;
             this.offset = offset;
             switch (direction) {
-                case Directions.Up:
+                case DirectionPlus.Up:
                     outwards = new Vector2(0f, -1f);
                     base.Collider = new Hitbox(size, 3f, 0f, -3f);
                     Add(new SafeGroundBlocker());
                     Add(new LedgeBlocker(UpSafeBlockCheck));
                     break;
-                case Directions.Down:
+                case DirectionPlus.Down:
                     outwards = new Vector2(0f, 1f);
                     base.Collider = new Hitbox(size, 3f);
                     break;
-                case Directions.Left:
+                case DirectionPlus.Left:
                     outwards = new Vector2(-1f, 0f);
                     base.Collider = new Hitbox(3f, size, -3f);
                     Add(new SafeGroundBlocker());
                     Add(new LedgeBlocker(SideSafeBlockCheck));
                     break;
-                case Directions.Right:
+                case DirectionPlus.Right:
                     outwards = new Vector2(1f, 0f);
                     base.Collider = new Hitbox(3f, size);
                     Add(new SafeGroundBlocker());
@@ -214,16 +214,16 @@ namespace VivHelper.Entities {
                 spikes[i].Parent = this;
                 spikes[i].Index = i;
                 switch (direction) {
-                    case Directions.Up:
+                    case DirectionPlus.Up:
                         spikes[i].Position = Vector2.UnitX * ((float) i + 0.5f) * 8f + Vector2.UnitY;
                         break;
-                    case Directions.Down:
+                    case DirectionPlus.Down:
                         spikes[i].Position = Vector2.UnitX * ((float) i + 0.5f) * 8f - Vector2.UnitY;
                         break;
-                    case Directions.Left:
+                    case DirectionPlus.Left:
                         spikes[i].Position = Vector2.UnitY * ((float) i + 0.5f) * 8f + Vector2.UnitX;
                         break;
-                    case Directions.Right:
+                    case DirectionPlus.Right:
                         spikes[i].Position = Vector2.UnitY * ((float) i + 0.5f) * 8f - Vector2.UnitX;
                         break;
                 }
@@ -291,25 +291,25 @@ namespace VivHelper.Entities {
         private void GetPlayerCollideIndex(Player player, out int minIndex, out int maxIndex) {
             minIndex = (maxIndex = -1);
             switch (direction) {
-                case Directions.Up:
+                case DirectionPlus.Up:
                     if (player.Speed.Y >= 0f) {
                         minIndex = (int) ((player.Left - base.Left) / 8f);
                         maxIndex = (int) ((player.Right - base.Left) / 8f);
                     }
                     break;
-                case Directions.Down:
+                case DirectionPlus.Down:
                     if (player.Speed.Y <= 0f) {
                         minIndex = (int) ((player.Left - base.Left) / 8f);
                         maxIndex = (int) ((player.Right - base.Left) / 8f);
                     }
                     break;
-                case Directions.Left:
+                case DirectionPlus.Left:
                     if (player.Speed.X >= 0f) {
                         minIndex = (int) ((player.Top - base.Top) / 8f);
                         maxIndex = (int) ((player.Bottom - base.Top) / 8f);
                     }
                     break;
-                case Directions.Right:
+                case DirectionPlus.Right:
                     if (player.Speed.X <= 0f) {
                         minIndex = (int) ((player.Top - base.Top) / 8f);
                         maxIndex = (int) ((player.Bottom - base.Top) / 8f);
@@ -342,16 +342,16 @@ namespace VivHelper.Entities {
             base.Render();
             Vector2 justify = Vector2.One * 0.5f;
             switch (direction) {
-                case Directions.Up:
+                case DirectionPlus.Up:
                     justify = new Vector2(0.5f, 1f);
                     break;
-                case Directions.Down:
+                case DirectionPlus.Down:
                     justify = new Vector2(0.5f, 0f);
                     break;
-                case Directions.Left:
+                case DirectionPlus.Left:
                     justify = new Vector2(1f, 0.5f);
                     break;
-                case Directions.Right:
+                case DirectionPlus.Right:
                     justify = new Vector2(0f, 0.5f);
                     break;
             }
@@ -364,13 +364,13 @@ namespace VivHelper.Entities {
 
         private bool IsRiding(Solid solid) {
             switch (direction) {
-                case Directions.Up:
+                case DirectionPlus.Up:
                     return CollideCheckOutside(solid, Position + Vector2.UnitY);
-                case Directions.Down:
+                case DirectionPlus.Down:
                     return CollideCheckOutside(solid, Position - Vector2.UnitY);
-                case Directions.Left:
+                case DirectionPlus.Left:
                     return CollideCheckOutside(solid, Position + Vector2.UnitX);
-                case Directions.Right:
+                case DirectionPlus.Right:
                     return CollideCheckOutside(solid, Position - Vector2.UnitX);
                 default:
                     return false;
@@ -378,7 +378,7 @@ namespace VivHelper.Entities {
         }
 
         private bool IsRiding(JumpThru jumpThru) {
-            if (direction == Directions.Up) {
+            if (direction == DirectionPlus.Up) {
                 return CollideCheck(jumpThru, Position + Vector2.UnitY);
             }
             return false;

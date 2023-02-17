@@ -15,7 +15,7 @@ const placements = Ahorn.PlacementDict(
     "Colored Core Message (Viv's Helper)" => Ahorn.EntityPlacement(
         CoCoM,
         "rectangle",
-        Dict{String,Any}(        ),
+        Dict{String,Any}(),
         function(entity)
             entity.data["nodes"] = Tuple{Int,Int}[]
             x, y = entity.data["x"] + 12, entity.data["y"] + 12
