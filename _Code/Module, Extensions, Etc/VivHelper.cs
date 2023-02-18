@@ -139,14 +139,13 @@ namespace VivHelper {
                 hexplus = hexplus.Substring(2);
             uint result;
             if (hexplus.Length == 6 && uint.TryParse(hexplus, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out result)) {
-                return Calc.HexToColor((int) result);
+                return Calc.HexToColor((int)result);
             } else if (hexplus.Length == 8 && hexplus.Substring(0, 2) == "00" && Regex.IsMatch(hexplus.Substring(2), "[^0-9a-f]")) //Optimized check to determine Regex matching for a hex number, marginally faster for a check where you dont need the end value.
               {
                 return Color.Transparent;
-            } else if (uint.TryParse(hexplus.Substring(0,2) + hexplus.Substring(6,2) + hexplus.Substring(4,2) + hexplus.Substring(2,2), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out result)) { 
+            } else if (uint.TryParse(hexplus, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out result)) {
                 return UintToColor(result);
-            } else
-                Console.WriteLine(hexplus.Substring(2).Reverse());
+            }
             return Color.Transparent;
         }
 

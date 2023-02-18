@@ -1,5 +1,6 @@
 local drawableSprite = require('structs.drawable_sprite')
 local utils = require('utils')
+local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 
 local chl = {
     name = "VivHelper/CustomHangingLamp",
@@ -35,7 +36,7 @@ function chl.sprite(room, entity)
     local sprites = {}
     local h = math.max(entity.height or 0, 16)
     local s0 = entity.directory
-    if s0 == nil or s0:match("%S*") == nil then s0 = "VivHelper/customHangingLamp" end
+    if s0 == nil or #vivUtil.trim(s0) == 0 then s0 = "VivHelper/customHangingLamp" end
     local s1 = entity.Suffix or ""
 
     local topSprite = drawableSprite.fromTexture(s0.."/base" .. s1 .. "00", entity)
@@ -61,7 +62,6 @@ function chl.sprite(room, entity)
     bottomSprite:addPosition(0, h - bottomSprite.meta.height)
 
     table.insert(sprites, bottomSprite)
-
     return sprites
 end
 

@@ -12,8 +12,6 @@ local pickerAreaMinimumSize = 200
 local sliderMinimumWidth = 40
 local hsvFieldDecimals = 2
 
-print("color Picker Here")
-
 local valueRanges = {
     r = {0, 255},
     g = {0, 255},

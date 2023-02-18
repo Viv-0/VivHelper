@@ -76,7 +76,7 @@ function triggers.getDrawable(name, handler, room, trigger, viewport)
                 orig_triggers_getDrawable_backgroundOnly(trigger)
             end
             if loennExtended_textAPI and loennExtended_triggerAPI then
-                loennExtended_textAPI.printCenteredText(_handler._vivh_textOverride and _handler._vivh_textOverride(room, trigger) or loennExtended_triggerAPI.getDisplayText(trigger), trigger.x or 0, trigger.y or 0, trigger.width or 16, trigger.height or 16, loennExtended_triggerAPI.getFontSize())
+                loennExtended_textAPI.printCenteredText(_handler._vivh_textOverride and _handler._vivh_textOverride(room, trigger) or loennExtended_triggerAPI.getDisplayText(trigger), trigger.x or 0, trigger.y or 0, trigger.width or 16, trigger.height or 16, love.graphics.getFont(), loennExtended_triggerAPI.getFontSize())
             else
                 orig_triggers_getDrawable_textOnly(trigger, _handler._vivh_textOverride and _handler._vivh_textOverride(room, trigger))
             end

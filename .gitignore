@@ -357,4 +357,6 @@ MigrationBackup/
 .DS_Store
 Thumbs.db
 desktop.ini
-/VivHelper184.zip
+*.zip
+Maps/
+

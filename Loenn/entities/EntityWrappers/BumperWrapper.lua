@@ -53,5 +53,7 @@ BumperWrapper.fieldInformation = {
     Scale = {fieldType = "integer"}
 }
 BumperWrapper.texture = "ahorn/VivHelper/bumperWrapper"
+BumperWrapper.color = {0.5,0.5,0.5,0.5}
+BumperWrapper.depth = -100
 
 return BumperWrapper

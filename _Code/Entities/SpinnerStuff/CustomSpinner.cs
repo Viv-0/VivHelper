@@ -164,7 +164,12 @@ namespace VivHelper.Entities {
                 directory = data.Attr("Directory").TrimStart(' ').TrimEnd('/', ' ');
                 if (directory == "") { directory = "VivHelper/customSpinner/white"; }
                 subdirectory = data.Attr("Subdirectory", "");
-                if (subdirectory != "") {
+                if (data.Bool("FrostHelper", false) || (data.Has("CurrentVersion") && subdirectory == "")) {
+                    subdirectory = "";
+                } else {
+                    if (subdirectory == "") {
+                        subdirectory = "white";
+                    }
                     subdirectory = "_" + subdirectory;
                 }
             }

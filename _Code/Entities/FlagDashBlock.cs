@@ -52,13 +52,6 @@ namespace VivHelper.Entities {
             audioEvent = data.Attr("AudioEvent", "event:/game/general/wall_break_stone");
         }
 
-        [MonoModLinkTo("Celeste.Solid", "System.Void Added(Monocle.Scene)")]
-        public void base_Added(Scene scene) { base.Added(scene); }
-
-        public override void Added(Scene scene) {
-            base_Added(scene);
-        }
-
         public override void Awake(Scene scene) {
             if (flagBreak != "") {
                 (Scene as Level)?.Session?.SetFlag(flagBreak, false);

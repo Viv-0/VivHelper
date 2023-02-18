@@ -46,11 +46,10 @@ function vivUtil.contains(table, element)
     return false
 end
 
-function vivUtil.trim(s) return s:match'^()%s*$' and '' or s:match'^%s*(.*%S)' end
+function vivUtil.trim(s) return ((not not s:match('^()%s*$')) and '' or s:match('^%s*(.*%S)')) end
 
 function vivUtil.parseColor(color, _format)
     local format = _format or "argb"
-    local s,r,g,b,a = nil
     if #color == 6 or format == "rgb" or format == "rgba" then
         return utils.parseHexColor(color)
     else
@@ -77,13 +76,15 @@ function vivUtil.getColor(color, format, xnaAllowed)
             return {r,g,b,a}
         end
 
-        return {"nil"}
+        return {}
     elseif colorType == "table" and (#color == 3 or #color == 4) then
         if format == "hsv" or format == "hsva" then 
             local r,g,b = utils.hsvToRgb(color[1], color[2],color[3])
             return {r*(color[4] or 1), g*(color[4] or 1), b*(color[4] or 1), (color[4] or 1)}
         else return color end
     end
+    print(colorType)
+    return nil
 end
 
 function vivUtil.argbToHex(r,g,b,a)
@@ -99,7 +100,12 @@ end
 function vivUtil.lerp(a,b,t) return a * (1-t) + b * t end
 
 function vivUtil.colorLerp(a,b,lerp,aData,bData)
-    local c1, c2 = vivUtil.getColor(a,(not not aData and aData.format or "argb"), (not not aData and aData.xnaAllowed or false)),vivUtil.getColor(b,(not not bData and bData.format or "argb"), (not not bData and bData.xnaAllowed or false))
+    local xna1 = false ; if aData ~= nil and aData.xnaAllowed then xna1 = true end
+    local xna2 = false ; if bData ~= nil and bData.xnaAllowed then xna2 = true end
+    local format1 = "argb" ; if aData ~= nil and aData.format then format1 = aData.format end
+    local format2 = "argb" ; if bData ~= nil and bData.format then format2 = bData.format end
+    local c1 = vivUtil.getColor(a, format1, xna1)
+    local c2 = vivUtil.getColor(b, format2, xna2)
     return {vivUtil.lerp(c1[1],c2[1],lerp), vivUtil.lerp(c1[2],c2[2],lerp), vivUtil.lerp(c1[3],c2[3],lerp), vivUtil.lerp(c1[4] or 1,c2[4] or 1,lerp)}
 end
 function vivUtil.alphMult(color, alpha)

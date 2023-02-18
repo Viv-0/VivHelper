@@ -105,6 +105,7 @@ triggers.VivHelper/MultiflagCameraTargetTrigger.placements.name.main=Multiflag C
 
 entities.VivHelper/BumperWrapper.placements.name.main=Bumper Wrapper
 entities.VivHelper/BumperWrapper.placements.description.main=Place this over a Bumper to change its internal properties
+entities.VivHelper/BumperWrapper.attributes.description.TypeName=The "C#" name of the object. Use SpeedrunTool to get this name, or use the get_entities
 
 
 entities.VivHelper/DashCodeHeartController.placements.name.forsakencity=Dash Code Heart Controller (Forsaken City)
@@ -190,6 +191,8 @@ entities.VivHelper/CustomCoreMessage.attributes.description.PauseType=What the C
 entities.VivHelper/CustomCoreMessage.attributes.description.LockPosition=If true, the rendering position is static to the world position, while if false it slowly fades in and out while moving from left to right slightly.
 
 entities.VivHelper/CornerBoostBlock.placements.name.main=CornerBoost Tile Entity
+entities.VivHelper/CornerBoostBlock.attributes.description.tiletype=Changes the visual appearance of the block
+entities.VivHelper/CornerBoostBlock.attributes.description.blendin=Blends the block with the walls it touches, making it less apparent.
 entities.VivHelper/CornerBoostZipMover.placements.name.normal=CornerBoost Zip Mover (Normal)
 entities.VivHelper/CornerBoostZipMover.placements.name.moon=CornerBoost Zip Mover (Moon)
 entities.VivHelper/CornerBoostZipMover.attributes.description.theme=The visual theme of the zip mover.
@@ -234,3 +237,4 @@ entities.VivHelper/CustomLightbeam.placements.name.main=Custom Lightbeam
 entities.VivHelper/CPP.placements.name.main=Custom Playback Ghost
 
 entities.VivHelper/CustomRefill.placements.name.main=Custom Refill
+entities.VivHelper/CustomSpinner.placements.name.VivHelper/CustomSpinner=Custom CustomSpinner

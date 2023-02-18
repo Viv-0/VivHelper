@@ -11,7 +11,7 @@ local customSpinner = {}
 customSpinner.name = "VivHelper/CustomSpinner"
 customSpinner.fieldInformation = {
     Type = {fieldType = "string", options = {{"White", "White"}, {"Rainbow", "RainbowClassic"}}, editable = true },
-    -- Depths = {fieldType = "integer", options = depths ???}
+    Depth = {fieldType = "integer"},
     Color = {fieldType = "VivHelper.color", allowXNAColors = true},
     BorderColor = {fieldType = "VivHelper.color", allowXNAColors = true},
     ShatterColor = {fieldType = "VivHelper.color", allowXNAColors = true},
@@ -55,70 +55,32 @@ customSpinner.placements = {
 }
 
 function customSpinner.depth(room, entity, viewport) 
-    return entity.Depth
+    if type(entity.Depth) == "number" then return entity.Depth else return -8500 end
 end
-
-local function getSqDistWithScaling(e1, e2)
-    local distSq = ((e2.x - e1.x) * (e2.x - e1.x)) + ((e2.y - e1.y) * (e2.y - e1.y))
-    local compSq = 144 * (e2.Scale + e1.Scale) * (e2.Scale + e1.Scale);
-    return distSq < compSq
-end
-
--- Taken from FrostHelper
-local function createConnectorsForSpinner(room, entity, bgSprite)
-    local sprites = {}
-
-    for i = 1, #room.entities, 1 do
-        local e2 = room.entities[i]
-        if e2 == entity then break end
-        if e2._name == entity._name and e2.attachToSolid == entity.attachToSolid and getSqDistWithScaling(entity, e2) then
-            local connector = vivUtil.copyTexture(bgSprite, (entity.x + e2.x) / 2, (entity.y + e2.y) / 2, false)
-            connector.depth = entity.Depth + 1
-            table.insert(sprites, connector)
-        end
-    end
-    return sprites
-end
-
-local function getSpinnerSprite(entity, foreground)
-    -- Prevent color from spinner to tint the drawable sprite
-    local color = string.lower(entity.color or defaultSpinnerColor)
-    local position = {
-        x = entity.x,
-        y = entity.y
-    }
-
-    if customSpinnerColors[color] then
-        color = customSpinnerColors[color]
-    end
-
-    local texture = getSpinnerTexture(entity, color, foreground)
-    local sprite = drawableSprite.fromTexture(texture, position)
-
-    -- Check if texture color exists, otherwise use default color
-    -- Needed because Rainbow and Core colors doesn't have textures
-    if sprite then
-        return sprite
-
-    else
-        texture = getSpinnerTexture(entity, unknownSpinnerColor, foreground)
-
-        return drawableSpriteStruct.fromTexture(texture, position)
-    end
-end
-
-
 
 local function getSprite(entity, bg)
     local s = ""
     if entity.ref then 
         s = entity.ref .. "00"
-        if bg then s = s:reverse():gsub("gf/","gb/",1):reverse() end -- get last occurrence of /fg and replace with /bg if background sprite
+        if bg then
+            s = s:reverse()
+            s = s:gsub("gf/","gb/",1)
+            s = s:reverse()
+        end -- get last occurrence of /fg and replace with /bg if background sprite
+        return drawableSprite.fromTexture(s, entity)
     else
-        local s2 = not not entity.Subdirectory and "_" .. entity.Subdirectory or ""
-        s = entity.Directory .. (bg and "/bg" or "/fg") .. entity.Subdirectory .. "00"
+        local s2 = entity.Subdirectory
+        if entity.FrostHelper == true then 
+            s2 = "" 
+        elseif s2 == nil or #vivUtil.trim(s2) == 0 then
+            if entity.CurrentVersion then s2 = "" else s2 = "_white" end
+        else s2 = "_" .. s2 end
+        local s3 = "/fg"
+        if bg then s3 = "/bg" end
+        s3 = s3 .. s2 .. "00"
+        return drawableSprite.fromTexture(entity.Directory .. s3, entity)
     end 
-    return drawableSprite.fromTexture(s, entity)
+    
 end
 --[[ Code copy from C#
     foreach (CustomSpinner target in base.Scene.Tracker.GetEntities<CustomSpinner>()) {
@@ -139,9 +101,7 @@ local function getConnectionSprites(room, entity)
             if entity.attachToSolid == target.attachToSolid and entity._id > target._id and utils.distanceSquared(entity.x, entity.y, target.x, target.y) < scale * scale then
 
                 local sprite = getSprite(entity, true)
-
-                sprite.depth = ((target.Depth + entity.Depth) / 2) + 2
-                sprite:setPosition(vivUtil.lerp(entity.x, target.x, 0.5), vivUtil.lerp(entity.y, target.y, 0.5))
+                sprite:setPosition((target.x + entity.x / 2), (target.y + entity.y / 2))
                 local color = vivUtil.colorLerp(entity.Color, target.Color, 0.5)
                 if entity.Type ~= "White" or target.Type ~= "White" then color = rainbowHelper.getRainbowHue(room,x,y,8*(entity.Scale + target.Scale),8*(entity.Scale + target.Scale)) end
                 sprite.color = color
@@ -155,16 +115,15 @@ local function getConnectionSprites(room, entity)
 end
 
 function customSpinner.sprite(room, entity)
-
     local mainSprite = getSprite(entity, false)
-    local color = vivUtil.getColor(entity.Color)
+    local c = entity.Color
+    if #vivUtil.trim(c) == 0 then c = "FFFFFFFF" end
+    local color = vivUtil.getColor(c)
     if entity.Type ~= "White" then color = rainbowHelper.getRainbowHue(room,entity.x,entity.y,16*entity.Scale,16*entity.Scale) end
     mainSprite.color = color
-    mainSprite.depth = entity.Depth
     local sprites = getConnectionSprites(room, entity)
     table.insert(sprites, mainSprite)
     vivUtil.addAll(sprites, vivUtil.getBorder(mainSprite, entity.BorderColor))
-
     return sprites
 end
 

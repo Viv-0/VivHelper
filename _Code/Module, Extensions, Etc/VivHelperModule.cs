@@ -369,10 +369,10 @@ namespace VivHelper {
                 
             }
             extVariantsLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "ExtendedVariantMode", VersionString = "0.21.0" });
-            gravityHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "GravityHelper", VersionString = "1.1.10" });
+            /*gravityHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "GravityHelper", VersionString = "1.1.10" });
             if (gravityHelperLoaded) {
                 typeof(GravityHelperAPI).ModInterop();
-            }
+            }*/
 
             //Collectible coins require this
             Collectible.P_Flash = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark) { Color = Color.White };
@@ -876,24 +876,31 @@ namespace VivHelper {
                     cursor.Index++;
                     cursor.Emit(OpCodes.Ldarg_0);
                     cursor.Emit(OpCodes.Ldloc, varDef);
-                    cursor.Emit(OpCodes.Ldarg_1);
-                    cursor.Emit(OpCodes.Call, typeof(VivHelperModule).GetMethod("ModifiedSolidCollideCheck", BindingFlags.Static| BindingFlags.NonPublic));
+                    cursor.EmitDelegate<Func<bool, Player, Vector2, bool>>((b, player, v) => {
+                        if (b)
+                            return true;
+                        else
+                            return ModifiedSolidCollideCheck(player, v);
+                    }); //replaces it with my modified collide check which works with CornerBoost Components.
                 }
             }
 
         }
+        private static bool ModifiedSolidCollideCheck(Player player, Vector2 at) {
 
-        private static bool ModifiedSolidCollideCheck(bool orig, Player player, Vector2 at, int dir) {
-            if (!orig) {
-                foreach (Solid solid in player.Scene.Tracker.Entities[typeof(Solid)]) {
-                    var t = solid.Get<SolidModifierComponent>();
-                    if (t != null && t.CornerBoostBlock != 0)
-                        orig |= SolidModifierComponent.WJ_CollideCheck(solid, player, t.CornerBoostBlock, dir);
-                    if (orig)
-                        break;
-                }
+            bool a = false;
+            Vector2 position = player.Position;
+            player.Position = at;
+            foreach (Solid solid in player.Scene.Tracker.Entities[typeof(Solid)]) {
+                if (solid.Get<SolidModifierComponent>() != null)
+                    a |= SolidModifierComponent.WJ_CollideCheck(solid, player, solid.Get<SolidModifierComponent>().CornerBoostBlock);
+                else
+                    a |= player.CollideCheck(solid);
+                if (a)
+                    break;
             }
-            return orig;
+            player.Position = position;
+            return a;
         }
 
         private void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
