@@ -33,4 +33,4 @@ function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::LM, room::Maple.Roo
     Ahorn.drawSprite(ctx, sprite, 0, 0)
 end
 
-end
+end 

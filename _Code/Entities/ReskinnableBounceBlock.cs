@@ -12,6 +12,14 @@ using Microsoft.Xna.Framework;
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/CustomCoreBlock")]
     public class ReskinnableBounceBlock : Solid {
+
+        private enum CoreModes {
+            None = 0,
+            Hot = 1,
+            Cold = 2,
+            Invert = -1,
+        }
+
         private enum States {
             Waiting,
             WindingUp,
@@ -178,7 +186,7 @@ namespace VivHelper.Entities {
 
         private Sprite coldCenterSprite;
 
-        private Session.CoreModes coreState;
+        private CoreModes coreState;
 
         private string directory;
         public ReskinnableBounceBlock(EntityData data, Vector2 offset) : base(data.Position + offset, data.Width, data.Height, safe: false) {
@@ -189,7 +197,7 @@ namespace VivHelper.Entities {
             WindUpDist = data.Float("WindUpDist", 10f);
             WallPushTime = data.Float("WallPushTime", 0.1f);
             BounceEndTime = data.Float("BounceEndTime", 0.05f);
-            coreState = data.Enum<Session.CoreModes>("CoreState", Session.CoreModes.None);
+            coreState = data.Enum<CoreModes>("CoreState", CoreModes.None);
 
             directory = data.Attr("Directory", "objects/BumpBlockNew").TrimEnd('/');
             state = States.Waiting;
@@ -284,11 +292,14 @@ namespace VivHelper.Entities {
         public override void Added(Scene scene) {
             base.Added(scene);
             switch (coreState) {
-                case Session.CoreModes.Hot:
+                case CoreModes.Hot:
                     iceModeNext = iceMode = false;
                     break;
-                case Session.CoreModes.Cold:
+                case CoreModes.Cold:
                     iceModeNext = iceMode = true;
+                    break;
+                case CoreModes.Invert:
+                    iceModeNext = iceMode = SceneAs<Level>().CoreMode == Session.CoreModes.Hot;
                     break;
                 default:
                     iceModeNext = iceMode = SceneAs<Level>().CoreMode == Session.CoreModes.Cold;
@@ -298,8 +309,10 @@ namespace VivHelper.Entities {
         }
 
         private void OnChangeMode(Session.CoreModes coreMode) {
-            if (coreState == Session.CoreModes.None)
+            if (coreState == CoreModes.None)
                 iceModeNext = coreMode == Session.CoreModes.Cold;
+            else if(coreState == CoreModes.Invert)
+                iceModeNext = coreMode == Session.CoreModes.Hot;
         }
 
         private void CheckModeChange() {

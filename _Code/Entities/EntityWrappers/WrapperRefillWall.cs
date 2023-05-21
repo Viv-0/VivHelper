@@ -44,7 +44,7 @@ namespace VivHelper.Entities {
         public WrapperRefillWall(EntityData e, Vector2 v) : base(e.Position + v) {
             Collider = new Hitbox(e.Width, e.Height);
             typeName = e.Attr("TypeName", "Refill");
-            spriteVarname = e.Attr("ImageVariableName", "sprite");
+            spriteVarname = e.Attr("ImageVariableName", "sprite").Trim();
             if (string.IsNullOrWhiteSpace(spriteVarname))
                 spriteVarname = "sprite";
             respawnMethodName = e.Attr("RespawnMethodName", "Respawn");
@@ -115,27 +115,26 @@ namespace VivHelper.Entities {
                 return false;
             }
             isRefillSubclass = type.IsSubclassOf(typeof(Refill));
-            dynRefill = new DynamicData(type, entity);
-            object o = dynRefill.Get(spriteVarname);
+            Console.WriteLine(isRefillSubclass);
+            dynRefill = new DynamicData(isRefillSubclass ? typeof(Refill) : type, entity);
+            object o = null;
+            if (spriteVarname.StartsWith("$")) {
+                switch (spriteVarname.ToLowerInvariant()) {
+                    case "$sprite":
+                        o = entity.Get<Sprite>();
+                        break;
+                    default:
+                        o = entity.Get<Image>();
+                        break;
+                }
+            }
+            else o = dynRefill.Get(spriteVarname);
             if (o == null) {
-                if (isRefillSubclass) {
-                    /*This means that basically, the class should be extending Refill. from this, we need to make the assumption that the respawn function is not modified.
-                      The reason that we check this here instead of before defining the DynamicData is because we want to check whether or not the sprites are being replaced
-                      via DynData or via removal and replacement. We're making the assumption that if you are doing removal and replacement, chances are you're not replacing
-                      the Update function through Activator/MonoModLinkTo to make a new Respawn function, which is unlikely. If this is a mistake on my part, well whoopsie.
-                      We're also making the assumption that if you're extending Refill, that you're also doing reflection (DynData) on all the members in Refill you need.*/
-                    dynRefill = new DynamicData(typeof(Refill), entity);
-                    o = dynRefill.Get(spriteVarname);
-                    if (o == null) {
-                        return false;
-                    } else if ((o as Sprite) != null) {
-                        texture = new Image((o as Sprite).Animations["idle"].Frames[0]);
-                    } else if ((o as Image) != null) {
-                        texture = (o as Image);
-                    } else if ((o as MTexture) != null) {
-                        texture = new Image(o as MTexture);
-                    } else { return false; }
-                } else { return false; }
+                o = entity.Get<Image>();
+                if(o == null) {
+                    return false;
+                }
+                texture = o as Image;
             } else if ((o as Sprite) != null) {
                 texture = new Image((o as Sprite).Animations["idle"].Frames[0]);
             } else if ((o as Image) != null) {
@@ -176,10 +175,13 @@ namespace VivHelper.Entities {
                 respawnTimer = (respawnTime > 0 ? respawnTime : dynRefill.Get<float>(respawnTimerName));
                 dynRefill.Set(respawnTimerName, 0f);
             }
+            if (dynRefill.Get<bool>("oneUse")) {
+                RemoveSelf();
+            }
         }
 
         public override void Render() {
-            Camera camera = SceneAs<Level>().Camera;
+            Camera camera = SceneAs<Level>()?.Camera;
             if (base.Right < camera.Left || base.Left > camera.Right || base.Bottom < camera.Top || base.Top > camera.Bottom) {
                 return;
             }

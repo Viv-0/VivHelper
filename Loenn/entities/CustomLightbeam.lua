@@ -29,7 +29,6 @@ clb.placements = {
 
 local drawing = require("utils.drawing")
 local utils = require("utils")
-local drawableLine = require("structs.drawable_line")
 local drawableRectangle = require("structs.drawable_rectangle")
 local drawableSprite = require("structs.drawable_sprite")
 
@@ -45,8 +44,7 @@ local function getSprites(room, entity, onlyBase)
     local x, y = entity.x, entity.y
 
     local spr = entity.Texture
-    if spr == nil or spr:match("%S*") == nil then spr = "util/lightbeam" end
-    
+    if vivUtil.isNullEmptyOrWhitespace(color) then spr = "util/lightbeam" end
 
     local sprite = drawableSprite.fromTexture(spr, entity)
     local theta = math.rad(entity.rotation or 0)

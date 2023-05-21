@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 using Monocle;
+using static Celeste.ClutterBlock;
 
 namespace VivHelper.Effects {
 
@@ -67,8 +68,19 @@ namespace VivHelper.Effects {
             if (alpha > 0f && visibleFade > 0f && linearFade > 0f) {
                 Camera camera = (scene as Level).Camera;
                 for (int i = 0; i < particles.Length; i++) {
-                    Vector2 position = new Vector2(VivHelper.mod(particles[i].Position.X - camera.X - 32f, 384f), VivHelper.mod(particles[i].Position.Y - camera.Y - 32f, 244f));
+                    Vector2 position = new Vector2(VivHelper.mod(particles[i].Position.X - camera.X, 320f), VivHelper.mod(particles[i].Position.Y - camera.Y, 180f));
                     Draw.Pixel.DrawCentered(position, particles[i].color * alpha * linearFade * visibleFade, particles[i].Scale, particles[i].Rotation);
+                    var v = particles[i].Scale.Rotate(particles[i].Rotation);
+                    if (position.Y + v.Y > 180) {
+                        if (position.X + v.X > 320) {
+                            Draw.Pixel.DrawCentered(new Vector2(position.X - 320, position.Y - 180), particles[i].color * alpha * linearFade * visibleFade, particles[i].Scale, particles[i].Rotation);
+                        } else {
+                            Draw.Pixel.DrawCentered(new Vector2(position.X, position.Y - 180), particles[i].color * alpha * linearFade * visibleFade, particles[i].Scale, particles[i].Rotation);
+                        }
+                    } else if (position.X + v.X > 320) {
+                        Draw.Pixel.DrawCentered(new Vector2(position.X - 320, position.Y), particles[i].color * alpha * linearFade * visibleFade, particles[i].Scale, particles[i].Rotation);
+                    }
+
                 }
             }
         }

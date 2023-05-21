@@ -84,7 +84,7 @@ namespace VivHelper.Entities.SpikeStuff {
         private bool killFormat;
 
         public CornerSpike(EntityData data, Vector2 offset) : base(data.Position + offset, DirectionPlus.Other, 0) {
-
+            base.Depth = -1;
             var a = data.Attr("EdgeDirection", "");
             string b = a;
             if (a.Trim().StartsWith("Inner")) {
@@ -118,7 +118,7 @@ namespace VivHelper.Entities.SpikeStuff {
                     OnEnable = OnEnable,
                     OnDisable = OnDisable
                 });
-            killFormat = data.Bool("AlternateKillFormat", false);
+            killFormat = data.Bool("KillFormat", false);
             AddTag(Tags.TransitionUpdate);
         }
 

@@ -95,7 +95,8 @@ namespace VivHelper.Entities {
             if (spikeType == "tentacles") { spikeType = "default"; }
             if (spikeType == "default") { spikeType = "danger/spikes/default"; } else if (spikeType == "outline") { spikeType = "danger/spikes/outline"; } else if (spikeType == "cliffside" || spikeType == "reflection" || spikeType == "whitereflection") { spikeType = "danger/spikes/whitereflection"; }
             List<MTexture> atlasSubtextures = GFX.Game.GetAtlasSubtextures(spikeType + "_" + str);
-            for (int j = 0; j < size / 8; j++) {
+            int j = 0;
+            for (; j < size / 8; j++) {
                 Image image = new Image(Calc.Random.Choose(atlasSubtextures));
                 switch (Direction) {
                     case DirectionPlus.Up:
@@ -117,6 +118,9 @@ namespace VivHelper.Entities {
                 }
                 Add(image);
                 try { SetSpikeColor(); } catch { }
+            }
+            if(j - size > 0) {
+
             }
         }
 

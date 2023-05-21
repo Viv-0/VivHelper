@@ -1,4 +1,5 @@
 local enums = require('consts.celeste_enums')
+local drawableSpriteStruct = require('structs.drawable_sprite')
 local textures =  {"wood", "dream", "temple", "templeB", "cliffside", "reflection", "core", "moon"}
 
 local function getTexture(entity)

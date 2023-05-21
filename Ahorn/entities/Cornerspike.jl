@@ -10,7 +10,7 @@ const placements = Ahorn.PlacementDict(
         "rectangle",
         Dict{String, Any}(
             "EdgeDirection" => "UpLeft",
-            "KillFormat" => true
+            "KillFormat" => false
         )
     ), 
     "Cornerspike (Top Right Outer) (Viv's Helper)" => Ahorn.EntityPlacement(
@@ -18,7 +18,7 @@ const placements = Ahorn.PlacementDict(
         "rectangle",
         Dict{String, Any}(
             "EdgeDirection" => "UpRight",
-            "KillFormat" => true
+            "KillFormat" => false
         )
     ),
     "Cornerspike (Bottom Left Outer) (Viv's Helper)" => Ahorn.EntityPlacement(
@@ -26,7 +26,7 @@ const placements = Ahorn.PlacementDict(
         "rectangle",
         Dict{String, Any}(
             "EdgeDirection" => "DownLeft",
-            "KillFormat" => true
+            "KillFormat" => false
         )
     ),
     "Cornerspike (Bottom Right Outer) (Viv's Helper)" => Ahorn.EntityPlacement(
@@ -34,35 +34,39 @@ const placements = Ahorn.PlacementDict(
         "rectangle",
         Dict{String, Any}(
             "EdgeDirection" => "DownRight",
-            "KillFormat" => true
+            "KillFormat" => false
         )
     ),
     "Cornerspike (Bottom Right Inner) (Viv's Helper)" => Ahorn.EntityPlacement(
         CornerSpike,
         "rectangle",
         Dict{String, Any}(
-            "EdgeDirection" => "InnerUpLeft"
+            "EdgeDirection" => "InnerUpLeft",
+            "KillFormat" => false
         )
     ), 
     "Cornerspike (Bottom Left Inner) (Viv's Helper)" => Ahorn.EntityPlacement(
         CornerSpike,
         "rectangle",
         Dict{String, Any}(
-            "EdgeDirection" => "InnerUpRight"
+            "EdgeDirection" => "InnerUpRight",
+            "KillFormat" => false
         )
     ),
     "Cornerspike (Top Right Inner) (Viv's Helper)" => Ahorn.EntityPlacement(
         CornerSpike,
         "rectangle",
         Dict{String, Any}(
-            "EdgeDirection" => "InnerDownLeft"
+            "EdgeDirection" => "InnerDownLeft",
+            "KillFormat" => false
         )
     ),
     "Cornerspike (Top Left Inner) (Viv's Helper)" => Ahorn.EntityPlacement(
         CornerSpike,
         "rectangle",
         Dict{String, Any}(
-            "EdgeDirection" => "InnerDownRight"
+            "EdgeDirection" => "InnerDownRight",
+            "KillFormat" => false
         )
     )
 )

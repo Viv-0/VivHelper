@@ -1,0 +1,21 @@
+local drawing = require('mods').requireFromPlugin('libraries.vivUtil')
+local dsprite = require('structs.drawable_sprite')
+local drawableFunction = require("structs.drawable_function")
+return {
+    name = "VivHelper/SoundReplacer",
+    depth = 9-math.huge,
+    placements = {
+        name = "soundreplacer",
+        data = {
+            eventName="",replacementEvent="",
+            flag="",customParams=""
+        }
+    },
+    sprite = function(room,entity) return drawableFunction.fromFunction(function()
+        local font = love.graphics.getFont()
+        local s = dsprite.fromTexture('ahorn/VivHelper/sound', entity):setPosition(entity.x + 4, entity.y+4)
+        s:draw()
+        drawing.printJustifyText(entity.eventName, entity.x-3, entity.y-15, 240, 20, font, 0.5, true, "left")
+        drawing.printJustifyText(entity.replacementEvent, entity.x-3, entity.y+1, 240, 20, font, 0.5, true, "left")
+    end) end
+}

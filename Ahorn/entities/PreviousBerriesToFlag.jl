@@ -1,6 +1,6 @@
 module VivHelperPrevBerriesToFlag
 using ..Ahorn, Maple
-
+ 
 @mapdef Entity "VivHelper/PreviousBerriesToFlag" PrevBerriesToFlag(x::Integer, y::Integer)
 
 const placements = Ahorn.PlacementDict(

@@ -12,9 +12,13 @@ dashBlock.placements = {
         canDash = true,
         permanent = true,
         width = 8,
-        height = 8
+        height = 8,
+        AudioEvent = "",
+        FlagOnBreak = "",
+        FlagOnDisable = "",
+        disableFallingBlocksBreak=false
     }, fieldInformation = {
-        AudioEvent = {options = {"event:/game/general/wall_break_dirt", "event:/game/general/wall_break_wood", "event:/game/general/wall_break_ice", "event:/game/general/wall_break_stone"}}
+        AudioEvent = {options = {"gameDefault","event:/game/general/wall_break_dirt", "event:/game/general/wall_break_wood", "event:/game/general/wall_break_ice", "event:/game/general/wall_break_stone"}}
     }
 }
 

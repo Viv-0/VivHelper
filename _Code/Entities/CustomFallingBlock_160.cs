@@ -71,13 +71,14 @@ namespace VivHelper.Entities {
 
         public bool IsTriggeredByCrushBlock;
         public bool metaTriggered;
-        public bool legacy;
+        public bool legacy, DisableEndShake;
         public int RoomWrap;
 
         public bool HasStartedFalling {
             get;
             private set;
         }
+        public bool EndShaking {get; private set;} = false;
 
         public CustomFallingBlock(Vector2 position, EntityID id, char tile, int width, int height, bool finalBoss, bool behind, int climbFall, float respawnT, bool itbcb)
             : base(position, width, height, safe: false) {
@@ -129,6 +130,7 @@ namespace VivHelper.Entities {
             legacy = !data.Bool("Legacy"); //well I fucked up the code but it's resolvable by just inverting this, 1.6.0.2 -> 1.6.0.3
             DashBlock = data.Bool("BreakDashBlocks", true);
             RoomWrap = data.Int("RoomWrapMaxRev", 0);
+            DisableEndShake = data.Bool("ShakeForAllFalls", false);
         }
 
         public static CustomFallingBlock CreateFinalBossBlock(EntityData data, Vector2 offset) {
@@ -201,32 +203,35 @@ namespace VivHelper.Entities {
         }
 
         private IEnumerator Sequence() {
-            while (!Triggered && (finalBoss || !PlayerFallCheck())) {
+            while (!Triggered && !EndShaking && (finalBoss || !PlayerFallCheck())) {
                 yield return null;
             }
             Triggered = true;
-            while (FallDelay > 0f) {
+            while (!EndShaking && FallDelay > 0f) {
                 FallDelay -= Engine.DeltaTime;
                 yield return null;
             }
             HasStartedFalling = true;
             while (true) {
-                ShakeSfx();
-                StartShaking();
-                Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
-                if (finalBoss) {
-                    Add(new Coroutine(HighlightFade(1f)));
+                if (!EndShaking) {
+                    ShakeSfx();
+                    StartShaking();
+                    Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
+                    if (finalBoss) {
+                        Add(new Coroutine(HighlightFade(1f)));
+                    }
+                    yield return 0.2f;
+                    float timer = 0.4f;
+                    if (finalBoss) {
+                        timer = 0.2f;
+                    }
+                    while (timer > 0f && PlayerWaitCheck()) {
+                        yield return null;
+                        timer -= Engine.DeltaTime;
+                    }
+                    StopShaking();
+                    EndShaking = true;
                 }
-                yield return 0.2f;
-                float timer = 0.4f;
-                if (finalBoss) {
-                    timer = 0.2f;
-                }
-                while (timer > 0f && PlayerWaitCheck()) {
-                    yield return null;
-                    timer -= Engine.DeltaTime;
-                }
-                StopShaking();
                 for (int i = 2; (float) i < Width; i += 4) {
                     if (Scene.CollideCheck<Solid>(TopLeft + new Vector2(i, -2f))) {
                         SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + (float) i, Y), Vector2.One * 4f, (float) Math.PI / 2f);
@@ -270,6 +275,8 @@ namespace VivHelper.Entities {
                 LandParticles();
                 yield return 0.2f;
                 StopShaking();
+                if (DisableEndShake)
+                    EndShaking = false;
                 if (CollideCheck<SolidTiles>(Position + Vector2.UnitX.Rotate(angle))) {
                     break;
                 }

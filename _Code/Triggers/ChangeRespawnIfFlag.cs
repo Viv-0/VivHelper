@@ -27,7 +27,7 @@ namespace VivHelper.Triggers {
         public override void OnEnter(Player player) {
             Trigger_OnEnter(player);
             Session session = (base.Scene as Level).Session;
-            if ((string.IsNullOrEmpty(flag) || session.GetFlag(flag)) && SolidCheck() && (!session.RespawnPoint.HasValue || session.RespawnPoint.Value != Target)) {
+            if ((string.IsNullOrEmpty(flag) || (session.GetFlag(flag) == invert)) && SolidCheck() && (!session.RespawnPoint.HasValue || session.RespawnPoint.Value != Target)) {
                 session.HitCheckpoint = true;
                 session.RespawnPoint = Target;
                 session.UpdateLevelStartDashes();

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VivHelper.Entities.SpikeStuff {
-
+namespace VivHelper.Dialogue {
+    internal class BetterCutscene {
+    }
 }

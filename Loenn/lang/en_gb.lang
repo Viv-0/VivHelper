@@ -6,16 +6,16 @@ style.effects.VivHelper/WindRainFG.name=Wind Rain
 
 -- TRIGGERS
 
-triggers.VivHelper/ActivateCPPTrigger.placements.name.main=Activate Custom Player Playback Trigger
-triggers.VivHelper/ActivateCPPTrigger.placements.description.main=Triggers the activation of a given Custom Player Playback according to its ID when entered.
-triggers.VivHelper/ActivateCPPTrigger.attributes.name.CPPID=Player Playback ID
-triggers.VivHelper/ActivateCPPTrigger.attributes.description.CPPID=The ID assigned to the specific Player Playback you want to activate.
-triggers.VivHelper/ActivateCPPTrigger.attributes.name.state=On/Off
-triggers.VivHelper/ActivateCPPTrigger.attributes.description.state=Whether to Activate or Deactivate the given Player Playback.
-triggers.VivHelper/ActivateCPPTrigger.attributes.name.onlyOnce=Only Once
-triggers.VivHelper/ActivateCPPTrigger.attributes.description.onlyOnce=If checked, the trigger will delete itself after being used. (per retry)
-triggers.VivHelper/ActivateCPPTrigger.attributes.name.mode=Mode
-triggers.VivHelper/ActivateCPPTrigger.attributes.description.mode=When the trigger is set off, see the dropdown for options.
+triggers.VivHelper/ActivateCPP.placements.name.main=Activate Custom Player Playback Trigger
+triggers.VivHelper/ActivateCPP.placements.description.main=Triggers the activation of a given Custom Player Playback according to its ID when entered.
+triggers.VivHelper/ActivateCPP.attributes.name.CPPID=Player Playback ID
+triggers.VivHelper/ActivateCPP.attributes.description.CPPID=The ID assigned to the specific Player Playback you want to activate.
+triggers.VivHelper/ActivateCPP.attributes.name.state=On/Off
+triggers.VivHelper/ActivateCPP.attributes.description.state=Whether to Activate or Deactivate the given Player Playback.
+triggers.VivHelper/ActivateCPP.attributes.name.onlyOnce=Only Once
+triggers.VivHelper/ActivateCPP.attributes.description.onlyOnce=If checked, the trigger will delete itself after being used. (per retry)
+triggers.VivHelper/ActivateCPP.attributes.name.mode=Mode
+triggers.VivHelper/ActivateCPP.attributes.description.mode=When the trigger is set off, see the dropdown for options.
 
 triggers.VivHelper/ChangeRespawnIfFlag.placements.name.main=Change Respawn If Flag Set Trigger
 triggers.VivHelper/ChangeRespawnIfFlag.placements.description.main=Changes the Player's Respawn Point if a given flag is set when entered.
@@ -79,6 +79,7 @@ triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.RotationT
 triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.CameraType= Sets the Camera to have the details listed in the Dropdown. Don't put in a custom number, it just can crash the game.
 
 triggers.VivHelper/TeleportTarget.placements.name.main=Teleport Target
+triggers.VivHelper/TeleportTarget.placements.name.custom=Teleport Target (Customizable Speed Exit)
 triggers.VivHelper/TeleportTarget.placements.description.main=The point by which a player teleports using a (new) Teleport Trigger
 triggers.VivHelper/TeleportTarget.attributes.name.TargetID=ID
 triggers.VivHelper/TeleportTarget.attributes.description.TargetID=The ID by which to link a Teleport Trigger to a target.
@@ -106,7 +107,8 @@ triggers.VivHelper/MultiflagCameraTargetTrigger.placements.name.main=Multiflag C
 entities.VivHelper/BumperWrapper.placements.name.main=Bumper Wrapper
 entities.VivHelper/BumperWrapper.placements.description.main=Place this over a Bumper to change its internal properties
 entities.VivHelper/BumperWrapper.attributes.description.TypeName=The "C#" name of the object. Use SpeedrunTool to get this name, or use the get_entities
-
+entities.VivHelper/BumperWrapper.attributes.description.Anchor=In C#, the name for the "anchor" point, used as the base position the Bumper stands at. (It varies from the anchor with wiggling)
+entities.VivHelper/BumperWrapper.attributes.description.
 
 entities.VivHelper/DashCodeHeartController.placements.name.forsakencity=Dash Code Heart Controller (Forsaken City)
 entities.VivHelper/DashCodeHeartController.placements.name.reflection=Dash Code Heart Controller (Reflection)
@@ -215,17 +217,45 @@ entities.VivHelper/CornerBoostCassetteBlock.attributes.description.index=The col
 entities.VivHelper/CornerBoostCassetteBlock.attributes.description.tempo=The tempo of the cassette blocks. The first cassette block with a tempo other than 1.0 decides the tempo for all cassette blocks in the room. A multiplier of 1.0 triggers one beat every 10 frames. Refer to the cassette section in map metadata for details.
 
 entities.VivHelper/Cornerspike.placements.name.main=CornerSpike (Up Right)
+entities.VivHelper/Cornerspike.placements.description.main=A spike that attaches to the corners of blocks and fills the gaps between corners.
+entities.VivHelper/Cornerspike.attributes.description.type=Determines the visual appearance of the spike.
+entities.VivHelper/Cornerspike.attributes.description.Color=Tints the color of the spike.\nSetting it to "transparent" (0 alpha) sets it to be rainbow spikes.
+entities.VivHelper/Cornerspike.attributes.description.KillFormat=When true, the spike will always kill the player on contact.\nWhen false, the spike will kill the player if the player is not moving "away" from the spike.\nIn context, this means 90° away from the direction the spike is point is the death point.
+entities.VivHelper/Cornerspike.attributes.description.DoNotAttach=If true, the spikes will not attach to solids, meaning they cannot move with blocks.
 
 entities.VivHelper/CrumbleJumpThru.placements.name.main=Crumbling JumpThru
+entities.VivHelper/CrumbleJumpThru.placements.description.main=A semisolid platform which breaks after a set amount of time from contact with the player.
+entities.VivHelper/CrumbleJumpThru.attributes.description.texture=Changes the appearance of the platform.
+entities.VivHelper/CrumbleJumpThru.attributes.description.surfaceIndex=Footstep sound when walking on the platform.\nLeave at Default for game to decide automatically based on texture.
+entities.VivHelper/CrumbleJumpThru.attributes.description.Delay=How long after contact with the player the jump thru should stay collidable.
 
 entities.VivHelper/CustomCoreBlock.placements.name.C=Custom Bounce Block
 entities.VivHelper/CustomCoreBlock.placements.name.R=Reskinnable Bounce Block
 entities.VivHelper/CustomCoreBlock.placements.name.RC=Custom Bounce Block (Reskinnable)
+entities.VivHelper/CustomCoreBlock.attributes.description.CoreState=Hot & Cold do not change with Core State.\nSwap does, and Invert is Cold when Core Mode is Hot and vice versa.
+entities.VivHelper/CustomCoreBlock.attributes.description.RespawnTime=The amount of time it takes for the block to respawn after breaking.
+entities.VivHelper/CustomCoreBlock.attributes.description.WindUpDist=The amount of distance, in pixels, that the Hot Core Block winds up before bouncing back.
+entities.VivHelper/CustomCoreBlock.attributes.description.IceWindUpDist=The amount of distance, in pixels, that the Cold Core Block winds up before bouncing back.
+entities.VivHelper/CustomCoreBlock.attributes.description.BounceDist=The amount of distance that the Hot Core Block launches back.
+entities.VivHelper/CustomCoreBlock.attributes.description.LiftSpeedXMult=Multiplier for the amount of launch momentum you get horizontally from a hot block.
+entities.VivHelper/CustomCoreBlock.attributes.description.WallPushTime=Shake Time for the block shaking before launching/breaking.
+entities.VivHelper/CustomCoreBlock.attributes.description.BounceEndTime=The amount of time the Hot Core Block continues to travel forward *after* reaching its original position.
+entities.VivHelper/CustomCoreBlock.attributes.description.Directory=The source directory to grab core block images from.
 
 entities.VivHelper/CustomCoverupWall.placements.name.main=Custom Coverup Wall
+entities.VivHelper/CustomCoverupWall.attributes.description.alpha=The opacity of the Coverup Wall visually ingame.
+entities.VivHelper/CustomCoverupWall.attributes.name.instant=Toggle fades
+entities.VivHelper/CustomCoverupWall.attributes.description.instant=If a flag toggles the visibility of the Coverup Wall, determines whether to instantly show it (or not) or gradually fade it in/out
+entities.VivHelper/CustomCoverupWall.attributes.description.flag=Flag to toggle the visibility of the Coverup Wall
+entities.VivHelper/CustomCoverupWall.attributes.description.Depth=The render depth that the Coverup Wall should take.
 
 entities.VivHelper/CustomDashBlock.placements.name.main=Custom Dash Block
-
+entities.VivHelper/CustomDashBlock.attributes.description.canDash=Whether the player can break the block by dashing into it.
+entities.VivHelper/CustomDashBlock.attributes.description.blendin=Blends the block with the walls it touches, making it less apparent.
+entities.VivHelper/CustomDashBlock.attributes.description.tiletype=Determines the visual appearance of the wall.
+entities.VivHelper/CustomDashBlock.attributes.description.permanent=Once broken, the block will remain that way, even if the player dies.
+entities.VivHelper/CustomDashBlock.attributes.description.FlagOnBreak=The Flag to set when the block breaks.
+entities.VivHelper/CustomDashBlock.attributes.description.FlagToDisable=If this flag is set, the block will not break.
 entities.VivHelper/CustomDepthTileEntity.placements.name.main=Custom Depth Tile Entity
 
 entities.VivHelper/CustomFallingBlock.placements.name.main=Custom Falling Block
@@ -237,4 +267,160 @@ entities.VivHelper/CustomLightbeam.placements.name.main=Custom Lightbeam
 entities.VivHelper/CPP.placements.name.main=Custom Playback Ghost
 
 entities.VivHelper/CustomRefill.placements.name.main=Custom Refill
-entities.VivHelper/CustomSpinner.placements.name.VivHelper/CustomSpinner=Custom CustomSpinner
+
+entities.VivHelper/CustomSpinner.placements.name.VivHelper/CustomSpinner=Custom Spinner
+
+entities.VivHelper/CustomTorch.placements.name.main=Custom Torch
+
+entities.VivHelper/DashBumper.placements.name.bumper=Dash Bumper
+
+entities.VivHelper/DeathConditionalBlock.placements.name.main=Conditional Block (Death Count)
+
+entities.VivHelper/DebrisLimiter.placements.name.main=Debris Reducer
+
+entities.VivHelper/CutscenelessDreamMirror.placements.name.normal=Dream Mirror (No Cutscene)
+
+entities.VivHelper/EnergyCrystal.placements.name.main=Energy Crystal
+
+entities.VivHelper/EnterBlock.placements.name.main=Enter Block
+
+entities.VivHelper/ExitDashBlock.placements.name.main=Exit Dash Block
+
+entities.VivHelper/FallThru.placements.name.wood=Jump Through (Wood)
+entities.VivHelper/FallThru.placements.name.dream=Jump Through (Dream)
+entities.VivHelper/FallThru.placements.name.temple=Jump Through (Temple)
+entities.VivHelper/FallThru.placements.name.templeB=Jump Through (Temple B)
+entities.VivHelper/FallThru.placements.name.cliffside=Jump Through (Cliffside)
+entities.VivHelper/FallThru.placements.name.reflection=Jump Through (Reflection)
+entities.VivHelper/FallThru.placements.name.core=Jump Through (Core)
+entities.VivHelper/FallThru.placements.name.moon=Jump Through (Moon)
+entities.VivHelper/FallThru.attributes.description.texture=Changes the appearance of the platform.
+entities.VivHelper/FallThru.attributes.description.surfaceIndex=Footstep sound when walking on the platform.\nLeave at Default for game to decide automatically based on texture.
+
+entities.VivHelper/FlagConditionBlock2.placements.name.main=Condition Block (On Flag)
+
+entities.VivHelper/FlagIntroCrusher.placements.name.intro_crusher=Intro Crusher (On Flag)
+
+entities.VivHelper/FloatyBreakBlock.placements.name.main=Floaty Space Block (Crumble on Touch)
+
+entities.VivHelper/FollowTorch.placements.name.main=Following Torch
+
+entities.VivHelper/GoldenBerryToFlag.placements.name.main=Flag On Golden Berry Carry (Map-wide)
+
+entities.VivHelper/CelsiusGrowBlock.placements.name.main=Grow Block
+
+entities.VivHelper/HideRoomInMap.placements.name.main=Hide Room In Debug Controller (Map-wide)
+
+entities.VivHelper/HoldableBarrier.placements.name.barrier=Holdable Barrier
+
+entities.VivHelper/HoldableBarrierController2.placements.name.main=Holdable Barrier Detail Controller
+
+entities.VivHelper/HoldableBarrierJumpThru.placements.name.main=Holdable Barrier Jump Thru
+
+entities.VivHelper/InLevelTeleporter.placements.name.iltp=Same-Room Portal (No Visuals)
+entities.VivHelper/InLevelTeleporter.placements.name.iltp2=Same-Room Portal (Skinnable)
+
+entities.VivHelper/LaserBlock.placements.name.lb=Laser Block
+
+entities.VivHelper/LightningMuter.placements.name.lm=Lightning Muter
+
+entities.VivHelper/MultiContactTriggerSpikesUp.placements.name.up_default=Multi-Touch Trigger Spikes (Up, Default)
+entities.VivHelper/MultiContactTriggerSpikesUp.placements.name.up_outline=Multi-Touch Trigger Spikes (Up, Outline)
+entities.VivHelper/MultiContactTriggerSpikesUp.placements.name.up_cliffside=Multi-Touch Trigger Spikes (Up, Cliffside)
+entities.VivHelper/MultiContactTriggerSpikesUp.placements.name.up_reflection=Multi-Touch Trigger Spikes (Up, Reflection)
+entities.VivHelper/MultiContactTriggerSpikesDown.placements.name.down_default=Multi-Touch Trigger Spikes (Down, Default)
+entities.VivHelper/MultiContactTriggerSpikesDown.placements.name.down_outline=Multi-Touch Trigger Spikes (Down, Outline)
+entities.VivHelper/MultiContactTriggerSpikesDown.placements.name.down_cliffside=Multi-Touch Trigger Spikes (Down, Cliffside)
+entities.VivHelper/MultiContactTriggerSpikesDown.placements.name.down_reflection=Multi-Touch Trigger Spikes (Down, Reflection)
+entities.VivHelper/MultiContactTriggerSpikesLeft.placements.name.left_default=Multi-Touch Trigger Spikes (Left, Default)
+entities.VivHelper/MultiContactTriggerSpikesLeft.placements.name.left_outline=Multi-Touch Trigger Spikes (Left, Outline)
+entities.VivHelper/MultiContactTriggerSpikesLeft.placements.name.left_cliffside=Multi-Touch Trigger Spikes (Left, Cliffside)
+entities.VivHelper/MultiContactTriggerSpikesLeft.placements.name.left_reflection=Multi-Touch Trigger Spikes (Left, Reflection)
+entities.VivHelper/MultiContactTriggerSpikesRight.placements.name.right_default=Multi-Touch Trigger Spikes (Right, Default)
+entities.VivHelper/MultiContactTriggerSpikesRight.placements.name.right_outline=Multi-Touch Trigger Spikes (Right, Outline)
+entities.VivHelper/MultiContactTriggerSpikesRight.placements.name.right_cliffside=Multi-Touch Trigger Spikes (Right, Cliffside)
+entities.VivHelper/MultiContactTriggerSpikesRight.placements.name.right_reflection=Multi-Touch Trigger Spikes (Right, Reflection)
+entities.VivHelper/MultiContactTriggerSpikesUp.attributes.description.type=Changes the visual appearance of the spikes.
+entities.VivHelper/MultiContactTriggerSpikesDown.attributes.description.type=Changes the visual appearance of the spikes.
+entities.VivHelper/MultiContactTriggerSpikesLeft.attributes.description.type=Changes the visual appearance of the spikes.
+entities.VivHelper/MultiContactTriggerSpikesRight.attributes.description.type=Changes the visual appearance of the spikes.
+
+entities.VivHelper/nWayDashBlock.placements.name.nway=Direction-Specific Dash Block
+
+entities.VivHelper/EvilBumper.placements.name.bumper=Hot-Only Bumper
+
+entities.VivHelper/OrangeBooster.placements.name.orange=Orange Booster
+entities.VivHelper/PinkBooster.placements.name.pink=~Pink Booster ~Obsolete~
+
+entities.VivHelper/CustomPlaybackWatchtower.placements.name.watchtower=Playback-Toggle Watchtower
+
+entities.VivHelper/PolygonKillbox.placements.name.killbox=Arbitrary Shape Killbox
+entities.VivHelper/PolygonKillbox.placements.description.killbox=This will kill the player if the player collides with the shape.
+
+entities.VivHelper/PreviousBerriesToFlag.placements.name.main=Previous Berries To Flag (Map-wide)
+entities.VivHelper/PreviousBerriesToFlag.placements.description.main=If a player completes a level and collects any given berry with ID A:B,\nthe next time they enter the level the flag `VivHelper_PreviousCollectedBerries_A:B` will be set to true\n(note A and B are numbers)
+
+entities.VivHelper/RainbowSpikesUp.placements.name.up_default=Rainbow Spikes (Up, Default)
+entities.VivHelper/RainbowSpikesUp.placements.name.up_outline=Rainbow Spikes (Up, Outline)
+entities.VivHelper/RainbowSpikesUp.placements.name.up_whitereflection=Rainbow Spikes (Up, Cliffside)
+entities.VivHelper/RainbowSpikesLeft.placements.name.left_default=Rainbow Spikes (Left, Default)
+entities.VivHelper/RainbowSpikesLeft.placements.name.left_outline=Rainbow Spikes (Left, Outline)
+entities.VivHelper/RainbowSpikesLeft.placements.name.left_whitereflection=Rainbow Spikes (Left, Cliffside)
+entities.VivHelper/RainbowSpikesRight.placements.name.right_default=Rainbow Spikes (Right, Default)
+entities.VivHelper/RainbowSpikesRight.placements.name.right_outline=Rainbow Spikes (Right, Outline)
+entities.VivHelper/RainbowSpikesRight.placements.name.right_whitereflection=Rainbow Spikes (Right, Cliffside)
+entities.VivHelper/RainbowSpikesDown.placements.name.down_default=Rainbow Spikes (Down, Default)
+entities.VivHelper/RainbowSpikesDown.placements.name.down_outline=Rainbow Spikes (Down, Outline)
+entities.VivHelper/RainbowSpikesDown.placements.name.down_whitereflection=Rainbow Spikes (Down, Cliffside)
+
+entities.VivHelper/RainbowTriggerSpikesUp.placements.name.up_default=Rainbow Trigger Spikes (Up, Default)
+entities.VivHelper/RainbowTriggerSpikesUp.placements.name.up_outline=Rainbow Trigger Spikes (Up, Outline)
+entities.VivHelper/RainbowTriggerSpikesUp.placements.name.up_whitereflection=Rainbow Trigger Spikes (Up, Cliffside)
+entities.VivHelper/RainbowTriggerSpikesLeft.placements.name.left_default=Rainbow Trigger Spikes (Left, Default)
+entities.VivHelper/RainbowTriggerSpikesLeft.placements.name.left_outline=Rainbow Trigger Spikes (Left, Outline)
+entities.VivHelper/RainbowTriggerSpikesLeft.placements.name.left_whitereflection=Rainbow Trigger Spikes (Left, Cliffside)
+entities.VivHelper/RainbowTriggerSpikesRight.placements.name.right_default=Rainbow Trigger Spikes (Right, Default)
+entities.VivHelper/RainbowTriggerSpikesRight.placements.name.right_outline=Rainbow Trigger Spikes (Right, Outline)
+entities.VivHelper/RainbowTriggerSpikesRight.placements.name.right_whitereflection=Rainbow Trigger Spikes (Right, Cliffside)
+entities.VivHelper/RainbowTriggerSpikesDown.placements.name.down_default=Rainbow Trigger Spikes (Down, Default)
+entities.VivHelper/RainbowTriggerSpikesDown.placements.name.down_outline=Rainbow Trigger Spikes (Down, Outline)
+entities.VivHelper/RainbowTriggerSpikesDown.placements.name.down_whitereflection=Rainbow Trigger Spikes (Down, Cliffside)
+
+entities.VivHelper/RefilllessBumper.placements.name.rlbumper=Bumper (No Dash Refill)
+
+entities.VivHelper/RefillPotion.placements.name.potion=Refill Potion
+entities.VivHelper/RefillPotion.placements.description.potion=A holdable item that when dashed into, shatters to give you a refill.
+
+entities.VivHelper/RefillWall.placements.name.wall=Refill Wall
+
+entities.VivHelper/RefillWallWrapper.placements.name.wrap=Refill Wall (Wrapper)
+entities.VivHelper/RefillWallWrapper.placements.description.wrap=Can link up with a refill physically touching it to create refills with variable size.
+
+entities.VivHelper/ReskinnableJellyfish.placements.name.jelly=Reskinnable Jellyfish
+
+entities.VivHelper/ReskinnablePuffer.placements.name.left=Reskinnable Pufferfish (Left)
+entities.VivHelper/ReskinnablePuffer.placements.name.right=Reskinnable Pufferfish (Right)
+
+entities.VivHelper/RippleSpace.placements.name.ripple=Ripple Zone
+entities.VivHelper/RippleSpace.placements.description.ripple=Makes the area covered by the Ripple Zone wiggle like the player does in water.
+
+entities.VivHelper/RoomWrapController.placements.name.v=Room Wrap Controller (Vertical)
+entities.VivHelper/RoomWrapController.placements.name.h=Room Wrap Controller (Horizontal)
+entities.VivHelper/RoomWrapController.placements.name.b=Room Wrap Controller (Both)
+
+entities.VivHelper/SeekerGate.placements.name.gate=Seeker Gate
+entities.VivHelper/SeekerGate.placements.description.gate=Gate opens when seeker is within a defined distance from the center of the doorway.
+
+entities.VivHelper/SeekerKillBarrier.placements.name.main=Seeker Kill Barrier
+
+entities.VivHelper/SoundMuter.placements.name.soundmuter=Audio Event Muter
+entities.VivHelper/SoundMuter.placements.description.soundmuter=A map-global entity that mutes a given Audio Event (can be on a flag)
+
+entities.VivHelper/SoundReplacer.placements.name.soundreplacer=Audio Event Replacer
+entities.VivHelper/SoundReplacer.placements.description.soundreplacer=A map-global entity that replaces a given Audio Event with another (can be on a flag)
+
+entities.VivHelper/TheoKillBarrier.placements.name.teo=Theo Kill Barrier
+entities.VivHelper/TheoKillBarrier.placements.name.teo=A barrier that kills TheoCrystals.
+
+entities.VivHelper/TouchSwitchWall.placements.name.wall=Touch Switch Wall
+entities.VivHelper/TouchSwitchWall.placements.description.wall=A touch switch with a custom rectangular hitbox.

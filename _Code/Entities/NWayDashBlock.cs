@@ -32,7 +32,7 @@ namespace VivHelper.Entities {
         }
 
         public DashCollisionResults NWayDashed(Player player, Vector2 direction) {
-            if (!new DynData<DashBlock>(this).Get<bool>("canDash") && player.StateMachine.State != 5 && player.StateMachine.State != 10 || !viableDashDirections.Contains(-direction)) {
+            if (!new DynData<DashBlock>(this).Get<bool>("canDash") && player.StateMachine.State != 5 && player.StateMachine.State != 10 || !viableDashDirections.Contains(-direction.EightWayNormal())) {
                 return DashCollisionResults.NormalCollision;
             }
             Break(player.Center, direction, true, true);

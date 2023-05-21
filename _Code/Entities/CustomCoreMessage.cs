@@ -39,8 +39,7 @@ namespace VivHelper.Entities {
             base.Tag = data.Bool("ShowInTransition", false) ? Tags.HUD | Tags.PauseUpdate | Tags.TransitionUpdate : Tags.HUD | Tags.PauseUpdate;
             var t1 = data.Attr("dialog", "app_ending");
             var b = false;
-            if (t1.StartsWith("*§")) { text = t1.Substring(2); b = true; } else
-                text = Dialog.Clean(t1);
+            if (t1.StartsWith("*§")) { text = t1.Substring(2); b = true; } else text = Dialog.Clean(t1);
             if (text.Contains("\n") || text.Contains("\r")) {
                 var t2 = text.Split(new char[2]
                 {

@@ -25,7 +25,7 @@ namespace VivHelper.Entities {
 
         private float solidifyDelay;
 
-        private List<Vector2> particles = new List<Vector2>();
+        protected List<Vector2> particles = new List<Vector2>();
 
         private List<HoldableBarrier> adjacent = new List<HoldableBarrier>();
 
@@ -134,45 +134,44 @@ namespace VivHelper.Entities {
             //In this case, we already know that the Holdable exists, since we are hooking into the Holdable method,
             //and we know it is not being held because we are hooking Release(Vector2 force). So this is just easy.
 
-            //Added honey attribute to the HoldableBarrierController
-            HoldableBarrierColorController hbcc;
-            if (!self.Scene.Tracker.TryGetEntity<HoldableBarrierColorController>(out hbcc))
-                hbcc = null;
             if (!self.Scene.Tracker.Entities.TryGetValue(typeof(HoldableBarrier), out var b1) ||
                 !self.Scene.Tracker.Entities.TryGetValue(typeof(HoldableBarrierJumpThru), out var b2)) {
                 orig(self, force);
                 return;
             }
 
-            if (b1.Count + b2.Count > 0) {
-                //Modified check sets all barriers to collidable, in the case of not collidable we now first move it out of the way if its being problematic (weird inverse motion bug)
-                b1.ForEach(entity => entity.Collidable = true); //Just learned that this is doable on an enumerable. Very cool.
-                b2.ForEach(entity => entity.Collidable = true);
+            if (b1?.Count + b2?.Count == 0) {
+                orig(self, force);
+                return;
+            }
+            //Modified check sets all barriers to collidable, in the case of not collidable we now first move it out of the way if its being problematic (weird inverse motion bug)
+            b1.ForEach(entity => entity.Collidable = true); //Just learned that this is doable on an enumerable. Very cool.
+            b2.ForEach(entity => entity.Collidable = true);
 
-                if (hbcc?.solidOnRelease ?? VivHelperModule.Session.savedHBController?.solidOnRelease ?? VivHelperModule.defaultHBController.solidOnRelease) {
-                    //1: obtain barriers, 2: obtain the barriers[0]'s current Controller, 3: check if that controller has solid on Release true.
-                    orig(self, force);
+            HoldableBarrierColorController hbcc;
+            if (!self.Scene.Tracker.TryGetEntity<HoldableBarrierColorController>(out hbcc))
+                hbcc = null;
+            // Dete
+            if ((hbcc?.solidOnRelease ?? VivHelperModule.Session.savedHBController?.solidOnRelease ?? VivHelperModule.defaultHBController.solidOnRelease) || self.Entity is not Entity a) {
+                // The behavior for "solid on release" boils down to it acts as if there are walls and ground all around it.
+                orig(self, force);
+                b1.ForEach(entity => entity.Collidable = false);
+                b2.ForEach(entity => entity.Collidable = false);
+                return;
+            } else {
+                HoldableBarrier hb = (HoldableBarrier) b1.FirstOrDefault(e => e.CollideCheck(a));
+                if (hb == null) {
                     b1.ForEach(entity => entity.Collidable = false);
                     b2.ForEach(entity => entity.Collidable = false);
+                    orig(self, force);
                     return;
                 } else {
-                    var a = self.Entity;
-                    HoldableBarrier hb = (HoldableBarrier) b1.FirstOrDefault(e => e.CollideCheck(a));
-                    if (hb == null) {
-                        b1.ForEach(entity => entity.Collidable = false);
-                        b2.ForEach(entity => entity.Collidable = false);
-                        orig(self, force);
-                        return;
-                    } else {
-                        MoveHQuickCollision(self.Entity, hb, 3 * Math.Sign(hb.CenterX - self.Entity.CenterX));
-                        b1.ForEach(entity => entity.Collidable = false);
-                        b2.ForEach(entity => entity.Collidable = false);
-                        orig(self, force);
-                    }
+                    MoveHQuickCollision(self.Entity, hb, 3 * Math.Sign(hb.CenterX - self.Entity.CenterX));
+                    b1.ForEach(entity => entity.Collidable = false);
+                    b2.ForEach(entity => entity.Collidable = false);
+                    orig(self, force);
                 }
-
             }
-            orig(self, force);
         }
 
         #endregion

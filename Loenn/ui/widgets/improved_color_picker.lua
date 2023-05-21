@@ -27,10 +27,6 @@ local fieldTypes = {
     g = "integer",
     b = "integer",
     a = "integer",
-    h = "number",
-    s = "number",
-    v = "number",
-    hexColor = "string",
 }
 
 local areaHSVShader = love.graphics.newShader[[
@@ -211,7 +207,7 @@ end
 
 -- RGB normalized
 local function updateHexField(data, r, g, b, a)
-    data.hexColor = vivUtil.argbToHex(r, g, b, a)
+    data.hexColor = vivUtil.colorToHex(r, g, b, a)
 end
 
 local function updateFields(data, changedGroup, interactionData)
@@ -219,7 +215,7 @@ local function updateFields(data, changedGroup, interactionData)
 
     -- Change group here to make logic simpler
     if changedGroup == "hex" then
-        local parsed, r, g, b = vivUtil.parseColor(data.hexColor, argb)
+        local parsed, r, g, b = vivUtil.parseColor(data.hexColor)
 
         updateHsvFields(data, r, g, b)
 
@@ -356,6 +352,9 @@ local function alphaSliderDraw(interactionData)
     end
 end
 
+local function transformer(value)
+    if(#value > 6) then return string.reverse(value) else return value end
+end
 
 function colorPicker.getColorPicker(hexColor, options)
     if hexColor == "Rainbow" then hexColor = "00000000" end
@@ -393,14 +392,17 @@ function colorPicker.getColorPicker(hexColor, options)
 
         field.fieldType = fieldTypes[name]
         if name == "a" then
-            field.displayName = "Opacity"
+            field.displayName = "Alpha"
             field.tooltipText = "Opacity of the color, where 0 is fully transparent and 255 is fully opaque."
         else
             field.displayName = tostring(language.ui.colorPicker.fieldTypes.name[name])
             field.tooltipText = tostring(language.ui.colorPicker.fieldTypes.description[name])
         end
         field.width = 60
-
+        if name == "hexColor" then
+            field.displayTransformer = transformer
+            field.valueTransformer = transformer
+        end
         if ranges then
             field.minimumValue = ranges[1]
             field.maximumValue = ranges[2]

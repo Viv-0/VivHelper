@@ -38,7 +38,7 @@ namespace VivHelper.Triggers {
 
         public override void OnStay(Player player) {
             base.OnStay(player);
-            if (cooldownTimer > 0f) {
+            if (!onlyOnce && cooldownTimer > 0f) {
                 cooldown -= Engine.DeltaTime;
                 if (cooldown <= 0f) {
                     Audio.Play("event:/game/07_summit/checkpoint_confetti", pos);

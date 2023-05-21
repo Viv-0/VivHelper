@@ -1,5 +1,5 @@
 return {
-    name = "VivHelper/ActivateCPPTrigger",
+    name = "VivHelper/ActivateCPP",
     placements = {
         name = "main",
         data = {

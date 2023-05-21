@@ -13,7 +13,7 @@ playerPlayback.depth = 0
 playerPlayback.sprite = function(room,entity)
     local spr = require('structs.drawable_sprite').fromTexture("characters/player_playback/sitDown00")
     local color = entity.Color
-    if color == nil or #vivUtil.trim(color) == 0 then color = "ccac3232" end
+    if vivUtil.isNullEmptyOrWhitespace(color) then color = "ccac3232" end
         
     spr:setColor(vivUtil.getColor(color))
     spr:setPosition(entity.x, entity.y)

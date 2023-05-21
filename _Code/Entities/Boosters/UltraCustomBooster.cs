@@ -268,7 +268,7 @@ namespace VivHelper.Entities.Boosters {
                 t += Engine.DeltaTime;
             while (t > 0f &&
                   (customDashState.HeldDash ? Input.Dash.Check || Input.CrouchDash.Check :
-                  (!customDashState.CanDashExit || CustomBooster.dyn.Get<float>("dashCooldownTimer") > 0f || (!Input.DashPressed && !Input.CrouchDashPressed)))) //Handles everything nicely
+                  (!customDashState.CanDashExit || CustomBooster.dyn.Get<float>("dashCooldownTimer") > 0f || player.Dashes < 1 || (!Input.DashPressed && !Input.CrouchDashPressed)))) //Handles everything nicely
             {
                 if (customDashState.IsRedDashEsque) {
                     CustomBooster.dyn.Set("gliderBoostTimer", 0.30f);
@@ -402,6 +402,11 @@ namespace VivHelper.Entities.Boosters {
                     player.Speed = Vector2.Zero;
                 }
                 booster.cannotUseTimer = 0.2f / (booster.customDashState.DashSpeed / 240f);
+                if (!booster.customDashState.LeaveWiggle) {
+                    Vector2 v = (boostTarget - player.Collider.Center).Floor();
+                    player.MoveToX(v.X);
+                    player.MoveToY(v.Y);
+                }
                 if (booster.customDashState.HeldDash && (player.ExactPosition - boostTarget).LengthSquared() <= 18f) { //magic number, sqrt(18) was roughly max distance from the center we could get for this check, tested at 10000x,10000y (fpu differentials are possible)
                     if (player.StateMachine.State != VivHelperModule.CustomDashState) {
                         UltraCustomDash.CDashEnd(player);

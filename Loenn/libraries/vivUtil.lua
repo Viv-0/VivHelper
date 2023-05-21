@@ -8,6 +8,7 @@ local state = require("loaded_state")
 
 local vivUtil = {}
 
+
 function vivUtil.addAll(addTo, toAddTable, insertLoc)
     if insertLoc then
         for _, value in ipairs(toAddTable) do
@@ -46,14 +47,20 @@ function vivUtil.contains(table, element)
     return false
 end
 
-function vivUtil.trim(s) return ((not not s:match('^()%s*$')) and '' or s:match('^%s*(.*%S)')) end
+function vivUtil.trim(s) return ((string.match(s,'^()%s*$')) and '' or string.match(s,'^%s*(.*%S)')) end
 
-function vivUtil.parseColor(color, _format)
-    local format = _format or "argb"
-    if #color == 6 or format == "rgb" or format == "rgba" then
+function vivUtil.isNullEmptyOrWhitespace(s)
+    if s then
+        return #vivUtil.trim(s) == 0
+    end return true
+end
+
+function vivUtil.parseColor(color)
+    if #color == 6 then
         return utils.parseHexColor(color)
     else
-        return utils.parseHexColor(string.sub(color, 3)..string.sub(color,1,2))
+        local a = string.reverse(color)
+        return utils.parseHexColor(a)
     end
 end
 
@@ -70,10 +77,10 @@ function vivUtil.getColor(color, format, xnaAllowed)
                 return xnaColor
             end
         end
-        local success, r, g, b, a = vivUtil.parseColor(color, format)
+        local success, r, g, b, a = vivUtil.parseColor(color)
 
         if success then
-            return {r,g,b,a}
+            return {r,g,b,a or 1}
         end
 
         return {}
@@ -83,16 +90,20 @@ function vivUtil.getColor(color, format, xnaAllowed)
             return {r*(color[4] or 1), g*(color[4] or 1), b*(color[4] or 1), (color[4] or 1)}
         else return color end
     end
-    print(colorType)
     return nil
 end
 
-function vivUtil.argbToHex(r,g,b,a)
-    local r8 = math.floor(r * 255 + 0.5)
-    local g8 = math.floor(g * 255 + 0.5)
-    local b8 = math.floor(b * 255 + 0.5)
-    local a8 = math.floor((a or 1) * 255 + 0.5)
-    local number = a8 * 256^3 + r8 * 256^2 + g8 * 256 + b8
+function vivUtil.colorToHex(r,g,b,a)
+    if (a or r[3] or 1.0) == 1.0 then
+        return utils.rgbToHex(r,g,b)
+    end
+    local _r = (type(r) == "table" and r[1] or r)
+    local _g = g or r[2]; local _b = b or r[3]; local _a = (a or r[3] or 1);
+    local r8 = math.floor(_r * 255 + 0.5)
+    local g8 = math.floor(_g * 255 + 0.5)
+    local b8 = math.floor(_b * 255 + 0.5)
+    local a8 = math.floor(_a * 255 + 0.5)
+    local number = a8 * 256^3 + b8 * 256^2 + g8 * 256 + r8
 
     return string.format("%08x", number)
 end
@@ -175,7 +186,7 @@ function vivUtil.getBorder(sprite, color)
         local texture = drawableSprite.fromMeta(sprite.meta, sprite)
         texture.x += xOffset
         texture.y += yOffset
-        if sprite.depth then texture.depth = sprite.depth + 1 else texture.depth = -8499 end -- fix preview depth
+        if sprite.depth then texture.depth = sprite.depth + 1 end
         texture.color = color and vivUtil.getColor(color) or {0, 0, 0, 1}
         return texture
     end
@@ -187,5 +198,133 @@ function vivUtil.getBorder(sprite, color)
         get(1, 0)
     }
 end
+
+function vivUtil.angle2vec(angle, length, _x, _y)
+    return {x=(_x or 0) + math.cos(angle)*length, y=(_y or 0) + math.sin(angle)*length}
+end
+
+local function strRet(str) return str end
+
+--- Returns a functional splitter 
+function vivUtil.split(str, pat)
+    local st, g = 1, str:gmatch("()("..pat..")")
+    local function getter(str, segs, seps, sep, cap1, ...)
+        st = sep and seps + #sep
+        return str:sub(segs, (seps or 0) - 1), cap1 or sep, ...
+    end
+    local function splitter(self)
+        if st then return getter(str, st, g()) end
+    end
+    return splitter, self
+end
+
+function vivUtil.splitToTable(str, pat) 
+    local ret = {}
+    for d in vivUtil.split(str, pat) do table.insert(ret, d) end
+    return ret
+end
+
+function vivUtil.containsPredicate(predicate, data)
+    for _, dataValue in ipairs(data) do
+        if predicate(dataValue) then
+            return true
+        end
+    end
+
+    return false
+end
+function vivUtil.firstPredicate(predicate, data)
+    for _, dataValue in ipairs(data) do
+        if predicate(dataValue) then
+            return dataValue
+        end
+    end
+
+    return nil
+end
+--- returns a given sprite with a number at the end of the string
+--- getImageWithNumbers("objects/refill/idle", 00, data) => sprite from the image objects/refill/idle00
+function vivUtil.getImageWithNumbers(string, idx, data, _atlas) 
+    local atlas = _atlas or data.atlas or "Gameplay"
+    local val = nil
+    for i = 1,6,1 do 
+        val = require('atlases').getResource(string .. string.format("%0"..tostring(i).."d", idx), atlas)
+        if val then break end
+    end
+    if val then return drawableSprite.fromMeta(val, data) else return drawableSprite.fromMeta(require('atlases').getResource(require('mods').internalModContent .. "/missing_image"), data) end
+end
+
+function vivUtil.GetFilePathWithNoTrailingNumbers(AllowEmpty, atlasName)
+    local atlas = altasName or "Gameplay"
+    return {
+        fieldType = "path",
+        allowEmpty = not not AllowEmpty,
+        allowFiles = true,
+        allowFolders = false,
+        filenameProcessor = function(filename, rawFilename, prefix)
+            local str = vivUtil.trim((not filename and "" or filename))
+            local a = false
+            local offset = 19 + #atlas
+            for i = #str, 1, -1 do
+                local b = str:byte(i,i)
+                if a then -- check for trailing numbers
+                    if b > 57 or b < 48 then
+                        return str:sub(offset, i)
+                    end
+                else
+                    a = b == 46 -- if the character is a period, check for trailing numbers
+                end 
+            end
+            return str:sub(offset)
+        end
+    }
+end
+
+function vivUtil.getDirectoryPathFromFile(AllowEmpty, atlasName)
+    local atlas = altasName or "Gameplay"
+    return {
+        fieldType = "path",
+        allowEmpty = not not AllowEmpty,
+        allowFiles = true,
+        allowFolders = false,
+        filenameProcessor = function(filename, rawFilename, prefix)
+            local str = vivUtil.trim((not filename and "" or filename))
+            local offset = 19 + #atlas -- | refers to substring start in "Graphics/Atlases/<atlasName>/|restofstring"
+            for i = #str, 1, -1 do
+                if str:byte(i,i) == 47 then -- return the substring up to but not including the last `/` so you grab the folder reference.
+                    return str:sub(offset, i-1)
+                end
+            end
+            return str:sub(offset)
+        end
+    }
+end
+
+function vivUtil.printJustifyText(text, x, y, width, height, font, fontSize, trim, align)
+    font = font or love.graphics.getFont()
+    fontSize = fontSize or 1
+
+    if trim ~= false then
+        text = utils.trim(text)
+    end
+
+    local fontHeight = font:getHeight()
+    local fontLineHeight = font:getLineHeight()
+    local longest, lines = font:getWrap(text, width / fontSize)
+    local textHeight = (#lines - 1) * (fontHeight * fontLineHeight) + fontHeight
+
+    local offsetX = 1
+    local offsetY = math.floor((height - textHeight * fontSize) / 2) + 1
+
+    love.graphics.push()
+
+    love.graphics.translate(x + offsetX, y + offsetY)
+    love.graphics.scale(fontSize, fontSize)
+
+    love.graphics.printf(text, 0, 0, width / fontSize, align or "center")
+
+    love.graphics.pop()
+end
+
 
 return vivUtil

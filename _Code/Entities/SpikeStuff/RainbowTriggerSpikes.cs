@@ -151,7 +151,7 @@ namespace VivHelper.Entities {
             : base(position, direction, size, blockLedge: false) {
             this.size = size;
             if (grouped && !VivHelperModule.maxHelpingHandLoaded) {
-                throw new Exception("Grouped Rainbow Trigger Spikes attempted to load without Max's Helping Hand as a dependency.");
+                throw new Exception("Grouped Rainbow Trigger Spikes attempted to load without Maddie's Helping Hand as a dependency.");
             }
             this.direction = direction;
             this.overrideType = overrideType;

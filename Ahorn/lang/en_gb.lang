@@ -321,13 +321,13 @@ placements.entities.VivHelper/RainbowTriggerSpikesUp.names.type=Texture
 placements.entities.VivHelper/RainbowTriggerSpikesLeft.names.type=Texture
 placements.entities.VivHelper/RainbowTriggerSpikesDown.names.type=Texture
 placements.entities.VivHelper/RainbowTriggerSpikesRight.names.type=Texture
-placements.entities.VivHelper/RainbowTriggerSpikesUp.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+placements.entities.VivHelper/RainbowTriggerSpikesUp.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Maddie's Helping Hand to work, and will throw an error in its absence.
 placements.entities.VivHelper/RainbowTriggerSpikesUp.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a normal spike, but cannot be animated.
-placements.entities.VivHelper/RainbowTriggerSpikesLeft.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+placements.entities.VivHelper/RainbowTriggerSpikesLeft.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Maddie's Helping Hand to work, and will throw an error in its absence.
 placements.entities.VivHelper/RainbowTriggerSpikesLeft.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a normal spike, but cannot be animated.
-placements.entities.VivHelper/RainbowTriggerSpikesRight.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+placements.entities.VivHelper/RainbowTriggerSpikesRight.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Maddie's Helping Hand to work, and will throw an error in its absence.
 placements.entities.VivHelper/RainbowTriggerSpikesRight.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a normal spike, but cannot be animated.
-placements.entities.VivHelper/RainbowTriggerSpikesDown.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Max's Helping Hand to work, and will throw an error in its absence.
+placements.entities.VivHelper/RainbowTriggerSpikesDown.tooltips.Grouped=Setting this to "Grouped" will trigger all spikes in the line if any spike in the line is triggered.\n"Grouped" requires Maddie's Helping Hand to work, and will throw an error in its absence.
 placements.entities.VivHelper/RainbowTriggerSpikesDown.tooltips.type=The texture that the trigger spikes will use. Can be customized the same way as a normal spike, but cannot be animated.
 
 placements.entities.VivHelper/CustomRefill.names.iStamina=Input Stamina

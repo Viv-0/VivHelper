@@ -26,11 +26,7 @@ Ahorn.editingOptions(entity::DreamMirrorNCS) = Dict{String, Any}(
 function frameFind(entity::DreamMirrorNCS)
     temp = get(entity.data, "FrameType", "default")
     frame = "VivHelper/MaddyBaddyMirror/dream_frame_"
-    if temp == "default"
-        return frame
-    else
-        return frame * temp
-    end
+    return frame * temp
 end
 
 function glassFind(entity::DreamMirrorNCS)

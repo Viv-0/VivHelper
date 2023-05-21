@@ -49,7 +49,7 @@ namespace VivHelper.Entities {
             SurfaceSoundIndex = SurfaceIndex.TileToIndex[tileType];
             flagBreak = data.Attr("FlagOnBreak", "");
             flagDisable = data.Attr("FlagToDisable", "");
-            audioEvent = data.Attr("AudioEvent", "event:/game/general/wall_break_stone");
+            audioEvent = data.Attr("AudioEvent", "gameDefault");
         }
 
         public override void Awake(Scene scene) {
@@ -89,7 +89,17 @@ namespace VivHelper.Entities {
 
         public void Break2(Vector2 from, Vector2 direction, bool playSound = true, bool playDebrisSound = true) {
             if (playSound) {
-                Audio.Play(audioEvent, Position);
+                if(audioEvent == "gameDefault") {
+                    if (tileType == '1') {
+                        Audio.Play("event:/game/general/wall_break_dirt", Position);
+                    } else if (tileType == '3') {
+                        Audio.Play("event:/game/general/wall_break_ice", Position);
+                    } else if (tileType == '9') {
+                        Audio.Play("event:/game/general/wall_break_wood", Position);
+                    } else {
+                        Audio.Play("event:/game/general/wall_break_stone", Position);
+                    }
+                } else Audio.Play(audioEvent, Position);
             }
             Collidable = false;
             if (VivHelperModule.Session.DebrisLimiter < 1f) {

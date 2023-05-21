@@ -1,6 +1,6 @@
 module VivHelperMultiContactTriggerSpikes
 using ..Ahorn, Maple
-
+ 
 @mapdef Entity "VivHelper/MultiContactTriggerSpikesUp" MultiContactTriggerSpikesUp(x::Integer, y::Integer, width::Integer=8, type::String="default", contactLimit::Integer=1)
 @mapdef Entity "VivHelper/MultiContactTriggerSpikesDown" MultiContactTriggerSpikesDown(x::Integer, y::Integer, width::Integer=8, type::String="default", contactLimit::Integer=1)
 @mapdef Entity "VivHelper/MultiContactTriggerSpikesLeft" MultiContactTriggerSpikesLeft(x::Integer, y::Integer, height::Integer=8, type::String="default", contactLimit::Integer=1)

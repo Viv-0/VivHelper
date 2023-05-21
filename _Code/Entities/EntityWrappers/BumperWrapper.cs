@@ -207,7 +207,7 @@ namespace VivHelper.Entities {
             if (ExplodeLaunchModifier.DetectFreeze) {
                 ExplodeLaunchModifier.ExplodeLaunchMaster(player, Position, false, false, this);
             }
-
+            var oldCooldown = DynamicData.For(player).Get<float>("dashCooldownTimer");
 
             ExplodeLaunchModifier.bumperWrapperType = 0;
             switch (setDashes) {
@@ -231,7 +231,7 @@ namespace VivHelper.Entities {
                     break;
             }
             player.Speed *= ExplodeMultiplier;
-            new DynData<Player>(player).Set<float>("dashCooldownTimer", newDashCooldown);
+            DynamicData.For(player).Set("dashCooldownTimer", newDashCooldown < 0 ? oldCooldown : newDashCooldown);
             if (SetToNormalState)
                 player.StateMachine.State = 0;
             if (RespawnTime >= 0f)

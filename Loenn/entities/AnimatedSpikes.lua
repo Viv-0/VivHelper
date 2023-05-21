@@ -46,7 +46,7 @@ local ret = {
         placements = {
             name = "main", data = {
                 version = 2,
-                width = 8, Color = "ffffff",
+                width = 16, Color = "ffffff",
                 directory = "danger/tentacles",
                 centerVert = true
                 }
@@ -68,7 +68,7 @@ local ret = {
         placements = {
             name = "main", data = {
                 version = 2,
-                height = 8, Color = "ffffff",
+                height = 16, Color = "ffffff",
                 directory = "danger/tentacles",
                 centerVert = true
                 }
@@ -90,7 +90,7 @@ local ret = {
         placements = {
             name = "main", data = {
                 version = 2,
-                width = 8, Color = "ffffff",
+                width = 16, Color = "ffffff",
                 directory = "danger/tentacles",
                 centerVert = true
                 }
@@ -112,7 +112,7 @@ local ret = {
         placements = {
             name = "main", data = {
                 version = 2,
-                height = 8, Color = "ffffff",
+                height = 16, Color = "ffffff",
                 directory = "danger/tentacles",
                 centerVert = true
                 }

@@ -149,15 +149,17 @@ namespace VivHelper.Entities {
 
 
         internal static Action ModifiedBoostAlarm(Action orig, BadelineBoost bb) {
-            if (!(bb is BadelineBoostCustom c))
+            if (bb is not BadelineBoostCustom c)
                 return orig;
             if (c.DashLogic == "D")
                 return orig;
+            if (VivHelper.GetPlayer() is not Player player)
+                return orig;
             return new Action(delegate {
-                int d = VivHelper.GetPlayer().Dashes;
-                orig();
-                VivHelper.GetPlayer().Dashes = d;
-            });
+                    int d = player?.Dashes ?? 0;
+                    orig();
+                    if(player!=null) player.Dashes = d; // Crash prevention
+                });
         }
         #endregion
 

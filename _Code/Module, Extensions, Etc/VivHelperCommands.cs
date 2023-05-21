@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework;
 using MonoMod.Utils;
 using System.Reflection;
+using VivHelper.Module__Extensions__Etc;
 
 namespace VivHelper {
     public class VivHelperCommands {
@@ -115,21 +116,6 @@ namespace VivHelper {
                 Engine.Commands.Log("Color grade changed.");
             }
         }
-        /*
-        [Command("advt", "A more advanced tracker system. Type \"adv_tracker help\" for a list of all use cases")]
-        private static void AdvTracker(string depth, int Ref = -1)
-        {
-            if (Engine.Scene == null)
-            {
-                Engine.Commands.Log("Current Scene is null!");
-                return;
-            }
-            switch (depth)
-            {
-                case "entities":
-                    
-            }
-        }*/
 
         [Command("get_entity_types", "Retrieves all entities that the mouse is currently touching and prints the entity type for each.\n[identifier] - Specifies to the subset of all entities that contain the identifier in their type name. It's recommended to keep the identifiers to helper names.\n[ignoreCollidable] - true or false, if true, ignores whether or not the entity currently collidable.")]
         private static void GetType(string identifier = null, bool ignoreCollidable = false) {

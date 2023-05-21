@@ -152,6 +152,7 @@ namespace VivHelper {
         public bool OverrideDashDirResetOnGround = true;
         // If true, when moving in a direction not straight down, you can jump on the ground to get a wavedash. RedBubbles do not do this, but regular dashes do
         public bool CanWavedashOut = true;
+        public bool LeaveWiggle = false;
 
         // Voodoo Magic
         // Allows for mods to use APIs to hook in extra behaviors, such as Shadow Dash, Sun Dash, Time Crystal, etc.

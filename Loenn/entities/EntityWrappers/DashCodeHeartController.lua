@@ -1,4 +1,5 @@
 local utils = require('utils')
+local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 
 local fields = {
      key="U,L,DR,UR,L,UL", CompleteFlag="DashCode", 
@@ -25,22 +26,24 @@ table.insert(DCHC.placements, getFields("Custom"))
 DCHC.ignoredFields = function(entity)
     local sT = entity.spawnType
     if sT == "LevelUp" then
-        return {"multipleCheck", "GlitchLength", "CustomParameters", "ClassName", "MethodName"}
+        return {"multipleCheck", "GlitchLength", "CustomParameters", "ClassName", "MethodName", "Name", "id"}
     elseif sT == "FlashSpawn" then
-        return {"multipleCheck", "GlitchLength", "nodes", "CustomParameters", "ClassName", "MethodName"}
+        return {"multipleCheck", "GlitchLength", "nodes", "CustomParameters", "ClassName", "MethodName", "Name", "id"}
     elseif sT == "GlitchSpawn" then
-        return {"multipleCheck", "Color", "nodes", "CustomParameters", "ClassName", "MethodName"}
+        return {"multipleCheck", "Color", "nodes", "CustomParameters", "ClassName", "MethodName", "Name", "id"}
     elseif sT == "Custom" then
-        return {"multipleCheck", "Color", "GlitchLength"}
+        return {"multipleCheck", "Color", "GlitchLength", "Name", "id"}
     else
-        return {"multipleCheck", "GlitchLength", "Color", "CustomParameters", "ClassName", "MethodName"}
+        return {"multipleCheck", "GlitchLength", "Color", "CustomParameters", "ClassName", "MethodName", "Name", "id"}
     end
 end
 DCHC.texture = "ahorn/VivHelper/heartCodeController"
 
 DCHC.fieldInformation = {
     key = {fieldType = "string", validator = function(s)
-        for _,ss in s:gmatch(',') do 
+        if vivUtil.isNullEmptyOrWhitespace(s) then return false end
+        for ss in vivUtil.split(s, ',') do 
+            if vivUtil.isNullEmptyOrWhitespace(ss) then return false end
             local t = string.upper(ss)
             if t ~= 'R' and t ~= 'UR' and
                t ~= 'U' and t ~= 'UL' and

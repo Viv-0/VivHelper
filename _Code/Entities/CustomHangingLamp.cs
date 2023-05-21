@@ -67,12 +67,11 @@ namespace VivHelper.Entities {
 
 
             //Base
-            sprite = new Sprite(GFX.Game, directory + "base"); //this is necessary to not produce one of the same sprite.
-            sprite.Position = Position;
-            sprite.AddLoop("main", q, AnimSpeed);
-            sprite.Origin.X = aW / 2;
-            sprite.Play("main");
-            sprites.Add(sprite);
+            Sprite @base = new Sprite(GFX.Game, directory + "base"); //this is necessary to not produce one of the same sprite.
+            @base.Position = Position;
+            @base.AddLoop("main", q, AnimSpeed);
+            @base.Origin.X = aW / 2;
+            @base.Play("main");
             for (int i = 0; i < Length - 8; i += bH) //Chains
             {
                 sprite = new Sprite(GFX.Game, directory + "chain");
@@ -90,6 +89,7 @@ namespace VivHelper.Entities {
             sprite.Origin.X = cW / 2;
             sprite.Origin.Y = -(Length - cH);
             sprite.Play("main");
+            sprites.Add(@base);
             sprites.Add(sprite);
 
             //Other
@@ -154,20 +154,12 @@ namespace VivHelper.Entities {
 
         public override void Render() {
             if (sprites.Count > 0) {
-                if (sprites.Count > 1) {
-                    for (int i = 1; i < sprites.Count; i++) {
-                        Sprite s = sprites[i];
-                        if (drawOutline) {
-                            s.DrawOutline();
-                        }
-                        s.Render();
-                    }
+                foreach(Image i in sprites) {
+                    i.DrawOutline();
                 }
-                //Draw base last.
-                if (drawOutline) {
-                    sprites[0].DrawOutline();
+                foreach (Image i in sprites) {
+                    i.Render();
                 }
-                sprites[0].Render();
             }
         }
     }

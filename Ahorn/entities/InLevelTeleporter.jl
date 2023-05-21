@@ -26,7 +26,7 @@ const placements = Ahorn.PlacementDict(
     "Same Room Teleporter + Entities (Viv's Helper)" => Ahorn.EntityPlacement(
         ILTP,
         "rectangle",
-        Dict{String,Any}(),
+        Dict{String,Any}("cooldownTime" => 0.05),
         function(entity)
             entity.data["nodes"] = [(Int(entity.data["x"] + entity.data["l"] + 8), Int(entity.data["y"] + 24))]
         end
@@ -36,7 +36,7 @@ const placements = Ahorn.PlacementDict(
         "rectangle",
         Dict{String,Any}(
             "Path" => "VivHelper/portal/portal",
-            "ParticleColor" => "Transparent"
+            "Color" => "White"
         ),
         function(entity)
             entity.data["nodes"] = [(Int(entity.data["x"] + entity.data["l"] + 8), Int(entity.data["y"] + 24))]
@@ -48,7 +48,7 @@ Ahorn.editingOptions(entity::ILTP) = Dict{String, Any}(
     "dir1" => Dict{String, String}("Up" => "Down", "Down" => "Up", "Left" => "Right", "Right" => "Left"),
     "dir2" => Dict{String, String}("Up" => "Down", "Down" => "Up", "Left" => "Right", "Right" => "Left"),
     "Path" => String["VivHelper/portal/portal"],
-    "ParticleColor" => VivHelper.XNAColors
+    "Color" => VivHelper.XNAColors
 )
 
 Ahorn.resizable(entity::ILTP) = false, false

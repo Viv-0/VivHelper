@@ -68,11 +68,21 @@ ittOC.placements = {
     }
 }
 
-local Target = { name = "VivHelper/TeleportTarget", placements = {
+local Target = { name = "VivHelper/TeleportTarget", placements = {{
         name = "main",
         data = {
             TargetID="Target", AddTriggerOffset=false, SetState="-1"
-        }
+        }},{
+        name = "custom",
+        data = {
+            TargetID="Target", AddTriggerOffset=false, SetState="-1",
+            RotationValue=0.0, RotateToAngle=false, RotateBeforeSpeedChange=false,
+            SpeedModifier="NoChange", SpeedChangeX=0.0, SpeedChangeY=0.0
+        }}
+    },
+    nodeLimits = {0,1},
+    fieldInformation = {
+        SpeedModifier = {fieldType = "string", options = {"NoChange","Add","Multiply","Set"}, editable = false}
     }
 }
 vh_tag.addTagControlToHandler(Target, "TargetID", "teleporttarget", true)
@@ -81,7 +91,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
     placements = {{
         name = "main",
         data = {
-            TargetID="Target", ExitDirection=15, RoomName = "",
+            TargetID="Target", ExitDirection=0, RoomName = "",
             RequiredFlags="", FlagsOnTeleport="",
             ResetDashes=false,
             BringHoldableThrough=false,
@@ -94,7 +104,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
     }, {
         name = "flash",
         data = {
-            TargetID="Target", ExitDirection=15, RoomName = "",
+            TargetID="Target", ExitDirection=0, RoomName = "",
             RequiredFlags="", FlagsOnTeleport="",
             ResetDashes=false,
             BringHoldableThrough=false,
@@ -109,7 +119,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
     }, {
         name = "lightning",
         data = {
-            TargetID="Target", ExitDirection=15, RoomName = "",
+            TargetID="Target", ExitDirection=0, RoomName = "",
             RequiredFlags="", FlagsOnTeleport="",
             ResetDashes=false,
             BringHoldableThrough=false,
@@ -127,7 +137,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
     }, {
         name = "glitch",
         data = {
-            TargetID="Target", ExitDirection=15, RoomName = "",
+            TargetID="Target", ExitDirection=0, RoomName = "",
             RequiredFlags="", FlagsOnTeleport="",
             ResetDashes=false,
             BringHoldableThrough=false,
@@ -145,7 +155,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
     }, {
         name = "wipe",
         data = {
-            TargetID="Target", ExitDirection=15, RoomName = "",
+            TargetID="Target", ExitDirection=0, RoomName = "",
             RequiredFlags="", FlagsOnTeleport="",
             ResetDashes=false,
             BringHoldableThrough=false,
@@ -211,24 +221,33 @@ Teleporter.fieldInformation = function(entity)
     Persistence = {options = {"None","OncePerRetry","OncePerMapPlay"}, editable = false} }
 
     if tt == "Flash" then 
-        ret["FlashColor"] = {fieldType = "color", allowXNAColors = true}
-        ret["FlashAlpha"] = {fieldType = "number", minimumValue = 0.0, maximumValue = 1.0 }
+        ret["FlashColor"] = {fieldType = "color", allowXNAColors = true, defaultValue = "fffffff"}
+        ret["FlashAlpha"] = {fieldType = "number", minimumValue = 0.0, maximumValue = 1.0, defaultValue = 1.0 }
+        entity.FlashColor = entity.FlashColor or "ffffffff"
+        entity.FlashAlpha = entity.FlashAlpha or 1.0
     elseif tt == "Lightning" then 
-        ret["LightningOffsetRange"] = {fieldType = "string",
+        ret["LightningOffsetRange"] = {fieldType = "string", defaultValue = "-130,130",
         validator = function(s)
             if not s or #s > 0 then return false end
             local _s = s:gmatch(",")
             return #_s ~= 2 and false or (tonumber(_s[1]:gsub("%s+", "")) ~= nil and tonumber(_s[2]:gsub("%s+", "")) ~= nil) 
         end
         }
-        ret["LightningCount"] = {fieldType = "integer"}
-        ret["LightningDelay"] = {fieldType = "number", minimumValue = 0.0 }
-        ret["LightningMaxDelay"] = {fieldType = "number", minimumValue = 0.0 }
+        ret["LightningCount"] = {fieldType = "integer", defaultValue = 2}
+        ret["LightningDelay"] = {fieldType = "number", minimumValue = 0.0, defaultValue = 0.25 }
+        ret["LightningMaxDelay"] = {fieldType = "number"}
+        entity.LightningOffsetRange = entity.LightningOffsetRange or "-130,130"
+        entity.LightningCount = entity.LightningCount or 2
+        entity.LightningDelay = entity.LightningDelay or 0.25
+        entity.LightningMaxDelay = entity.LightningMaxDelay or ""
     elseif tt == "Glitch" then 
-        ret["GlitchStrength"] = {fieldType = "number", minimumValue = 0.0, maximumValue = 1.0 }
+        ret["GlitchStrength"] = {fieldType = "number", minimumValue = 0.0, maximumValue = 1.0, defaultValue = 0.5 }
         -- TODO : Easer control option on StartingGlitchEase and EndingGlitchEase
-        ret["StartingGlitchDuration"] = {fieldType = "number", minimumValue = 0.0}
-        ret["EndingGlitchDuration"] = {fieldType = "number", minimumValue = 0.0}
+        ret["StartingGlitchDuration"] = {fieldType = "number", minimumValue = 0.0, defaultValue = 0.3}
+        ret["EndingGlitchDuration"] = {fieldType = "number", minimumValue = 0.0, defaultValue = 0.3}
+        entity.GlitchStrength = entity.GlitchStrength or 0.5
+        entity.StartingGlitchDuration = entity.StartingGlitchDuration or 0.3
+        entity.EndingGlitchDuration = entity.EndingGlitchDuration or 0.3
     end
     -- Flash, Shake
     
@@ -236,9 +255,7 @@ Teleporter.fieldInformation = function(entity)
     return ret     
 end
 Teleporter._vivh_finalizePlacement = function(room,layer,item) item.RoomName = room.name end
-Teleporter._vivh_replaceDrawTextFunc = function(room, item) 
-    
-end
+
 vh_tag.addTagControlToHandler(Teleporter, "TargetID", "teleporttarget", false)
 
 

@@ -9,11 +9,40 @@ using Monocle;
 using Microsoft.Xna.Framework;
 using VivHelper.Colliders;
 using VivHelper.Entities.Boosters;
+using System.Reflection;
+using VivHelper.Entities;
+using Mono.Cecil.Cil;
+using FMOD.Studio;
 
 namespace VivHelper.Module__Extensions__Etc {
 
     [ModExportName("VivHelperAPI")]
     public static class VivHelperAPI {
+        // Entity Muting segment
+        public static void SimpleEntityMuteMethod(MethodInfo info, bool isCoroutine) => EntityMuterComponent.HookMethodInfoWithAudioMute(info, isCoroutine, null);
+        public static void AdvancedEntityMuteMethod(MethodInfo info, bool isCoroutine, bool takeFromLocal, int argIdentifier) {
+
+            EntityMuterComponent.HookMethodInfoWithAudioMute(info, isCoroutine, new Tuple<Mono.Cecil.Cil.OpCode, object>[1] { new Tuple<OpCode, object>(takeFromLocal ? OpCodes.Ldloc : OpCodes.Ldarg, argIdentifier) });
+        }
+
+        public static void MuteAllAudioPoints(bool mute) => EntityMuterComponent.overrideMute = mute;
+
+        public static EventInstance AudioPlayWithMuteControl(Entity entity, string path, Vector2? position) {
+            EventInstance i = null;
+            if (position.HasValue) {
+                EntityMuterComponent.objPlayingAudio = entity;
+                i = Audio.Play(path, position.Value);
+                EntityMuterComponent.objPlayingAudio = null;
+            } else {
+                EntityMuterComponent.objPlayingAudio = entity;
+                i = Audio.Play(path);
+                EntityMuterComponent.objPlayingAudio = null;
+            }
+            return i;
+        }
+
+
+        //Polygonal code
         public static Collider ProducePolygonColliderFromPoints(Vector2[] pts, Entity owner) => new PolygonCollider(pts, owner, true);
         public static Vector2 GetCentroidOfNonComplexPolygon(Vector2[] pts) => PolygonCollider.GetCentroidOfNonComplexPolygon(pts);
 

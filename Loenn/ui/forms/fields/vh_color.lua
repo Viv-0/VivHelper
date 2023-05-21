@@ -44,7 +44,7 @@ end
 
 function colorField._MT.__index:fieldValid(...)
     local current = self:getValue()
-    local fieldEmpty = current == nil or #current == 0
+    local fieldEmpty = vivUtil.isNullEmptyOrWhitespace(current)
 
     if fieldEmpty then
         return self._allowEmpty
@@ -65,7 +65,7 @@ end
 -- Return the hex color of the XNA name if allowed
 -- Otherwise return the value as it is
 local function getXNAColorHex(element, value)
-    local fieldEmpty = value == nil or #value == 0
+    local fieldEmpty = vivUtil.isNullEmptyOrWhitespace(value)
 
     if fieldEmpty and element._allowEmpty then
         return fallbackHexColor
@@ -75,7 +75,7 @@ local function getXNAColorHex(element, value)
         local xnaColor = utils.getXNAColor(value or "")
 
         if xnaColor then
-            return vivUtil.argbToHex(unpack(xnaColor))
+            return vivUtil.colorToHex(unpack(xnaColor))
         end
     end
 
@@ -159,6 +159,10 @@ local function shouldShowMenu(element, x, y, button)
     return false
 end
 
+local function transformer(value)
+    if(#value > 6) then return string.reverse(value) else return value end
+end
+
 function colorField.getElement(name, value, options)
     local formField = {}
 
@@ -171,11 +175,11 @@ function colorField.getElement(name, value, options)
 
     local label = uiElements.label(options.displayName or name)
     local field = uiElements.field(value or fallbackHexColor, fieldChanged(formField)):with({
-        minWidth = minWidth,
-        maxWidth = maxWidth,
-        _allowXNAColors = allowXNAColors,
-        _allowEmpty = allowEmpty,
-        _allowRainbow = options.allowRainbow
+        ["minWidth"] = minWidth,
+        ["maxWidth"] = maxWidth,
+        ["_allowXNAColors"] = allowXNAColors,
+        ["_allowEmpty"] = allowEmpty,
+        ["_allowRainbow"] = options.allowRainbow,
     }):hook({
         draw = fieldDrawColorPreview
     })
@@ -214,6 +218,8 @@ function colorField.getElement(name, value, options)
     formField.name = name
     formField.initialValue = value
     formField.currentValue = value
+    formField.displayTransformer = transformer
+    formField.valueTransformer = transformer
     formField._allowXNAColors = allowXNAColors
     formField._allowEmpty = allowEmpty
     formField._allowRainbow = allowRainbow

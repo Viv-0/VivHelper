@@ -43,7 +43,7 @@ Ahorn.editingOptions(entity::spikesUnion) = Dict{String, Any}(
     "type" => spikeTypes,
     "Grouped" => Dict{String, Bool}(
         "Individual" => false,
-        "Grouped (Requires Max's Helping Hand)" => true
+        "Grouped (Requires Maddie's Helping Hand)" => true
     ),
     "Color" => VivHelper.XNAColors
 )

@@ -414,7 +414,7 @@ namespace VivHelper {
                 return defaultValue;
             if (self.Values[key] is int i) {
                 var vals = Enum.GetValues(typeof(T));
-                for (int h = 0; h < (vals?.Length ?? 0); h++) { int g = (int)vals.GetValue(h); if (g == i) return (T)Enum.Parse(typeof(T), (string)Enum.GetNames(typeof(T)).GetValue(h)); }
+                for (int h = 0; h < (vals?.Length ?? 0); h++) { int g = (int) vals.GetValue(h); if (g == i) return (T) Enum.Parse(typeof(T), (string) Enum.GetNames(typeof(T)).GetValue(h)); }
                 return defaultValue;
             } else {
                 if (Enum.TryParse<T>((string) self.Values[key], ignoreCase: true, out var result))
@@ -656,6 +656,22 @@ namespace VivHelper {
             else
                 return tracker.Entities[typeof(T)].Count();
         }
+
+        public static Entity FindFirst(this EntityList self, Type t) {
+            foreach (Entity e in self.getListOfEntities()) {
+                if (e.GetType() == t)
+                    return e;
+            }
+            return null;
+        }
+        public static void SetVolume(this SoundSource self, float volume) {
+            if (self == null)
+                return;
+            float vol = Calc.Clamp(volume, 0f, 1f);
+            EventInstance i = (EventInstance) EntityMuterComponent.SoundSource_instance.GetValue(self);
+            if (i != null && i.getVolume(out _, out float finalVol) == FMOD.RESULT.OK && finalVol != vol)
+                i.setVolume(vol);
+        }
     }
     public static class FastFieldInfoHelper {
         public static T CreateDynamicMethod<T>(string methodName, Action<ILProcessor> generator) where T : Delegate {
@@ -689,20 +705,5 @@ namespace VivHelper {
 
                 il.Emit(OpCodes.Ret);
             });
-
-        public static Entity FindFirst(this EntityList self, Type t) {
-            foreach (Entity e in self.getListOfEntities()) {
-                if (e.GetType() == t)
-                    return e;
-            }
-            return null;
-        }
-        public static void SetVolume(this SoundSource self, float volume) {
-            if(self == null) return;
-            float vol = Calc.Clamp(volume, 0f, 1f);
-            EventInstance i = (EventInstance)EntityMuterComponent.SoundSource_instance.GetValue(self);
-            if (i != null && i.getVolume(out _, out float finalVol) == FMOD.RESULT.OK && finalVol != vol)
-                i.setVolume(vol);
-        }
     }
 }

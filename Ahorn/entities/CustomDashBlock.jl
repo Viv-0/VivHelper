@@ -4,7 +4,8 @@ using ..Ahorn, Maple
 @mapdef Entity "VivHelper/CustomDashBlock" CustomDashBlock(x::Integer, y::Integer,
 width::Integer=8, height::Integer=8, tiletype::String="3",
 blendin::Bool=true, canDash::Bool=true, permanent::Bool=true,
-FlagOnBreak::String="", AudioEvent::String="event:/game/general/wall_break_stone"
+FlagOnBreak::String="", FlagToDisable::String="",
+AudioEvent::String="gameDefault", disableFallingBlocksBreak::Bool=false
 )
 
 const placements = Ahorn.PlacementDict(
@@ -18,7 +19,7 @@ const placements = Ahorn.PlacementDict(
 
 Ahorn.editingOptions(entity::CustomDashBlock) = Dict{String, Any}(
     "tiletype" => Ahorn.tiletypeEditingOptions(),
-    "AudioEvent" => String["event:/game/general/wall_break_dirt", "event:/game/general/wall_break_wood", "event:/game/general/wall_break_ice", "event:/game/general/wall_break_stone"]
+    "AudioEvent" => String["gameDefault","event:/game/general/wall_break_dirt", "event:/game/general/wall_break_wood", "event:/game/general/wall_break_ice", "event:/game/general/wall_break_stone"]
 )
 
 Ahorn.minimumSize(entity::CustomDashBlock) = 8, 8

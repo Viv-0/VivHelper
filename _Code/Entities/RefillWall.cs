@@ -50,6 +50,7 @@ namespace VivHelper.Entities {
         private Vector2 shake;
         private Shaker shaker;
         private float alpha;
+        private float RespawnTime;
 
         //Added Edges from Seeker Barrier and modified them as needed
         private class Edge {
@@ -142,6 +143,7 @@ namespace VivHelper.Entities {
             base.Collider = new Hitbox(data.Width, data.Height);
             alpha = data.Float("Alpha", 0f);
             alt = data.Bool("UseFullSprite", false);
+            RespawnTime = data.Float("RespawnTime", 2.5f);
         }
 
         public override void Added(Scene scene) {
@@ -270,13 +272,12 @@ namespace VivHelper.Entities {
                 Add(new Coroutine(RefillRoutine(player)));
 
                 colorStates = ColorStates.Outline;
-                respawnTimer = 2.5f;
+                respawnTimer = RespawnTime;
             }
         }
 
         private IEnumerator RefillRoutine(Player player) {
             Celeste.Celeste.Freeze(0.05f);
-            yield return null;
             level.Shake();
             Depth = 8999;
             yield return 0.05f;

@@ -56,6 +56,7 @@ namespace VivHelper.Entities {
             }
             Add(tiles);
             Add(new TileInterceptor(tiles, highPriority: true));
+            tiles.Alpha = cutout.Alpha = flag != "" && (Scene as Level).Session.GetFlag(flag) == inverted ? 0f : alpha;
         }
 
         public override void Update() {

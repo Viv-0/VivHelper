@@ -28,5 +28,6 @@ return {
     sprite = function(room,entity) return {
         require('structs.drawable_rectangle').fromRectangle("fill",entity.x,entity.y,entity.width,entity.height,{0.4,0.2,0.2,0.4}),
         require('structs.drawable_function').fromFunction(require('utils.drawing').printCenteredText, "SolidModifier [VivHelper]", entity.x,entity.y,entity.width,entity.height,nil,0.5)
-    } end
+    } end,
+    depth = -100000
 }

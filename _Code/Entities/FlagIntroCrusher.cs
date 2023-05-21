@@ -115,14 +115,5 @@ namespace VivHelper.Entities {
                 shake = v;
             }));
         }
-
-        public void orig_Added(Scene scene) {
-            base.Added(scene);
-            if (SceneAs<Level>().Session.GetLevelFlag("1") || SceneAs<Level>().Session.GetLevelFlag("0b")) {
-                Position = end;
-            } else {
-                Add(new Coroutine(Sequence()));
-            }
-        }
     }
 }

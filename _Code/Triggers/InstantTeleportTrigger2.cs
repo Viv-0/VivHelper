@@ -245,7 +245,7 @@ namespace VivHelper.Triggers {
             bringHoldableThrough = data.Bool("BringHoldableThrough");
             switch (transition) {
                 case TransitionType.ColorFlash:
-                    transitionInfo = new List<object>() { VivHelper.ColorFix(data.Attr("FlashColor")) * Calc.Clamp(data.Float("FlashAlpha"), 0f, 1f) };
+                    transitionInfo = new List<object>() { VivHelper.ColorFix(data.Attr("FlashColor")) * Calc.Clamp(data.Float("FlashAlpha", 1f), 0f, 1f) };
                     break;
                 case TransitionType.Lightning:
                     int c = data.Int("LightningCount", 2);
@@ -300,6 +300,9 @@ namespace VivHelper.Triggers {
             if (targetID.Trim() != "-") {
                 delayAwakeAction = true;
             }
+            else {
+                DelayedAwakeAction(scene);
+            }
             if ((scene as Level).Session.DoNotLoad.Contains(ID)) {
                 RemoveSelf();
             }
@@ -318,7 +321,7 @@ namespace VivHelper.Triggers {
                     List<LevelData> levels = session.MapData.Levels;
                     LevelData data = levels.FirstOrDefault(f => f.Name == specificRoom);
                     if (data != null) {
-                        if (data.Dummy)
+                        if (data.Dummy && ignoreIfDummy)
                             Collidable = false;
                         if (specificRoom == null || !VivHelper.IsValidRoomName(specificRoom, levels)) {
                             foreach (LevelData l in levels) {
@@ -347,7 +350,7 @@ namespace VivHelper.Triggers {
 
         public override void OnEnter(Player player) {
             base.OnEnter(player);
-
+            Console.WriteLine(flagsNeeded?.Length > 0 ? string.Join(",", flagsNeeded) : "empty or null");
             if (ExitDirection != 0) {
                 ///Code by Oppenheimer
 
@@ -378,6 +381,8 @@ namespace VivHelper.Triggers {
         }
 
         public override void OnLeave(Player player) {
+            if (player?.Dead ?? true)
+                return;
             if (ExitDirection != 0) {
                 base.OnLeave(player);
                 if (ExitDirection % 15 == 0 && (flagsNeeded == null || VivHelperModule.OldGetFlags(player.Scene as Level, flagsNeeded, "and"))) {
@@ -534,6 +539,11 @@ namespace VivHelper.Triggers {
         }
 
         public void Teleport(Player player, Level level) {
+            if (player?.Dead ?? true) {
+                Logger.Log(LogLevel.Info, nameof(VivHelperModule), "Attempted to Teleport but player is either dead or null.");
+                ClearTeleportFunction(level);
+                return; //Cancels on death
+            }
             Vector2 triggerOffset = player.TopLeft - TopLeft;
             LevelData levelData = level.Session?.MapData?.Get(specificRoom);
             if (setState == null) {
@@ -545,11 +555,6 @@ namespace VivHelper.Triggers {
             }
             EntityData teleportTargetData = levelData.Triggers.FirstOrDefault(e => e.Name == "VivHelper/TeleportTarget" && e.Attr("TargetID") == targetID);
 
-            if (player?.Dead ?? true) {
-                Console.WriteLine("Attempted to Teleport but player is either dead or null.");
-                ClearTeleportFunction(level);
-                return; //Cancels on death
-            }
             Facings facing = player.Facing;
             int newDashes = player.Dashes;
             Vector2 pDashDir = Vector2.Zero;
@@ -607,8 +612,11 @@ namespace VivHelper.Triggers {
                 Vector2? v = teleportTargetData.FirstNodeNullable(levelData.Position);
                 if (v.HasValue) {
                     level.Session.RespawnPoint = v.Value;
-                } else {
-                    level.Session.RespawnPoint = level.Session.GetSpawnPoint(levelData.Position + teleportTargetData.Position);
+                } else { try {
+                        level.Session.RespawnPoint = level.Session.GetSpawnPoint(levelData.Position + teleportTargetData.Position);
+                    } catch(ArgumentOutOfRangeException e) {
+                        level.Session.RespawnPoint = levelData.Position + teleportTargetData.Position + new Vector2(4,8);
+                    }
                 }
                 c = true;
             }

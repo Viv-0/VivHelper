@@ -10,11 +10,15 @@ using Microsoft.Xna.Framework;
 using Celeste.Mod.VivHelper;
 using MonoMod.Utils;
 using System.Reflection;
+using VivHelper.Module__Extensions__Etc;
+using System.Collections;
 
 namespace VivHelper.Entities {
     [Tracked]
     [CustomEntity("VivHelper/InLevelTeleporter")]
     public class InLevelTeleporter : Entity {
+
+        private static ParticleType P_Glow;
 
         public enum Directions { Up = 3, Down = 1, Left = 2, Right = 0 }
 
@@ -31,17 +35,20 @@ namespace VivHelper.Entities {
         private bool allActors; //Experimental. Why did I agree to do this?
         private bool legacy;
         private bool center, OHMod;
-        private List<Sprite> sprites = null;
+        private float cooldown;
+        private float CooldownTime = 0.05f;
+        private Vector2 particlePosition;
+        private Vector2 particleScope;
+        private float particleDir;
+        private Color particleColor;
 
 
-        public InLevelTeleporter(EntityData data, Vector2 offset) : this(data.Enum<Directions>("dir1", Directions.Up), data.Attr("flags1"), data.Float("sO1"), data.Int("l", 16), data.Bool("eO1"), data.Bool("allActors"), data.Bool("cW"), data.Int("NumberOfUses1", int.MaxValue), data.Attr("Audio", ""), data.Position + offset, data.Bool("legacy", true), data.Bool("center"), data.Bool("OutbackHelperMod"), data.Attr("Path"), data.Attr("ParticleColor", "Transparent")) {
+        public InLevelTeleporter(EntityData data, Vector2 offset) : this(data.Enum<Directions>("dir1", Directions.Up), data.Attr("flags1"), data.Float("sO1"), data.Int("l", 16), data.Bool("eO1"), data.Bool("allActors"), data.Bool("cW"), data.Int("NumberOfUses1", int.MaxValue), data.Attr("Audio", ""), data.Position + offset, data.Bool("legacy", true), data.Bool("center"), data.Bool("OutbackHelperMod"), data.Attr("Path"), data.Color("Color", Color.Transparent), data.Float("CooldownTime")) {
             Vector2 pos2 = data.Nodes[0] + offset;
-            pair = new InLevelTeleporter(data.Enum<Directions>("dir2", Directions.Up), data.Attr("flags2"), data.Float("sO2"), data.Int("l", 8), data.Bool("eO2"), data.Bool("allActors"), data.Bool("cW"), data.Int("NumberOfUses2", int.MaxValue), data.Attr("Audio", ""), pos2, data.Bool("legacy", true), data.Bool("center"), data.Bool("OutbackHelperMod"), data.Attr("Path"), data.Attr("ParticleColor", "Transparent"));
-
-
+            pair = new InLevelTeleporter(data.Enum<Directions>("dir2", Directions.Up), data.Attr("flags2"), data.Float("sO2"), data.Int("l", 8), data.Bool("eO2"), data.Bool("allActors"), data.Bool("cW"), data.Int("NumberOfUses2", int.MaxValue), data.Attr("Audio", ""), pos2, data.Bool("legacy", true), data.Bool("center"), data.Bool("OutbackHelperMod"), data.Attr("Path"), data.Color("Color", Color.Transparent),data.Float("CooldownTime"));
         }
         //You shouldn't ever use this in your code if you choose to inherit this class. This constructor is to make sure that the base of the portal is made, and then the other constructor builds both portals.
-        public InLevelTeleporter(Directions dir, string flags, float sOut, int length, bool eO, bool aA, bool cW, int use, string audio, Vector2 position, bool legacyTP, bool center, bool OOHMod, string spritePath, string particleColor) : base(position) {
+        public InLevelTeleporter(Directions dir, string flags, float sOut, int length, bool eO, bool aA, bool cW, int use, string audio, Vector2 position, bool legacyTP, bool center, bool OOHMod, string spritePath, Color particleColor, float cooldowntime) : base(position) {
             Direction = dir;
             Flags = flags.Split(',');
             speedOut = sOut;
@@ -72,50 +79,90 @@ namespace VivHelper.Entities {
             allActors = aA;
             legacy = legacyTP;
             this.center = center;
-            this.OHMod = OOHMod;
-
-            if (!string.IsNullOrWhiteSpace(spritePath)) {
+            OHMod = OOHMod;
+            CooldownTime = cooldowntime;
+            if (!string.IsNullOrWhiteSpace(spritePath) && particleColor != Color.Transparent) { // If the path isn't null, then we want to draw things "standardly"
+                float rot = (float) (Math.PI / 2) * (int) dir;
+                particlePosition = Position + Vector2.UnitX.Rotate(rot) * 15f + Vector2.UnitY.Rotate(rot) * (length-1) / ((int) dir % 3 == 0 ? 2 : -2);
+                particleScope = Vector2.UnitY.Rotate(rot) * (length-2) / 2;
+                particleDir = -rot;
+                this.particleColor = particleColor;
                 GFX.Game.PushFallback(null);
-                sprites = new List<Sprite>();
                 MTexture q = GFX.Game[spritePath];
-                if (q != null) {
-                    for (int a = 0; a < 3; a++) {
-                        MTexture r = q.GetSubtexture(0, 8 * a, 8, 8);
-                        Sprite s = new Sprite(GFX.Game, "");
-                        s.AddLoop("main", 0.06f, r);
-                        sprites.Add(s);
-
+                int lines = length / 8;
+                if (q != null) { // Single-image variation
+                    int num = q.Width / 8;
+                    for (int i = 0; i < lines; i++) {
+                        int yTilePosition;
+                        if (i == 0) {
+                            yTilePosition = 0;
+                        } else if (i == lines - 1) {
+                            yTilePosition = 2;
+                        } else {
+                            yTilePosition = 1;
+                        }
+                        Image image = new Image(q.GetSubtexture(0, yTilePosition * 8, 8, 8));
+                        image.Position = Vector2.UnitX.Rotate(rot) * 16 + Vector2.UnitY.Rotate(rot) * (-8*i + ((int)dir%3==0 ? length : 0));
+                        image.Rotation = rot + (float)Math.PI;
+                        image.Color = particleColor;
+                        Add(image);
                     }
                 } else {
                     List<MTexture> set = GFX.Game.GetAtlasSubtextures(spritePath);
                     if (set.Count != 0) {
-                        List<List<MTexture>> r = new List<List<MTexture>>() { new List<MTexture>(), new List<MTexture>(), new List<MTexture>() };
+                        List<MTexture>[] r = new List<MTexture>[3] { new List<MTexture>(), new List<MTexture>(), new List<MTexture>() };
 
                         foreach (MTexture t in set) {
                             r[0].Add(t.GetSubtexture(0, 0, 8, 8));
                             r[1].Add(t.GetSubtexture(0, 8, 8, 8));
                             r[2].Add(t.GetSubtexture(0, 16, 8, 8));
                         }
-                        for (int b = 0; b < 3; b++) {
-                            Sprite s = new Sprite(GFX.Game, "");
-                            s.AddLoop("main", 0.06f, r[b].ToArray());
-                            sprites.Add(s);
+                        MTexture[][] s = new MTexture[3][] { r[0].ToArray(), r[1].ToArray(), r[2].ToArray() };
+                        for (int i = 0; i < lines; i++) {
+                            int yTilePosition;
+                            if (i == 0) {
+                                yTilePosition = 0;
+                            } else if (i == lines - 1) {
+                                yTilePosition = 2;
+                            } else {
+                                yTilePosition = 1;
+                            }
+                            Sprite image = new Sprite(GFX.Game, "");
+                            image.Justify = Vector2.Zero;
+                            image.AddLoop("idle", 0.06f, s[yTilePosition]);
+                            image.Position = Vector2.UnitX.Rotate(rot) * 16 + Vector2.UnitY.Rotate(rot) * (-8 * i + ((int) dir % 3 == 0 ? length : 0));
+                            image.Rotation = rot + (float) Math.PI;
+                            image.Color = particleColor;
+                            Add(image);
                         }
                     }
                 }
-
+                GFX.Game.PopFallback();
             }
         }
 
         public override void Added(Scene scene) {
             base.Added(scene);
-            if (pair != null) { pair.pair = this; this.Scene.Add(pair); }
+            if (P_Glow == null)
+                P_Glow = new ParticleType(LightBeam.P_Glow) {
+                    SpeedMin = 8f,
+                    SpeedMax = 10f,
+                    LifeMin = 0.4f,
+                    LifeMax = 1.1f
+                };
+            if (pair != null) { pair.pair = this; scene.Add(pair); } 
+            else RemoveSelf();
         }
 
         public override void Update() {
             base.Update();
             Collidable = enabled = VivHelperModule.OldGetFlags(base.Scene as Level, Flags, "and");
-
+            if(cooldown > 0) {
+                cooldown -= Engine.DeltaTime;
+            }
+            if(particleColor != Color.Transparent &&  Scene.OnInterval(0.1f)) {
+                SceneAs<Level>().Particles.Emit(P_Glow, (int)Math.Ceiling(length/24f), particlePosition, particleScope, particleColor * 0.3f, particleDir);
+            }
             if (allActors) {
                 foreach (Actor actor in CollideAll<Actor>().Where((Entity a) => !(a is Player))) {
 
@@ -148,15 +195,8 @@ namespace VivHelper.Entities {
             }
         }
 
-        public override void Render() {
-            base.Render();
-            if (sprites != null) {
-
-            }
-        }
-
         protected virtual void OnPlayer(Player player) {
-            if (useCount < numOfUses) {
+            if (useCount < numOfUses && cooldown <= 0) {
                 useCount++;
                 switch (Direction) {
                     case Directions.Right:
@@ -181,13 +221,13 @@ namespace VivHelper.Entities {
                         }
                         break;
                 }
-
             }
         }
         protected void TeleportPlayer(Player player, float distance, Vector2 speed, Directions d) {
 
             Level l = SceneAs<Level>();
             if (l == null) { return; }
+            Vector2 cameraDifferential = l.Camera.Position - player.CameraTarget;
             if (legacy) {
                 switch (Direction) {
                     case Directions.Right:
@@ -216,10 +256,18 @@ namespace VivHelper.Entities {
                         break;
                 }
                 player.Position = player.Position.Ceiling();
+                player.CleanUpTriggers();
                 if (WiggleOutFail(player as Entity)) { player.Die(Vector2.Zero); return; }
                 player.Speed = SpeedMod(player, d);
                 if (cameraWarp) {
-                    CameraShit(player.Scene as Level, player);
+                    CameraShit(player.Scene as Level, player, cameraDifferential);
+                }
+                cooldown = CooldownTime;
+                if (!string.IsNullOrEmpty(audio))
+                    Audio.Play(audio, player.Position);
+                if(cooldown < 0) {
+                    cooldown = float.MaxValue;
+                    Add(new Coroutine(DisablePlayerCollision(player)));
                 }
             } else {
 
@@ -238,13 +286,27 @@ namespace VivHelper.Entities {
                             player.TopRight = new Vector2(Right - distance, Top);
                             break;
                     }
-                    if (WiggleOutFail(player as Entity)) { player.Die(Vector2.Zero); return; }
+                    if (WiggleOutFail(player)) { player.Die(Vector2.Zero); return; }
                     player.Speed = SpeedMod(player, d);
                     if (cameraWarp) {
-                        CameraShit(player.Scene as Level, player);
+                        CameraShit(player.Scene as Level, player, cameraDifferential);
+                    }
+                    cooldown = CooldownTime;
+                    if (!string.IsNullOrEmpty(audio))
+                        Audio.Play(audio, player.Position);
+                    if (cooldown < 0) {
+                        cooldown = float.MaxValue;
+                        Add(new Coroutine(DisablePlayerCollision(player)));
                     }
                 };
             }
+        }
+
+        private IEnumerator DisablePlayerCollision(Player player) {
+            while(Collide.Check(this, player)) {
+                yield return null;
+            }
+            cooldown = 0.02f;
         }
 
         private Vector2 SpeedMod(Player player, Directions d) //d == direction, Direction == portal.direction (if reading in OutbackHelper)
@@ -258,7 +320,7 @@ namespace VivHelper.Entities {
                 speed = speed.Rotate(anglediff);
                 speed *= -1f;
                 if (player.StateMachine.State == Player.StDash) {
-                    player.StateMachine.State = Player.StDummy;
+                    player.StateMachine.State = Player.StNormal;
                 }
                 //Optimized code
                 if (player.StateMachine.State != 5) {
@@ -283,12 +345,12 @@ namespace VivHelper.Entities {
             return speed + new Vector2(speedOut * (float) Math.Cos(Calc.Angle(speed)), speedOut * (float) Math.Sin(Calc.Angle(speed)));
         }
 
-        private void CameraShit(Level level, Player player) {
-            Vector2 camPos = player.Position;
-            Vector2 vector2 = new Vector2(player.X - 160f, player.Y - 90f);
-            camPos.X = MathHelper.Clamp(vector2.X, (float) level.Bounds.Left, (float) (level.Bounds.Right - 320));
-            camPos.Y = MathHelper.Clamp(vector2.Y, (float) level.Bounds.Top, (float) (level.Bounds.Bottom - 180));
-            level.Camera.Position = camPos;
+        private void CameraShit(Level level, Player player, Vector2 cameraDifferential) {
+            //Camera magic, this is such a dumb strategy but it works
+            foreach (Trigger trigger in level.Tracker.GetEntities<Trigger>().Where(t => Collide.Check(player, t) && t.GetType().Name.IndexOf("camera", StringComparison.OrdinalIgnoreCase) > -1)) {
+                VivHelper.PlayerTriggerCheck(player, trigger);
+            }
+            level.Camera.Position = player.CameraTarget + cameraDifferential;
         }
 
         private bool WiggleOutFail(Entity entity) {
@@ -349,6 +411,8 @@ namespace VivHelper.Entities {
                     entity.TopRight = new Vector2(Right - distance, Top);
                     break;
             }
+            if (!string.IsNullOrEmpty(audio))
+                Audio.Play(audio, entity.Position);
             if (WiggleOutFail(entity)) { entity.RemoveSelf(); return Vector2.Zero; }
             return speed + new Vector2(speedOut * (float) Math.Cos(Calc.Angle(speed)), speedOut * (float) Math.Sin(Calc.Angle(speed)));
         }

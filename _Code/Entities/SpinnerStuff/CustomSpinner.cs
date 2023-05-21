@@ -492,7 +492,7 @@ namespace VivHelper.Entities {
              * where:
              *	: ; = Separators
              *	T = Type: C for circle, R for Rect.
-             *	U = Parameter: for C: r for radius, for R: <w,h>
+             *	U = AudioParam: for C: r for radius, for R: <w,h>
              *	V = Position offset from Center.
              *	using * before a number as an ignore scale definer.
              *	using a p @ before a number n means (p + n)

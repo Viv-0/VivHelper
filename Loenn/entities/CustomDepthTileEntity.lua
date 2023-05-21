@@ -1,4 +1,5 @@
-local fakeTilesHelper = require("helpers.fake_tiles")
+local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
+local fakeTilesHelper = require('helpers.fake_tiles')
 
 local depthTileEntity = {}
 
@@ -11,12 +12,15 @@ depthTileEntity.placements = {
         Depth = -10000,
         width = 8,
         height = 8
-    }, fieldInformation = {
-        Depth = {fieldType = "integer"}
     }
 }
 
+
 depthTileEntity.sprite = fakeTilesHelper.getEntitySpriteFunction("tiletype", false)
-depthTileEntity.fieldInformation = fakeTilesHelper.getFieldInformation("tiletype")
+depthTileEntity.fieldInformation = function(entity)
+    local orig = fakeTilesHelper.getFieldInformation("tiletype")(entity)
+    orig["Depth"] = {fieldType = "integer"}
+    return orig
+end
 
 return depthTileEntity

@@ -294,6 +294,7 @@ namespace VivHelper {
 
         public override void Load() {
             StoredTypesByName = new Dictionary<string, Type>();
+            //On.Celeste.GameLoader.Begin += LateInitialize;
             On.Celeste.Leader.Update += newLeaderUpdate;
             On.Celeste.TouchSwitch.ctor_Vector2 += AddCustomSeekerCollision;
             On.Celeste.Player.ctor += Player_ctor;
@@ -315,7 +316,7 @@ namespace VivHelper {
             Everest.Events.Level.OnLoadBackdrop += Level_OnLoadBackdrop;
             On.Celeste.Level.LoadLevel += Level_LoadLevel;
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
-            IL.Celeste.LevelLoader.LoadingThread += Level_LoadingThread;
+            Everest.Events.LevelLoader.OnLoadingThread += LoadingThreadMod;
             CornerBoostCassetteBlock.Load();
             SolidModifierComponent.Load();
             EntityMuterComponent.Load();
@@ -364,10 +365,7 @@ namespace VivHelper {
             base.LoadContent(firstLoad);
             spriteBank = new SpriteBank(GFX.Game, "Graphics/VivHelper/Sprites.xml");
 
-            if (Everest.Loader.TryGetDependency(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.16.5" }, out mhhModule)) {
-                maxHelpingHandLoaded = true;
-                
-            }
+            maxHelpingHandLoaded = Everest.Loader.TryGetDependency(new EverestModuleMetadata { Name = "MaxHelpingHand", VersionString = "1.16.5" }, out mhhModule);
             extVariantsLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "ExtendedVariantMode", VersionString = "0.21.0" });
             /*gravityHelperLoaded = Everest.Loader.DependencyLoaded(new EverestModuleMetadata { Name = "GravityHelper", VersionString = "1.1.10" });
             if (gravityHelperLoaded) {
@@ -480,6 +478,7 @@ namespace VivHelper {
         }
 
         public override void Unload() {
+            //On.Celeste.GameLoader.Begin -= LateInitialize;
             On.Celeste.Leader.Update -= newLeaderUpdate;
             On.Celeste.TouchSwitch.ctor_Vector2 -= AddCustomSeekerCollision;
             On.Celeste.Player.ctor -= Player_ctor;
@@ -501,7 +500,7 @@ namespace VivHelper {
             Everest.Events.Level.OnLoadBackdrop -= Level_OnLoadBackdrop;
             On.Celeste.Level.LoadLevel -= Level_LoadLevel;
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
-            IL.Celeste.LevelLoader.LoadingThread -= Level_LoadingThread; //Modified call to resolve rare Scene EntityList lock scenario
+            Everest.Events.LevelLoader.OnLoadingThread -= LoadingThreadMod;
             CornerBoostCassetteBlock.Unload();
             SolidModifierComponent.Unload();
             EntityMuterComponent.Unload();
@@ -520,7 +519,7 @@ namespace VivHelper {
             CustomSeeker.Unload();
 
             BoostFunctions.Unload();
-            Module__Extensions__Etc.TeleportV2Hooks.Unload();
+            TeleportV2Hooks.Unload();
             Collectible.Unload();
             On.Celeste.Mod.Meta.MapMeta.ApplyTo -= parseCustomWipes;
             WrappableCrushBlockReskinnable.Unload();
@@ -532,6 +531,35 @@ namespace VivHelper {
             IL.Monocle.Commands.UpdateClosed -= Commands_UpdateClosed;
 
             BronzeBerry.Unload();
+        }
+        /// <summary>
+        /// This is the omega-cursed content section. Do not do this, and if you do, talk to me first so I can help you not suffer.
+        /// This is how I manage to copy contents of methods to other methods.
+        /// </summary>
+        private static void LateInitialize(On.Celeste.GameLoader.orig_Begin orig, GameLoader self) {
+            orig(self);
+            using (new DetourContext { After = { "*" } }) {
+                IL.Celeste.Player.WallJumpCheck += NOTAHOOK; // This copies the contents of the ILContext MethodBody to the new method. This is as cursed as it looks.
+            }
+        }
+
+        private static void NOTAHOOK(ILContext il) {
+            DynamicMethodDefinition dmd = new DynamicMethodDefinition("VivHelper._playerwjc_yieldnum", typeof(int), new Type[] { typeof(Player), typeof(int) });
+            var gen = dmd.GetILProcessor();
+            foreach (VariableDefinition v in il.Body.Variables) {
+                gen.Body.Variables.Add(new VariableDefinition(v.VariableType)); //deepcopy
+            }
+            ILCursor cursor = new(il);
+            List<Instruction> instrs = new List<Instruction>();
+            cursor.Index = 0;
+            while (!((cursor.Previous?.MatchLdarg(0) ?? false) && (cursor.Previous?.Previous?.MatchStloc(0) ?? false) && (cursor.Previous?.Previous?.Previous?.MatchLdcI4(5) ?? false))) {
+                gen.Append(cursor.Next);
+                cursor.Index++;
+            }
+            gen.Emit(OpCodes.Pop);
+            gen.Emit(OpCodes.Ldloc_0);
+            gen.Emit(OpCodes.Ret);
+            VivHelper.player_WallJumpCheck_getNum = (Func<Player, int, int>) dmd.Generate().CreateDelegate<Func<Player, int, int>>();
         }
 
         private static void Scene_BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
@@ -571,7 +599,7 @@ namespace VivHelper {
             }
         }
 
-        private void Debris_Added(On.Celeste.Debris.orig_Added orig, Debris self, Scene scene) {
+        private void Debris_Added(On.Celeste.Debris.orig_Added orig, Celeste.Debris self, Scene scene) {
             orig(self, scene);
             if (Session.DebrisLimiter == 1) { self.RemoveSelf(); return; } else if (Session.DebrisLimiter > 0) {
                 if (!Calc.Chance(Calc.Random, Session.DebrisLimiter)) { self.RemoveSelf(); }
@@ -675,35 +703,29 @@ namespace VivHelper {
         public static void BreakHook(On.Celeste.DashBlock.orig_Break_Vector2_Vector2_bool_bool orig, DashBlock self, Vector2 a, Vector2 b, bool c, bool d) {
             if (self is CustomDashBlock) { (self as CustomDashBlock).Break2(a, b, c, d); } else { orig(self, a, b, c, d); }
         }
-
-        private static void Level_LoadingThread(ILContext il) {
-            ILCursor cursor = new ILCursor(il);
-            cursor.GotoNext(instr => instr.MatchRet());
-            if (cursor.TryGotoPrev(instr => instr.MatchLdarg(0), instr => instr.MatchLdcI4(1), instr => instr.MatchCallvirt<LevelLoader>("set_Loaded"))) {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<LevelLoader>>(LoadingThreadMod);
-            }
-        }
-
-        private static void LoadingThreadMod(LevelLoader self) {
+        private static void LoadingThreadMod(Level Level) {
             if (UnloadTypesWhenTeleporting == null)
                 UnloadTypesWhenTeleporting = new Type[] { typeof(FlingBird), VivHelper.GetType("Celeste.Mod.JackalHelper.Entities.BraveBird", false), VivHelper.GetType("Celeste.Mod.JackalHelper.Entities.AltBraveBird", false) };
             //Add all of the HelperEntities
-            if (!(self.Level.Entities.ToAdd.Contains(HelperEntities.AllUpdateHelperEntity) || self.Level.Entities.Contains(HelperEntities.AllUpdateHelperEntity))) {
+            if (!(Level.Entities.ToAdd.Contains(HelperEntities.AllUpdateHelperEntity) || Level.Entities.Contains(HelperEntities.AllUpdateHelperEntity))) {
                 HelperEntities.AllUpdateHelperEntity = new HelperEntity() { Tag = Tags.FrozenUpdate | Tags.Persistent | Tags.PauseUpdate | Tags.Global | Tags.PauseUpdate };
-                self.Level.Add(HelperEntities.AllUpdateHelperEntity);
+                Level.Add(HelperEntities.AllUpdateHelperEntity);
             }
             //Holdable Barrier Renderer addition
-            List<LevelData> Levels = self.Level.Session?.MapData?.Levels ?? null;
+            List<LevelData> Levels = Level.Session?.MapData?.Levels ?? null;
             if (Levels == null)
                 return;
-            SceneryAdder.LoadingThreadAddendum(Levels, self.Level);
+            VivHelperModule.Session.FFDistance = VivHelperModule.Settings.FFDistance;
+            VivHelperModule.Session.FPDistance = VivHelperModule.Settings.FPDistance;
+            VivHelperModule.Session.MakeClose = VivHelperModule.Settings.MakeClose;
+            SceneryAdder.LoadingThreadAddendum(Levels, Level);
             foreach (LevelData level in Levels) {
                 if (level.Entities == null)
                     continue;
                 bool collCont = false;
                 bool hbR = false;
                 bool cbdR = false;
+                bool cpmh = false;
                 bool gbfC = false;
                 bool sG = false;
                 if (level.BgDecals?.Any(b => b.Texture.StartsWith("VivHelper/coins/")) ?? false || (level.FgDecals?.Any(b2 => b2.Texture.StartsWith("VivHelper/coins/")) ?? false)) {
@@ -714,15 +736,24 @@ namespace VivHelper {
                         }
 
                     }
-                    self.Level.Add(new CollectibleController(datas));
+                    Level.Add(new CollectibleController(datas));
                 }
                 foreach (EntityData entity in level.Entities) {
                     if (entity.Name == "VivHelper/HoldableBarrier" && !hbR) {
-                        self.Level.Add(new HoldableBarrierRenderer());
+                        Level.Add(new HoldableBarrierRenderer());
                         hbR = true;
                     } else if (entity.Name == "VivHelper/CrystalBombDetonator" && !cbdR) {
-                        self.Level.Add(new CrystalBombDetonatorRenderer());
+                        Level.Add(new CrystalBombDetonatorRenderer());
                         cbdR = true;
+                    /*} else if (entity.Name == "VivHelper/CustomPauseMenuHeader" && !cpmh) {
+                        List<EntityData> datas = new List<EntityData>();
+                        foreach (LevelData l in Levels) {
+                            if (l.Entities != null) {
+                                datas.AddRange(l.Entities.Where(e => e.Name == "VivHelper/CustomPauseMenuHeader"));
+                            }
+                        }
+                        cpmh = true;
+                        self.Level.Add(new );*/
                     } else if (!collCont && (entity.Name == "VivHelper/CollectibleGroup" || entity.Name == "VivHelper/Collectible")) {
                         List<EntityData> datas = new List<EntityData>();
                         foreach (LevelData l in Levels) {
@@ -731,12 +762,12 @@ namespace VivHelper {
                             }
                         }
                         collCont = true;
-                        self.Level.Add(new CollectibleController(datas));
+                        Level.Add(new CollectibleController(datas));
                     } else if (entity.Name == "VivHelper/GoldenBerryToFlag" && !gbfC) {
-                        self.Level.Add(new GoldenBerryFlagController());
+                        Level.Add(new GoldenBerryFlagController());
                         gbfC = true;
                     } else if (entity.Name == "VivHelper/PreviousBerriesToFlag") {
-                        Session session = self.Level.Session;
+                        Session session = Level.Session;
                         AreaKey area = session.Area;
                         AreaModeStats areaModeStats = Celeste.SaveData.Instance.Areas_Safe[area.ID].Modes[(int) area.Mode];
                         ModeProperties modeProperties = AreaData.Get(area).Mode[(int) area.Mode];
@@ -760,12 +791,14 @@ namespace VivHelper {
 
                             }
                         }
+                    } else if (mutingObjects.Contains(entity.Name)) {
+                        VivHelperModule.Session.MakeChangesToAudioSet(entity);
                     }
                 }
             }
-            SpawnPointHooks.AddLevelInfoCache(self.Level.Session);
+            SpawnPointHooks.AddLevelInfoCache(Level.Session);
         }
-
+        private static string[] mutingObjects = new string[] { "VivHelper/SoundMuter", "VivHelper/SoundReplacer" };
         private static string[] rainbowObjects = new string[] {"VivHelper/CustomSpinnerV2", "VivHelper/CustomSpinner", "VivHelper/AnimatedSpinner",
         "VivHelper/RainbowSpikesUp", "VivHelper/RainbowSpikesDown", "VivHelper/RainbowSpikesLeft", "VivHelper/RainbowSpikesRight",
         "VivHelper/RainbowTriggerSpikesUp", "VivHelper/RainbowTriggerSpikesDown", "VivHelper/RainbowTriggerSpikesLeft", "VivHelper/RainbowTriggerSpikesRight"};
@@ -810,9 +843,9 @@ namespace VivHelper {
 
         private Backdrop Level_OnLoadBackdrop(MapData map, BinaryPacker.Element child, BinaryPacker.Element above) {
             if (child.Name.Equals("VivHelper/WindRainFG", StringComparison.OrdinalIgnoreCase))
-                return new WindRainFG(new Vector2(child.AttrFloat("scrollx"), child.AttrFloat("scrolly")), child.Attr("colors"), child.AttrFloat("windStrength"));
+                return new WindRainFG(new Vector2(child.AttrFloat("Scrollx"), child.AttrFloat("Scrolly")), child.Attr("colors"), child.AttrFloat("windStrength"));
             else if (child.Name.Equals("VivHelper/CustomRain", StringComparison.OrdinalIgnoreCase))
-                return new CustomRain(new Vector2(child.AttrFloat("scrollx"), child.AttrFloat("scrolly")), child.AttrFloat("angle", 270f), child.AttrFloat("angleDiff", 3f), child.AttrFloat("speedMult", 1f), child.AttrInt("Amount", 240), child.Attr("colors", "161933"), child.AttrFloat("alpha"));
+                return new CustomRain(new Vector2(child.AttrFloat("Scrollx"), child.AttrFloat("Scrolly")), child.AttrFloat("angle", 270f), child.AttrFloat("angleDiff", 3f), child.AttrFloat("speedMult", 1f), child.AttrInt("Amount", 240), child.Attr("colors", "161933"), child.AttrFloat("alpha"));
             return null;
         }
 
@@ -849,11 +882,6 @@ namespace VivHelper {
 
         private static void Player_WallJumpCheck(ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            //Look if we really need to add force-found indices here then I'll fix this part but do we *really* need to? It's not like someone's going to be foolish enough to add their variable in not at the end of the variable list, and if they do then the community will yell at them, right? Especially on WallJumpCheck.
-
-            //CornerBoostComponent
-            VariableDefinition varDef = new VariableDefinition(il.Import(typeof(Vector2)));
-            il.Body.Variables.Add(varDef);
             ILLabel returnFalse = null, label1 = null;
             int flagIndex = 0;
             cursor.GotoNext(MoveType.Before, i => i.MatchCallvirt<Player>("ClimbBoundsCheck"), i => i.MatchBrfalse(out returnFalse));
@@ -861,46 +889,15 @@ namespace VivHelper {
             if (cursor.TryGotoNext(MoveType.Before, i => i.MatchLdloc(out flagIndex), i => i.MatchBrfalse(out label1)) && cursor.TryGotoPrev(MoveType.After, i => i.MatchStloc(flagIndex))) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldarg_1);
-                cursor.EmitDelegate<Func<Player, int, bool>>((p, d) => RestrictingEntityHooks.AddWallCheck(p, d));
+                cursor.Emit(OpCodes.Call, typeof(RestrictingEntityHooks).GetMethod("AddWallCheck"));
                 cursor.Emit(OpCodes.Brtrue, returnFalse);
                 //Custom Spike block wallbounces
                 cursor.GotoLabel(label1);
                 cursor.GotoNext(MoveType.Before, i => i.MatchBrfalse(out _));
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldarg_1);
-                cursor.EmitDelegate<Func<bool, Player, int, bool>>((b, p, d) => CustomSpike.AddWallCheck(p, b, d));
-                //CornerBoostBlock info
-                if (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchCall("Monocle.Entity", "System.Boolean CollideCheck<Celeste.Solid>(Microsoft.Xna.Framework.Vector2)"))) {
-                    cursor.Emit(OpCodes.Stloc, varDef);
-                    cursor.Emit(OpCodes.Ldloc, varDef);
-                    cursor.Index++;
-                    cursor.Emit(OpCodes.Ldarg_0);
-                    cursor.Emit(OpCodes.Ldloc, varDef);
-                    cursor.EmitDelegate<Func<bool, Player, Vector2, bool>>((b, player, v) => {
-                        if (b)
-                            return true;
-                        else
-                            return ModifiedSolidCollideCheck(player, v);
-                    }); //replaces it with my modified collide check which works with CornerBoost Components.
-                }
+                cursor.Emit(OpCodes.Call, typeof(CustomSpike).GetMethod("AddWallCheck"));
             }
-
-        }
-        private static bool ModifiedSolidCollideCheck(Player player, Vector2 at) {
-
-            bool a = false;
-            Vector2 position = player.Position;
-            player.Position = at;
-            foreach (Solid solid in player.Scene.Tracker.Entities[typeof(Solid)]) {
-                if (solid.Get<SolidModifierComponent>() != null)
-                    a |= SolidModifierComponent.WJ_CollideCheck(solid, player, solid.Get<SolidModifierComponent>().CornerBoostBlock);
-                else
-                    a |= player.CollideCheck(solid);
-                if (a)
-                    break;
-            }
-            player.Position = position;
-            return a;
         }
 
         private void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
@@ -947,10 +944,10 @@ namespace VivHelper {
         }
 
         public static float getFPDistance() {
-            return (float) (Settings.FPDistance < 1 ? 0.1f : Settings.FPDistance / 10f);
+            return (float) (Session.FPDistance < 1 ? 0.1f : Session.FPDistance / 10f);
         }
         public static int getFFDistance() {
-            return Settings.FFDistance < 1 ? 1 : Settings.FFDistance;
+            return Session.FFDistance < 1 ? 1 : Session.FFDistance;
         }
 
         public static RoomWrapController FindWC(Scene scene) {
@@ -995,7 +992,7 @@ namespace VivHelper {
             return new int[] { 2, 5, VivHelperModule.OrangeState, VivHelperModule.WindBoostState, VivHelperModule.PinkState, VivHelperModule.CustomDashState }.Contains(state);
         }
 
-        // Used to maintain compatibility for Rainbow stuff with Max's Helping Hand RainbowSpinnerColorController
+        // Used to maintain compatibility for Rainbow stuff with Maddie's Helping Hand RainbowSpinnerColorController
         public static CrystalStaticSpinner crystalSpinner;
 
         public static float MagicStaminaFix() { return 110f; } //Right now this isn't useful, but it will be in the future, if any mod caps stamina over 110.
@@ -1011,6 +1008,7 @@ namespace VivHelper {
             VivHelper.player_SuperWallJump = typeof(Player).GetMethod("SuperWallJump", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
             VivHelper.player_Pickup = typeof(Player).GetMethod("Pickup", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
             VivHelper.player_DustParticleFromSurfaceIndex = typeof(Player).GetMethod("DustParticleFromSurfaceIndex", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
+            VivHelper.player_IsTired = typeof(Player).GetMethod("get_IsTired", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
         }
 
         private void Commands_UpdateClosed(ILContext il) {

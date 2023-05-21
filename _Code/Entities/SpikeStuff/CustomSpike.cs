@@ -27,17 +27,17 @@ namespace VivHelper.Entities {
     //A wrapper class for Custom Spikes so that we can add one IL hook to deal with all spiked wall wallbounces. Does not work for non-cardinal spikes.
     [Tracked(true)]
     public class CustomSpike : Entity {
-        public static bool AddWallCheck(Player player, bool flag, int dir) {
+        public static bool AddWallCheck(bool prev, Player player, int dir) {
             if (!player.Scene.Tracker.Entities.ContainsKey(typeof(CustomSpike)))
-                return flag;
+                return prev;
             int q = dir <= 0 ? 8 : 4;
             foreach (CustomSpike entity in player.Scene.Tracker.GetEntities<CustomSpike>()) {
                 if ((((int) entity.Direction & q) > 0) && player.CollideCheck(entity, player.Position + Vector2.UnitX * dir * 5f) && !entity.CanWallbounce) {
-                    flag = false;
+                    prev = false;
                     break;
                 }
             }
-            return flag;
+            return prev;
         }
 
         public bool CanWallbounce;

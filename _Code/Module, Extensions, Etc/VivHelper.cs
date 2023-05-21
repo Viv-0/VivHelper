@@ -260,15 +260,16 @@ namespace VivHelper {
                 assignableList.Add(minimumAssignableSubset);
             } else {
                 string[] strings = TypeSet.Split(',');
-                foreach (string s in strings) {
+                foreach (string _s in strings) {
+                    string s = _s.Trim();
                     if (s.StartsWith("*")) {
                         Type t = VivHelper.GetType(s.Substring(1), false);
-                        if (t != null && minimumAssignableSubset.IsAssignableFrom(t)) {
+                        if (t != null && (minimumAssignableSubset?.IsAssignableFrom(t) ?? true)) {
                             assignableList.Add(t);
                         }
                     } else {
                         Type t = VivHelper.GetType(s, false);
-                        if (t != null && minimumAssignableSubset.IsAssignableFrom(t)) {
+                        if (t != null && (minimumAssignableSubset?.IsAssignableFrom(t) ?? true)) {
                             exactList.Add(t);
                         }
                     }
@@ -293,9 +294,15 @@ namespace VivHelper {
         public static bool MatchTypeFromTypeSet(Type t, IEnumerable<Type> exactList, IEnumerable<Type> assignableList) {
             if (t == null)
                 return false;
-            if (exactList.Any(e => e == t))
-                return true;
-            return assignableList.Any(e => e.IsAssignableFrom(t)); // I have had so many fucking issues with this code.  
+            foreach(Type u in exactList) {
+                if (t == u)
+                    return true;
+            }
+            foreach(Type v in assignableList) {
+                if (v?.IsAssignableFrom(t) ?? false)
+                    return true;
+            }
+            return false; // I have had so many fucking issues with this code.  
         }
 
         public static Dictionary<string, Func<int>> IntParserEntityValues_Default(this Entity e) {
@@ -399,8 +406,6 @@ namespace VivHelper {
             if (parseSpecialValues.ContainsKey(number.Trim())) { value = parseSpecialValues[number.Trim()].Invoke(); return true; }
             return float.TryParse(number.Trim(), out value);
         }
-
-
 
 
         private static FieldInfo player_triggersInside = typeof(Player).GetField("triggersInside", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -511,13 +516,12 @@ namespace VivHelper {
                 Engine.Commands.Log(input + (Celeste.Celeste.PlayMode != Celeste.Celeste.PlayModes.Debug ? "Type q and press [ENTER] to exit." : ""));
             }
         }
-
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static void ForceEntitySetScene(Entity self) => _forceEntitySetScene(self);
         public static Action<Entity> _forceEntitySetScene => ForceEntitySetSceneIL();
-
+        public static Func<Player, int, int> player_WallJumpCheck_getNum;
 
         #region ILMethods
-
         private static Action<Entity> ForceEntitySetSceneIL() {
             string methodName = "VivHelper.ForceEntitySetScene";
             DynamicMethodDefinition method = new DynamicMethodDefinition(methodName, typeof(void), new Type[] { typeof(Entity) });
@@ -610,6 +614,7 @@ namespace VivHelper {
         public static FastReflectionDelegate player_WallJump;
         public static FastReflectionDelegate player_Pickup;
         public static FastReflectionDelegate player_DustParticleFromSurfaceIndex;
+        public static FastReflectionDelegate player_IsTired;
 
         public static bool RectToRect(Rectangle a, Rectangle b) {
             if (a.Right > b.Left && a.Bottom > b.Top && a.Left < b.Right) {

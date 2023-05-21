@@ -94,7 +94,7 @@ function pathField.getElement(name, value, options)
     options.validator = function(filename)
         local rawFilename = filename
         local prefix = ""
-        local fieldEmpty = filename == nil or #filename == 0
+        local fieldEmpty = vivUtil.isNullEmptyOrWhitespace(filename)
 
         if fieldEmpty then
             return allowEmpty ~= false

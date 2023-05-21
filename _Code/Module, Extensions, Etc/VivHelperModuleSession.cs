@@ -13,10 +13,16 @@ using VivHelper.Entities.Boosters;
 using VivHelper.Entities.SeekerStuff;
 using VivHelper.Triggers;
 using Microsoft.Xna.Framework.Graphics;
+using FMOD.Studio;
+using System.Text.RegularExpressions;
 
 namespace VivHelper {
     public class VivHelperModuleSession : EverestModuleSession {
-
+        public enum DemoDashDisabler {
+            Off = 0,
+            DisableBind = 1,
+            DisableAll = 2,
+        }
 
         public class HoldableBarrierCh {
             public string particleColorHex { get; set; }
@@ -89,6 +95,35 @@ namespace VivHelper {
         public bool EnableRefillCancelSpaceIndicator { get; set; } = true;
 
         public bool DisableMapViewArbitrarySpawn { get; set; } = false;
+
+        public int FFDistance = 5;
+        public int FPDistance = 30;
+        public bool MakeClose = false;
+        public DemoDashDisabler demodashDisabler = DemoDashDisabler.Off;
+
+
+        [YamlDotNet.Serialization.YamlIgnore] //This will be set on all load-ins
+        public Dictionary<string, SoundChange> AudioChanges = new Dictionary<string, SoundChange>();
+
+        public void MakeChangesToAudioSet(EntityData data) {
+            var eventName = data.Attr("eventName");
+            if (string.IsNullOrWhiteSpace(eventName) || eventName == "event:/none")
+                return;
+            SoundChange change;
+            if (AudioChanges.TryGetValue(eventName, out change)) {
+                if (change is SoundMute && data.Name == "VivHelper/SoundMuter")
+                    change.AddOrChangeFromEntityData(data);
+                else if (change is SoundReplace && data.Name == "VivHelper/SoundReplacer")
+                    change.AddOrChangeFromEntityData(data);
+                return;
+            } else if(data.Name == "VivHelper/SoundMuter") {
+                AudioChanges.Add(eventName, new SoundMute(data));
+                return;
+            } else if(data.Name == "VivHelper/SoundReplacer") {
+                AudioChanges.Add(eventName, new SoundReplace(data));
+                return;
+            }
+        }
         /*
         [NonSerialized]
         [YamlDotNet.Serialization.YamlIgnore] // Alternate Tracker data on a per load basis.

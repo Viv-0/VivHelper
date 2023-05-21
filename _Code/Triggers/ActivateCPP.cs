@@ -10,7 +10,7 @@ using Celeste.Mod.Entities;
 using VivHelper.Entities;
 
 namespace VivHelper.Triggers {
-    [CustomEntity("VivHelper/ActivateCPP")]
+    [CustomEntity("VivHelper/ActivateCPP","VivHelper/ActivateCPPTrigger")]
     public class ActivateCPP : Trigger {
         private enum Modes {
             OnPlayerEnter,

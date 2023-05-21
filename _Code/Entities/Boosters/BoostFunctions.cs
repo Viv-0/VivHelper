@@ -12,6 +12,7 @@ using System.Collections;
 using MonoMod.RuntimeDetour;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
+using static Celeste.TrackSpinner;
 
 namespace VivHelper.Entities.Boosters {
     public static class BoostFunctions {
@@ -47,10 +48,10 @@ namespace VivHelper.Entities.Boosters {
 
         private static void TranslateRedDash(ILContext il, bool b) {
             ILCursor cursor = new ILCursor(il);
-            while (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchLdcI4(5) && instr.Previous.MatchCallvirt<StateMachine>("get_State"))) {
-                cursor.EmitDelegate<Func<int, int>>(
-                    f => f == VivHelperModule.WindBoostState || f == VivHelperModule.PinkState || f == VivHelperModule.OrangeState || f == VivHelperModule.CustomDashState ? 5 : f);
-                cursor.Index += 2;
+            while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdcI4(5) && instr.Previous.MatchCallvirt<StateMachine>("get_State"))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Func<int, Player, int>>(
+                    (f, p) => f == VivHelperModule.WindBoostState || f == VivHelperModule.PinkState || f == VivHelperModule.OrangeState || f == VivHelperModule.CustomDashState ? p.StateMachine.State : f);
             }
         }
         private static void TranslateRedDash2(ILContext il) {
@@ -86,10 +87,7 @@ namespace VivHelper.Entities.Boosters {
         }
 
         public static void Player_OnCollideH(On.Celeste.Player.orig_OnCollideH orig, Player self, CollisionData data) {
-            if (self.StateMachine.State != VivHelperModule.CustomDashState) {
-                orig.Invoke(self, data);
-                return;
-            }
+            if (self.StateMachine.State != VivHelperModule.CustomDashState) { orig.Invoke(self, data); return; }
             CustomDashStateCh customDashState = VivHelperModule.Session.customDashState;
             if (VivHelperModule.Session.CurrentBooster != null && VivHelperModule.Session.CurrentBooster is UltraCustomBooster booster) {
                 customDashState = booster.customDashState;
@@ -133,7 +131,7 @@ namespace VivHelper.Entities.Boosters {
                     while (self.CollideCheck(data.Hit, self.Position - (data.Direction * ++g))) { }
                     self.Speed.X = -self.Speed.X;
                     self.DashDir.X = -self.DashDir.X;
-                    if (customDashState.ImpactsObjectsAsDash && data.Direction.X == Math.Sign(self.Speed.X))
+                    if (customDashState.ImpactsObjectsAsDash && data.Direction.X == Math.Sign(-self.Speed.X))
                         data.Hit?.OnDashCollide?.Invoke(self, data.Direction);
                     return;
                 case DashSolidContact.Ignore:
@@ -144,13 +142,14 @@ namespace VivHelper.Entities.Boosters {
                     }
                     break;
                 case DashSolidContact.Default:
-                    if (data.Hit == null || data.Hit.OnCollide == null || !customDashState.ImpactsObjectsAsDash || data.Direction.X != (float) Math.Sign(self.DashDir.X)) { break; } else {
+                    if (customDashState.ImpactsObjectsAsDash && data.Hit != null && data.Hit.OnDashCollide != null && Math.Sign(data.Direction.X) == Math.Sign(self.DashDir.X)) {
+                        Console.WriteLine();
                         switch (data.Hit.OnDashCollide(self, data.Direction)) {
                             case DashCollisionResults.Rebound:
                                 self.Rebound();
                                 return;
                             case DashCollisionResults.Bounce:
-                                self.ReflectBounce(new Vector2(0f, -Math.Sign(self.Speed.Y)));
+                                self.ReflectBounce(new Vector2(-Math.Sign(self.Speed.X), 0f));
                                 return;
                             case DashCollisionResults.Ignore:
                                 return;
@@ -160,8 +159,8 @@ namespace VivHelper.Entities.Boosters {
             }
             if (!customDashState.PrioritizeCornerCorrection) {
                 if (self.Speed.Y == 0f && self.Speed.X != 0f) {
-                    for (int i = 1; i <= 4; i++) {
-                        for (int num = 1; num >= -1; num -= 2) {
+                    for (int num = 1; num >= -1; num -= 2) {
+                        for (int i = 1; i <= 4; i++) {
                             Vector2 vector = new Vector2(Math.Sign(self.Speed.X), i * num);
                             Vector2 vector2 = self.Position + vector;
                             if (!self.CollideCheck<Solid>(vector2) && self.CollideCheck<Solid>(vector2 - Vector2.UnitY * num) && !(bool) VivHelper.player_DashCorrectCheck(self, vector)) {
@@ -218,7 +217,7 @@ namespace VivHelper.Entities.Boosters {
                     while (self.CollideCheck(data.Hit, self.Position - (data.Direction * ++g))) { }
                     self.Speed.Y = -self.Speed.Y;
                     self.DashDir.Y = -self.DashDir.Y;
-                    if (customDashState.ImpactsObjectsAsDash)
+                    if (customDashState.ImpactsObjectsAsDash && data.Direction.Y == Math.Sign(-self.Speed.Y))
                         data.Hit.OnDashCollide?.Invoke(self, data.Direction);
                     return;
                 case DashSolidContact.Ignore:
@@ -229,7 +228,7 @@ namespace VivHelper.Entities.Boosters {
                     }
                     break;
                 case DashSolidContact.Default:
-                    if (!customDashState.ImpactsObjectsAsDash || data.Hit == null || data.Hit.OnDashCollide == null || data.Direction.Y != (float) Math.Sign(self.DashDir.Y)) { break; } else {
+                    if (customDashState.ImpactsObjectsAsDash && data.Hit != null && data.Hit.OnDashCollide != null && Math.Sign(data.Direction.Y) == Math.Sign(self.DashDir.Y)) { 
                         switch (data.Hit.OnDashCollide(self, data.Direction)) {
                             case DashCollisionResults.Rebound:
                                 self.Rebound();

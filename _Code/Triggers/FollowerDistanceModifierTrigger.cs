@@ -23,9 +23,9 @@ namespace VivHelper.Triggers {
 
         public override void OnEnter(Player player) {
             base.OnEnter(player);
-            VivHelperModule.Settings.FFDistance = Math.Min(Math.Max(0, FFD), 30);
-            VivHelperModule.Settings.FPDistance = Math.Min(Math.Max(1, FPD), 128);
-            VivHelperModule.Settings.MakeClose = DI;
+            VivHelperModule.Session.FFDistance = Math.Min(Math.Max(0, FFD), 30);
+            VivHelperModule.Session.FPDistance = Math.Min(Math.Max(1, FPD), 128);
+            VivHelperModule.Session.MakeClose = DI;
         }
 
         public override void OnLeave(Player player) {

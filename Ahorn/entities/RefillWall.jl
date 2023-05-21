@@ -4,7 +4,7 @@ using Ahorn.VivHelper
 
 @mapdef Entity "VivHelper/RefillWall" RefillWall(x::Integer, y::Integer, width::Integer=16, height::Integer=16,
     twoDashes::Bool=false,
-    oneUse::Bool=false, Alpha::Number=1.0
+    oneUse::Bool=false, Alpha::Number=1.0, RespawnTime::Number=-1.0
 )
 
 @mapdef Entity "VivHelper/RefillWallWrapper" RefillWallWrapper(x::Integer, y::Integer, width::Integer=16, height::Integer=16,

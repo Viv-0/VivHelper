@@ -36,7 +36,7 @@ function chl.sprite(room, entity)
     local sprites = {}
     local h = math.max(entity.height or 0, 16)
     local s0 = entity.directory
-    if s0 == nil or #vivUtil.trim(s0) == 0 then s0 = "VivHelper/customHangingLamp" end
+    if vivUtil.isNullEmptyOrWhitespace(s0) then s0 = "VivHelper/customHangingLamp" end
     local s1 = entity.Suffix or ""
 
     local topSprite = drawableSprite.fromTexture(s0.."/base" .. s1 .. "00", entity)
