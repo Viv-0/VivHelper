@@ -1,6 +1,7 @@
 ﻿using Celeste;
 using Celeste.Mod;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Cil;
@@ -22,7 +23,15 @@ namespace VivHelper.Module__Extensions__Etc {
             On.Celeste.SpotlightWipe.ctor += SpotlightWipe_ctor;
             IL.Celeste.SpotlightWipe.Render += SpotlightWipe_Render;
             On.Monocle.Scene.BeforeUpdate += Scene_BeforeUpdate;
+            IL.Celeste.Level.Render += Level_Render;
 
+        }
+
+        public static void Unload() {
+            On.Celeste.SpotlightWipe.ctor -= SpotlightWipe_ctor;
+            IL.Celeste.SpotlightWipe.Render -= SpotlightWipe_Render;
+            On.Monocle.Scene.BeforeUpdate -= Scene_BeforeUpdate;
+            IL.Celeste.Level.Render -= Level_Render;
         }
 
         private static void Scene_BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
@@ -33,10 +42,19 @@ namespace VivHelper.Module__Extensions__Etc {
             }
         }
 
-        public static void Unload() {
-            On.Celeste.SpotlightWipe.ctor -= SpotlightWipe_ctor;
-            IL.Celeste.SpotlightWipe.Render -= SpotlightWipe_Render;
-            On.Monocle.Scene.BeforeUpdate -= Scene_BeforeUpdate;
+        private static void Level_Render(ILContext il) {
+            ILCursor cursor = new(il);
+            if(cursor.TryGotoNext(MoveType.AfterLabel, i=>i.MatchLdarg(0) && i.Next.MatchLdfld<Level>("HiresSnow") && i.Next.Next.MatchBrfalse(out _))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.EmitDelegate<Action<Level>>((level) => {
+                    if (VivHelperModule.Session.StallScreenWipe) {
+                        VivHelperModule.Session.StallScreenWipe = false;
+                        GameplayRenderer.Begin();
+                        Draw.Rect(level.Camera.X - 2, level.Camera.Y - 2, 1924, 1084, Color.Black);
+                        GameplayRenderer.End();
+                    }
+                });
+            }
         }
 
         private static void SpotlightWipe_Render(ILContext il) {
@@ -109,7 +127,7 @@ namespace VivHelper.Module__Extensions__Etc {
             // Trust: new room is a room that exists in the Level by name
             // If player is dead, trying to teleport is fruitless.
             if (player?.Dead ?? true) {
-                Console.WriteLine("Attempted to Teleport but player is either dead or null.");
+                Logger.Log("VivHelper","Attempted to Teleport but player is either dead or null.");
                 ClearTeleportFunction(level, teleportFailed);
                 return; //Cancels on death
             }

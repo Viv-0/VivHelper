@@ -2,7 +2,7 @@ return {
     name = "VivHelper/ChangeRespawnIfFlag",
     placements = { 
         name = "main",
-        data = {flag = ""}
+        data = {Flag = ""}
     },
     nodeLimits = {0,1}
 }

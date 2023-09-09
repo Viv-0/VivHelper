@@ -144,7 +144,7 @@ namespace VivHelper.Entities {
                 if (bombExplosionMethod != null)
                     bombExplosionMethod.Invoke(bomb, null);
                 else {
-                    Console.WriteLine("Yo why does it not work");
+                    Logger.Log("VivHelper", "Yo why does it not work");
                 }
                 if (!Flashing)
                     OnTriggerDetonation();

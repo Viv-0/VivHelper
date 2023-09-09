@@ -143,7 +143,6 @@ namespace VivHelper.Entities.Boosters {
                     break;
                 case DashSolidContact.Default:
                     if (customDashState.ImpactsObjectsAsDash && data.Hit != null && data.Hit.OnDashCollide != null && Math.Sign(data.Direction.X) == Math.Sign(self.DashDir.X)) {
-                        Console.WriteLine();
                         switch (data.Hit.OnDashCollide(self, data.Direction)) {
                             case DashCollisionResults.Rebound:
                                 self.Rebound();
@@ -378,9 +377,9 @@ namespace VivHelper.Entities.Boosters {
             return dir;
         }
 
-        public static DynamicData dyn;
-
         public bool BoostingPlayer { get; protected set; }
+
+        public Vector2 storedSpeed;
         public CustomBooster(Vector2 position) : base(position) { }
 
         public virtual void PlayerReleased() {
@@ -396,7 +395,7 @@ namespace VivHelper.Entities.Boosters {
         }
 
         public void ExitCustomDash() {
-            if (VivHelperModule.Session.CurrentBooster == this) {
+            if (VivHelperModule.Session.CurrentBooster.ID.Equals(this.ID)) {
                 VivHelperModule.Session.CurrentBooster = null;
             }
         }

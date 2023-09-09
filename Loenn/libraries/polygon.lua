@@ -23,9 +23,9 @@ local function drawFilledPolygon(pt, fillColor)
 end
 
 function helper.getSpriteFunc(filled, nodeColor, lineColor, fillColor, positionDrawable)
-    nC = vivUtil.getColor(nodeColor or "ff0000")
-    lC = vivUtil.getColor(lineColor or "000000")
-    fC = vivUtil.getColor(fillColor or "CC6666CC")
+    nC = vivUtil.getColorTable(nodeColor, true, {1,0,0,1})
+    lC = vivUtil.getColorTable(lineColor, true, {0,0,0,1})
+    fC = vivUtil.getColorTable(fillColor, true, {0.8, 0.4, 0.4, 0.8})
 
     return function(room, entity)
         if entity.nodes then

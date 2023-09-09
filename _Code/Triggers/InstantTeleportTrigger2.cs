@@ -350,7 +350,6 @@ namespace VivHelper.Triggers {
 
         public override void OnEnter(Player player) {
             base.OnEnter(player);
-            Console.WriteLine(flagsNeeded?.Length > 0 ? string.Join(",", flagsNeeded) : "empty or null");
             if (ExitDirection != 0) {
                 ///Code by Oppenheimer
 
@@ -491,6 +490,7 @@ namespace VivHelper.Triggers {
                         AreaData.Get(level.Session).DoScreenWipe(level, false, delegate {
                             if (freezeGameOnTeleport)
                                 level.Frozen = false;
+                            VivHelperModule.Session.StallScreenWipe = true;
                             PreTeleport(player, level);
                         });
                         if (freezeGameOnTeleport)
@@ -577,6 +577,9 @@ namespace VivHelper.Triggers {
             for (int i = 0; i < leader.PastPoints.Count; i++) {
                 leader.PastPoints[i] -= oldPlayerPosition;
             }
+            if (bringHoldableThrough && player.Holding != null) {
+                player.Holding.Entity.AddTag(Tags.Global);
+            }
             bool stateChange = VivHelper.DefineSetState(setState, out int newState) && player.StateMachine.State != newState;
             if(stateChange) {
                 switch(player.StateMachine.State) {
@@ -622,7 +625,6 @@ namespace VivHelper.Triggers {
             }
             level.Session.FirstLevel = false;
             level.Add(player);
-
             level.LoadLevel(Player.IntroTypes.Transition);
             
             TeleportTarget target = level.Tracker.GetFirstEntity<TeleportTarget>(t => t.targetID == targetID);
@@ -653,6 +655,10 @@ namespace VivHelper.Triggers {
             if (!resetDashes) {
                 player.Dashes = newDashes;
             }
+            if (bringHoldableThrough) {
+                player.UpdateCarry();
+                player.Holding?.Entity?.RemoveTag(Tags.Global);
+            }
             //Copies over the follower data.
             foreach (Follower follower in leader.Followers) {
                 if (follower.Entity != null) {
@@ -667,6 +673,8 @@ namespace VivHelper.Triggers {
                 leader.PastPoints[i] += player.Position;
             }
             leader.TransferFollowers();
+            ((WindController) VivHelper.level_windController.GetValue(level)).SetPattern(levelData.WindPattern);
+            ((WindController) VivHelper.level_windController.GetValue(level)).SnapWind();
 
             player.Facing = facing;
             //Modifies the player's speed, based on the information put into the TeleportTarget

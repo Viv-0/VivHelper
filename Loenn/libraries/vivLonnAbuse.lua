@@ -30,13 +30,17 @@ local utils = require("utils")
 local drawing = require("utils.drawing")
 local drawableFunction = require("structs.drawable_function")
 local drawableRectangle = require("structs.drawable_rectangle")
+local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
+
+local form = require('ui.forms.form')
 
 local loennExtended_triggerAPI = require("mods").requireFromPlugin("libraries.api.triggerRendering", "LoennExtended")
 local loennExtended_textAPI = require("mods").requireFromPlugin("libraries.api.textRendering", "LoennExtended")
 local loennExtended_layerAPI = require("mods").requireFromPlugin("libraries.api.layers", "LoennExtended")
 
---hotreload manager
-if triggers._vivh_unloadSeq then triggers._vivh_unloadSeq() end
+--hotreload manager: if triggers._vivh_unloadSeq has had a value set already, we're reloading the plugin, since triggers._vivh_unloadSeq is only created in this file.
+if triggers._vivh_unloadSeq then triggers._vivh_unloadSeq() end 
+-- if triggers contains an object "_vivh_unloadSeq" then run the function. that function is defined at the end of this codebase. If any other mod creates this function, then it will break this, so use a different Lonn source file.
 
 local function orig_triggers_getDrawable_backgroundOnly(trigger)
     local x = trigger.x or 0
@@ -134,10 +138,7 @@ function triggers.addDrawables(batch, room, targets, viewport, yieldRate)
             local color = colors.triggerTextColor
             -- add integration for layers
             if loennExtended_layerAPI and not loennExtended_layerAPI.isInCurrentLayer(trigger) then
-                color[1] = color[1] * 0.1
-                color[2] = color[2] * 0.1
-                color[3] = color[3] * 0.1
-                color[4] = (color[4] or 1) * 0.1
+                vivUtil.alphMult(color, loennExtended_layerAPI.hiddenLayerAlpha)
             end
             loennExtended_textAPI.addCenteredText(textBatch, displayName, trigger.x or 0, trigger.y or 0, trigger.width or 16, trigger.height or 16, font, loennExtended_triggerAPI.getFontSize(), nil, color)
         else --Loenn vanilla
@@ -169,14 +170,39 @@ placementUtils.finalizePlacement = function(room, layer, item)
     if handler and handler._vivh_finalizePlacement then handler._vivh_finalizePlacement(room, layer, item) end
 end
 
+local _orig_form_getFormFields = form.getFormFields
+form.getFormFields = function(data, options)
+    if options._vivh_submenuOverride then
+        return options._vivh_submenuOverride
+    end
+    local elements = _orig_form_getFormFields(data, options)
+    local elementsToRemove = {} -- maps string to the formField that steals the data. Data can only be stolen once, and will be stored in formField._vivh_data
+    for _,v in ipairs(elements) do
+        for _,v2 in ipairs(v._vivh_dataToSteal or {}) do
+            elementsToRemove[v2] = v
+        end
+    end
+    for i=#elements,1,-1 do
+        local q = elementsToRemove[elements[i].name]
+        if  q ~= nil then
+            -- First, add the element we've stolen to the formField stealing it in formField._vivh_data
+            q._vivh_data[elements[i].name] = elements[i]
+            q._vivh_fieldInformation[elements[i].name] = form.getFieldOptions(elements[i].name, options)
+            table.remove(elements, i) -- Then, remove the element from the form Fields list.
+        end
+    end
+    return elements
+end
+
 -- ##########################################################################################
 
 
 
-function triggers._vivh_unloadSeq() -- Handles hotreload
+function triggers._vivh_unloadSeq() -- Handles hotreload.
     triggers.addDrawables = _orig_triggers_addDrawables
     triggers.getDrawable = _orig_triggers_getDrawable
     placementUtils.finalizePlacement = _orig_placementUtils_finalizePlacement
+    form.getFormFields = _orig_form_getFormFields
 end
 
 return {}

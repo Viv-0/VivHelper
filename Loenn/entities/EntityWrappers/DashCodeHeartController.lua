@@ -26,15 +26,15 @@ table.insert(DCHC.placements, getFields("Custom"))
 DCHC.ignoredFields = function(entity)
     local sT = entity.spawnType
     if sT == "LevelUp" then
-        return {"multipleCheck", "GlitchLength", "CustomParameters", "ClassName", "MethodName", "Name", "id"}
+        return {"multipleCheck", "GlitchLength", "CustomParameters", "ClassName", "MethodName", "_name", "_id"}
     elseif sT == "FlashSpawn" then
-        return {"multipleCheck", "GlitchLength", "nodes", "CustomParameters", "ClassName", "MethodName", "Name", "id"}
+        return {"multipleCheck", "GlitchLength", "nodes", "CustomParameters", "ClassName", "MethodName", "_name", "_id"}
     elseif sT == "GlitchSpawn" then
-        return {"multipleCheck", "Color", "nodes", "CustomParameters", "ClassName", "MethodName", "Name", "id"}
+        return {"multipleCheck", "Color", "nodes", "CustomParameters", "ClassName", "MethodName", "_name", "_id"}
     elseif sT == "Custom" then
-        return {"multipleCheck", "Color", "GlitchLength", "Name", "id"}
+        return {"multipleCheck", "Color", "GlitchLength", "_name", "_id"}
     else
-        return {"multipleCheck", "GlitchLength", "Color", "CustomParameters", "ClassName", "MethodName", "Name", "id"}
+        return {"multipleCheck", "GlitchLength", "Color", "CustomParameters", "ClassName", "MethodName", "_name", "_id"}
     end
 end
 DCHC.texture = "ahorn/VivHelper/heartCodeController"

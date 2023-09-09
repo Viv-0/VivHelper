@@ -34,7 +34,7 @@ namespace VivHelper.Entities {
 
         private bool summit;
 
-        protected bool toggle, prev;
+        protected bool toggle, prev, instantStart;
 
         private string animPrefix = "";
 
@@ -60,7 +60,7 @@ namespace VivHelper.Entities {
             : base(data.Position + offset) {
             base.Depth = -8500;
             Add(talk = new TalkComponent(new Rectangle(-24, -8, 48, 8), new Vector2(-0.5f, -20f), Interact));
-            talk.PlayerMustBeFacing = false;
+            talk.PlayerMustBeFacing = true;
             summit = data.Bool("summit");
             onlyY = data.Bool("onlyY");
             base.Collider = new Hitbox(4f, 4f, -2f, -4f);
@@ -88,6 +88,7 @@ namespace VivHelper.Entities {
             flagWhenInHud = invertFlag ? data.Attr("FlagWhileInHud", "").Substring(1) : data.Attr("FlagWhileInHud", "");
             ignoreBind = data.Bool("IgnoreBind", false);
             setOnAwake = data.Bool("SetOnAwake", true);
+            instantStart = data.Bool("InstantStart", false);
         }
 
         public override void Awake(Scene scene) {
@@ -185,7 +186,7 @@ namespace VivHelper.Entities {
             Vector2 lastDir = Vector2.Zero;
             Vector2 camStart = level.Camera.Position;
             Vector2 camStartCenter = camStart + new Vector2(160f, 90f);
-            if (playback != null && ignoreBind) {
+            if (playback != null && (ignoreBind || instantStart)) {
                 playback.Restart();
                 playback.active = true;
             }
@@ -332,7 +333,7 @@ namespace VivHelper.Entities {
                 }
                 yield return null;
             }
-            if (playback != null && ignoreBind) {
+            if (playback != null) {
                 playback.Visible = playback.active = false;
             }
             player.Sprite.Visible = (player.Hair.Visible = true);

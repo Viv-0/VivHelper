@@ -33,6 +33,7 @@ namespace VivHelper.Entities {
         public int useCount;
         public string audio;
         private bool allActors; //Experimental. Why did I agree to do this?
+        private bool AlwaysRetainSpeed;
         private bool legacy;
         private bool center, OHMod;
         private float cooldown;
@@ -43,17 +44,18 @@ namespace VivHelper.Entities {
         private Color particleColor;
 
 
-        public InLevelTeleporter(EntityData data, Vector2 offset) : this(data.Enum<Directions>("dir1", Directions.Up), data.Attr("flags1"), data.Float("sO1"), data.Int("l", 16), data.Bool("eO1"), data.Bool("allActors"), data.Bool("cW"), data.Int("NumberOfUses1", int.MaxValue), data.Attr("Audio", ""), data.Position + offset, data.Bool("legacy", true), data.Bool("center"), data.Bool("OutbackHelperMod"), data.Attr("Path"), data.Color("Color", Color.Transparent), data.Float("CooldownTime")) {
+        public InLevelTeleporter(EntityData data, Vector2 offset) : this(data.Enum<Directions>("dir1", Directions.Up), data.Attr("flags1"), data.Float("sO1"), data.Int("l", 16), data.Bool("eO1"), data.Bool("allActors"), data.Bool("cW"), data.Int("NumberOfUses1", int.MaxValue), data.Attr("Audio", ""), data.Position + offset, data.Bool("legacy", true), data.Bool("center"), data.Bool("OutbackHelperMod"), data.Attr("Path"), data.Color("Color", Color.Transparent), data.Float("CooldownTime"),data.Bool("AlwaysRetainSpeed", true)) {
             Vector2 pos2 = data.Nodes[0] + offset;
-            pair = new InLevelTeleporter(data.Enum<Directions>("dir2", Directions.Up), data.Attr("flags2"), data.Float("sO2"), data.Int("l", 8), data.Bool("eO2"), data.Bool("allActors"), data.Bool("cW"), data.Int("NumberOfUses2", int.MaxValue), data.Attr("Audio", ""), pos2, data.Bool("legacy", true), data.Bool("center"), data.Bool("OutbackHelperMod"), data.Attr("Path"), data.Color("Color", Color.Transparent),data.Float("CooldownTime"));
+            pair = new InLevelTeleporter(data.Enum<Directions>("dir2", Directions.Up), data.Attr("flags2"), data.Float("sO2"), data.Int("l", 8), data.Bool("eO2"), data.Bool("allActors"), data.Bool("cW"), data.Int("NumberOfUses2", int.MaxValue), data.Attr("Audio", ""), pos2, data.Bool("legacy", true), data.Bool("center"), data.Bool("OutbackHelperMod"), data.Attr("Path"), data.Color("Color", Color.Transparent),data.Float("CooldownTime"), data.Bool("AlwaysRetainSpeed", true));
         }
         //You shouldn't ever use this in your code if you choose to inherit this class. This constructor is to make sure that the base of the portal is made, and then the other constructor builds both portals.
-        public InLevelTeleporter(Directions dir, string flags, float sOut, int length, bool eO, bool aA, bool cW, int use, string audio, Vector2 position, bool legacyTP, bool center, bool OOHMod, string spritePath, Color particleColor, float cooldowntime) : base(position) {
+        public InLevelTeleporter(Directions dir, string flags, float sOut, int length, bool eO, bool aA, bool cW, int use, string audio, Vector2 position, bool legacyTP, bool center, bool OOHMod, string spritePath, Color particleColor, float cooldowntime, bool alwaysRetainSpeed) : base(position) {
             Direction = dir;
             Flags = flags.Split(',');
             speedOut = sOut;
             this.length = length;
             this.audio = audio;
+            AlwaysRetainSpeed = alwaysRetainSpeed;
             cameraWarp = cW;
             numOfUses = use;
             if (numOfUses == -1) { numOfUses = int.MaxValue; } else if (numOfUses < 1) { numOfUses = 1; }
@@ -275,9 +277,13 @@ namespace VivHelper.Entities {
                     switch (Direction) {
                         case Directions.Right:
                             player.BottomRight = new Vector2(Left, Bottom - distance);
+                            if(AlwaysRetainSpeed && player.Speed.X == 0)
+                                player.Speed.X = (float) VivHelper.player_wallSpeedRetained.GetValue(player);
                             break;
                         case Directions.Left:
                             player.TopLeft = new Vector2(Right, Top + distance);
+                            if (AlwaysRetainSpeed && player.Speed.X == 0)
+                                player.Speed.X = (float) VivHelper.player_wallSpeedRetained.GetValue(player);
                             break;
                         case Directions.Up:
                             player.BottomLeft = new Vector2(Left + distance, Bottom);
@@ -287,6 +293,7 @@ namespace VivHelper.Entities {
                             break;
                     }
                     if (WiggleOutFail(player)) { player.Die(Vector2.Zero); return; }
+                    
                     player.Speed = SpeedMod(player, d);
                     if (cameraWarp) {
                         CameraShit(player.Scene as Level, player, cameraDifferential);
@@ -313,30 +320,33 @@ namespace VivHelper.Entities {
         {
             Vector2 speed = player.Speed;
             if (OHMod) {
-                if ((int) d == 3)
+                //Direction is in the form of "right->down->left->up" because positive Y is downwards, and Pi/2 * Direction equals the angle in code.
+                if ((int) d == 3) // If the entry direction is Up, cap the speed @ 150 speed
                     speed.Y = Math.Max(speed.Y, 150f);
-                //This code is an improvement on the Matrix transform.
-                float anglediff = (Direction - d) * (float) Math.PI / 2f;
+                //This code is an improvement on the Matrix transform found in OutbackHelper
+                float anglediff = (Direction - d) * (float) Math.PI / 2f; //the difference in angle is what the speed gets rotated by, with
                 speed = speed.Rotate(anglediff);
                 speed *= -1f;
+                //Dash Cancel action
                 if (player.StateMachine.State == Player.StDash) {
                     player.StateMachine.State = Player.StNormal;
                 }
                 //Optimized code
                 if (player.StateMachine.State != 5) {
-                    if ((int) d == 1) {
+                    if ((int) d == 1) { //If the entry direction is Up or Down, multiply speed by 1.5 on both axes (WHAT)
                         speed *= 1.5f;
-                        if ((int) Direction % 2 == 0) {
-                            speed.Y -= 150f;
+                        if ((int) Direction % 2 == 0) { // if the exit direction is left or right, modify speed for some reason? 
+                            speed.Y -= 150f; // I don't know why, but I presume this is to make it feel "floatier" so you dont die without seeing it.
                         }
                     } else if ((int) d == 3) {
                         speed *= 1.5f;
                     }
                 }
-                if ((int) Direction == 1) {
+                if ((int) Direction == 1) { // If the exit Direction is Upwards, cap the Y speed at -150 so you dont yeet to space
                     speed.Y = Math.Min(player.Speed.Y, -150f);
                 }
             } else {
+                // NORMAL ASS PHYSICS
                 float anglediff = (Direction - d) * (float) Math.PI / 2f;
                 speed = speed.Rotate(anglediff);
                 speed *= -1f;

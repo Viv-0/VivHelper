@@ -13,14 +13,15 @@ templeGate.depth = -9000
 templeGate.canResize = {false, false}
 templeGate.fieldInformation = 
 {
-    Directory = vivUtil.GetFilePathWithNoTrailingNumbers(false)
+    Directory = vivUtil.GetFilePathWithNoTrailingNumbers(false),
 }
 templeGate.placements = {
     name = "gate",
     data = {
         OpenRadius = 64.0,
         CloseRadius = 80.0,
-        Directory = "VivHelper/seekergate/seekerdoor"
+        Directory = "VivHelper/seekergate/seekerdoor",
+        TestValue = nil
     }
 }
 

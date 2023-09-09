@@ -5,7 +5,8 @@ using ..Ahorn, Maple
     width::Integer=8, height::Integer=8, Accel::Number=500.0, MaxSpeed::Number=160.0,
     ShakeSFX::String="event:/game/general/fallblock_shake", ImpactSFX::String="event:/game/general/fallblock_impact",
     Direction::String="Down", FlagOnFall::String="", FlagTrigger::String="", FlagOnGround::String="",
-    behind::Bool=false, climbFall::Bool=true, bufferClimbFall::Bool=false, Legacy::Bool=true
+    behind::Bool=false, climbFall::Bool=true, bufferClimbFall::Bool=false, Legacy::Bool=true, ShakeForAllFalls::Bool=true,
+    RoomWrapMaxRev::Integer=0
 )
 
 const placements = Ahorn.PlacementDict(

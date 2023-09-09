@@ -1,5 +1,5 @@
 - Name: VivHelper
-  Version: 1.12.0
+  Version: 1.13.1
   DLL: dll/VivHelper.dll
   Dependencies:
     - Name: Everest
@@ -9,3 +9,5 @@
       Version: 1.2.0
     - Name: GravityHelper
       Version: 1.1.32
+    - Name: MaxHelpingHand
+      Version: 1.27.0

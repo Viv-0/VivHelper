@@ -16,6 +16,111 @@ using MonoMod.RuntimeDetour;
 using System.Reflection;
 
 namespace VivHelper.Entities {
+
+    internal static class BadelineBoostOldRefillProcessor {
+        public static Dictionary<string, Func<int>> IntParserEntityValues_Default(this Entity e) {
+            if (e.Scene == null) { return null; }
+            return new Dictionary<string, Func<int>>() { { "D", () => e.SceneAs<Level>().Session?.Inventory.Dashes ?? 1 }, { "Default", () => e.SceneAs<Level>().Session?.Inventory.Dashes ?? 1 } };
+        }
+        public static Dictionary<string, Func<float>> FloatParserEntityValues_Default(this Entity e) {
+            if (e.Scene == null) { return null; }
+            return new Dictionary<string, Func<float>>() { { "D", () => 110f }, { "Default", () => 110f } };
+        }
+
+        public static bool IntParserV1(string number, Dictionary<string, Func<int>> parseSpecialValues, out int value) {
+
+            if (string.IsNullOrWhiteSpace(number)) {
+                value = default(int);
+                return false;
+            }
+            if (parseSpecialValues.ContainsKey(number)) {
+                value = parseSpecialValues[number].Invoke();
+                return true;
+            }
+            return IntParserV1(number, parseSpecialValues, false, out value);
+        }
+
+        private static bool IntParserV1(string number, Dictionary<string, Func<int>> parseSpecialValues, bool _, out int value) {
+            if (string.IsNullOrEmpty(number)) {
+                throw new Exception("Integer was empty.");
+            }
+            //+ refers to addition
+            if (number.Contains("+")) {
+                string[] q = number.Split('+');
+                int p = 0;
+                for (int s = 0; s < q.Length; s++) { if (!IntParserV1(q[s], parseSpecialValues, false, out int o)) { value = 0; return false; } p += o; }
+                value = p;
+                return true;
+            }
+
+            // * refers to multiplication
+            if (number.Contains("*")) {
+                string[] q = number.Split('*');
+                int p = 1;
+                for (int s = 0; s < q.Length; s++) { if (!IntParserV1(q[s], parseSpecialValues, false, out int o)) { value = 0; return false; } p *= o; }
+                value = p;
+                return true;
+            }
+            // / refers to division
+            if (number.Contains("/")) {
+                string[] q = number.Split('/');
+                int p = 1;
+                for (int s = 0; s < q.Length; s++) { if (!IntParserV1(q[s], parseSpecialValues, false, out int o)) { value = 0; return false; } if (o == 0) { value = 0; return false; } p /= o; }
+                value = p;
+                return true;
+            }
+            if (parseSpecialValues.ContainsKey(number.Trim())) { value = parseSpecialValues[number.Trim()].Invoke(); return true; }
+            return int.TryParse(number.Trim(), out value);
+        }
+
+        public static bool FloatParserV1(string number, Dictionary<string, Func<float>> parseSpecialValues, out float value) {
+
+            if (string.IsNullOrWhiteSpace(number)) {
+                value = default(int);
+                return false;
+            }
+            if (parseSpecialValues.ContainsKey(number)) {
+                value = parseSpecialValues[number].Invoke();
+                return true;
+            }
+            return FloatParserV1(number, parseSpecialValues, false, out value);
+        }
+
+        private static bool FloatParserV1(string number, Dictionary<string, Func<float>> parseSpecialValues, bool _, out float value) {
+            if (string.IsNullOrEmpty(number)) {
+                throw new Exception("Floating-point number was empty.");
+            }
+            //+ refers to addition
+            if (number.Contains("+")) {
+                string[] q = number.Split('+');
+                float p = 0;
+                for (int s = 0; s < q.Length; s++) { if (!FloatParserV1(q[s], parseSpecialValues, false, out float o)) { value = 0; return false; } p += o; }
+                value = p;
+                return true;
+            }
+            // * refers to multiplication
+            if (number.Contains("*")) {
+                string[] q = number.Split('*');
+                float p = 1;
+                for (int s = 0; s < q.Length; s++) { if (!FloatParserV1(q[s], parseSpecialValues, false, out float o)) { value = 0; return false; } p *= o; }
+                value = p;
+                return true;
+            }
+            // / refers to division
+            if (number.Contains("/")) {
+                string[] q = number.Split('/');
+                float p = 1;
+                for (int s = 0; s < q.Length; s++) { if (!FloatParserV1(q[s], parseSpecialValues, false, out float o)) { value = 0; return false; } if (o == 0) { value = 0; return false; } p /= o; }
+                value = p;
+                return true;
+            }
+            //if (number.Trim() == "U") { k = UseNumber; return true; }
+            //if (number.Trim() == "u") { k = count; return true; }
+            if (parseSpecialValues.ContainsKey(number.Trim())) { value = parseSpecialValues[number.Trim()].Invoke(); return true; }
+            return float.TryParse(number.Trim(), out value);
+        }
+    }
+
     [CustomEntity("VivHelper/BadelineBoostNoRefill = BaddyBoostNoRefill", "VivHelper/BadelineBoostCustomRefill = BaddyBoostCustom", "VivHelper/BadelineBoostCustom = BaddyBoostCustom")]
     [Tracked]
     public class BadelineBoostCustom : BadelineBoost {
@@ -126,7 +231,7 @@ namespace VivHelper.Entities {
                                     if (b2.LaunchStrengthMultiplier == null) {
                                         int ind = DynamicData.For(b).Get<int>("nodeIndex");
                                         if (ind > b2.LaunchStrengthMultiplierSet.Length) {
-                                            Console.WriteLine("Uhoh.");
+                                            Logger.Log("VivHelper", "LaunchStrengthMultiplier was not set for this index.");
                                             //Do nothing here
                                         } else {
                                             DynamicData.For(p).Add(BadelineBoostMultCacheName, b2.LaunchStrengthMultiplierSet[ind]);
@@ -228,7 +333,7 @@ namespace VivHelper.Entities {
                     b = dashes[0] == '+' ? 1 : -1;
                     dashes = dashes.Substring(1);
                 }
-                if (!VivHelper.IntParserV1(dashes, this.IntParserEntityValues_Default(), out int outDash)) {
+                if (!BadelineBoostOldRefillProcessor.IntParserV1(dashes, this.IntParserEntityValues_Default(), out int outDash)) {
                     replaceDashes = (i, j) => j > 1 ? 1 : i < j ? j : i;
                 } else {
                     switch (b) {
@@ -252,7 +357,7 @@ namespace VivHelper.Entities {
                     c = stamina[0] == '+' ? 1 : -1;
                     stamina = stamina.Substring(1);
                 }
-                if (!VivHelper.FloatParserV1(stamina, this.FloatParserEntityValues_Default(), out float outStam)) {
+                if (!BadelineBoostOldRefillProcessor.FloatParserV1(stamina, this.FloatParserEntityValues_Default(), out float outStam)) {
                     replaceStamina = (i, j) => j;
                 } else {
                     switch (c) {

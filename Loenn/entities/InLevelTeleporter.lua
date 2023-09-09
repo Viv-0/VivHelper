@@ -1,6 +1,7 @@
 local atlases = require('atlases')
 local drawableRectangle = require('structs.drawable_rectangle')
 local drawableSprite = require('structs.drawable_sprite')
+local drawableLine = require('structs.drawable_line')
 local utils = require('utils')
 local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 
@@ -8,7 +9,6 @@ local iltp = {
     name = "VivHelper/InLevelTeleporter",
     nodeLimits = {1,1},
     nodeVisibility = "always",
-    nodeLineRenderType = "line",
     nodeJustification = {0.5,0.5}
 }
 
@@ -30,12 +30,13 @@ iltp.placements = {{
         flags1="",flags2="",
         sO1=0.0,sO2=0.0,
         eO1=false,eO2=false,
-        cW=false,legacy=false,center=false,
+        cW=true,legacy=false,center=false,
         OutbackHelperMod=false,
         allActors=false,
         NumberOfUses1=-1,
         NumberOfUses2=-1,
         Audio="",
+        AlwaysRetainSpeed = true
     }},{
     name ="iltp2",
     data = {
@@ -44,11 +45,12 @@ iltp.placements = {{
         flags1="",flags2="",
         sO1=0.0,sO2=0.0,
         eO1=false,eO2=false,
-        cW=false,legacy=false,center=false,
+        cW=true,legacy=false,center=false,
         OutbackHelperMod=false,
         allActors=false,
         NumberOfUses1=-1,
         NumberOfUses2=-1,
+        AlwaysRetainSpeed = true,
         Audio="",
         Path="VivHelper/portal/portal",
         Color="White"
@@ -64,7 +66,7 @@ local directionalValues = {
             img:setPosition(x+16, y+entity.l-i)
             img.rotation = math.pi
         end,
-        centerPoint = function(x,y,l) return {x + 8, y + l / 2} end
+        centerPoint = function(x,y,l) return {x + 16, y + l / 2} end
     },
     Down = {
         rect = function(x,y,l) return utils.rectangle(x, y, l, 16) end,
@@ -73,7 +75,7 @@ local directionalValues = {
             img:setPosition(x+i, y+16)
             img.rotation = math.pi * 1.5
         end,
-        centerPoint = function(x,y,l) return {x + l/2, y + 8} end
+        centerPoint = function(x,y,l) return {x + l/2, y + 15} end
     },
     Left = {
         rect =function(x,y,l) return utils.rectangle(x-16, y, 16, l) end,
@@ -81,7 +83,7 @@ local directionalValues = {
             img:setJustification(0,0)
             img:setPosition(x-16, y+i)
         end,
-        centerPoint = function(x,y,l) return {x - 8, y + l/2} end
+        centerPoint = function(x,y,l) return {x - 15, y + l/2} end
     },
     Up = {
         rect = function(x,y,l) return utils.rectangle(x, y-16, l, 16) end,
@@ -90,7 +92,7 @@ local directionalValues = {
             img:setPosition(x+entity.l-i, y-16)
             img.rotation = math.pi / 2
         end,
-        centerPoint = function(x,y,l) return {x - l/2, y - 8} end
+        centerPoint = function(x,y,l) return {x + l/2, y - 16} end
     }
 }
 
@@ -128,6 +130,12 @@ local function getDraw(entity, x, y, dir, nodeline)
         s1:useRelativeQuad(0, quadY, 8, 8)
         directionalValues[dir].imagePosMod(s1, entity, x, y, i)
         table.insert(sprites, s1)
+    end
+    if nodeline then 
+        local a = directionalValues[entity.dir1].centerPoint(entity.x,entity.y,entity.l)
+        local b = directionalValues[entity.dir2].centerPoint(entity.nodes[1].x,entity.nodes[1].y,entity.l)
+        local line = drawableLine.fromPoints({a[1], a[2], b[1], b[2]}, vivUtil.getColorTable(entity.Color, true, {1,1,1,1}), 1)
+        table.insert(sprites, line)
     end
     return sprites
 end

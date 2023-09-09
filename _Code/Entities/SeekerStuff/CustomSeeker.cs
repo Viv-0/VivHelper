@@ -298,13 +298,15 @@ namespace VivHelper.Entities {
         public int maxNumberOfDashes, maxNumberOfBounces, maxNumberOfWallCollides;
         public float skiddingDelay;
         public float attackCooldown;
-        public bool finalDash;
+        public bool finalDash, DisableEffects;
         protected string CustomSpritePath;
         protected string CustomShockwavePath;
         protected float ParticleEmitInterval;
         protected float TrailCreateInterval;
         protected float RegenerateTimerMult = 1f;
-        protected bool disableAllParticles, AlwaysSeePlayer, IgnoreCamera;
+        protected bool disableAllParticles;
+        protected bool IgnoreCamera;
+        protected bool AlwaysSeePlayer;
         protected Color tint;
         protected bool RemoveBounceHitbox;
         protected Color DeathEffectColor;
@@ -377,6 +379,7 @@ namespace VivHelper.Entities {
             AlwaysSeePlayer = data.Bool("AlwaysSeePlayer");
             IgnoreCamera = data.Bool("SpottedNoCameraLimit");
             deLagValue = Calc.Clamp((float) data.Int("aiDelag", 6), 1, 30) / 60f;
+            DisableEffects = data.Bool("DisableEffects", false);
 
             DeathEffectColor = VivHelper.ColorFix(data.Attr("DeathEffectColor", "HotPink"));
             RemoveBounceHitbox = data.Bool("RemoveBounceHitbox", false);
@@ -546,13 +549,23 @@ namespace VivHelper.Entities {
             Speed.Y = -150f;
         }
 
+        private bool StupidCanSeePlayerFix(Player player) {
+            if ((player.Scene as Level).Session.Area.SID == "Tardigrade/WaterbearMountain/WaterbearMountain")
+                return !SceneAs<Level>().InsideCamera(base.Center) || Vector2.DistanceSquared(base.Center, player.Center) > SightDistSq;
+            else if (IgnoreCamera)
+                return Vector2.DistanceSquared(base.Center, player.Center) > SightDistSq;
+            else
+                return !SceneAs<Level>().InsideCamera(base.Center) && Vector2.DistanceSquared(base.Center, player.Center) > SightDistSq;
+
+
+        }
+
         protected virtual bool CanSeePlayer(Player player) {
             if (player == null) {
                 return false;
             }
-            if (State.State != 2 && !(IgnoreCamera ? false : SceneAs<Level>().InsideCamera(base.Center)) && Vector2.DistanceSquared(base.Center, player.Center) > SightDistSq) {
+            if (State.State != 2 && StupidCanSeePlayerFix(player))
                 return false;
-            }
             Vector2 value = (player.Center - base.Center).Perpendicular().SafeNormalize(2f);
             if (!base.Scene.CollideCheck<Solid>(base.Center + value, player.Center + value)) {
                 return !base.Scene.CollideCheck<Solid>(base.Center - value, player.Center - value);

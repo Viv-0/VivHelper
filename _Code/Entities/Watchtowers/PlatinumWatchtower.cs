@@ -238,7 +238,6 @@ namespace VivHelper.Entities {
                     if (VivHelperModule.Settings.DisplayPlaybacksInLookout.Pressed)
                         toggle = !toggle;
                     if (toggle != prev) {
-                        Console.WriteLine("Bruh");
                         if (toggle) {
                             while (VivHelperModule.Settings.DisplayPlaybacksInLookout.Pressed)
                                 yield return null;

@@ -222,7 +222,7 @@ namespace VivHelper.Entities {
             orig.Invoke(self, area, reloadMapData);
             MapData mapData = (MapData) MapEditor_mapData.GetValue(self);
             List<LevelTemplate> levels = (List<LevelTemplate>) MapEditor_levels.GetValue(self);
-            if (levels == null) { Console.WriteLine("This shouldn't ever happen, uhoh."); return; }
+            if (levels == null) { Logger.Log("VivHelper", "This shouldn't ever happen, uhoh."); return; }
 
             List<EntityData> RoomToRoomRespawners = new List<EntityData>();
             //Used for RespawnTargets between rooms;

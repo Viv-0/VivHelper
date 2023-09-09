@@ -46,7 +46,7 @@ namespace VivHelper.Entities {
                     _path = "event:/none";
                 }
             }
-            if(VivHelperModule.Session.AudioChanges.TryGetValue(_path, out SoundChange sc) && sc.GrabEvent() is Event f) {
+            if((VivHelperModule.Session?.AudioChanges?.TryGetValue(_path, out SoundChange sc) ?? false) && sc?.GrabEvent() is Event f) {
                 EventInstance i = orig(f.Name == "default" ? _path : f.Name, position);
                 f.SetParamsToEvent(i);
                 return i;

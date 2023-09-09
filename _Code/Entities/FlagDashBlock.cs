@@ -27,7 +27,7 @@ namespace VivHelper.Entities {
         private float height;
 
         private bool blendIn;
-
+        private bool breakStaticMovers;
         private bool canDash;
         private string audioEvent;
         private string flagBreak, flagDisable;
@@ -50,6 +50,7 @@ namespace VivHelper.Entities {
             flagBreak = data.Attr("FlagOnBreak", "");
             flagDisable = data.Attr("FlagToDisable", "");
             audioEvent = data.Attr("AudioEvent", "gameDefault");
+            breakStaticMovers = data.Bool("BreakStaticMovers");
         }
 
         public override void Awake(Scene scene) {
@@ -111,7 +112,10 @@ namespace VivHelper.Entities {
                     }
                 }
             }
-            DestroyStaticMovers();
+            if (breakStaticMovers)
+                DestroyStaticMovers();
+            else
+                DisableStaticMovers();
             if (flagBreak != "") {
                 (Scene as Level)?.Session?.SetFlag(flagBreak);
             }
@@ -148,7 +152,7 @@ namespace VivHelper.Entities {
         private float height;
 
         private bool blendIn;
-
+        private bool breakStaticMovers;
         private bool canDash;
         private string audioEvent;
         private string flagBreak, flagDisable;
@@ -170,6 +174,7 @@ namespace VivHelper.Entities {
             flagBreak = data.Attr("FlagOnBreak", "");
             flagDisable = data.Attr("FlagToDisable", "");
             audioEvent = data.Attr("AudioEvent", "event:/game/general/wall_break_stone");
+            breakStaticMovers = data.Bool("BreakStaticMovers");
         }
 
         public override void Awake(Scene scene) {
@@ -221,7 +226,10 @@ namespace VivHelper.Entities {
                     }
                 }
             }
-            DisableStaticMovers();
+            if (breakStaticMovers)
+                DestroyStaticMovers();
+            else
+                DisableStaticMovers();
             if (flagBreak != "") {
                 (Scene as Level)?.Session?.SetFlag(flagBreak);
             }

@@ -5,6 +5,7 @@ local utils = require("utils")
 local formHelper = require("ui.forms.form")
 local languageRegistry = require("language_registry")
 local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
+local utf8 = require("utf8")
 
 local colorPicker = {}
 
@@ -207,7 +208,7 @@ end
 
 -- RGB normalized
 local function updateHexField(data, r, g, b, a)
-    data.hexColor = vivUtil.colorToHex(r, g, b, a)
+    data.hexColor = vivUtil.invertGetColor(r,g,b,a)
 end
 
 local function updateFields(data, changedGroup, interactionData)
@@ -215,11 +216,11 @@ local function updateFields(data, changedGroup, interactionData)
 
     -- Change group here to make logic simpler
     if changedGroup == "hex" then
-        local parsed, r, g, b = vivUtil.parseColor(data.hexColor)
-
-        updateHsvFields(data, r, g, b)
-
-        changedGroup = "hsv"
+        local parsed, r, g, b, a = vivUtil.getColor(vivUtil.swapRGBA(data.hexColor))
+        if parsed then 
+            updateHsvFields(data, r, g, b)
+            changedGroup = "hsv"
+        end
     end
 
     if changedGroup == "rgb" then
@@ -327,6 +328,9 @@ local function alphaSliderDraw(interactionData)
         local pr,pg,pb,pa = love.graphics.getColor()
         love.graphics.setShader(alphaShader)
         local formData = formHelper.getFormData(interactionData.formFields)
+        if not formData.r then formData.r = 0 end 
+        if not formData.g then formData.g = 0 end 
+        if not formData.b then formData.b = 0 end 
         love.graphics.setColor(formData.r/255,formData.g/255,formData.b/255,1)
         orig(widget)
         love.graphics.setColor(pr,pg,pb,pa)
@@ -352,10 +356,6 @@ local function alphaSliderDraw(interactionData)
     end
 end
 
-local function transformer(value)
-    if(#value > 6) then return string.reverse(value) else return value end
-end
-
 function colorPicker.getColorPicker(hexColor, options)
     if hexColor == "Rainbow" then hexColor = "00000000" end
 
@@ -364,7 +364,7 @@ function colorPicker.getColorPicker(hexColor, options)
     local language = languageRegistry.getLanguage()
     local callback = options.callback or function() end
 
-    local parsed, r, g, b, a = vivUtil.parseColor(hexColor)
+    local parsed, r, g, b, a = vivUtil.getColor(hexColor)
     local h, s, v = utils.rgbToHsv(r or 0, g or 0, b or 0)
 
     local fieldOrder = getFormFieldOrder(options)
@@ -375,8 +375,7 @@ function colorPicker.getColorPicker(hexColor, options)
         a = (a or 1) * 255,
         h = utils.round(h * 360, hsvFieldDecimals),
         s = utils.round(s * 100, hsvFieldDecimals),
-        v = utils.round(v * 100, hsvFieldDecimals),
-        hexColor = hexColor
+        v = utils.round(v * 100, hsvFieldDecimals)
     }
 
     local formOptions = {
@@ -400,8 +399,8 @@ function colorPicker.getColorPicker(hexColor, options)
         end
         field.width = 60
         if name == "hexColor" then
-            field.displayTransformer = transformer
-            field.valueTransformer = transformer
+            field.displayTransformer = vivUtil.hexToDisplayHex
+            field.valueTransformer = vivUtil.hexToDisplayHex
         end
         if ranges then
             field.minimumValue = ranges[1]

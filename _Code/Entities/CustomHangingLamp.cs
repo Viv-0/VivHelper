@@ -148,15 +148,15 @@ namespace VivHelper.Entities {
                 }
             }
             Vector2 vector = Calc.AngleToVector(rotation + (float) Math.PI / 2f, lightDistance);
-            bloom.Position = light.Position = vector;
+            bloom.Position = light.Position = vector + Position.Round() - Position;
             sfx.Position = vector;
         }
 
         public override void Render() {
             if (sprites.Count > 0) {
-                foreach(Image i in sprites) {
-                    i.DrawOutline();
-                }
+                if(drawOutline)
+                    foreach(Image i in sprites)
+                        i.DrawOutline();
                 foreach (Image i in sprites) {
                     i.Render();
                 }

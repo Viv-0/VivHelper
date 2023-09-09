@@ -78,8 +78,6 @@ placements.triggers.VivHelper/RCSParticleCountTrigger.tooltips.SetValue=The valu
 placements.triggers.VivHelper/RCSParticleCountTrigger.tooltips.RevertOnLeave=Whether or not the Particle Count is changed back upon leaving the trigger.
 
 
-
-
 # -- Entities --
 placements.entities.VivHelper/CustomTorch.tooltips.Alpha= Refers to the transparency of the light. 0 is fully transparent.
 placements.entities.VivHelper/CustomTorch.tooltips.startFade= Where the light begins to taper off, in pixels.
@@ -379,5 +377,3 @@ placements.entities.VivHelper/CustomRefillString.tooltips.UseNumber=The number o
 placements.entities.VivHelper/CustomRefillString.tooltips.WobbleType=The type of wobbling this refill does.
 placements.entities.VivHelper/CustomRefillString.tooltips.CustomAudio=Two audio events with "event:/" included, the first is the sound played on touch,\nthe second is the sound played on respawn. Leave blank for smart default.
 placements.entities.VivHelper/CustomRefillString.tooltips.FlagToggle=If this is set to a string, the refill will be permanently outlined while the flag is not set.\nUse "!" at the beginning to invert this.
-
-placements.entities.VivHelper/

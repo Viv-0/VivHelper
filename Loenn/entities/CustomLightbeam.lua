@@ -34,7 +34,7 @@ local drawableSprite = require("structs.drawable_sprite")
 
 local function getSprites(room, entity, onlyBase)
     -- Shallowcopy so we can change the alpha later
-    color = vivUtil.getColor(entity.Color or {0.8, 1.0, 1.0, 0.4})
+    local color = vivUtil.getColorTable(entity.Color or {0.8, 1.0, 1.0, 0.4})
 
     if not color[4] then
         color[4] = 0.4
@@ -44,7 +44,7 @@ local function getSprites(room, entity, onlyBase)
     local x, y = entity.x, entity.y
 
     local spr = entity.Texture
-    if vivUtil.isNullEmptyOrWhitespace(color) then spr = "util/lightbeam" end
+    if vivUtil.isNullEmptyOrWhitespace(spr) then spr = "util/lightbeam" end
 
     local sprite = drawableSprite.fromTexture(spr, entity)
     local theta = math.rad(entity.rotation or 0)

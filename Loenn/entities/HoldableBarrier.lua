@@ -4,6 +4,8 @@ local drawableSpriteStruct = require('structs.drawable_sprite')
 local drawableRectangle = require('structs.drawable_rectangle')
 
 local HoldableBarrier = {}
+local C1 = {0.353,0.431,0.882,0.5}
+local C2 = {0.353,0.431,0.882,0.75}
 
 HoldableBarrier.name = "VivHelper/HoldableBarrier"
 HoldableBarrier.depth = 0
@@ -15,10 +17,7 @@ HoldableBarrier.placements = {
     }
 }
 function HoldableBarrier.sprite(room,entity)
-
-    local c1 = {0.353,0.431,0.882,0.5}
-    local c2 = {0.353,0.431,0.882,0.75}
-    return drawableRectangle.fromRectangle("bordered",entity.x,entity.y,entity.width,entity.height,c1,c2)
+    return drawableRectangle.fromRectangle("bordered",entity.x,entity.y,entity.width,entity.height,C1,C2)
 end
 
 local HBC2 = {
@@ -34,13 +33,13 @@ HBC2.placements = {
     }
 }
 HBC2.fieldInformation = {
-    EdgeColor = {fieldType = "VivHelper.color"},
-    ParticleColor = {fieldType = "VivHelper.color"},
+    EdgeColor = {fieldType = "VivHelper.color", allowXNAColors = true},
+    ParticleColor = {fieldType = "VivHelper.color", allowXNAColors = true},
     ParticleAngle = {minimumValue = 0.0, maximumValue = 360.0}
 }
 HBC2.sprite = function(room,entity) return {
         drawableSpriteStruct.fromTexture("ahorn/VivHelper/HBC", entity),
-        drawableRectangle.fromRectangle("bordered", entity.x-7,entity.y+2,14,6,vivUtil.getColor(entity.ParticleColor),vivUtil.getColor(entity.EdgeColor))
+        drawableRectangle.fromRectangle("bordered", entity.x-7,entity.y+2,14,6,vivUtil.getColorTable(entity.ParticleColor, true, C1),vivUtil.getColorTable(entity.EdgeColor, true, C2))
 } end
 
 local HoldableJumpthru = {}
@@ -53,9 +52,6 @@ HoldableJumpthru.placements = {name = "main", data = {
 }}
 
 function HoldableJumpthru.sprite(room, entity)
-    local c1 = {0.353,0.431,0.882,0.5}
-    local c2 = {0.353,0.431,0.882,0.75}
-
     local x, y = entity.x or 0, entity.y or 0
     local width = entity.width or 8
 
@@ -82,13 +78,13 @@ function HoldableJumpthru.sprite(room, entity)
         s1:setJustification(0, 0)
         s1:addPosition(i * 8, 0)
         s1:useRelativeQuad(quadX, quadY, 8, 8)
-        s1:setColor(c1)
+        s1:setColor(C1)
         table.insert(sprites, s1)
         local s2 = drawableSpriteStruct.fromTexture("VivHelper/holdableJumpThru/01", entity)
         s2:setJustification(0, 0)
         s2:addPosition(i * 8, 0)
         s2:useRelativeQuad(quadX, quadY, 8, 8)
-        s2:setColor(c2)
+        s2:setColor(C2)
         table.insert(sprites, s2)
     end
     return sprites

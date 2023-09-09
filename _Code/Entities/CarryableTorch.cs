@@ -58,7 +58,9 @@ namespace Celeste.Mod.Torchlight {
 
         }
         public override void Added(Scene scene) {
-            Add(vLight = new VertexLight(color[0], alpha, r1, r2));
+            if (alpha > 0) { 
+                Add(vLight = new VertexLight(color[0], alpha, r1, r2));
+            }
             base.Added(scene);
             Add(new TransitionListener {
                 OnOut = delegate {
@@ -70,9 +72,16 @@ namespace Celeste.Mod.Torchlight {
         public override void Awake(Scene scene) {
             base.Awake(scene);
             level = SceneAs<Level>();
+            vLight.InSolidAlphaMultiplier = 0f;
             if (level != null)
                 roomName = level.Session.Level;
         }
+
+        public override void Update() {
+            base.Update();
+            vLight.Position = Position.Round() - Position;
+        }
+
         private void OnPlayer(Player player) {
             this.player = player;
             Audio.Play("event:/env/local/campfire_start", Position);
@@ -81,5 +90,6 @@ namespace Celeste.Mod.Torchlight {
             Collidable = false;
             base.Depth = -1000000;
         }
+
     }
 }

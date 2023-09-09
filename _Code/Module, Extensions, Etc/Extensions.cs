@@ -60,9 +60,7 @@ namespace VivHelper {
             StateMachine_ends.SetValue(machine, ends);
             StateMachine_coroutines.SetValue(machine, coroutines);
             Func<IEnumerator> _coroutine = null;
-            if (coroutine != null) {
-                _coroutine = () => coroutine(machine.Entity as Player);
-            }
+            if (coroutine != null) _coroutine = () => coroutine(machine.Entity as Player);
             machine.SetCallbacks(nextIndex, () => onUpdate(machine.Entity as Player), _coroutine, () => begin(machine.Entity as Player), () => end(machine.Entity as Player));
             return nextIndex;
         }
@@ -115,6 +113,20 @@ namespace VivHelper {
             if (self.Entities.TryGetValue(type, out entities))
                 return true;
             return false;
+        }
+
+        public static T GetNearestEntity<T>(this Tracker self, Vector2 nearestTo, out float distSq) where T : Entity {
+            List<Entity> entities = self.GetEntities<T>();
+            T val = null;
+            distSq = 0f;
+            foreach (T item in entities) {
+                float num2 = Vector2.DistanceSquared(nearestTo, item.Position);
+                if (val == null || num2 < distSq) {
+                    val = item;
+                    distSq = num2;
+                }
+            }
+            return val;
         }
 
         public static bool StringIfNotEmpty(this EntityData data, string key, out string value) {
@@ -174,11 +186,25 @@ namespace VivHelper {
                 main.ContactMod = 3;
             else if (main.ContactMod != smc.ContactMod)
                 main.ContactMod = Math.Max(main.ContactMod, smc.ContactMod);
-            /* 0, 0 : 0   0, 1 : 1   0, 2 : 2   0, 3 : 3
-			   1, 0 : 1   1, 1 : 1   1, 2 : 3   1, 3 : 3
-			   2, 0 : 2   2, 1 : 3   2, 2 : 2   2, 3 : 3
-			   3, 0 : 3   3, 1 : 3   3, 2 : 3,  3, 3 : 3 */
-            main.CornerBoostBlock = Math.Max(main.CornerBoostBlock, smc.CornerBoostBlock);
+            // If A has default and B doesn't, prioritize B (A|B)
+            // If A has a specific integer value (positive) and B has a behavior integer value (negative), prioritize the negative
+            // If A and B have specific integer values (positive), choose the greater of the two
+            // If A and B have behavior integer values (negative), behavior is A|B
+            if (main.CornerBoostBlock == 0) {
+                main.CornerBoostBlock = smc.CornerBoostBlock; // functionally 0|B === B
+            } else if (smc.CornerBoostBlock != 0) {
+                if (main.CornerBoostBlock < 0) { // if A is behavioral
+                    if (smc.CornerBoostBlock < 0) {
+                        main.CornerBoostBlock = main.CornerBoostBlock | smc.CornerBoostBlock; // A | B
+                    } // else do nothing, because A is already prioritized over B
+                } else { // if A is specific integer value (positive)
+                    if (smc.CornerBoostBlock > 0) { // if both A and B are specific integer values, choose the greater of the two
+                        main.CornerBoostBlock = Math.Max(main.CornerBoostBlock, smc.CornerBoostBlock); // choose the greater leniency
+                    } else { // if A is specific integer value and B is behavior integer value, prioritize B
+                        main.CornerBoostBlock = smc.CornerBoostBlock;
+                    }
+                }
+            }
             smc2 = main;
         }
 

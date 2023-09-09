@@ -169,7 +169,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
         }
     }},
     fieldOrder = { "x", "y", "width", "height", "TargetID", "RoomName", "Persistence", "ExitDirection",
-        "RequiredFlags", "FlagsOnTeleport", "TransitionType", "ResetDashes", "AddTriggerOffset", "BringHoldableThrough", "IgnoreNoSpawnpoints", 
+        "RequiredFlags", "FlagsOnTeleport", "TransitionType", "ResetDashes", "BringHoldableThrough", "IgnoreNoSpawnpoints", "EndCutsceneOnWarp",
         "FlashColor", "FlashAlpha",
         "LightningCount", "LightningOffsetRange", "LightningDelay", "LightningMaxDelay", "Flash", "Shake",
         "GlitchStrength", "StartingGlitchDuration", "EndingGlitchDuration", "StartingGlitchEase", "EndingGlitchEase", 
@@ -184,7 +184,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
             "GlitchStrength", "StartingGlitchDuration", "EndingGlitchDuration", "StartingGlitchEase", "EndingGlitchEase", "freezeOnTeleport", "wipeOnEnter","wipeOnLeave"}
         elseif tt == "Glitch" then return {"_id","_name","TransitionType", "FlashColor","FlashAlpha",
             "LightningCount","LightningOffsetRange", "LightningDelay", "LightningMaxDelay", "Flash", "Shake", "wipeOnEnter","wipeOnLeave"}
-        elseif tt == "Wipe" then return {"TransitionType", "FlashColor","FlashAlpha",
+        elseif tt == "Wipe" then return {"_id","_name","TransitionType", "FlashColor","FlashAlpha",
             "LightningCount","LightningOffsetRange", "LightningDelay", "LightningMaxDelay", "Flash", "Shake",
             "GlitchStrength", "StartingGlitchDuration", "EndingGlitchDuration", "StartingGlitchEase", "EndingGlitchEase"}
         else return {"_id","_name","TransitionType", "FlashColor","FlashAlpha",
@@ -217,7 +217,7 @@ Teleporter.fieldInformation = function(entity)
         ["Not Right (U/L/D)"] = 14,
         ["Any Exit (Default)"] = 15,
     }, editable = false },
-    RoomName = {fieldType = "VivHelper.room_names"},
+    RoomName = {fieldType = "VivHelper.room_names", allowEmpty = true},
     Persistence = {options = {"None","OncePerRetry","OncePerMapPlay"}, editable = false} }
 
     if tt == "Flash" then 
@@ -226,13 +226,7 @@ Teleporter.fieldInformation = function(entity)
         entity.FlashColor = entity.FlashColor or "ffffffff"
         entity.FlashAlpha = entity.FlashAlpha or 1.0
     elseif tt == "Lightning" then 
-        ret["LightningOffsetRange"] = {fieldType = "string", defaultValue = "-130,130",
-        validator = function(s)
-            if not s or #s > 0 then return false end
-            local _s = s:gmatch(",")
-            return #_s ~= 2 and false or (tonumber(_s[1]:gsub("%s+", "")) ~= nil and tonumber(_s[2]:gsub("%s+", "")) ~= nil) 
-        end
-        }
+        ret["LightningOffsetRange"] = {fieldType = "string", defaultValue = "-130,130"}
         ret["LightningCount"] = {fieldType = "integer", defaultValue = 2}
         ret["LightningDelay"] = {fieldType = "number", minimumValue = 0.0, defaultValue = 0.25 }
         ret["LightningMaxDelay"] = {fieldType = "number"}
@@ -254,7 +248,6 @@ Teleporter.fieldInformation = function(entity)
     -- freezeOnTeleport, wipeOnEnter, wipeOnLeave   
     return ret     
 end
-Teleporter._vivh_finalizePlacement = function(room,layer,item) item.RoomName = room.name end
 
 vh_tag.addTagControlToHandler(Teleporter, "TargetID", "teleporttarget", false)
 

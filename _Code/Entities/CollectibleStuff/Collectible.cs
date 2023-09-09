@@ -23,6 +23,14 @@ namespace VivHelper.Entities {
     [CustomEntity("VivHelper/Collectible")]
     public class Collectible : Entity {
 
+        internal static readonly Dictionary<string, string> legacyAudioManager = new Dictionary<string, string>(5) {
+            { "event:/VivHelper/CoinCollect", "event:/VivHelper/coin|type=1" },
+            { "event:/VivHelper/CorrectCollect", "event:/VivHelper/coin|type=4" },
+            { "event:/VivHelper/DragonCoinCollect","event:/VivHelper/coin|type=2" },
+            { "event:/VivHelper/IncorrectCollect","event:/VivHelper/coin|type=5" },
+            { "event:/VivHelper/MoveCollect","event:/VivHelper/coin|type=3" }
+        };
+
         internal static int idIntegerForDecalEntities = 0;
         private static IDetour hook_Level_orig_LoadLevel;
         public static void Load() {
@@ -161,7 +169,7 @@ namespace VivHelper.Entities {
         public Collectible(EntityData data, Vector2 offset, EntityID id) : base(data.Position + offset) {
 
             particleColor = VivHelper.ColorFix(data.Attr("particleColor", "Goldenrod"));
-            audioEvent = data.Attr("CollectAudio", "event:/VivHelper/CoinCollect");
+            audioEvent = data.Attr("CollectAudio", "event:/VivHelper/coin:1");
             group = data.Attr("group", "");
 
             //Collection formats
@@ -273,6 +281,101 @@ namespace VivHelper.Entities {
                 Collider = new Hitbox(8, 8, -4, -4);
             }
             Collider = new Hitbox(m.Width * Scale.X, m.Height * Scale.Y, m.Width * Scale.X / -2, m.Height * Scale.Y / -2);
+        }
+
+
+        public static void LoadBaseCollectibles() {
+            baseCollectibles = new Dictionary<string, Collectible>()
+            {
+                {"goldcoin", new Collectible() {
+                    PlayerCollect = true,
+                    HoldableCollect = Collectible.HoldableCollectTypes.None,
+                    SeekerCollect = false,
+                    SpriteReference = "goldcoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Gold, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Gold, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                {"whitecoin", new Collectible() {
+                    PlayerCollect = true,
+                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
+                    SeekerCollect = true,
+                    SpriteReference = "whitecoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.WhiteSmoke, Color2 = Color.WhiteSmoke * 0.4f }
+                } },
+                {"redcoin", new Collectible() {
+                    PlayerCollect = true,
+                    HoldableCollect = Collectible.HoldableCollectTypes.None,
+                    SeekerCollect = false,
+                    SpriteReference = "redcoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Red, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Red, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                {"bluecoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.JellyOnly,
+                    PlayerCollect = false, SeekerCollect = false,
+                    SpriteReference = "bluecoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Blue, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Blue, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                {"greencoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.TheoOnly,
+                    PlayerCollect = false, SeekerCollect = false,
+                    SpriteReference = "greencoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Green, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Green, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                {"cyancoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
+                    PlayerCollect = false, SeekerCollect = false,
+                    SpriteReference = "cyancoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Cyan, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Cyan, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                {"orangecoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
+                    PlayerCollect = false, SeekerCollect = true,
+                    SpriteReference = "orangecoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Orange, Color.WhiteSmoke, 0.2f), Color2 = Color.Lerp(Color.Orange, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                { "purplecoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
+                    PlayerCollect = true, SeekerCollect = true,
+                    SpriteReference = "purplecoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Purple, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Purple, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+
+                {"AllCollect/goldcoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
+                    PlayerCollect = true, SeekerCollect = true,
+                    SpriteReference = "goldcoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Gold, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Gold, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                {"AllCollect/redcoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
+                    PlayerCollect = true, SeekerCollect = true,
+                    SpriteReference = "redcoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Red, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Red, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                {"AllCollect/bluecoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
+                    PlayerCollect = true, SeekerCollect = true,
+                    SpriteReference = "bluecoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Blue, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Blue, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                {"AllCollect/greencoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
+                    PlayerCollect = true, SeekerCollect = true,
+                    SpriteReference = "greencoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Green, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Green, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                {"AllCollect/cyancoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
+                    PlayerCollect = true, SeekerCollect = true,
+                    SpriteReference = "cyancoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Cyan, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Cyan, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } },
+                {"AllCollect/orangecoin", new Collectible() {
+                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
+                    PlayerCollect = true, SeekerCollect = true,
+                    SpriteReference = "orangecoin",
+                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Orange, Color.WhiteSmoke, 0.2f), Color2 = Color.Lerp(Color.Orange, Color.WhiteSmoke, 0.3f) * 0.5f }
+                } }
+            };
         }
     }
 }

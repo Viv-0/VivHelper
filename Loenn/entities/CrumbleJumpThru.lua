@@ -17,6 +17,16 @@ return {
         },
         Delay = {fieldType = "number", minimumValue = 0 }
     },
+    placements = {
+        name = "wood",
+        data = {
+            width = 8,
+            texture = "wood",
+            surfaceIndex = 5,
+            Delay = 0.5,
+            Permanent = false
+        }
+    },
     sprite = function(room, entity)
         local textureRaw = getTexture(entity)
         local texture = "objects/jumpthru/" .. textureRaw

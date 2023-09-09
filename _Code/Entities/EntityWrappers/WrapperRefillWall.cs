@@ -101,21 +101,20 @@ namespace VivHelper.Entities {
                 Collidable = true;
             }
             tiedEntity.Collidable = false;
-            dynRefill.Invoke(respawnMethodName, Everest._EmptyObjectArray);
+            dynRefill.Invoke(respawnMethodName, VivHelper.EmptyObjectArray);
             tiedEntity.Collidable = false;
         }
 
         private bool CheckEntity(Type type, Entity entity, PlayerCollider pc) {
             if (type.ToString() != typeName) {
-                Console.WriteLine("Invalid Type Name: " + type.ToString() + "does not match " + typeName);
+                Logger.Log("VivHelper","Refill Wall @ " + Position + ": Invalid Type Name: " + type.ToString() + "does not match " + typeName);
                 return false;
             }
             if (pc.OnCollide == null) {
-                Console.WriteLine("Invalid Player Collider");
+                Logger.Log("VivHelper", "Refill Wall @ " + Position + ": Invalid Player Collider");
                 return false;
             }
             isRefillSubclass = type.IsSubclassOf(typeof(Refill));
-            Console.WriteLine(isRefillSubclass);
             dynRefill = new DynamicData(isRefillSubclass ? typeof(Refill) : type, entity);
             object o = null;
             if (spriteVarname.StartsWith("$")) {

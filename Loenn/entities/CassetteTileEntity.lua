@@ -14,25 +14,25 @@ local colors = { -- 255 / 0.75 = 340
 }
 
 local colorNames = {
-    ["Blue"] = 0,
-    ["Rose"] = 1,
-    ["Bright Sun"] = 2,
-    ["Malachite"] = 3
+    ["1 - Blue"] = 0,
+    ["2 - Rose"] = 1,
+    ["3 - Bright Sun"] = 2,
+    ["4 - Malachite"] = 3
 }
 
 cte.name = "VivHelper/CassetteTileEntity"
 cte.minimumSize = {16, 16}
-cte.fieldInformation = {
-    index = {
+cte.fieldInformation = function(entity)
+    local orig = fakeTilesHelper.getFieldInformation("tiletype")(entity)
+    orig["index"] = {
         fieldType = "integer",
         options = colorNames,
         editable = false
-    },
-    enabledTint = {fieldType = "VivHelper.color", allowXNAColors = true, allowEmpty = true },
-    disabledTint = {fieldType = "VivHelper.color", allowXNAColors = true, allowEmpty = true }
-    
-
-}
+    }
+    orig["enabledTint"] = {fieldType = "VivHelper.color", allowXNAColors = true, allowEmpty = true }
+    orig["disabledTint"] = {fieldType = "VivHelper.color", allowXNAColors = true, allowEmpty = true }
+    return orig
+end
 cte.placements = {}
 
 for i, _ in ipairs(colors) do
@@ -44,7 +44,7 @@ for i, _ in ipairs(colors) do
             tempo = 1.0,
             width = 16,
             height = 16,
-            enabledTint="",
+            enabledTint="4488ccff",
             disabledTint="",
             ConnectTilesets = false
         }

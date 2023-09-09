@@ -137,7 +137,7 @@ namespace VivHelper.Entities {
                 return false;
             if (player.Holding != null)
                 return false;
-            if (!Input.GrabCheck || (bool) VivHelper.player_IsTired(player, Celeste.Mod.Everest._EmptyObjectArray))
+            if (!Input.GrabCheck || (bool) VivHelper.player_IsTired(player, VivHelper.EmptyObjectArray))
                 return false;
             if (player.StateMachine.State == Player.StNormal || player.StateMachine.State == Player.StLaunch) {
                 return !player.Ducking;

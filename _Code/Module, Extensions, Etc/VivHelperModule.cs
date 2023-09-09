@@ -27,6 +27,8 @@ using VivHelper.Entities.Boosters;
 using VivHelper.Module__Extensions__Etc;
 using VivHelper.Triggers;
 using MonoMod.ModInterop;
+using VivHelper.Module__Extensions__Etc.Helpers;
+using VivHelper.Entities.Powerups;
 
 namespace VivHelper {
     public class VivHelperModule : EverestModule {
@@ -37,7 +39,6 @@ namespace VivHelper {
         public static MethodInfo RendererList_Update;
         public static MethodInfo Level_get_ShouldCreateCassetteManager = typeof(Level).GetProperty("ShouldCreateCassetteManager", BindingFlags.NonPublic | BindingFlags.Instance).GetGetMethod(true);
         private static FieldInfo crushBlockCrushDir;
-        public static Dictionary<string, Type> StoredTypesByName;
         public static int type;
 
         public static int BooState, PinkState, OrangeState, WindBoostState, CustomDashState, CustomBoostState;
@@ -64,7 +65,8 @@ namespace VivHelper {
 
         public static string[] UnspawnedEntityNames = new string[]
         { "VivHelper/CollectibleGroup", "VivHelper/MapRespriter", "VivHelper/HideRoomInMap",
-          "VivHelper/CustomDashStateDefiner", "VivHelper/PreviousBerriesToFlag", "VivHelper/DisableArbitrarySpawnInDebug"
+          "VivHelper/CustomDashStateDefiner", "VivHelper/PreviousBerriesToFlag", "VivHelper/DisableArbitrarySpawnInDebug",
+          "VivHelper/DisableNeutralOnHoldable"
         };
 
         public VivHelperModule() {
@@ -100,7 +102,7 @@ namespace VivHelper {
                 {"BounceOut", Ease.BounceOut },
                 {"BounceInOut", Ease.BounceInOut }
             }; //Somehow this is more efficient lmao
-            VivHelper.ColorHelper = new Dictionary<string, Color>()
+            VivHelper.colorHelper = new Dictionary<string, Color>()
             {
                 { "transparent", Color.Transparent},
                 { "aliceblue", Color.AliceBlue},
@@ -277,7 +279,7 @@ namespace VivHelper {
             playerWallJump = typeof(Player).GetMethod("WallJumpCheck", BindingFlags.Instance | BindingFlags.NonPublic);
             VariantKevin.P_Activate_Maddy = new ParticleType(CrushBlock.P_Activate) { Color = Calc.HexToColor("AC3232") };
             VariantKevin.P_Activate_Baddy = new ParticleType(CrushBlock.P_Activate) { Color = Calc.HexToColor("9B3FB5") };
-            CreateFastDelegates();
+            VivHelper.CreateFastDelegates();
             CustomDashStateCh.LoadPresets();
             FloatyFluorescentLight.collidingTypes = new List<Type>(3) { typeof(Lightning) };
             if (VivHelper.TryGetType("Celeste.Mod.JackalCollabHelper.Entities.DarkMatter", out Type t, false)) { FloatyFluorescentLight.collidingTypes.Add(t); }
@@ -291,10 +293,12 @@ namespace VivHelper {
 
         private static IDetour hook_CrushBlock_AttackSequence;
         private static IDetour hook_Player_origUpdate;
+        private static IDetour hook_Player_origWallJump;
 
         public override void Load() {
-            StoredTypesByName = new Dictionary<string, Type>();
-            //On.Celeste.GameLoader.Begin += LateInitialize;
+            Logger.SetLogLevel("VivHelper", LogLevel.Info);
+            VivHelper.StoredTypesByName = new Dictionary<string, Type>();
+            On.Celeste.GameLoader.Begin += LateInitialize;
             On.Celeste.Leader.Update += newLeaderUpdate;
             On.Celeste.TouchSwitch.ctor_Vector2 += AddCustomSeekerCollision;
             On.Celeste.Player.ctor += Player_ctor;
@@ -329,7 +333,7 @@ namespace VivHelper {
             crushBlockCrushDir = typeof(CrushBlock).GetField("crushDir", BindingFlags.NonPublic | BindingFlags.Instance);
             MethodInfo m = typeof(CrushBlock).GetMethod("AttackSequence", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget();
             hook_CrushBlock_AttackSequence = new ILHook(m, (il) => AttackSequence_CrushCustomFallingBlock(m.DeclaringType.GetField("<>4__this"), il));
-
+            hook_Player_origWallJump = new ILHook(typeof(Player).GetMethod("orig_WallJump", BindingFlags.Instance | BindingFlags.NonPublic), DisableNeutralsOnHoldable);
             On.Celeste.Mod.Meta.MapMeta.ApplyTo += parseCustomWipes;
 
             //Add PreviousRoom value to VivHelperSession
@@ -337,28 +341,45 @@ namespace VivHelper {
             //Debris hooks for Debris limiter
             On.Celeste.Debris.Added += Debris_Added;
             On.Celeste.Level.Update += Level_Update;
+            IL.Celeste.Player.TempleFallUpdate += Player_TempleFallUpdate;
+            On.Celeste.Player.TempleFallCoroutine += Player_TempleFallCoroutine;
 
             MoonHooks.Load();
-
+            DashPowerupManager.Load();
             CustomSeeker.Load();
 
             BoostFunctions.Load();
-            Module__Extensions__Etc.TeleportV2Hooks.Load();
+            TeleportV2Hooks.Load();
             Collectible.Load();
+
+            CustomCollectible.Load();
             WrappableCrushBlockReskinnable.Load();
             AudioFixSwapBlock.Load();
             CassetteTileEntity.Load();
             PolygonCollider.Load();
+            LightRegion.Load();
 
             IL.Monocle.Engine.Update += Engine_Update;
             IL.Monocle.Commands.UpdateClosed += Commands_UpdateClosed;
 
-            BronzeBerry.Load();
+
+            //BronzeBerry.Load();
 
             //ModInterop
             typeof(VivHelperAPI).ModInterop();
-
+            Debugging.Load();
             //Tester.Load();
+        }
+
+        private IEnumerator Player_TempleFallCoroutine(On.Celeste.Player.orig_TempleFallCoroutine orig, Player self) {
+            yield return new SwapImmediately(orig(self));
+            VivHelperModule.Session.OverrideTempleFallX = null;
+        }
+        private void Player_TempleFallUpdate(ILContext il) {
+            ILCursor cursor = new(il);
+            if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchLdcI4(160))) {
+                cursor.EmitDelegate<Func<int, int>>(f => VivHelperModule.Session.OverrideTempleFallX ?? f);
+            }
         }
 
         public override void LoadContent(bool firstLoad) {
@@ -371,101 +392,11 @@ namespace VivHelper {
             if (gravityHelperLoaded) {
                 typeof(GravityHelperAPI).ModInterop();
             }*/
-
             //Collectible coins require this
             Collectible.P_Flash = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark) { Color = Color.White };
             //Big method, instantiates the Base Collectibles
-            Collectible.baseCollectibles = new Dictionary<string, Collectible>()
-            {
-                {"goldcoin", new Collectible() {
-                    PlayerCollect = true,
-                    HoldableCollect = Collectible.HoldableCollectTypes.None,
-                    SeekerCollect = false,
-                    SpriteReference = "goldcoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Gold, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Gold, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                {"whitecoin", new Collectible() {
-                    PlayerCollect = true,
-                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
-                    SeekerCollect = true,
-                    SpriteReference = "whitecoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.WhiteSmoke, Color2 = Color.WhiteSmoke * 0.4f }
-                } },
-                {"redcoin", new Collectible() {
-                    PlayerCollect = true,
-                    HoldableCollect = Collectible.HoldableCollectTypes.None,
-                    SeekerCollect = false,
-                    SpriteReference = "redcoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Red, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Red, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                {"bluecoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.JellyOnly,
-                    PlayerCollect = false, SeekerCollect = false,
-                    SpriteReference = "bluecoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Blue, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Blue, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                {"greencoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.TheoOnly,
-                    PlayerCollect = false, SeekerCollect = false,
-                    SpriteReference = "greencoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Green, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Green, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                {"cyancoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
-                    PlayerCollect = false, SeekerCollect = false,
-                    SpriteReference = "cyancoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Cyan, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Cyan, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                {"orangecoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
-                    PlayerCollect = false, SeekerCollect = true,
-                    SpriteReference = "orangecoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Orange, Color.WhiteSmoke, 0.2f), Color2 = Color.Lerp(Color.Orange, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                { "purplecoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
-                    PlayerCollect = true, SeekerCollect = true,
-                    SpriteReference = "purplecoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Purple, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Purple, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-
-                {"AllCollect/goldcoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
-                    PlayerCollect = true, SeekerCollect = true,
-                    SpriteReference = "goldcoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Gold, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Gold, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                {"AllCollect/redcoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
-                    PlayerCollect = true, SeekerCollect = true,
-                    SpriteReference = "redcoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Red, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Red, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                {"AllCollect/bluecoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
-                    PlayerCollect = true, SeekerCollect = true,
-                    SpriteReference = "bluecoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Blue, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Blue, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                {"AllCollect/greencoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
-                    PlayerCollect = true, SeekerCollect = true,
-                    SpriteReference = "greencoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Green, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Green, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                {"AllCollect/cyancoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
-                    PlayerCollect = true, SeekerCollect = true,
-                    SpriteReference = "cyancoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Cyan, Color.WhiteSmoke, 0.3f), Color2 = Color.Lerp(Color.Cyan, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } },
-                {"AllCollect/orangecoin", new Collectible() {
-                    HoldableCollect = Collectible.HoldableCollectTypes.AllHoldables,
-                    PlayerCollect = true, SeekerCollect = true,
-                    SpriteReference = "orangecoin",
-                    particleType = new ParticleType(NPC03_Oshiro_Lobby.P_AppearSpark){Color = Color.Lerp(Color.Orange, Color.WhiteSmoke, 0.2f), Color2 = Color.Lerp(Color.Orange, Color.WhiteSmoke, 0.3f) * 0.5f }
-                } }
-            };
+            Collectible.LoadBaseCollectibles();
+            DashPowerupManager.LoadDefaultPowerups();
             SpawnPoint._texture = GFX.Game["VivHelper/player_outline"];
 
             //Loads in mod-related variables
@@ -478,7 +409,7 @@ namespace VivHelper {
         }
 
         public override void Unload() {
-            //On.Celeste.GameLoader.Begin -= LateInitialize;
+            On.Celeste.GameLoader.Begin -= LateInitialize;
             On.Celeste.Leader.Update -= newLeaderUpdate;
             On.Celeste.TouchSwitch.ctor_Vector2 -= AddCustomSeekerCollision;
             On.Celeste.Player.ctor -= Player_ctor;
@@ -516,6 +447,7 @@ namespace VivHelper {
             On.Celeste.Level.Update -= Level_Update;
 
             MoonHooks.Unload();
+            DashPowerupManager.Unload();
             CustomSeeker.Unload();
 
             BoostFunctions.Unload();
@@ -526,21 +458,20 @@ namespace VivHelper {
             AudioFixSwapBlock.Unload();
             CassetteTileEntity.Unload();
             PolygonCollider.Unload();
+            LightRegion.Unload();
 
             IL.Monocle.Engine.Update -= Engine_Update;
             IL.Monocle.Commands.UpdateClosed -= Commands_UpdateClosed;
 
-            BronzeBerry.Unload();
+            //BronzeBerry.Unload();
+
+
+            Debugging.Unload();
         }
-        /// <summary>
-        /// This is the omega-cursed content section. Do not do this, and if you do, talk to me first so I can help you not suffer.
-        /// This is how I manage to copy contents of methods to other methods.
-        /// </summary>
-        private static void LateInitialize(On.Celeste.GameLoader.orig_Begin orig, GameLoader self) {
+
+        public static void LateInitialize(On.Celeste.GameLoader.orig_Begin orig, GameLoader self) {
             orig(self);
-            using (new DetourContext { After = { "*" } }) {
-                IL.Celeste.Player.WallJumpCheck += NOTAHOOK; // This copies the contents of the ILContext MethodBody to the new method. This is as cursed as it looks.
-            }
+            CILAbuse.LoadIL();
         }
 
         private static void NOTAHOOK(ILContext il) {
@@ -566,12 +497,12 @@ namespace VivHelper {
             orig(self);
             if (self.OnRawInterval(self.Paused ? 3f : 40f)) {
                 try {
-                    EntityDebugColor = (Color) CelesteTAS_EntityDebugColor.Invoke(CelesteTASModuleInstance._Settings, Everest._EmptyObjectArray);
+                    EntityDebugColor = (Color) CelesteTAS_EntityDebugColor.Invoke(CelesteTASModuleInstance._Settings, VivHelper.EmptyObjectArray);
                 } catch {
                     EntityDebugColor = null;
                 }
                 try {
-                    TriggerDebugColor = (Color) CelesteTAS_TriggerDebugColor.Invoke(CelesteTASModuleInstance._Settings, Everest._EmptyObjectArray);
+                    TriggerDebugColor = (Color) CelesteTAS_TriggerDebugColor.Invoke(CelesteTASModuleInstance._Settings, VivHelper.EmptyObjectArray);
                 } catch {
                     TriggerDebugColor = null;
                 }
@@ -745,15 +676,15 @@ namespace VivHelper {
                     } else if (entity.Name == "VivHelper/CrystalBombDetonator" && !cbdR) {
                         Level.Add(new CrystalBombDetonatorRenderer());
                         cbdR = true;
-                    /*} else if (entity.Name == "VivHelper/CustomPauseMenuHeader" && !cpmh) {
-                        List<EntityData> datas = new List<EntityData>();
-                        foreach (LevelData l in Levels) {
-                            if (l.Entities != null) {
-                                datas.AddRange(l.Entities.Where(e => e.Name == "VivHelper/CustomPauseMenuHeader"));
+                        /*} else if (entity.Name == "VivHelper/CustomPauseMenuHeader" && !cpmh) {
+                            List<EntityData> datas = new List<EntityData>();
+                            foreach (LevelData l in Levels) {
+                                if (l.Entities != null) {
+                                    datas.AddRange(l.Entities.Where(e => e.Name == "VivHelper/CustomPauseMenuHeader"));
+                                }
                             }
-                        }
-                        cpmh = true;
-                        self.Level.Add(new );*/
+                            cpmh = true;
+                            self.Level.Add(new );*/
                     } else if (!collCont && (entity.Name == "VivHelper/CollectibleGroup" || entity.Name == "VivHelper/Collectible")) {
                         List<EntityData> datas = new List<EntityData>();
                         foreach (LevelData l in Levels) {
@@ -793,6 +724,15 @@ namespace VivHelper {
                         }
                     } else if (mutingObjects.Contains(entity.Name)) {
                         VivHelperModule.Session.MakeChangesToAudioSet(entity);
+                    } else if (entity.Name == "VivHelper/DisableNeutralOnHoldable") {
+                        VivHelperModule.Session.DisableNeutralsOnHoldable = true;
+                    } else if(entity.Name == "VivHelper/DashPowerupManager") {
+                        Session.dashPowerupManager = new DashPowerupManager(entity.Enum("format", PowerupFormat.Override), entity.Bool("convolve"), entity.NoEmptyString("defaultOverride"));
+                    } else if(DashPowerupManager.entityDataLinks.TryGetValue(entity.Name, out var value)) {
+                        if(Session.dashPowerupManager == null) {
+                            Session.dashPowerupManager = new DashPowerupManager(PowerupFormat.Override, false);
+                        }
+                        Session.dashPowerupManager.validPowerups.AddRange(value);
                     }
                 }
             }
@@ -908,6 +848,10 @@ namespace VivHelper {
             WindBoostState = self.StateMachine.AddState(WindBoost.Update, WindBoost.Coroutine, WindBoost.Begin, WindBoost.End);
             CustomBoostState = self.StateMachine.AddState(UltraCustomBoost.Update, UltraCustomBoost.Coroutine, UltraCustomBoost.Begin, UltraCustomBoost.End);
             CustomDashState = self.StateMachine.AddState(UltraCustomDash.CDashUpdate, UltraCustomDash.CDashRoutine, UltraCustomDash.CDashBegin, UltraCustomDash.CDashEnd);
+            WarpDashRefill.WarpDashState = self.StateMachine.AddState(WarpDashRefill.WarpDashUpdate, null, WarpDashRefill.WarpDashBegin, WarpDashRefill.WarpDashEnd);
+            if(VivHelperModule.Session.dashPowerupManager is DashPowerupManager m) {
+                self.Add(new DashPowerupController(true, true));
+            }
         }
 
 
@@ -987,6 +931,23 @@ namespace VivHelper {
             return orig(self, next, direction);
         }
 
+        private static void DisableNeutralsOnHoldable(ILContext il) {
+
+            ILCursor cursor = new ILCursor(il);
+            if(cursor.TryGotoNext(MoveType.After, i => i.MatchLdarg(0), j => j.MatchLdfld<Player>("moveX"))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Ldarg_1);
+                cursor.EmitDelegate<Func<int, Player, int, int>>((b, p, d) => {
+                    if (b != 0)
+                        return b;
+                    if(VivHelperModule.Session.DisableNeutralsOnHoldable && p.Holding != null) {
+                        return d;
+                    }
+                    return b;
+                });
+            }
+        }
+
 
         public static bool MatchDashState(int state) {
             return new int[] { 2, 5, VivHelperModule.OrangeState, VivHelperModule.WindBoostState, VivHelperModule.PinkState, VivHelperModule.CustomDashState }.Contains(state);
@@ -997,19 +958,7 @@ namespace VivHelper {
 
         public static float MagicStaminaFix() { return 110f; } //Right now this isn't useful, but it will be in the future, if any mod caps stamina over 110.
 
-        public static void CreateFastDelegates() {
-            //This is always called *after* playerWallJump is defined.
-            VivHelper.player_WallJumpCheck = playerWallJump.GetFastDelegate();
-            VivHelper.player_WallJump = typeof(Player).GetMethod("WallJump", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
-            VivHelper.player_ClimbJump = typeof(Player).GetMethod("ClimbJump", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
-            VivHelper.player_DashCorrectCheck = typeof(Player).GetMethod("DashCorrectCheck", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
-            VivHelper.player_DreamDashCheck = typeof(Player).GetMethod("DreamDashCheck", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
-            VivHelper.player_SuperJump = typeof(Player).GetMethod("SuperJump", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
-            VivHelper.player_SuperWallJump = typeof(Player).GetMethod("SuperWallJump", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
-            VivHelper.player_Pickup = typeof(Player).GetMethod("Pickup", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
-            VivHelper.player_DustParticleFromSurfaceIndex = typeof(Player).GetMethod("DustParticleFromSurfaceIndex", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
-            VivHelper.player_IsTired = typeof(Player).GetMethod("get_IsTired", BindingFlags.Instance | BindingFlags.NonPublic).GetFastDelegate();
-        }
+       
 
         private void Commands_UpdateClosed(ILContext il) {
             ILCursor cursor = new ILCursor(il);

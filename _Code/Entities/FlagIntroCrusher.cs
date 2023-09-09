@@ -50,8 +50,8 @@ namespace VivHelper.Entities {
 
         }
 
-        public override void Added(Scene scene) {
-            base.Added(scene);
+        public override void Awake(Scene scene) {
+            base.Awake(scene);
             triggered = false;
             if (flags != null ? VivHelperModule.OldGetFlags(scene as Level, flags, "and") : false) {
                 Position = end;

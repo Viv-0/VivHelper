@@ -25,6 +25,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <UseVSHostingProcess>false</UseVSHostingProcess>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -38,21 +39,58 @@
     <Compile Include="Dialogue\BetterCutscene.cs" />
     <Compile Include="Dialogue\DialogExtensions.cs" />
     <Compile Include="Effects\CustomRain.cs" />
+    <Compile Include="Entities\BiasedWalls.cs" />
     <Compile Include="Entities\BronzeBerry.cs" />
     <Compile Include="Entities\BumperStuff\CustomBumper.cs" />
+    <Compile Include="Entities\CustomCollectible.cs" />
+    <Compile Include="Entities\FireworkRefill.cs" />
+    <Compile Include="Entities\Potion.cs" />
+    <Compile Include="Entities\Powerups\BoostDash.cs" />
+    <Compile Include="Entities\Powerups\BumperPowerup.cs" />
+    <Compile Include="Entities\Powerups\FeatherRefill.cs" />
+    <Compile Include="Entities\Powerups\FireworkRefill.cs" />
+    <Compile Include="Entities\Powerups\WarpDash.cs" />
+    <Compile Include="Entities\SlowTheo.cs" />
+    <Compile Include="Entities\SpikeStuff\CoreToggleSpikes.cs" />
+    <Compile Include="Entities\CustomAngryOshiro.cs" />
+    <Compile Include="Entities\CustomFakeWall.cs" />
     <Compile Include="Entities\CustomHeart\DashCodeEntitySpawner.cs" />
     <Compile Include="Entities\CustomHeart\HeartSpawnFeatures.cs" />
     <Compile Include="Entities\CustomPauseMenuHeader.cs" />
+    <Compile Include="Entities\EntityWrappers\DepthSetter.cs" />
     <Compile Include="Entities\EntityWrappers\RefillPotionWrapper.cs" />
     <Compile Include="Entities\EntityWrappers\WrapperRefillPotion.cs" />
     <Compile Include="Entities\GoldenBerryFlagController.cs" />
+    <Compile Include="Entities\GroupedParallaxDecal.cs" />
+    <Compile Include="Entities\LightRegion.cs" />
+    <Compile Include="Entities\PreLevelStartFlagSetter.cs" />
+    <Compile Include="Entities\Powerups\RedDashRefill.cs" />
     <Compile Include="Entities\RefillPotion.cs" />
+    <Compile Include="Entities\RegionSpecificSwapBlock.cs" />
     <Compile Include="Entities\RotatorBooster.cs" />
+    <Compile Include="Entities\BlueSquare.cs" />
+    <Compile Include="Entities\SizableJelly.cs" />
+    <Compile Include="Entities\UltimateCustomDashRefill.cs" />
     <Compile Include="Module, Extensions, Etc\AudioModifiers.cs" />
     <Compile Include="Module, Extensions, Etc\CILAbuse.cs" />
+    <Compile Include="Module, Extensions, Etc\CustomDashOptions.cs" />
+    <Compile Include="Module, Extensions, Etc\DashPowerupController.cs" />
+    <Compile Include="Module, Extensions, Etc\DashPowerupManager.cs" />
+    <Compile Include="AdditionalClasses\UnorderedPair.cs" />
+    <Compile Include="Module, Extensions, Etc\Helpers\ColorHelper.cs" />
+    <Compile Include="Module, Extensions, Etc\Helpers\Debugging.cs" />
+    <Compile Include="Module, Extensions, Etc\Helpers\EaseHelper.cs" />
+    <Compile Include="Module, Extensions, Etc\Helpers\EntityHelper.cs" />
+    <Compile Include="Module, Extensions, Etc\Helpers\MathHelper.cs" />
+    <Compile Include="Module, Extensions, Etc\Helpers\InGameUtils.cs" />
+    <Compile Include="Module, Extensions, Etc\Helpers\ModdedHelper.cs" />
+    <Compile Include="Module, Extensions, Etc\Helpers\PlayerHelper.cs" />
+    <Compile Include="Module, Extensions, Etc\Helpers\TypeHelper.cs" />
     <Compile Include="Module, Extensions, Etc\HoldablePlus.cs" />
-    <Compile Include="Module, Extensions, Etc\LuaTomfoolery\NLuaHelper.cs" />
+    <Compile Include="Module, Extensions, Etc\LuaHelper.cs" />
+    <Compile Include="Module, Extensions, Etc\Parsers\StringToGroup.cs" />
     <Compile Include="Module, Extensions, Etc\pseudoconsts.cs" />
+    <Compile Include="Module, Extensions, Etc\RefillBase.cs" />
     <Compile Include="Module, Extensions, Etc\RetrievedAPIs\GravityHelperAPI.cs" />
     <Compile Include="Module, Extensions, Etc\TeleporterFunctions.cs" />
     <Compile Include="Module, Extensions, Etc\VivHelperAPI.cs" />
@@ -75,7 +113,6 @@
     <Compile Include="Entities\CollectibleStuff\CollectibleController.cs" />
     <Compile Include="Entities\CoreMusicController.cs" />
     <Compile Include="Entities\CustomCassette.cs" />
-    <Compile Include="Entities\CustomFallingBlock_170.cs" />
     <Compile Include="Entities\CustomHeightDisplay.cs" />
     <Compile Include="Entities\CustomTorchV2.cs" />
     <Compile Include="Entities\DashCountGate.cs" />
@@ -129,16 +166,18 @@
     <Compile Include="Entities\ImprovedTheoCrystal.cs" />
     <Compile Include="Entities\CustomFallingBlock_140.cs" />
     <Compile Include="InputPlaybacks\InputModifierHooks.cs" />
-    <Compile Include="Module, Extensions, Etc\CustomSpriteHandling\CompositeSpritesheet.cs" />
+    <Compile Include="AdditionalClasses\CompositeSpritesheet.cs" />
     <Compile Include="Module, Extensions, Etc\CustomDashStateCh.cs" />
-    <Compile Include="Module, Extensions, Etc\CustomSpriteHandling\FrameAnimation.cs" />
+    <Compile Include="AdditionalClasses\FrameAnimation.cs" />
     <Compile Include="ShapeStuff\Triangulator\CyclicalList.cs" />
     <Compile Include="ShapeStuff\Triangulator\IndexableCyclicalLinkedList.cs" />
     <Compile Include="ShapeStuff\Triangulator\LineSegment.cs" />
     <Compile Include="ShapeStuff\Triangulator\Triangle.cs" />
     <Compile Include="ShapeStuff\Triangulator\Triangulator.cs" />
     <Compile Include="ShapeStuff\Triangulator\Vertex.cs" />
+    <Compile Include="Triggers\AudioEventTrigger.cs" />
     <Compile Include="Triggers\ChangeRespawnIfFlag.cs" />
+    <Compile Include="Triggers\DisableNeutralsWhileHolding.cs" />
     <Compile Include="Triggers\InfDashTrigger.cs" />
     <Compile Include="Entities\MoveOnPlayerPlatform.cs" />
     <Compile Include="Entities\SeekerStuff\InverseSeekerBarrier.cs" />
@@ -220,6 +259,7 @@
     <Compile Include="Module, Extensions, Etc\PicoFont.cs" />
     <Compile Include="Polygon\PolygonalTriggerTrigger.cs" />
     <Compile Include="Triggers\TeleporterRework.cs" />
+    <Compile Include="Triggers\TempleFallTrigger.cs" />
     <Compile Include="Triggers\TriggerPersistence.cs" />
     <Compile Include="Wipes\FastSpotlightWipe.cs" />
     <Compile Include="Module, Extensions, Etc\Colorblind.cs" />
@@ -230,7 +270,6 @@
     <Compile Include="Module, Extensions, Etc\SmarterEntities.cs" />
     <Compile Include="Module, Extensions, Etc\MTextureExtViv.cs" />
     <Compile Include="Module, Extensions, Etc\Extensions.cs" />
-    <Compile Include="Module, Extensions, Etc\VivHelper.cs" />
     <Compile Include="Module, Extensions, Etc\VivHelperCommands.cs" />
     <Compile Include="Module, Extensions, Etc\VivHelperModule.cs" />
     <Compile Include="Module, Extensions, Etc\VivHelperModuleSaveData.cs" />
@@ -262,65 +301,45 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Celeste">
-      <HintPath>..\..\..\Celeste.exe</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="FNA">
-      <HintPath>..\..\..\FNA.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="KeraLua, Version=1.2.10.0, Culture=neutral, PublicKeyToken=6a194c04b9c89217, processorArchitecture=MSIL">
-      <HintPath>packages\KeraLua.1.2.10\lib\net45\KeraLua.dll</HintPath>
-    </Reference>
-    <Reference Include="MMHOOK_Celeste">
-      <HintPath>..\..\..\MMHOOK_Celeste.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\..\..\Mono.Cecil.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MonoMod">
-      <HintPath>..\..\..\MonoMod.exe</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\..\..\MonoMod.RuntimeDetour.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="MonoMod.Utils">
-      <HintPath>..\..\..\MonoMod.Utils.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="NLua, Version=1.5.6.0, Culture=neutral, PublicKeyToken=6a194c04b9c89217, processorArchitecture=MSIL">
-      <HintPath>packages\NLua.1.5.6\lib\net45\NLua.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.XML" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="YamlDotNet">
-      <HintPath>..\..\..\YamlDotNet.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <Folder Include="Entities\ArbitraryButton\" />
     <Folder Include="Entities\BetterVanilla\" />
     <Folder Include="Entities\VanillaCustom\" />
+    <Folder Include="Module, Extensions, Etc\CustomSpriteHandling\" />
     <Folder Include="ShapeStuff\GJK\" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Celeste">
+      <HintPath>..\..\..\Celeste.exe</HintPath>
+    </Reference>
+    <Reference Include="FNA">
+      <HintPath>..\..\..\FNA.dll</HintPath>
+    </Reference>
+    <Reference Include="KeraLua">
+      <HintPath>..\..\..\KeraLua.dll</HintPath>
+    </Reference>
+    <Reference Include="MMHOOK_Celeste">
+      <HintPath>..\..\..\MMHOOK_Celeste.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\..\Mono.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod">
+      <HintPath>..\..\..\MonoMod.exe</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.RuntimeDetour">
+      <HintPath>..\..\..\MonoMod.RuntimeDetour.dll</HintPath>
+    </Reference>
+    <Reference Include="MonoMod.Utils">
+      <HintPath>..\..\..\MonoMod.Utils.dll</HintPath>
+    </Reference>
+    <Reference Include="NLua">
+      <HintPath>..\..\..\NLua.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.XML" />
+    <Reference Include="YamlDotNet">
+      <HintPath>..\..\..\YamlDotNet.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="packages\KeraLua.1.2.11\build\net45\KeraLua.targets" Condition="Exists('packages\KeraLua.1.2.11\build\net45\KeraLua.targets')" />
-  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
-    <PropertyGroup>
-      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('packages\KeraLua.1.2.11\build\net45\KeraLua.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\KeraLua.1.2.11\build\net45\KeraLua.targets'))" />
-    <Error Condition="!Exists('packages\KeraLua.1.2.10\build\net45\KeraLua.targets')" Text="$([System.String]::Format('$(ErrorText)', 'packages\KeraLua.1.2.10\build\net45\KeraLua.targets'))" />
-  </Target>
-  <Import Project="packages\KeraLua.1.2.10\build\net45\KeraLua.targets" Condition="Exists('packages\KeraLua.1.2.10\build\net45\KeraLua.targets')" />
 </Project>

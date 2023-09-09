@@ -8,8 +8,8 @@ using Mono.Cecil.Cil;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VivHelper.Entities {/*
-    public class CustomPauseMenuHeader {
+namespace VivHelper.Entities {
+    public class CustomPauseMenuHeader {/*
         private static IDetour pauseHook = null;
 
         public static void Load() {
@@ -29,7 +29,7 @@ namespace VivHelper.Entities {/*
         }
 
         public static string ReplaceTitle(string prev, Level level) {
-            if(level.GetEntitiesByTagMask())
-        }
-    }*/
+
+        }*/
+    }
 }

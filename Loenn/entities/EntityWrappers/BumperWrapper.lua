@@ -22,7 +22,8 @@ BumperWrapper.placements = {
             ExplodeStrengthMultiplier=1.0, RespawnTime = 0.5,
             SetDashes = -1, SetStamina = -1,
             CoreMode = "None", Scale = 12,
-            NormalStateOnEnd = false
+            NormalStateOnEnd = false,
+            oldLaunchLogic = false
         }
     }
 }
@@ -52,6 +53,7 @@ BumperWrapper.fieldInformation = {
     }, editable = false},
     Scale = {fieldType = "integer"}
 }
+BumperWrapper.ignoredFields = {"_name", "_id", "oldLaunchLogic"}
 BumperWrapper.texture = "ahorn/VivHelper/bumperWrapper"
 BumperWrapper.color = {0.5,0.5,0.5,0.5}
 BumperWrapper.depth = -100

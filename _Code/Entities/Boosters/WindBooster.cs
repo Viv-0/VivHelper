@@ -15,30 +15,24 @@ using System.Collections;
 namespace VivHelper.Entities.Boosters {
     public class WindBoost {
         public static float timer;
-        public static void Begin() {
-            Player player = VivHelper.GetPlayer();
+        public static void Begin(Player player) {
 
             player.RefillDash();
             player.RefillStamina();
             timer = CustomBooster.timerStart;
-            CustomBooster.dyn = null;
         }
 
-        public static IEnumerator Coroutine() {
-
-            Player player = VivHelper.GetPlayer();
-            if (CustomBooster.dyn == null) {
-                CustomBooster.dyn = DynamicData.For(player);
-            }
+        public static IEnumerator Coroutine(Player player) {
+            DynamicData dyn = DynamicData.For(player);
             yield return DashFix();
-            player.Speed = CustomBooster.CorrectDashPrecision(CustomBooster.dyn?.Get<Vector2>("lastAim") ?? Vector2.Zero) * 240f;
+            player.Speed = CustomBooster.CorrectDashPrecision(dyn.Get<Vector2>("lastAim")) * 240f;
             Vector2 defSpeed = player.Speed;
             Vector2 value = Vector2.Zero;
             DynData<Level> l = new DynData<Level>(player.Scene as Level);
             while (true) {
                 Vector2 v = player.Speed;
                 player.DashDir = v;
-                CustomBooster.dyn.Set("gliderBoostDir", v);
+                dyn.Set("gliderBoostDir", v);
                 (player.Scene as Level).DirectionalShake(player.DashDir, 0.2f);
                 if (player.DashDir.X != 0f) {
                     player.Facing = (Facings) Math.Sign(player.DashDir.X);
@@ -67,10 +61,9 @@ namespace VivHelper.Entities.Boosters {
             }
         }
 
-        public static int Update() {
-            Player player = VivHelper.GetPlayer();
+        public static int Update(Player player) {
             player.LastBooster = null;
-            Vector2 v = new DynData<Player>(player).Get<Vector2>("boostTarget");
+            Vector2 v = (Vector2) VivHelper.player_boostTarget.GetValue(player);
             while (timer > 0) {
 
                 player.Center = v;
@@ -80,15 +73,14 @@ namespace VivHelper.Entities.Boosters {
                 (Engine.Scene as Level).ParticlesBG.Emit(WindBooster.P_Burst, 2, player.Center + new Vector2(0f, -2f), new Vector2(3f, 3f), (float) Math.PI / 2f);
             }
 
-            int j = (int) BoostFunctions.rdU.Invoke(player, Everest._EmptyObjectArray);
+            int j = (int) BoostFunctions.rdU.Invoke(player, VivHelper.EmptyObjectArray);
             j = j == 5 ? VivHelperModule.WindBoostState : j;
 
             return j;
 
         }
 
-        public static void End() {
-            Player player = VivHelper.GetPlayer();
+        public static void End(Player player) {
             player.Position.Y = (float) Math.Round((double) player.Position.Y);
             player.Sprite.Visible = true;
         }

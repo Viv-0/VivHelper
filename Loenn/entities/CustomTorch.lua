@@ -29,7 +29,7 @@ function torch.texture(room, entity)
 end
 
 function torch.color(room, entity)
-    return require('mods').requireFromPlugin('libraries.vivUtil').getColor(entity.spriteColor or "ffffffff")
+    return require('mods').requireFromPlugin('libraries.vivUtil').getColorTable(entity.spriteColor, true, {1,1,1,1})
 end
 
 return torch

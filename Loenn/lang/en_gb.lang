@@ -31,12 +31,23 @@ triggers.VivHelper/ConfettiTrigger.attributes.description.permanent=If checked, 
 triggers.VivHelper/ConfettiTrigger.attributes.name.RepeatOnCycle=Repeat On Cycle
 triggers.VivHelper/ConfettiTrigger.attributes.description.RepeatOnCycle=Spawns confetti repeated on a timer of this length. 0 means it does not repeat.
 
-triggers.VivHelper/InfDashTrigger.placements.name.main=Infinite Dash Trigger
-triggers.VivHelper/InfDashTrigger.placements.description.main=Gives you infinite dashes while in the region
-triggers.VivHelper/InstantCatchupTrigger.placements.name.main=Instant Catchup Trigger
-triggers.VivHelper/InstantCatchupTrigger.placements.description.main=When triggered, locks the camera to the appropriate position, with no smooth grade between points.
+triggers.VivHelper/DisableNeutralsOnHoldableTrigger.placements.name.main=Disable Neutrals During Carry Trigger
+triggers.VivHelper/DisableNeutralsOnHoldableTrigger.placements.description.main=When entered, disables/reenables neutrals while carrying items such as Theo Crystals and Jellyfish
+triggers.VivHelper/DisableNeutralsOnHoldableTrigger.attributes.name.state=On/Off
+triggers.VivHelper/DisableNeutralsOnHoldableTrigger.attributes.description.state=Whether to disable (true) or enable (false) neutrals while carrying items.
+
 triggers.VivHelper/DisableRefillCancelSpaceIndicator.placements.name.main=Disable RCS Visual 
 
+triggers.VivHelper/InfDashTrigger.placements.name.main=Infinite Dash Trigger
+triggers.VivHelper/InfDashTrigger.placements.description.main=Gives you infinite dashes while in the region
+
+triggers.VivHelper/InstantCatchupTrigger.placements.name.main=Instant Catchup Trigger
+triggers.VivHelper/InstantCatchupTrigger.placements.description.main=When triggered, locks the camera to the appropriate position, with no smooth grade between points.
+
+triggers.VivHelper/TempleFallTrigger.placements.name.main=Temple Fall Trigger
+triggers.VivHelper/TempleFallTrigger.placements.description.main=Sets the player into the Temple Fall state, with a custom X position to reach.
+
+-- Old Instant TP trigger
 triggers.VivHelper/BasicInstantTeleportTrigger.placements.name.main=Instant Teleport Trigger (Old, Basic)
 triggers.VivHelper/BasicInstantTeleportTrigger.placements.description.main=Teleports the player to a room and specified position.
 triggers.VivHelper/BasicInstantTeleportTrigger.attributes.description.newPosX= The X coordinate of the teleport location in the room "WarpRoom"\nSetting to -1 sets the "default" which is usually the same (X,Y) but in the new room.
@@ -78,26 +89,56 @@ triggers.VivHelper/CustomInstantTeleportTrigger.attributes.name.RotationType= Ro
 triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.RotationType= Rotates the player's movement exiting the portal. Setting to "Rotate To Direction" will change the player's velocity to the Rotation Actor's direction.\nSetting to "Rotate Degrees from Direction" will rotate the player's potential velocity by {Rotation Actor} degrees (clockwise)
 triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.CameraType= Sets the Camera to have the details listed in the Dropdown. Don't put in a custom number, it just can crash the game.
 
+-- New Instant TP trigger
 triggers.VivHelper/TeleportTarget.placements.name.main=Teleport Target
 triggers.VivHelper/TeleportTarget.placements.name.custom=Teleport Target (Customizable Speed Exit)
 triggers.VivHelper/TeleportTarget.placements.description.main=The point by which a player teleports using a (new) Teleport Trigger
-triggers.VivHelper/TeleportTarget.attributes.name.TargetID=ID
+triggers.VivHelper/TeleportTarget.attributes.name.TargetID=Target ID
 triggers.VivHelper/TeleportTarget.attributes.description.TargetID=The ID by which to link a Teleport Trigger to a target.
 triggers.VivHelper/TeleportTarget.attributes.description.SetState=Whether or not to set the player state upon exiting the teleport. Set "-1" for Default behavior.
 
 triggers.VivHelper/ITPT1Way.placements.name.main=Teleport Trigger
 triggers.VivHelper/ITPT1Way.placements.description.main=Teleports a player to an associated Target in another room.
 triggers.VivHelper/ITPT1Way.attributes.name.ExitDirection=Direction Control 
-# TODO: attributes for ITPT1Way
+triggers.VivHelper/ITPT1Way.attributes.description.ExitDirection=Which 
+triggers.VivHelper/ITPT1Way.attributes.name.TargetID=Target ID
+triggers.VivHelper/ITPT1Way.attributes.description.TargetID=The ID by which to link a Teleport Trigger to a target.
+triggers.VivHelper/ITPT1Way.attributes.name.Persistence=Use Counter
+triggers.VivHelper/ITPT1Way.attributes.description.Persistence=Whether or not the trigger is one use.
+triggers.VivHelper/ITPT1Way.attributes.description.RequiredFlags=A comma separated list of flags that must be set to true in order for teleport to occur.
+triggers.VivHelper/ITPT1Way.attributes.description.FlagsOnTeleport=A comma separated list of flags that will be set after teleport
+triggers.VivHelper/ITPT1Way.attributes.description.ResetDashes=Whether or not to Refill Dashes during the Teleport
+triggers.VivHelper/ITPT1Way.attributes.name.BringHoldableThrough=Bring Held Items Through
+triggers.VivHelper/ITPT1Way.attributes.description.BringHoldableThrough=If set to true, if carrying an item, it will teleport with the player.
+triggers.VivHelper/ITPT1Way.attributes.description.IgnoreNoSpawnpoints=If set to true, this enables teleporting to rooms without a set spawnpoint, or "filler rooms."\nUseful for hiding secrets.
+triggers.VivHelper/ITPT1Way.attributes.description.EndCutsceneOnWarp=Cancels the current cutscene if you choose to teleport. Can reduce crashes when teleporting during a cutscene.
 
 triggers.VivHelper/ITPT1Way.placements.name.flash=Teleport Trigger (Flash)
 triggers.VivHelper/ITPT1Way.placements.description.flash=Teleports a player to an associated Target in another room.
+triggers.VivHelper/ITPT1Way.attributes.attributes.FlashColor=The color to flash the screen when teleporting
+triggers.VivHelper/ITPT1Way.attributes.attributes.FlashAlpha=The opacity of the flash to the screen when teleporting
+
 triggers.VivHelper/ITPT1Way.placements.name.lightning=Teleport Trigger (Lightning)
 triggers.VivHelper/ITPT1Way.placements.description.lightning=Teleports a player to an associated Target in another room.
+triggers.VivHelper/ITPT1Way.attributes.description.LightningCount=The number of lightning strikes to occur.
+triggers.VivHelper/ITPT1Way.attributes.name.LightningOffsetRange=Lightning Offset Spacing
+triggers.VivHelper/ITPT1Way.attributes.description.LightningOffsetRange=The range of X-values relative to the player for lightning to randomly strike.\nMust be in the form "#,#" where # is a number.
+triggers.VivHelper/ITPT1Way.attributes.description.LightningDelay=The minimum time after teleporting before lightning strikes.
+triggers.VivHelper/ITPT1Way.attributes.description.LightningMaxDelay=The maximum time after teleporting before the last lightning strikes.
+triggers.VivHelper/ITPT1Way.attributes.description.Flash=Whether or not to flash the screen white.
+triggers.VivHelper/ITPT1Way.attributes.description.Shake=Whether or not to shake the screen.
+
 triggers.VivHelper/ITPT1Way.placements.name.glitch=Teleport Trigger (Glitch)
 triggers.VivHelper/ITPT1Way.placements.description.glitch=Teleports a player to an associated Target in another room.
+triggers.VivHelper/ITPT1Way.attributes.description.GlitchStrength=The amount of "glitchiness" that appears on the screen.
+triggers.VivHelper/ITPT1Way.attributes.description.StartingGlitchDuration=The amount of time from "glitchiness" to go from 0 to <GlitchStrength>.
+triggers.VivHelper/ITPT1Way.attributes.description.EndingGlitchDuration=The amount of time from "glitchiness" to go from <GlitchStrength> to 0.
+triggers.VivHelper/ITPT1Way.attributes.description.StartingGlitchEase=The easer by which "glitchiness" goes from 0 to <GlitchStrength>.
+triggers.VivHelper/ITPT1Way.attributes.description.EndingGlitchEase=The easer by which "glitchiness" goes from <GlitchStrength> to 0.
+
 triggers.VivHelper/ITPT1Way.placements.name.wipe=Teleport Trigger (Wipe)
 triggers.VivHelper/ITPT1Way.placements.description.wipe=Teleports a player to an associated Target in another room.
+triggers.VivHelper/ITPT1Way.attributes.description.freezeOnTeleport=Whether or not to freeze the game while the wipe occurs.\nIt is recommended to leave this true.
 
 triggers.VivHelper/MultiflagCameraTargetTrigger.placements.name.main=Multiflag Camera Target Trigger
 # TODO: attributes to this trigger
@@ -131,7 +172,7 @@ entities.VivHelper/FunctionRefillAppender.placements.description.main=Place over
 
 entities.VivHelper/SolidModifier.placements.name.main=~ Solid Modifier (Blank)
 entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to be impacted by triggering on touch or improves cornerboosts on the block.
-entities.VivHelper/SolidModifier.placements.name.cb=Cornerboost Block Modifier
+entities.VivHelper/SolidModifier.placements.name.cb=CornerBoost Block Modifier
 entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to improve cornerboosts on the block.
 entities.VivHelper/SolidModifier.placements.name.touch=Touch Contact Modifier
 entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to change what counts as "touching" a block.
@@ -142,7 +183,6 @@ entities.VivHelper/AnimatedSpikesRight.placements.name.main=Animated Spikes (Rig
 entities.VivHelper/AnimatedSpikesDown.placements.name.main=Animated Spikes (Down)
 entities.VivHelper/AnimatedSpikes.attributes.description.directory=The entire spike directory, starting from Graphics/Atlases/Gameplay, *excluding* the numbers at the end.
 entities.VivHelper/AnimatedSpikes.attributes.description.Color=The tinting color for the animated sprite. Allows for "Rainbow" as a parameter to rainbow-ify the spike.
-
 
 entities.VivHelper/AudioFixSwapBlock.placements.name.normal=Audio Fixed Swap Block (Normal)
 entities.VivHelper/AudioFixSwapBlock.placements.name.moon=Audio Fixed Swap Block (Moon)
@@ -192,6 +232,19 @@ entities.VivHelper/CustomCoreMessage.attributes.description.AlwaysRender=Whether
 entities.VivHelper/CustomCoreMessage.attributes.description.PauseType=What the Core Message should do when the game is Paused. Vanilla behavior (Shown) will make it appear above the pause menu.
 entities.VivHelper/CustomCoreMessage.attributes.description.LockPosition=If true, the rendering position is static to the world position, while if false it slowly fades in and out while moving from left to right slightly.
 
+entities.VivHelper/CoreToggleSpikesUp.placements.name.up_default=Core Toggle Spikes (Hot, Up, Default)
+entities.VivHelper/CoreToggleSpikesUp.placements.name.up_outline=Core Toggle Spikes (Hot, Up, Outline)
+entities.VivHelper/CoreToggleSpikesUp.placements.name.up_whitereflection=Core Toggle Spikes (Hot, Up, Cliffside)
+entities.VivHelper/CoreToggleSpikesLeft.placements.name.left_default=Core Toggle Spikes (Hot, Left, Default)
+entities.VivHelper/CoreToggleSpikesLeft.placements.name.left_outline=Core Toggle Spikes (Hot, Left, Outline)
+entities.VivHelper/CoreToggleSpikesLeft.placements.name.left_whitereflection=Core Toggle Spikes (Hot, Left, Cliffside)
+entities.VivHelper/CoreToggleSpikesRight.placements.name.right_default=Core Toggle Spikes (Hot, Right, Default)
+entities.VivHelper/CoreToggleSpikesRight.placements.name.right_outline=Core Toggle Spikes (Hot, Right, Outline)
+entities.VivHelper/CoreToggleSpikesRight.placements.name.right_whitereflection=Core Toggle Spikes (Hot, Right, Cliffside)
+entities.VivHelper/CoreToggleSpikesDown.placements.name.down_default=Core Toggle Spikes (Hot, Down, Default)
+entities.VivHelper/CoreToggleSpikesDown.placements.name.down_outline=Core Toggle Spikes (Hot, Down, Outline)
+entities.VivHelper/CoreToggleSpikesDown.placements.name.down_whitereflection=Core Toggle Spikes (Hot, Down, Cliffside)
+
 entities.VivHelper/CornerBoostBlock.placements.name.main=CornerBoost Tile Entity
 entities.VivHelper/CornerBoostBlock.attributes.description.tiletype=Changes the visual appearance of the block
 entities.VivHelper/CornerBoostBlock.attributes.description.blendin=Blends the block with the walls it touches, making it less apparent.
@@ -199,7 +252,7 @@ entities.VivHelper/CornerBoostZipMover.placements.name.normal=CornerBoost Zip Mo
 entities.VivHelper/CornerBoostZipMover.placements.name.moon=CornerBoost Zip Mover (Moon)
 entities.VivHelper/CornerBoostZipMover.attributes.description.theme=The visual theme of the zip mover.
 entities.VivHelper/CornerBoostSwapBlock.placements.name.normal=CornerBoost Swap Block (Normal)
-entities.VivHelper/CornerBoostSwapBlock.placements.name.moon=Swap Block (Moon)
+entities.VivHelper/CornerBoostSwapBlock.placements.name.moon=CornerBoost Swap Block (Moon)
 entities.VivHelper/CornerBoostSwapBlock.attributes.description.theme=The visual theme of the swap block.
 entities.VivHelper/CornerBoostDreamBlock.placements.name.dream_block=CornerBoost Dream Block
 entities.VivHelper/CornerBoostDreamBlock.attributes.description.fastMoving=Changes the dream block between two speeds.
@@ -216,15 +269,18 @@ entities.VivHelper/CornerBoostCassetteBlock.placements.name.cassette_block_3=Cor
 entities.VivHelper/CornerBoostCassetteBlock.attributes.description.index=The colour of the cassette block.
 entities.VivHelper/CornerBoostCassetteBlock.attributes.description.tempo=The tempo of the cassette blocks. The first cassette block with a tempo other than 1.0 decides the tempo for all cassette blocks in the room. A multiplier of 1.0 triggers one beat every 10 frames. Refer to the cassette section in map metadata for details.
 
-entities.VivHelper/Cornerspike.placements.name.main=CornerSpike (Up Right)
-entities.VivHelper/Cornerspike.placements.description.main=A spike that attaches to the corners of blocks and fills the gaps between corners.
-entities.VivHelper/Cornerspike.attributes.description.type=Determines the visual appearance of the spike.
-entities.VivHelper/Cornerspike.attributes.description.Color=Tints the color of the spike.\nSetting it to "transparent" (0 alpha) sets it to be rainbow spikes.
-entities.VivHelper/Cornerspike.attributes.description.KillFormat=When true, the spike will always kill the player on contact.\nWhen false, the spike will kill the player if the player is not moving "away" from the spike.\nIn context, this means 90° away from the direction the spike is point is the death point.
-entities.VivHelper/Cornerspike.attributes.description.DoNotAttach=If true, the spikes will not attach to solids, meaning they cannot move with blocks.
+entities.VivHelper/CornerSpike.placements.name.UpRight=CornerSpike (Up Right)
+entities.VivHelper/CornerSpike.placements.name.UpLeft=CornerSpike (Up Left)
+entities.VivHelper/CornerSpike.placements.name.DownRight=CornerSpike (Down Right)
+entities.VivHelper/CornerSpike.placements.name.DownLeft=CornerSpike (Down Left)
+entities.VivHelper/CornerSpike.placements.description.main=A spike that attaches to the corners of blocks and fills the gaps between corners.
+entities.VivHelper/CornerSpike.attributes.description.type=Determines the visual appearance of the spike.
+entities.VivHelper/CornerSpike.attributes.description.Color=Tints the color of the spike.\nSetting it to "transparent" (0 alpha) sets it to be rainbow spikes.
+entities.VivHelper/CornerSpike.attributes.description.KillFormat=When true, the spike will always kill the player on contact.\nWhen false, the spike will kill the player if the player is not moving "away" from the spike.\nIn context, this means 90° away from the direction the spike is point is the death point.
+entities.VivHelper/CornerSpike.attributes.description.DoNotAttach=If true, the spikes will not attach to solids, meaning they cannot move with blocks.
 
-entities.VivHelper/CrumbleJumpThru.placements.name.main=Crumbling JumpThru
-entities.VivHelper/CrumbleJumpThru.placements.description.main=A semisolid platform which breaks after a set amount of time from contact with the player.
+entities.VivHelper/CrumbleJumpThru.placements.name.wood=Crumbling JumpThru
+entities.VivHelper/CrumbleJumpThru.placements.description.wood=A semisolid platform which breaks after a set amount of time from contact with the player.
 entities.VivHelper/CrumbleJumpThru.attributes.description.texture=Changes the appearance of the platform.
 entities.VivHelper/CrumbleJumpThru.attributes.description.surfaceIndex=Footstep sound when walking on the platform.\nLeave at Default for game to decide automatically based on texture.
 entities.VivHelper/CrumbleJumpThru.attributes.description.Delay=How long after contact with the player the jump thru should stay collidable.
@@ -260,6 +316,8 @@ entities.VivHelper/CustomDepthTileEntity.placements.name.main=Custom Depth Tile 
 
 entities.VivHelper/CustomFallingBlock.placements.name.main=Custom Falling Block
 
+entities.VivHelper/CustomFakeWall.placements.name.fake_wall=Custom Fake Wall
+
 entities.VivHelper/CustomHangingLamp.placements.name.main=Custom Hanging Lamp
 
 entities.VivHelper/CustomLightbeam.placements.name.main=Custom Lightbeam
@@ -272,13 +330,17 @@ entities.VivHelper/CustomSpinner.placements.name.VivHelper/CustomSpinner=Custom 
 
 entities.VivHelper/CustomTorch.placements.name.main=Custom Torch
 
+entities.VivHelper/CutscenelessDreamMirror.placements.name.normal=Dream Mirror (No Cutscene)
+
 entities.VivHelper/DashBumper.placements.name.bumper=Dash Bumper
 
 entities.VivHelper/DeathConditionalBlock.placements.name.main=Conditional Block (Death Count)
 
 entities.VivHelper/DebrisLimiter.placements.name.main=Debris Reducer
 
-entities.VivHelper/CutscenelessDreamMirror.placements.name.normal=Dream Mirror (No Cutscene)
+entities.VivHelper/DepthSetter.placements.name.depth=Depth Setter
+
+entities.VivHelper/EarlyFlagSetter.placements.name.before=Set Flag Before Awake
 
 entities.VivHelper/EnergyCrystal.placements.name.main=Energy Crystal
 
@@ -319,6 +381,36 @@ entities.VivHelper/HoldableBarrierJumpThru.placements.name.main=Holdable Barrier
 
 entities.VivHelper/InLevelTeleporter.placements.name.iltp=Same-Room Portal (No Visuals)
 entities.VivHelper/InLevelTeleporter.placements.name.iltp2=Same-Room Portal (Skinnable)
+entities.VivHelper/InLevelTeleporter.attributes.name.l=Length
+entities.VivHelper/InLevelTeleporter.attributes.description.l=The length of the portal (in pixels)
+entities.VivHelper/InLevelTeleporter.attributes.name.dir1=Direction (Side A)
+entities.VivHelper/InLevelTeleporter.attributes.description.dir1=The facing direction of one side of the portal.
+entities.VivHelper/InLevelTeleporter.attributes.name.dir2=Direction (Side B)
+entities.VivHelper/InLevelTeleporter.attributes.description.dir1=The facing direction of one side of the portal.
+entities.VivHelper/InLevelTeleporter.attributes.name.sO1=Speed Offset (Side A)
+entities.VivHelper/InLevelTeleporter.attributes.name.sO2=Speed Offset (Side B)
+entities.VivHelper/InLevelTeleporter.attributes.description.sO1=How much speed the player should receive upon exiting the portal. Useful when camera takes a moment to catch up,\nto give the player some leniency on exit.
+entities.VivHelper/InLevelTeleporter.attributes.description.sO2=How much speed the player should receive upon exiting the portal. Useful when camera takes a moment to catch up,\nto give the player some leniency on exit.
+entities.VivHelper/InLevelTeleporter.attributes.name.eO1=Entities Only (Side A)
+entities.VivHelper/InLevelTeleporter.attributes.name.eO2=Entities Only (Side B)
+entities.VivHelper/InLevelTeleporter.attributes.description.sO1=If checked, this disables the Player passing through the Portal from this side, and only Entities can teleport through.
+entities.VivHelper/InLevelTeleporter.attributes.description.sO2=If checked, this disables the Player passing through the Portal from this side, and only Entities can teleport through.
+entities.VivHelper/InLevelTeleporter.attributes.name.cW=Camera Warp
+entities.VivHelper/InLevelTeleporter.attributes.description.cW=Makes the camera instantly jump to the exit portal position. Recommended.
+entities.VivHelper/InLevelTeleporter.attributes.name.center=Center Exit
+entities.VivHelper/InLevelTeleporter.attributes.description.center=Whether or not the teleport exits at the center of the teleporter or\nat a relative position to the entry point of the teleport.
+entities.VivHelper/InLevelTeleporter.attributes.name.OutbackHelperMod=Outback Teleport
+entities.VivHelper/InLevelTeleporter.attributes.description.OutbackHelperMod=When this is checked, the physics of the teleport is identical to Outback Helper's teleport.\nNot recommended, because it is way jankier than the Speed Offset solution.
+entities.VivHelper/InLevelTeleporter.attributes.name.allActors=All Actors (Legacy)
+entities.VivHelper/InLevelTeleporter.attributes.description.allActors=A legacy parameter.\nWhen checked, this will allow all actors to teleport like a player. This inlcudes Theo/Jelly, Seeker, and many more.
+entities.VivHelper/InLevelTeleporter.attributes.name.Audio=Audio on Teleport
+entities.VivHelper/InLevelTeleporter.attributes.description.Audio=An audio event that plays when the player teleports. 
+entities.VivHelper/InLevelTeleporter.attributes.name.AlwaysRetainSpeed=Speed Retention Fix
+entities.VivHelper/InLevelTeleporter.attributes.description.AlwaysRetainSpeed=Recommended. When the player teleports, sometimes the player will hit a wall before teleporting.\nThis property ensures that during the teleport, the speed lost from hitting the wall is given back to the player during the teleport.
+entities.VivHelper/InLevelTeleporter.attributes.name.Path=Sprite Path
+entities.VivHelper/InLevelTeleporter.attributes.description.Path=For a skinnable teleporter, this is the reference from which a sprite will be used to display the teleporter in-game.
+entities.VivHelper/InLevelTeleporter.attributes.name.Color=Sprite Tint
+entities.VivHelper/InLevelTeleporter.attributes.description.Color=For a skinnable teleporter, the image drawn to the game will be tinted this color.\nAlso dictates the color of the emitted particles in-game.
 
 entities.VivHelper/LaserBlock.placements.name.lb=Laser Block
 
@@ -386,6 +478,12 @@ entities.VivHelper/RainbowTriggerSpikesDown.placements.name.down_default=Rainbow
 entities.VivHelper/RainbowTriggerSpikesDown.placements.name.down_outline=Rainbow Trigger Spikes (Down, Outline)
 entities.VivHelper/RainbowTriggerSpikesDown.placements.name.down_whitereflection=Rainbow Trigger Spikes (Down, Cliffside)
 
+entities.VivHelper/RedDashRefill.placements.name.red_dash=Red Dash Refill
+entities.VivHelper/RedDashRefill.placements.description.red_dash=Replaces the next dash with a "Red Bubble" dash.
+entities.VivHelper/RedDashRefill.placements.name.one_dash=Red Dash Refill (One Use)
+entities.VivHelper/RedDashRefill.placements.description.one_dash=Replaces the next dash with a "Red Bubble" dash.
+entities.VivHelper/RedDashRefill.attributes.description.oneUse=If checked, the refill will not respawn.
+
 entities.VivHelper/RefilllessBumper.placements.name.rlbumper=Bumper (No Dash Refill)
 
 entities.VivHelper/RefillPotion.placements.name.potion=Refill Potion
@@ -413,6 +511,9 @@ entities.VivHelper/SeekerGate.placements.description.gate=Gate opens when seeker
 
 entities.VivHelper/SeekerKillBarrier.placements.name.main=Seeker Kill Barrier
 
+entities.VivHelper/SizableJelly.placements.name.normal=Scalable Jelly (Floating)
+entities.VivHelper/SizableJelly.placements.name.floating=Scalable Jelly (Floating)
+
 entities.VivHelper/SoundMuter.placements.name.soundmuter=Audio Event Muter
 entities.VivHelper/SoundMuter.placements.description.soundmuter=A map-global entity that mutes a given Audio Event (can be on a flag)
 
@@ -420,7 +521,13 @@ entities.VivHelper/SoundReplacer.placements.name.soundreplacer=Audio Event Repla
 entities.VivHelper/SoundReplacer.placements.description.soundreplacer=A map-global entity that replaces a given Audio Event with another (can be on a flag)
 
 entities.VivHelper/TheoKillBarrier.placements.name.teo=Theo Kill Barrier
-entities.VivHelper/TheoKillBarrier.placements.name.teo=A barrier that kills TheoCrystals.
+entities.VivHelper/TheoKillBarrier.placements.description.teo=A barrier that kills TheoCrystals.
 
 entities.VivHelper/TouchSwitchWall.placements.name.wall=Touch Switch Wall
 entities.VivHelper/TouchSwitchWall.placements.description.wall=A touch switch with a custom rectangular hitbox.
+
+entities.VivHelper/WarpDashRefill.placements.name.red_dash=Warp Dash Refill
+entities.VivHelper/WarpDashRefill.placements.description.red_dash=Replaces the next dash with a teleport that goes through walls.
+entities.VivHelper/WarpDashRefill.placements.name.one_dash=Warp Dash Refill (One Use)
+entities.VivHelper/WarpDashRefill.placements.description.one_dash=Replaces the next dash with a teleport that goes through walls.
+entities.VivHelper/WarpDashRefill.attributes.description.oneUse=If checked, the refill will not respawn.

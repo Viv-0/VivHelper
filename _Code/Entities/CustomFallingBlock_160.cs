@@ -275,7 +275,7 @@ namespace VivHelper.Entities {
                 LandParticles();
                 yield return 0.2f;
                 StopShaking();
-                if (DisableEndShake)
+                if (!DisableEndShake)
                     EndShaking = false;
                 if (CollideCheck<SolidTiles>(Position + Vector2.UnitX.Rotate(angle))) {
                     break;

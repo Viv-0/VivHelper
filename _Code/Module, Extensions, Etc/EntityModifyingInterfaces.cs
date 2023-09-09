@@ -13,6 +13,7 @@ using Mono.Cecil.Cil;
 using MonoMod.Utils;
 using MonoMod.RuntimeDetour;
 using MonoMod.Cil;
+using VivHelper.Entities;
 
 namespace VivHelper {
 
@@ -27,13 +28,34 @@ namespace VivHelper {
         }
         private static void EntityList_UpdateLists(ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(i1 => i1.MatchLdfld<EntityList>("toAwake"), i2 => i2.MatchCallvirt<List<Entity>>("Clear"))) {
-                cursor.Index++;
+            // PreAwake caller
+            if (cursor.TryGotoNext(MoveType.After, i => i.MatchLdfld<EntityList>("adding"), j=>j.OpCode == OpCodes.Callvirt && j.Operand == typeof(EntityList).GetField("adding", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).FieldType.GetMethod("Clear"))) {
                 cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Func<List<Entity>, EntityList, List<Entity>>>(PostAwakeCall);
+                cursor.Emit(OpCodes.Dup);
+                cursor.Emit(OpCodes.Ldfld, typeof(EntityList).GetField("toAwake", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance));
+                cursor.Emit(OpCodes.Call, typeof(EntityChangingInterfaces).GetMethod("PreAwakeCall"));
+            }
+
+            // PostAwake caller
+            if (cursor.TryGotoNext(MoveType.After, i => i.MatchLdfld<EntityList>("toAwake") && i.Next.OpCode == OpCodes.Callvirt && i.Next.Operand == typeof(EntityList).GetField("toAwake",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic).FieldType.GetMethod("Clear"))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Call, typeof(EntityChangingInterfaces).GetMethod("PostAwakeCall"));
             }
         }
-        private static List<Entity> PostAwakeCall(List<Entity> toAwake, EntityList list) {
+
+        public static void PreAwakeCall(EntityList list, List<Entity> toAwake) {
+            Scene scene = list.Scene;
+            foreach (Entity e in toAwake) {
+                if (e is PreAwakeHolder postAwakeHolder)
+                    postAwakeHolder.PreAwake(scene);
+                foreach (Component c in e.Components) {
+                    if (c is PreAwakeHolder p)
+                        p.PreAwake(scene);
+                }
+            }
+        }
+
+        public static List<Entity> PostAwakeCall(List<Entity> toAwake, EntityList list) {
             Scene scene = list.Scene;
             foreach (Entity e in toAwake) {
                 if (e is PostAwakeHolder postAwakeHolder)
@@ -45,29 +67,19 @@ namespace VivHelper {
             }
             return toAwake;
         }
-
-        private static void ModifyAllCallsOfUpdate(ILContext il) {
-            ILCursor cursor = new ILCursor(il);
-            while (cursor.TryGotoPrev(MoveType.Before, i => i.MatchCallvirt<Entity>("Update"))) {
-                cursor.Emit(OpCodes.Dup);
-                cursor.Index++;
-                cursor.EmitDelegate<Action<Entity>>(PostUpdateCall);
-            }
-        }
-
-        private static void PostUpdateCall(Entity entity) {
-            if (entity is PostUpdateHolder postAwakeHolder)
-                postAwakeHolder.PostUpdate(entity);
-            foreach (Component c in entity.Components) {
-                if (c is PostUpdateHolder p)
-                    p.PostUpdate(entity);
-            }
-        }
+    }
+    ///<summary>
+    /// Solely used for meta-entities as a precautionary measure to modify things that are changed in Awake before Awake is called. Useful in scenarios where you need to modify the contents of some function before its Awake is called.
+    /// This is modifiable and is deterministic on helper load order which is of major concern to me, but since noone else has used this tactic yet it should be fine. I'm also majorly concerned about performance issues regarding this but it hasn't been an issue for me yet.
+    ///</summary>
+    public interface PreAwakeHolder {
+        /// <summary>
+        /// A function that calls for all members of toAwake before all other objects have been awoken.
+        /// </summary>
+        void PreAwake(Scene scene);
     }
 
     /// <summary>
-    /// This is going to be added to a different helper eventually
-    /// 
     /// Solely used for meta-entities as a precautionary measure to modify things that are changed in Awake after Awake is called but before the next update is called.
     /// This is modifiable and is deterministic on helper load order which is of major concern to me, but since noone else has used this tactic yet it should be fine. I'm also majorly concerned about performance issues regarding this but it hasn't been an issue for me yet.
     /// </summary>
@@ -76,15 +88,7 @@ namespace VivHelper {
         /// <summary>
         /// A function that calls for all members of toAwake after all other objects have been awoken.
         /// </summary>
-        /// <param name="scene"></param>
         void PostAwake(Scene scene);
     }
-    /// <summary>
-    /// This is going to be added to a different helper eventually
-    /// 
-    /// Solely used for meta-entities as a precautionary measure to modify things that occur after the Update call of a given entity but before the next entity's Update is called.
-    /// </summary>
-    public interface PostUpdateHolder {
-        void PostUpdate(Entity entity);
-    }
+    
 }

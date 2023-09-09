@@ -17,5 +17,6 @@ return {
         s:draw()
         drawing.printJustifyText(entity.eventName, entity.x-3, entity.y-15, 240, 20, font, 0.5, true, "left")
         drawing.printJustifyText(entity.replacementEvent, entity.x-3, entity.y+1, 240, 20, font, 0.5, true, "left")
-    end) end
+    end) end,
+    selection = function(room,entity) return require('utils').rectangle(entity.x-2, entity.y-2, 12, 12) end,
 }

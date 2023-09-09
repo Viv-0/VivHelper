@@ -1,7 +1,7 @@
 module VivHelperOrangeBooster
 using ..Ahorn, Maple
 
-@mapdef Entity "VivHelper/OrangeBooster" OrangeBooster(x::Integer, y::Integer)
+@mapdef Entity "VivHelper/OrangeBooster" OrangeBooster(x::Integer, y::Integer, speed::Number=220.0)
 
 const placements = Ahorn.PlacementDict(
     "Booster (Orange) (Viv's Helper) (BETA)" => Ahorn.EntityPlacement(

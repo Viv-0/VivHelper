@@ -37,12 +37,13 @@ namespace VivHelper {
             public float DetonationDelay { get; set; }
             public bool CanBeNeutralized { get; set; }
         }
-
         public CustomDashStateCh customDashState { get; set; } = null;
         public CustomBooster CurrentBooster { get; set; } = null;
         public CrystalBombDetonatorCh savedCBDController { get; set; } = null;
         public HoldableBarrierCh savedHBController { get; set; } = null;
         //public Crystal_BombDetonatorController savedCBDController { get; set; } = new Crystal_BombDetonatorController();
+
+        public DashPowerupManager dashPowerupManager = null;
         public bool HasSpeedPower { get; set; } = false;
         public bool CanAddSpeed { get; set; } = false;
         public Vector2 StoredSpeed { get; set; } = Vector2.Zero;
@@ -85,6 +86,7 @@ namespace VivHelper {
         /// </summary>
         public float DebrisLimiter { get; set; } = 0f;
 
+        public int? OverrideTempleFallX = null;
         public bool TeleportState { get; set; } = false;
 
         [YamlDotNet.Serialization.YamlIgnore]
@@ -95,11 +97,16 @@ namespace VivHelper {
         public bool EnableRefillCancelSpaceIndicator { get; set; } = true;
 
         public bool DisableMapViewArbitrarySpawn { get; set; } = false;
+        public bool DisableNeutralsOnHoldable { get; set; } = false;
+
+        public bool StallScreenWipe = false;
 
         public int FFDistance = 5;
         public int FPDistance = 30;
         public bool MakeClose = false;
         public DemoDashDisabler demodashDisabler = DemoDashDisabler.Off;
+
+        public float OrangeSpeed = 220f;
 
 
         [YamlDotNet.Serialization.YamlIgnore] //This will be set on all load-ins

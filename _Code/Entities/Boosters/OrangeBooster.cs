@@ -22,19 +22,18 @@ namespace VivHelper.Entities.Boosters {
         public static void Begin(Player player) {
             player.RefillDash();
             player.RefillStamina();
-
-            CustomBooster.dyn = DynamicData.For(player);
             timer = 0.25f;
         }
 
         public static IEnumerator Coroutine(Player player) {
+            DynamicData dyn = DynamicData.For(player);
             yield return DashFix();
-            player.Speed = CustomBooster.CorrectDashPrecision(CustomBooster.dyn?.Get<Vector2>("lastAim") ?? Vector2.Zero) * 220f;
+            player.Speed = CustomBooster.CorrectDashPrecision(dyn?.Get<Vector2>("lastAim") ?? Vector2.Zero) * 220f;
             //We assume that at this point the code has successfully obtained DynData on the Player object.
             while (true) {
                 Vector2 v = player.Speed;
                 player.DashDir = v;
-                CustomBooster.dyn.Set("gliderBoostDir", v);
+                dyn.Set("gliderBoostDir", v);
                 (player.Scene as Level).DirectionalShake(player.DashDir, 0.2f);
                 if (player.DashDir.X != 0f) {
                     player.Facing = (Facings) Math.Sign(player.DashDir.X);
@@ -45,7 +44,7 @@ namespace VivHelper.Entities.Boosters {
                     Vector2 value = Input.Aim.Value;
                     if (value != Vector2.Zero) {
                         a = Calc.EightWayNormal(CustomBooster.CorrectDashPrecision(value)).Angle();
-                        player.Speed = new Vector2(220 * (float) Math.Cos(a), 220 * (float) Math.Sin(a));
+                        player.Speed = new Vector2(VivHelperModule.Session.OrangeSpeed * (float) Math.Cos(a), VivHelperModule.Session.OrangeSpeed * (float) Math.Sin(a));
                     }
                 }
 
@@ -54,10 +53,8 @@ namespace VivHelper.Entities.Boosters {
 
         public static int Update(Player player) {
             player.LastBooster = null;
-            if (CustomBooster.dyn == null) {
-                CustomBooster.dyn = DynamicData.For(player);
-            }
-            Vector2 v = CustomBooster.dyn.Get<Vector2>("boostTarget");
+            DynamicData dyn = DynamicData.For(player);
+            Vector2 v = dyn.Get<Vector2>("boostTarget");
             while (timer > 0) {
                 //timer will be lowered via DashFix() run in OrangeCoroutine, DashFix ends when timer = 0, this is to fix the fastbubbling bug.
                 player.Center = v;
@@ -69,7 +66,7 @@ namespace VivHelper.Entities.Boosters {
             }
 
 
-            int j = (int) BoostFunctions.rdU.Invoke(player, Everest._EmptyObjectArray);
+            int j = (int) BoostFunctions.rdU.Invoke(player, VivHelper.EmptyObjectArray);
             j = j == 5 ? VivHelperModule.OrangeState : j;
 
             return j;
@@ -79,6 +76,7 @@ namespace VivHelper.Entities.Boosters {
         public static void End(Player player) {
             player.Sprite.Visible = true;
             player.Position.Y = (float) Math.Round(player.Position.Y);
+            VivHelperModule.Session.OrangeSpeed = 220f;
         }
 
 
@@ -163,6 +161,8 @@ namespace VivHelper.Entities.Boosters {
 
         public bool Ch9HubTransition;
 
+        private float speed;
+
         public OrangeBooster(Vector2 position)
             : base(position) {
             base.Depth = -8500;
@@ -186,6 +186,7 @@ namespace VivHelper.Entities.Boosters {
 
         public OrangeBooster(EntityData data, Vector2 offset)
             : this(data.Position + offset) {
+            speed = data.Float("speed", 220f);
         }
 
         public override void Added(Scene scene) {
@@ -229,7 +230,8 @@ namespace VivHelper.Entities.Boosters {
         }
 
         public static void Boost(Player player, OrangeBooster booster) {
-            new DynData<Player>(player).Set<Vector2>("boostTarget", booster.Center);
+            VivHelper.player_boostTarget.SetValue(player, booster.Center);
+            VivHelperModule.Session.OrangeSpeed = booster.speed;
             player.StateMachine.State = VivHelperModule.OrangeState;
             player.Position = booster.Center;
             player.Speed = Vector2.Zero;

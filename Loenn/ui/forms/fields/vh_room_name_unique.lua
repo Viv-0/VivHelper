@@ -21,9 +21,8 @@ function vh_room_names.getElement(name, value, options)
     options.validator = function(v)
         local editedRoom = options.editedRoom
         local currentName = v
-
         if not currentName or currentName == "" then
-            return false
+            return options.allowEmpty
         end
         for _, room in ipairs(roomNames) do 
             if currentName == room then return true end

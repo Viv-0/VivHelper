@@ -40,6 +40,8 @@ namespace VivHelper.Entities.SeekerStuff {
                     float num = -1f;
                     float num2 = -1f;
                     foreach (CustomSeeker entity2 in base.Scene.Tracker.GetEntities<CustomSeeker>()) {
+                        if (entity2.DisableEffects)
+                            continue;
                         float num3 = Vector2.DistanceSquared(entity.Center, entity2.Center);
                         if (!entity2.Regenerating) {
                             num = ((!(num < 0f)) ? Math.Min(num, num3) : num3);

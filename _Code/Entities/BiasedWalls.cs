@@ -8,10 +8,12 @@ using Monocle;
 using Microsoft.Xna.Framework;
 using System.Collections;
 using System.Reflection;
+using Celeste.Mod.Entities;
 
 namespace VivHelper.Entities
 {
-    public class BiasedWalls : Entity
-    {
+
+    [CustomEntity("VivHelper/IcierWall")]
+    public class IcierWall : Entity {
     }
 }

@@ -35,8 +35,8 @@ rww.placements = {
 }
 
 rww.sprite = function(room,entity)
-    local incolor = vivUtil.getColor(entity.InnerColor)
-    local outcolor = vivUtil.getColor(entity.OuterColor)
+    local incolor = vivUtil.getColorTable(entity.InnerColor, true)
+    local outcolor = vivUtil.getColorTable(entity.OuterColor, true)
     vivUtil.alphMult(incolor, (entity.oneUse ? 0.25 : 0.7))
     vivUtil.alphMult(outcolor, (entity.oneUse ? 0.25 : 0.7))
     return { rectangle.fromRectangle("bordered",entity.x,entity.y,entity.width,entity.height,incolor,outcolor),

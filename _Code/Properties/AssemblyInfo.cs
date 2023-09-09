@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("VivHelper")]
 [assembly: AssemblyDescription("A Celeste Helper Mod")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Vivian - :: @Viv#1113")]
+[assembly: AssemblyCompany("Vivian - :: @vividescence")]
 [assembly: AssemblyProduct("VivHelper")]
-[assembly: AssemblyCopyright("Copyright ©  2021")]
+[assembly: AssemblyCopyright("Copyright ©  2023")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

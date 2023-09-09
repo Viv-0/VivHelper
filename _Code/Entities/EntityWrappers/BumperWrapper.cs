@@ -53,6 +53,8 @@ namespace VivHelper.Entities {
         private Vector2 bumperAnchor;
         private string AnchorName;
 
+        private bool legacyPositionLogic;
+
         private bool firstUpdate;
 
         public BumperWrapper(EntityData data, Vector2 offset) : base(data.Position + offset) {
@@ -94,12 +96,12 @@ namespace VivHelper.Entities {
                     WaitTime = data.Float("DelayTime", 0.0f);
                 }
             }
+            legacyPositionLogic = data.Bool("oldLaunchLogic", true);
         }
 
         public override void Awake(Scene scene) {
             base.Awake(scene);
             bool b = false;
-
             foreach (PlayerCollider tie in CollideAllByComponent<PlayerCollider>()) {
                 if (CheckEntity(tie.Entity.GetType(), tie.Entity, tie)) {
                     b = true;
@@ -159,7 +161,7 @@ namespace VivHelper.Entities {
             entity.Collider = pc.Collider = new Circle(2 * (int) (6f * Scale), c.Position.X * Scale, c.Position.Y * Scale); //There's a solid reason for why I did the entity Collide radius this way.
             oldOnCollide = pc.OnCollide;
             entity.Remove(entity.Get<PlayerCollider>());
-            entity.Add(new PlayerCollider(ReplacementOnPlayer));
+            entity.Add(new PlayerCollider((p)=>ReplacementOnPlayer(p,entity)));
             entity.Depth = newDepth;
             if (entity.Get<CoreModeListener>() != null && CoreModeChanger != Session.CoreModes.None) {
                 entity.Get<CoreModeListener>().OnChange(CoreModeChanger);
@@ -194,7 +196,7 @@ namespace VivHelper.Entities {
 
 
 
-        private void ReplacementOnPlayer(Player player) {
+        private void ReplacementOnPlayer(Player player, Entity entity) {
             if (dynBumper.Get<float>("respawnTimer") > 0f)
                 return;
             ExplodeLaunchModifier.bumperWrapperType = bumperLaunchModifier;
@@ -202,10 +204,11 @@ namespace VivHelper.Entities {
             float oldStamina = player.Stamina;
             ExplodeLaunchModifier.DisableFreeze = true;
             ExplodeLaunchModifier.DetectFreeze = false;
-            oldOnCollide(player);
+            // If a freeze occurs here, cancel the Freeze action with ExplodeLaunchModifier._DisableFreeze,
+            oldOnCollide(player); // and then let the Action complete
             ExplodeLaunchModifier.DisableFreeze = false;
-            if (ExplodeLaunchModifier.DetectFreeze) {
-                ExplodeLaunchModifier.ExplodeLaunchMaster(player, Position, false, false, this);
+            if (ExplodeLaunchModifier.DetectFreeze) { // if the Freeze was detected, hey, the default behavior happened. !!! Wow~ Now do our own shit
+                ExplodeLaunchModifier.ExplodeLaunchMaster(player, legacyPositionLogic ? Position : entity.Position, false, false, this);
             }
             var oldCooldown = DynamicData.For(player).Get<float>("dashCooldownTimer");
 

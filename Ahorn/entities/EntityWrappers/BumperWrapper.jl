@@ -16,7 +16,8 @@ AttachToSolid::Bool=false,
 SetStamina::Integer=-1,
 SetDashes::Integer=-1,
 BumperBoost::Integer=0,
-RespawnTime::Number=0.6
+RespawnTime::Number=0.6,
+oldLaunchLogic::Bool=false
 )
 
 const placements = Ahorn.PlacementDict(

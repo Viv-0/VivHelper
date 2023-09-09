@@ -1,12 +1,8 @@
 local utils = require("utils")
-local frostSettings = require("mods").requireFromPlugin("libraries.settings")
 local loadedState = require("loaded_state")
 
 local rainbowHelper = {}
 
----Implementation of Calc.YoYo from Monocle
----@param value number
----@return number
 local function yoyo(value)
     if value <= 0.5 then return value * 2 end
 
@@ -21,7 +17,7 @@ local function vanillaRainbow(room, x, y)
     return { utils.hsvToRgb(0.4 + yoyo(posLength) * 0.4, 0.4, 0.9) }
 end
 
--- Max' Helping Hand integration
+-- Maddie Helping Hand integration
 
 local function distance(v1, v2)
     local x = v1.x - v2.x
@@ -74,7 +70,7 @@ local function getModHue(colors, gradientSize, room, position, loopColors, cente
     end
 
     if progress == 1 then
-        return colors[len - 1];
+        return colors[len];
     end
 
     local globalProgress = (len - 1) * progress
@@ -88,7 +84,7 @@ local function colorsFromList(colorString)
     local t = {}
 
     for _, value in ipairs(split) do
-        table.insert(t, utils.getColor(value))
+        table.insert(t, utils.getColor(utils.trim(value)))
     end
 
     return t

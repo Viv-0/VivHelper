@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework;
 using MonoMod.Cil;
 using MonoMod;
 using Mono.Cecil.Cil;
+using Celeste.Mod;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/CassetteTileEntity")]
@@ -84,10 +85,10 @@ namespace VivHelper.Entities {
         }
 
         [MonoModLinkTo("Celeste.Solid", "System.Void Awake(Monocle.Scene)")]
-        internal void Solid_Awake(Scene scene) { Console.WriteLine("Link to Solid::Awake(Monocle.Scene) not found."); }
+        internal void Solid_Awake(Scene scene) { Logger.Log("VivHelper","Link to Solid::Awake(Monocle.Scene) not found."); }
 
         [MonoModLinkTo("Celeste.Solid", "System.Void Update()")]
-        internal void Solid_Update() { Console.WriteLine("Link to Solid::Update() not found."); }
+        internal void Solid_Update() { Logger.Log("VivHelper", "Link to Solid::Update() not found."); }
 
         public override void Awake(Scene scene) {
             Solid_Awake(scene);
@@ -150,7 +151,7 @@ namespace VivHelper.Entities {
 
         private void _FindInGroup(CassetteTileEntity block, ref Point min, ref Point max) {
             foreach (CassetteTileEntity entity in base.Scene.Tracker.GetEntities<CassetteTileEntity>()) {
-                if (entity != this && entity != block && entity.Index == Index && (connectOnTileset ? VivHelper.TilesetConnect(block.tileType, entity.tileType) : block.tileType == entity.tileType) && !group.Contains(entity) &&
+                if (entity != this && entity != block && entity.Index == Index && (connectOnTileset ? VivHelper.DoesTilesetConnect(block.tileType, entity.tileType) : block.tileType == entity.tileType) && !group.Contains(entity) &&
                     (entity.CollideRect(new Rectangle((int) block.X - 1, (int) block.Y, (int) block.Width + 2, (int) block.Height)) || entity.CollideRect(new Rectangle((int) block.X, (int) block.Y - 1, (int) block.Width, (int) block.Height + 2)))) {
                     if (entity.X < (float) min.X) {
                         min.X = (int) entity.Left;

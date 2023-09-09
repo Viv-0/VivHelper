@@ -14,8 +14,8 @@ namespace VivHelper.Entities {
     public abstract class BezierObject {
         public int tStart, tEnd;
         public abstract override string ToString();
-        public abstract Vector2 GetPoint(float t);
-        public abstract Vector2 GetDerivative(float t);
+        public abstract Vector2 GetPoint(double t);
+        public abstract Vector2 GetDerivative(double t);
         public virtual Vector2[] GetOffsetPoints(float distance, float t) {
             Vector2 dt = GetDerivative(t);
             Vector2 T = GetPoint(t);
@@ -68,16 +68,16 @@ namespace VivHelper.Entities {
             return ("{ " + point1 + ", " + control + ", " + point2 + " }");
         }
 
-        public override Vector2 GetPoint(float percent) {
-            float X = (1 - percent) * (1 - percent) * point1.X + 2 * (1 - percent) * percent * control.X + percent * percent * point2.X;
-            float Y = (1 - percent) * (1 - percent) * point1.Y + 2 * (1 - percent) * percent * control.Y + percent * percent * point2.Y;
-            return new Vector2(X, Y);
+        public override Vector2 GetPoint(double percent) {
+            double X = (1 - percent) * (1 - percent) * point1.X + 2 * (1 - percent) * percent * control.X + percent * percent * point2.X;
+            double Y = (1 - percent) * (1 - percent) * point1.Y + 2 * (1 - percent) * percent * control.Y + percent * percent * point2.Y;
+            return new Vector2((float)X, (float) Y);
         }
 
-        public override Vector2 GetDerivative(float t) {
-            float dX = 2 * (1 - t) * (control.X - point1.X) + 2 * t * (point2.X - control.X);
-            float dY = 2 * (1 - t) * (control.Y - point1.Y) + 2 * t * (point2.Y - control.Y);
-            return new Vector2(dX, dY);
+        public override Vector2 GetDerivative(double t) {
+            double dX = 2 * (1 - t) * (control.X - point1.X) + 2 * t * (point2.X - control.X);
+            double dY = 2 * (1 - t) * (control.Y - point1.Y) + 2 * t * (point2.Y - control.Y);
+            return new Vector2((float) dX, (float) dY);
         }
 
         public override float GetBezierLength(int resolution = 10) {
@@ -148,11 +148,11 @@ namespace VivHelper.Entities {
             return ("{ " + point1 + ", " + control1 + ", " + control2 + ", " + point2 + " }");
         }
 
-        public override Vector2 GetPoint(float j) {
-            float i = 1f - j;
-            float x = i * i * i * point1.X + 3 * i * i * j * control1.X + 3 * i * j * j * control2.X + j * j * j * point2.X;
-            float y = i * i * i * point1.Y + 3 * i * i * j * control1.Y + 3 * i * j * j * control2.Y + j * j * j * point2.Y;
-            return new Vector2(x, y);
+        public override Vector2 GetPoint(double j) {
+            double i = 1f - j;
+            double x = i * i * i * point1.X + 3 * i * i * j * control1.X + 3 * i * j * j * control2.X + j * j * j * point2.X;
+            double y = i * i * i * point1.Y + 3 * i * i * j * control1.Y + 3 * i * j * j * control2.Y + j * j * j * point2.Y;
+            return new Vector2((float)x, (float)y);
         }
 
         public static Vector2 GetPoint(float percent, Vector2 start, Vector2 controlStart, Vector2 controlEnd, Vector2 end) {
@@ -160,14 +160,14 @@ namespace VivHelper.Entities {
             return b.GetPoint(percent);
         }
 
-        public override Vector2 GetDerivative(float t) {
-            float dX = 3 * (1 - t) * (1 - t) * (control1.X - point1.X) +
+        public override Vector2 GetDerivative(double t) {
+            double dX = 3 * (1 - t) * (1 - t) * (control1.X - point1.X) +
                        6 * (1 - t) * t * (control2.X - control1.X) +
                        3 * t * t * (point2.X - control2.X);
-            float dY = 3 * (1 - t) * (1 - t) * (control1.Y - point1.Y) +
+            double dY = 3 * (1 - t) * (1 - t) * (control1.Y - point1.Y) +
                       6 * (1 - t) * t * (control2.Y - control1.Y) +
                       3 * t * t * (point2.Y - control2.Y);
-            return new Vector2(dX, dY);
+            return new Vector2((float)dX, (float)dY);
         }
 
         public override float GetBezierLength(int resolution = 10) {
@@ -240,14 +240,14 @@ namespace VivHelper.Entities {
             return t;
         }
 
-        public override Vector2 GetPoint(float t) {
+        public override Vector2 GetPoint(double t) {
             if (0 <= t && t <= tEnd) {
                 if (single) { return curves[0].GetPoint(t); } else
                     return curves[(int) (t == tEnd ? t - 0.01f : t)].GetPoint(t == tEnd ? 1 : t - (int) t);
             } else { throw new IndexOutOfRangeException("Point Beyond Range"); }
         }
 
-        public override Vector2 GetDerivative(float t) {
+        public override Vector2 GetDerivative(double t) {
             if (0 <= t && t <= tEnd) {
                 if (single) { return curves[0].GetDerivative(t); } else
                     return curves[(int) (t == tEnd ? t - 0.01f : t)].GetDerivative(t == tEnd ? 1 : t - (int) t);

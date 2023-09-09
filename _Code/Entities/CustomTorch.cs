@@ -59,7 +59,7 @@ namespace VivHelper.Entities {
 
         public override void Added(Scene scene) {
 
-            if (startLit) {
+            if (startLit || SceneAs<Level>().Session.GetFlag(FlagName)) {
                 bloom.Visible = (light.Visible = true);
                 lit = true;
                 Collidable = false;

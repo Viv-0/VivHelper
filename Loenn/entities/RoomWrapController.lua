@@ -43,7 +43,7 @@ return {
             LeftOffset = 4.0, LeftExitSpeedAdd = 15.0,
             setByCamera = false, allEntities = false, legacy = true,
             ZFlagsData = ""
-        }}
+        }
     },
     selection = function(room,entity) return utils.rectangle(entity.x - 16, entity.y - 16, 32, 32) end,
     sprite = function(room, entity)

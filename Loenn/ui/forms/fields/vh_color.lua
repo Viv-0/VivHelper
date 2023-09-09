@@ -1,3 +1,13 @@
+--[[
+    vh_color:
+    if Text is 6 characters long, Display Text is RrGgBb and Actual Text is also RrGgBb,
+    if Text is 8 characters long,
+    Display Text must be in the form "RrGgBbAa"
+    Actual Text must be in the form "AaBbGgRr" (*not* aAbBgGrR)
+]]
+
+
+
 local ui = require("ui")
 local uiElements = require("ui.elements")
 local uiUtils = require("ui.utils")
@@ -7,6 +17,7 @@ local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 local colorPicker = require('mods').requireFromPlugin("ui.widgets.improved_color_picker")
 local configs = require("configs")
 local xnaColors = require("consts.xna_colors")
+local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 
 local colorField = {}
 
@@ -15,27 +26,17 @@ colorField.fieldType = "VivHelper.color"
 colorField._MT = {}
 colorField._MT.__index = {}
 
-local fallbackHexColor = "ffffffff"
+local fallbackHexColor = "ffffff"
 
 local invalidStyle = {
     normalBorder = {0.65, 0.2, 0.2, 0.9, 2.0},
     focusedBorder = {0.9, 0.2, 0.2, 1.0, 2.0}
 }
 
--- Vanilla accepts plain numbers here, these come from the packer making "000000" into 0, etc.
--- Any other values passes straight through
-local function fixNumberColor(value)
-    if type(value) == "number" then
-        return string.format("%08d", value)
-    end
-
-    return value
-end
-
 function colorField._MT.__index:setValue(value)
-    self.currentValue = fixNumberColor(value) or fallbackHexColor
-    self.field:setText(self.currentValue)
-    self.field.index = #self.currentValue
+    self.currentText = vivUtil.swapRGBA(value)
+    self.field:setText(self.currentText)
+    self.currentValue = value
 end
 
 function colorField._MT.__index:getValue()
@@ -48,24 +49,18 @@ function colorField._MT.__index:fieldValid(...)
 
     if fieldEmpty then
         return self._allowEmpty
-
-    elseif self._allowXNAColors then
-        local color = utils.getColor(current)
-
-        return not not color
     elseif self._allowRainbow and current == "Rainbow" then
         return true
     else
-        local parsed, r, g, b, a = vivUtil.parseColor(current)
+        local parsed, r, g, b, a = vivUtil.getColor(current, self._allowXNAColors)
 
         return parsed
     end
 end
-
 -- Return the hex color of the XNA name if allowed
 -- Otherwise return the value as it is
 local function getXNAColorHex(element, value)
-    local fieldEmpty = vivUtil.isNullEmptyOrWhitespace(value)
+    local fieldEmpty = value == nil or #value == 0
 
     if fieldEmpty and element._allowEmpty then
         return fallbackHexColor
@@ -75,30 +70,28 @@ local function getXNAColorHex(element, value)
         local xnaColor = utils.getXNAColor(value or "")
 
         if xnaColor then
-            return vivUtil.colorToHex(unpack(xnaColor))
+            return utils.rgbToHex(unpack(xnaColor))
         end
     end
 
     return value
 end
 
-local function cacheFieldPreviewColor(element, new)
-    local parsed, r, g, b, a = vivUtil.parseColor(getXNAColorHex(element, new))
 
-    element._parsed = parsed
+local function cacheFieldPreviewColor(element, new, old)
+    local parsed, r, g, b, a = vivUtil.getColor(new)
+    if not parsed then return false, element._r, element._g, element._b, element._a end
     element._r, element._g, element._b, element._a = r, g, b, a
-
     return parsed, r, g, b, a
 end
 
 local function fieldChanged(formField)
     return function(element, new, old)
-        local parsed, r, g, b, a = cacheFieldPreviewColor(element, new)
-        local wasValid = formField:fieldValid()
-        local valid = parsed
-
-        formField.currentValue = new
-
+        local wasValid = formField:fieldValid()     
+        local abgr = vivUtil.swapRGBA(new)   
+        local valid, r, g, b, a = cacheFieldPreviewColor(element, new, old)
+        formField.currentValue = abgr
+        formField.currentText = new
         if wasValid ~= valid then
             if valid then
                 -- Reset to default
@@ -159,20 +152,14 @@ local function shouldShowMenu(element, x, y, button)
     return false
 end
 
-local function transformer(value)
-    if(#value > 6) then return string.reverse(value) else return value end
-end
 
 function colorField.getElement(name, value, options)
     local formField = {}
-
-    value = fixNumberColor(value)
 
     local minWidth = options.minWidth or options.width or 160
     local maxWidth = options.maxWidth or options.width or 160
     local allowXNAColors = options.allowXNAColors
     local allowEmpty = options.allowEmpty
-
     local label = uiElements.label(options.displayName or name)
     local field = uiElements.field(value or fallbackHexColor, fieldChanged(formField)):with({
         ["minWidth"] = minWidth,
@@ -195,7 +182,6 @@ function colorField.getElement(name, value, options)
             }
 
             local fieldText = getXNAColorHex(field, field:getText() or "")
-
             return colorPicker.getColorPicker(fieldText, pickerOptions)
         end,
         {
@@ -204,7 +190,7 @@ function colorField.getElement(name, value, options)
     )
 
     cacheFieldPreviewColor(field, value or "")
-    field:setPlaceholder(value)
+    field:setPlaceholder(vivUtil.swapRGBA(value))
 
     if options.tooltipText then
         label.interactive = 1
@@ -218,8 +204,7 @@ function colorField.getElement(name, value, options)
     formField.name = name
     formField.initialValue = value
     formField.currentValue = value
-    formField.displayTransformer = transformer
-    formField.valueTransformer = transformer
+    formField.currentText = vivUtil.swapRGBA(value)
     formField._allowXNAColors = allowXNAColors
     formField._allowEmpty = allowEmpty
     formField._allowRainbow = allowRainbow
@@ -227,7 +212,6 @@ function colorField.getElement(name, value, options)
     formField.elements = {
         label, fieldWithContext
     }
-
     return setmetatable(formField, colorField._MT)
 end
 

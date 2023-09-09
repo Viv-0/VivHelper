@@ -12,6 +12,7 @@ using Microsoft.Xna.Framework;
 using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using System.Reflection;
+using MonoMod.RuntimeDetour;
 
 namespace VivHelper.Entities {
     public static class ExplodeLaunchModifier {
@@ -20,7 +21,7 @@ namespace VivHelper.Entities {
         public static bool DetectFreeze = false;
 
         public static void Load() {
-            On.Celeste.Celeste.Freeze += _DisableFreeze;
+            using (new DetourContext { After = { "*" } }) On.Celeste.Celeste.Freeze += _DisableFreeze;
             On.Monocle.Entity.DebugRender += AddBumperWrapperCheck;
         }
 
@@ -170,7 +171,7 @@ namespace VivHelper.Entities {
             return Calc.AngleToVector((float) Math.PI * -0.25f, 1f);
         }
 
-        private static Vector2 EightWayLaunch(Player self, Vector2 from, RestrictBoost restrictBoost) {
+        public static Vector2 EightWayLaunch(Player self, Vector2 from, RestrictBoost restrictBoost) {
             DynData<Player> dyn = new DynData<Player>(self);
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             if (restrictBoost == RestrictBoost.BetterBoost)

@@ -15,7 +15,7 @@ namespace VivHelper.Colliders {
             On.Monocle.Collider.Collide_Collider += Collider_Collide_Collider;
         }
         public static void Unload() {
-            On.Monocle.Collider.Collide_Collider += Collider_Collide_Collider;
+            On.Monocle.Collider.Collide_Collider -= Collider_Collide_Collider;
         }
 
         private static bool Collider_Collide_Collider(On.Monocle.Collider.orig_Collide_Collider orig, Collider self, Collider collider) {
@@ -24,6 +24,8 @@ namespace VivHelper.Colliders {
                     return shape.Collide(hitbox);
                 else if (self is Circle circle)
                     return shape.Collide(circle);
+                else if (self is ColliderList list)
+                    return shape.Collide(list);
                 else
                     throw new Exception($"Collider not implemented between Polygon and {self.GetType().FullName}");
             } else if (self is PolygonCollider shape2) {
@@ -31,6 +33,8 @@ namespace VivHelper.Colliders {
                     return shape2.Collide(hitbox);
                 else if (collider is Circle circle)
                     return shape2.Collide(circle);
+                else if (collider is ColliderList list)
+                    return shape2.Collide(list);
                 else
                     throw new Exception($"Collider not implemented between Polygon and {self.GetType().FullName}");
             } else {
@@ -169,8 +173,26 @@ namespace VivHelper.Colliders {
 
         public override bool Collide(Hitbox hitbox) => Collide(hitbox.Bounds);
 
+        // Naive implementation of collision with the grid in O(kn^2).
+        // Optimization impl:
+        // if convex, create a scanline rasterization implementation using Bresenham's line algorithm
+        // if concave, create a barycenter rasterization check with the triangulated points
         public override bool Collide(Grid grid) {
-            throw new NotImplementedException("Collision with Grids are not functional.");
+            bool ret = false;
+            Rectangle PolygonGridBounds = this.AABB;
+            PolygonGridBounds.X -= 7; PolygonGridBounds.Width += 14;
+            PolygonGridBounds.Y -= 7; PolygonGridBounds.Height += 14;
+            int x0 = (int)Math.Ceiling((double)PolygonGridBounds.Left / 8.0);
+            int x1 = (int) Math.Floor((double) PolygonGridBounds.Right / 8.0);
+            int y0 = (int) Math.Ceiling((double) PolygonGridBounds.Top / 8.0);
+            int y1 = (int) Math.Floor((double) PolygonGridBounds.Bottom / 8.0);
+            for(int x = x0; x < x1; x++) {
+                for(int y = y0; y < y1; y++) {
+                    if (grid[x,y] && Collide(new Rectangle(x * 8, y * 8, 8, 8)))
+                        return true;
+                }
+            }
+            return false;
         }
 
         public override bool Collide(Circle circle) {
@@ -187,7 +209,6 @@ namespace VivHelper.Colliders {
         }
 
         public override bool Collide(ColliderList list) {
-            if (list.colliders.Any(c => c is not Hitbox && c is not Circle && c is not ColliderList)) { throw new NotImplementedException("Collision with Grids are not functional."); }
             foreach (Collider c in list.colliders) {
                 if (Collide(c)) { return true; }
             }
@@ -216,7 +237,6 @@ namespace VivHelper.Colliders {
                 return false;
             }
         }
-
         public static bool PointInsideTriangle(Vector2 v1, Vector2 v2, Vector2 v3, Vector2 pt) {
             float areaOrig = Math.Abs((v2.X - v1.X) * (v3.Y - v1.Y) - (v3.X - v1.X) * (v2.Y - v1.Y));
 
@@ -263,9 +283,6 @@ namespace VivHelper.Colliders {
             f = 0.33333f / twicearea;
             Vector2 ret = Calc.Round((v * f) + first);
             return ret;
-
-
         }
-
     }
 }

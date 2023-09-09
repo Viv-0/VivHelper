@@ -5,7 +5,8 @@ using ..Ahorn, Maple
 width::Integer=8, height::Integer=8, tiletype::String="3",
 blendin::Bool=true, canDash::Bool=true, permanent::Bool=true,
 FlagOnBreak::String="", FlagToDisable::String="",
-AudioEvent::String="gameDefault", disableFallingBlocksBreak::Bool=false
+AudioEvent::String="gameDefault", disableFallingBlocksBreak::Bool=false,
+breakStaticMovers::Bool=true
 )
 
 const placements = Ahorn.PlacementDict(

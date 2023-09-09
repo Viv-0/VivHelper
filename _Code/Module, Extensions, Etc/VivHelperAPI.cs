@@ -13,12 +13,13 @@ using System.Reflection;
 using VivHelper.Entities;
 using Mono.Cecil.Cil;
 using FMOD.Studio;
+using System.Collections;
 
-namespace VivHelper.Module__Extensions__Etc {
+namespace VivHelper {
 
     [ModExportName("VivHelperAPI")]
     public static class VivHelperAPI {
-        // Entity Muting segment
+        #region Audio Muting
         public static void SimpleEntityMuteMethod(MethodInfo info, bool isCoroutine) => EntityMuterComponent.HookMethodInfoWithAudioMute(info, isCoroutine, null);
         public static void AdvancedEntityMuteMethod(MethodInfo info, bool isCoroutine, bool takeFromLocal, int argIdentifier) {
 
@@ -40,12 +41,14 @@ namespace VivHelper.Module__Extensions__Etc {
             }
             return i;
         }
+        #endregion
 
-
-        //Polygonal code
+        #region Polygons
         public static Collider ProducePolygonColliderFromPoints(Vector2[] pts, Entity owner) => new PolygonCollider(pts, owner, true);
         public static Vector2 GetCentroidOfNonComplexPolygon(Vector2[] pts) => PolygonCollider.GetCentroidOfNonComplexPolygon(pts);
+        #endregion
 
+        #region Custom Booster Interface
         /// <summary>
         /// Handles adding a CustomAttribute to an UltimateCustomBooster.
         /// </summary>
@@ -75,5 +78,13 @@ namespace VivHelper.Module__Extensions__Etc {
             UltraCustomDash.customDashSpecialHandlers.Add(name, cda);
             return true;
         }
+        #endregion
+
+        /*#region Powerup Interface 
+        public static void AddDashPowerup(string name, List<string> linkedEntityData, int innerState, bool callDashListeners, PowerupCoroutine coroutine, Func<Player, IEnumerator> unlockRoutine, string guiDirectory, Dictionary<string, string> convolutions) =>
+            DashPowerupManager.AddPowerup(name, linkedEntityData, innerState, callDashListeners, coroutine, guiDirectory, unlockRoutine, convolutions);
+
+        public static void ActivateDashPowerup(string name, Player player) => VivHelperModule.Session.dashPowerupManager?.ActivatePowerup(name, player);
+        #endregion*/
     }
 }

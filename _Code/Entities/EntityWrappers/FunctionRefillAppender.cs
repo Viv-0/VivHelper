@@ -18,8 +18,10 @@ namespace VivHelper.Entities {
     [CustomEntity("VivHelper/FunctionRefillAppender")]
     public class FunctionRefillAppender : Entity {
         public List<Type> Types, assignableTypes;
+        public string audioEventName;
         public bool all;
 
+        public DashCollisionResults? checkOnDashedForSolids;
 
         public Func<int, int> replaceDashes;
         public Func<float, float> replaceStamina;
@@ -28,6 +30,8 @@ namespace VivHelper.Entities {
             Collider = new Hitbox(data.Width, data.Height);
             all = data.Bool("all");
             string q = data.Attr("Types", "");
+            audioEventName = data.NoEmptyString("audioEventName");
+            checkOnDashedForSolids = data.Attr("includeSolidOnDash") == "None" ? null : data.Enum<DashCollisionResults>("includeSolidOnDash");
             assignableTypes = new List<Type>();
             Types = new List<Type>();
             VivHelper.AppendTypesToList(q, ref Types, ref assignableTypes);
@@ -55,6 +59,29 @@ namespace VivHelper.Entities {
                         break;
                 }
             }
+            if(checkOnDashedForSolids != null) {
+                foreach (Platform solid in CollideAll<Platform>()) {
+                    if (solid.OnDashCollide != null && VivHelper.MatchTypeFromTypeSet(solid.GetType(), Types, assignableTypes)) {
+                        DashCollision oldDashCollision = solid.OnDashCollide;
+                        solid.OnDashCollide = (p, v) => {
+                            int dashes = p.Dashes;
+                            float stamina = p.Stamina;
+                            var r = oldDashCollision(p, v);
+                            if (r == checkOnDashedForSolids) {
+                                p.Dashes = replaceDashes(dashes);
+                                p.Stamina = replaceStamina(stamina);
+                                if(p.Dashes > dashes) {
+                                    Audio.Play(audioEventName ?? (p.Dashes > 1 ? "event:/new_content/game/10_farewell/pinkdiamond_touch" : "event:/game/general/diamond_touch"), Position);
+                                }
+                            }
+                            return r;
+                        };
+                        if (!all)
+                            break;
+                    }
+                }
+            }
+            RemoveSelf();
         }
 
 

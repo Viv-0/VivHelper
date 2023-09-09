@@ -18,13 +18,15 @@ namespace VivHelper {
     [Tracked]
     public class SolidModifierComponent : Component {
 
-        private readonly static string[] LegacyMapSIDs = new string[5] {
+        private readonly static string[] LegacyMapSIDs = new string[8] {
             "MOCE/issy/MOCE_CPCL",
             "MOCE/issy/MOCE_LXVI",
             "Tardigrade/WaterbearMountain/WaterbearMountain",
             "Cabob/AmberTerminus/1-AmberTerminus",
-            "Cabob/AmberTerminus/1-AmberTerminus-B"
-
+            "Cabob/AmberTerminus/1-AmberTerminus-B",
+            "AnarchyCollab2022/1-Submissions/02_ellatas",
+            "AnarchyCollab2022/1-Submissions/22_pogseal",
+            "AnarchyCollab2022/1-Submissions/ZZ_heartside",
         };
 
         public static void Load() {
@@ -69,9 +71,9 @@ namespace VivHelper {
 
         private static void Player_ClimbJump(On.Celeste.Player.orig_ClimbJump orig, Player self) {
             if (self.Scene.Tracker.Components.TryGetValue(typeof(SolidModifierComponent), out var q) && q.Count > 0)
-                WJ_CollideCheck(q, self, (int) self.Facing, true, (self, smc) => {
+                WJ_CollideCheck(q, self, (int)self.Facing, true, (self, smc) => {
                     smc.HasBeenClimbJumpedOn = (smc.ContactMod & 1) > 0;
-                    if (smc.CornerBoostBlock > 1) {
+                    if (smc.CornerBoostBlock < -1) {
                         DynamicData dyn = new DynamicData(self);
                         dyn.Set("WallSpeedRetentionTimer", dyn.Get<float>("WallSpeedRetentionTime"));
                     }
@@ -84,6 +86,7 @@ namespace VivHelper {
                 WJ_CollideCheck(q, self, -dir, true, (player, smc) => {
                     if(smc != null)
                         smc.HasBeenWallJumpedOn = (smc.ContactMod & 1) > 0;
+                        Console.WriteLine(smc.HasBeenWallJumpedOn ? "Wall" : "No Wall");
                 });
             orig(self, dir);
         }
@@ -130,13 +133,15 @@ namespace VivHelper {
             int num = VivHelper.player_WallJumpCheck_getNum?.Invoke(player, dir) ?? 3;
             int end = Math.Max(num, (int)Math.Ceiling(Math.Abs(player.Speed.X) * Engine.DeltaTime) + 1);
             var scene = player.Scene;
-            if (end < 4)
+            var s = includeOrig ? 4 : 0;
+            if (end < s)
                 return false;
             foreach (SolidModifierComponent smc in q) {
                 if(smc.Entity is Solid solid) {
-                    for (int i = 4; i <= end; i++) {
+                    int _end = (smc.CornerBoostBlock > 0) ? smc.CornerBoostBlock : end;
+                    for (int i = s; i <= _end; i++) {
                         if (player.ClimbBoundsCheck(dir) && !ClimbBlocker.EdgeCheck(scene, player, dir * i)) {
-                            if (smc.CornerBoostBlock > 0 && Collide.Check(player, solid, player.Position + Vector2.UnitX * (dir * i))) { // If the CornerBoostBlock state is not changing the behavior of the walljumpcheck, continue on
+                            if (smc.CornerBoostBlock != 0 && Collide.Check(player, solid, player.Position + Vector2.UnitX * (dir * i))) { // If the CornerBoostBlock state is not changing the behavior of the walljumpcheck, continue on
                                 onTrue?.Invoke(player, smc);
                                 return true;
                             }
@@ -171,7 +176,7 @@ namespace VivHelper {
 
         
 
-        // 0 = Normal, 1 = CBB, 2 = CBB + Wall Retention, 3 = Reimpl CBB, 4 = Reimpl CBB + Wall Retention
+        // 0 = Normal, -1 = CBB, -2 = CBB + Wall Retention, -3 = Reimpl CBB, -4 = Reimpl CBB + Wall Retention
         public int CornerBoostBlock;
         //0 = No, 1 = Climb or BufferClimbJump only, 2 = On Touch, 3 = BufferClimbJump + On Touch
         public int ContactMod;
@@ -181,7 +186,7 @@ namespace VivHelper {
         public bool HasBeenClimbJumpedOn, HasBeenWallJumpedOn;
 
         public SolidModifierComponent(int cornerBoostBlock, bool bufferClimbJump, bool triggerClimbOnTouch, bool onTouchFromBelow = false) : base(true, false) {
-            CornerBoostBlock = cornerBoostBlock;
+            CornerBoostBlock = -cornerBoostBlock; // New Negation 
             ContactMod = 0;
             if (bufferClimbJump)
                 ContactMod++;

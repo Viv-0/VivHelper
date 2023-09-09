@@ -7,7 +7,7 @@ introCrusher.name = "VivHelper/FlagIntroCrusher"
 introCrusher.depth = 0
 introCrusher.nodeLineRenderType = "line"
 introCrusher.nodeLimits = {1, 1}
-introCrusher.fieldInformation = fakeTilesHelper.getFieldInformation("tiletype")
+introCrusher.fieldInformation = fakeTilesHelper.getFieldInformation("tileType")
 introCrusher.placements = {
     name = "intro_crusher",
     data = {
@@ -20,8 +20,8 @@ introCrusher.placements = {
     }
 }
 
-introCrusher.sprite = fakeTilesHelper.getEntitySpriteFunction("tiletype", false)
-introCrusher.nodeSprite = fakeTilesHelper.getEntitySpriteFunction("tiletype", false)
+introCrusher.sprite = fakeTilesHelper.getEntitySpriteFunction("tileType", false)
+introCrusher.nodeSprite = fakeTilesHelper.getEntitySpriteFunction("tileType", false)
 
 function introCrusher.nodeRectangle(room, entity, node)
     return utils.rectangle(node.x or 0, node.y or 0, entity.width or 8, entity.height or 8)

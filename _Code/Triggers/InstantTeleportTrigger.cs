@@ -363,8 +363,8 @@ namespace VivHelper.Triggers {
 
                 Vector2 camPos = player.Position;
                 Vector2 vector2 = new Vector2(player.X - 160f, player.Y - 90f);
-                camPos.X = MathHelper.Clamp(vector2.X, (float) level.Bounds.Left, (float) (level.Bounds.Right - 320));
-                camPos.Y = MathHelper.Clamp(vector2.Y, (float) level.Bounds.Top, (float) (level.Bounds.Bottom - 180));
+                camPos.X = Calc.Clamp(vector2.X, (float) level.Bounds.Left, (float) (level.Bounds.Right - 320));
+                camPos.Y = Calc.Clamp(vector2.Y, (float) level.Bounds.Top, (float) (level.Bounds.Bottom - 180));
                 level.Camera.Position = camPos;
 
             }
@@ -374,8 +374,8 @@ namespace VivHelper.Triggers {
             level.CameraOffset = vals[3];
             Vector2 camPos = player.Position;
             Vector2 vector2 = new Vector2(player.X - 160f, player.Y - 90f) + vals[3];
-            camPos.X = MathHelper.Clamp(vector2.X, (float) level.Bounds.Left, (float) (level.Bounds.Right - 320));
-            camPos.Y = MathHelper.Clamp(vector2.Y, (float) level.Bounds.Top, (float) (level.Bounds.Bottom - 180));
+            camPos.X = Calc.Clamp(vector2.X, (float) level.Bounds.Left, (float) (level.Bounds.Right - 320));
+            camPos.Y = Calc.Clamp(vector2.Y, (float) level.Bounds.Top, (float) (level.Bounds.Bottom - 180));
             level.Camera.Position = camPos;
             if (legacyCamera == 4)
                 level.Camera.Position += vals[4];

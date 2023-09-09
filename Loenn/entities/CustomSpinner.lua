@@ -82,7 +82,7 @@ local function getSprite(entity, bg)
     if ret then return ret end
     return drawableSprite.fromTexture(modHandler.internalModContent .. "/missing_image", entity)
 end
---[[
+--[[ Hitbox drawing is disabled in Loenn because it puts too much load on render pipeline
 local function drawHitboxes(entity)
 
     local function parse(a) return  end
@@ -149,7 +149,6 @@ local function getConnectionSprites(room, entity)
 
     local sprites = {}
     local borders = {}
-
     for _, target in ipairs(room.entities) do -- Gets entities from rooms entities
         if target ~= nil and target ~= entity and entity._name == target._name then
             local scale = (12 * entity.Scale + 12 * target.Scale)
@@ -160,6 +159,8 @@ local function getConnectionSprites(room, entity)
                 local color = vivUtil.colorLerp(entity.Color, target.Color, 0.5)
                 if entity.Type ~= "White" or target.Type ~= "White" then color = rainbowHelper.getRainbowHue(room,entity.x,entity.y,8*(entity.Scale + target.Scale),8*(entity.Scale + target.Scale)) end
                 sprite.color = color
+                local scale = (entity.Scale + target.Scale) / 2
+                sprite:setScale(scale,scale)
                 vivUtil.addAll(borders, vivUtil.getBorder(sprite, vivUtil.colorLerp(entity.BorderColor, target.BorderColor, 0.5)))
                 table.insert(sprites, sprite)
             end
@@ -171,11 +172,12 @@ end
 function customSpinner.sprite(room, entity)
     local mainSprite = getSprite(entity, false)
     local c = entity.Color
-    if vivUtil.isNullEmptyOrWhitespace(c) then c = "FFFFFFFF" end
-    local color = vivUtil.getColor(c)
+    if vivUtil.isNullEmptyOrWhitespace(c) then c = "FFFFFF" end
+    local color = vivUtil.getColorTable(c)
     if entity.Type ~= "White" then color = rainbowHelper.getRainbowHue(room,entity.x,entity.y,16*entity.Scale,16*entity.Scale) end
     mainSprite.color = color
     mainSprite.depth = entity.Depth
+    mainSprite:setScale(entity.Scale, entity.Scale)
     local cS, sprites = getConnectionSprites(room, entity)
     vivUtil.addAll(sprites, vivUtil.getBorder(mainSprite, entity.BorderColor))
     vivUtil.addAll(sprites, cS)
