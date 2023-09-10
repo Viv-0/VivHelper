@@ -360,5 +360,6 @@ MigrationBackup/
 Thumbs.db
 desktop.ini
 *.zip
-Maps/
 
+/Maps/VivHelper/VivHelperTestMap.bin
+/Maps/VivHelper/VivHelperTestMap.bin
