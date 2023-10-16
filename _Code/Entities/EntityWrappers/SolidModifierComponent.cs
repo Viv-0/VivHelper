@@ -13,6 +13,7 @@ using MonoMod.Utils;
 using MonoMod.RuntimeDetour;
 using Mono.Cecil;
 using System.Runtime.InteropServices.ComTypes;
+using Celeste.Mod;
 
 namespace VivHelper {
     [Tracked]
@@ -86,7 +87,7 @@ namespace VivHelper {
                 WJ_CollideCheck(q, self, -dir, true, (player, smc) => {
                     if(smc != null)
                         smc.HasBeenWallJumpedOn = (smc.ContactMod & 1) > 0;
-                        Console.WriteLine(smc.HasBeenWallJumpedOn ? "Wall" : "No Wall");
+                        Logger.Log(LogLevel.Debug, "VivHelper", "Walljump detection: " + smc.HasBeenWallJumpedOn);
                 });
             orig(self, dir);
         }
@@ -118,7 +119,7 @@ namespace VivHelper {
                 player.Position = legacyAt;
                 foreach(var smc in q) {
                     if (smc.Entity is Solid solid) {
-                        a |= LegacyCollideCheck(solid, player, (smc as SolidModifierComponent).CornerBoostBlock);
+                        a |= LegacyCollideCheck(solid, player, -(smc as SolidModifierComponent).CornerBoostBlock);
                         if (a)
                             break;
                     }

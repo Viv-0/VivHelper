@@ -36,6 +36,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="CassetteBooster.cs" />
     <Compile Include="Dialogue\BetterCutscene.cs" />
     <Compile Include="Dialogue\DialogExtensions.cs" />
     <Compile Include="Effects\CustomRain.cs" />
@@ -89,7 +90,7 @@
     <Compile Include="Module, Extensions, Etc\HoldablePlus.cs" />
     <Compile Include="Module, Extensions, Etc\LuaHelper.cs" />
     <Compile Include="Module, Extensions, Etc\Parsers\StringToGroup.cs" />
-    <Compile Include="Module, Extensions, Etc\pseudoconsts.cs" />
+    <Compile Include="Module, Extensions, Etc\Variables.cs" />
     <Compile Include="Module, Extensions, Etc\RefillBase.cs" />
     <Compile Include="Module, Extensions, Etc\RetrievedAPIs\GravityHelperAPI.cs" />
     <Compile Include="Module, Extensions, Etc\TeleporterFunctions.cs" />
@@ -260,6 +261,7 @@
     <Compile Include="Polygon\PolygonalTriggerTrigger.cs" />
     <Compile Include="Triggers\TeleporterRework.cs" />
     <Compile Include="Triggers\TempleFallTrigger.cs" />
+    <Compile Include="Triggers\Test.cs" />
     <Compile Include="Triggers\TriggerPersistence.cs" />
     <Compile Include="Wipes\FastSpotlightWipe.cs" />
     <Compile Include="Module, Extensions, Etc\Colorblind.cs" />
@@ -310,35 +312,45 @@
   <ItemGroup>
     <Reference Include="Celeste">
       <HintPath>..\..\..\Celeste.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="FNA">
       <HintPath>..\..\..\FNA.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="KeraLua">
       <HintPath>..\..\..\KeraLua.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MMHOOK_Celeste">
       <HintPath>..\..\..\MMHOOK_Celeste.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Cecil">
       <HintPath>..\..\..\Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MonoMod">
       <HintPath>..\..\..\MonoMod.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
       <HintPath>..\..\..\MonoMod.RuntimeDetour.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MonoMod.Utils">
       <HintPath>..\..\..\MonoMod.Utils.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NLua">
       <HintPath>..\..\..\NLua.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.XML" />
     <Reference Include="YamlDotNet">
       <HintPath>..\..\..\YamlDotNet.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

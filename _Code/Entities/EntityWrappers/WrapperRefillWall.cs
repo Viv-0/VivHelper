@@ -27,6 +27,7 @@ namespace VivHelper.Entities {
 
         Image texture;
         Sprite altSprite;
+        private bool useBase;
         private bool drawWithOutline;
         public bool sprite_or_image => texture == null;
 
@@ -117,7 +118,10 @@ namespace VivHelper.Entities {
             isRefillSubclass = type.IsSubclassOf(typeof(Refill));
             dynRefill = new DynamicData(isRefillSubclass ? typeof(Refill) : type, entity);
             object o = null;
-            if (spriteVarname.StartsWith("$")) {
+            if (spriteVarname == "$usebase") {
+                useBase = true;
+            }
+            else if (spriteVarname.StartsWith("$")) {
                 switch (spriteVarname.ToLowerInvariant()) {
                     case "$sprite":
                         o = entity.Get<Sprite>();
@@ -157,7 +161,11 @@ namespace VivHelper.Entities {
             texture.RenderPosition = Center;
             tiedEntity = entity;
             tiedEntity.Position = Center;
-            tiedEntity.Collidable = tiedEntity.Visible = false;
+            if (useBase) {
+                tiedEntity.Collidable = false;
+            } else {
+                tiedEntity.Collidable = tiedEntity.Visible = false;
+            }
             refillUse = pc.OnCollide;
             Add(new PlayerCollider(OnPlayer));
             return true;
@@ -184,6 +192,7 @@ namespace VivHelper.Entities {
             if (base.Right < camera.Left || base.Left > camera.Right || base.Bottom < camera.Top || base.Top > camera.Bottom) {
                 return;
             }
+            Dictionary<Image,Color> baseColors = null;
             if (respawnTimer > 0) {
                 int i;
                 for (i = 0; i < Width; i += 8) {
@@ -194,14 +203,27 @@ namespace VivHelper.Entities {
                     Draw.Line(TopLeft + Vector2.UnitY * (i + 2), TopLeft + Vector2.UnitY * (i + 6), color2);
                     Draw.Line(TopRight + Vector2.UnitY * (i + 2), TopRight + Vector2.UnitY * (i + 6), color2);
                 }
-                texture.Color = Color.White * 0.25f;
+                if(useBase) {
+                    baseColors = new();
+                    foreach(Image k in tiedEntity) {
+                        baseColors[k] = k.Color;
+                        k.Color = k.Color * 0.2f;
+                    }
+                } else texture.Color = Color.White * 0.25f;
             } else {
                 Draw.HollowRect(X - 1, Y - 1, Width + 2, Height + 2, color2);
                 Draw.Rect(X + 1, Y + 1, Width - 2, Height - 2, color1);
                 texture.Color = Color.White;
             }
-            if(drawWithOutline) texture.DrawOutline();
-            texture.Render();
+            if (useBase) {
+                tiedEntity.Render();
+                if(baseColors != null)
+                    foreach(Image k in tiedEntity)
+                        k.Color = baseColors[k];
+            } else {
+                if (drawWithOutline) texture.DrawOutline();
+                texture.Render();
+            }
 
         }
     }

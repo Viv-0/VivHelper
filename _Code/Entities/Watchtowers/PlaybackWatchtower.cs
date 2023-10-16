@@ -60,7 +60,7 @@ namespace VivHelper.Entities {
             : base(data.Position + offset) {
             base.Depth = -8500;
             Add(talk = new TalkComponent(new Rectangle(-24, -8, 48, 8), new Vector2(-0.5f, -20f), Interact));
-            talk.PlayerMustBeFacing = true;
+            talk.PlayerMustBeFacing = false;
             summit = data.Bool("summit");
             onlyY = data.Bool("onlyY");
             base.Collider = new Hitbox(4f, 4f, -2f, -4f);

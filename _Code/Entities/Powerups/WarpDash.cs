@@ -18,15 +18,8 @@ using YamlDotNet.Core.Tokens;
 namespace VivHelper.Entities {
 
     public class WarpDashIndicator : Component {
-        public static ParticleType particle;
 
         public WarpDashIndicator() : base(true, true) {
-            if (particle == null)
-                particle = new ParticleType(Player.P_DashA) {
-                    Color = Calc.HexToColor("0866de"),
-                    Color2 = Calc.HexToColor("ff8000"),
-                    DirectionRange = 0.05f
-                };
         }
 
         public override void Render() {
@@ -46,6 +39,7 @@ namespace VivHelper.Entities {
         public const int WiggleRoom = 7;
         public const string WarpDashPowerup = "vh_warpdash";
         public static int WarpDashState;
+        public static ParticleType particle;
         public static void WarpDashBegin(Player player) {
             foreach (DashListener component in player.Scene.Tracker.GetComponents<DashListener>()) {
                 if (component.OnDash != null) {
@@ -121,7 +115,7 @@ namespace VivHelper.Entities {
 
         public static void WarpDashEnd(Player player) {
             for (int i = -5; i < 6; i++) {
-                (player.Scene as Level).ParticlesFG.Emit(WarpDashIndicator.particle, player.Center + Calc.Random.Range(Vector2.One * -2f, Vector2.One * 2f), player.DashDir.Angle() + 0.05f * i);
+                (player.Scene as Level).ParticlesFG.Emit(particle, player.Center + Calc.Random.Range(Vector2.One * -2f, Vector2.One * 2f), player.DashDir.Angle() + 0.05f * i);
             }
         }
         public static void EffectBefore(Player player) {
@@ -130,7 +124,7 @@ namespace VivHelper.Entities {
                 player.Add(warp = new WarpDashIndicator());
             warp.Visible = true;
             if (player.Scene.OnInterval(0.2f)) {
-                (player.Scene as Level).ParticlesBG.Emit(WarpDashIndicator.particle, player.Center + Calc.Random.Range(Vector2.One * -2f, Vector2.One * 2f), Calc.Random.NextAngle());
+                (player.Scene as Level).ParticlesBG.Emit(particle, player.Center + Calc.Random.Range(Vector2.One * -2f, Vector2.One * 2f), Calc.Random.NextAngle());
             }
         }
 
@@ -138,10 +132,28 @@ namespace VivHelper.Entities {
             player.Get<WarpDashIndicator>().Visible = false;
         }
         public WarpDashRefill(EntityData data, Vector2 offset) : base(data, offset) {
-            sprite.ClearAnimations();
-            sprite.Path = "VivHelper/TSStelerefill/";
+            if (particle == null)
+                particle = new ParticleType(Player.P_DashA) {
+                    Color = Calc.HexToColor("0866de"),
+                    Color2 = Calc.HexToColor("ff8000"),
+                    DirectionRange = 0.05f
+                };
+            p_shatter = particle;
+            p_glow = particle;
+            p_regen = particle;
+            outline = new Image(GFX.Game["VivHelper/TSStelerefill/outline"]);
+            outline.CenterOrigin();
+            outline.Visible = false;
+            Add(sprite = new Sprite(GFX.Game, "VivHelper/TSStelerefill/"));
             sprite.AddLoop("idle", "idle", 0.1f);
-            outline.Texture = GFX.Game["VivHelper/TSStelerefill/outline"];
+            sprite.Play("idle");
+            sprite.CenterOrigin();
+            Add(flash = new Sprite(GFX.Game, "objects/refill/flash"));
+            flash.Add("flash", "", 0.05f);
+            flash.OnFinish = delegate {
+                flash.Visible = false;
+            };
+            flash.CenterOrigin();
         }
 
         protected override void OnPlayer(Player player) {
@@ -166,8 +178,8 @@ namespace VivHelper.Entities {
             Depth = 8999;
             yield return 0.05f;
             float num = player.Speed.Angle();
-            (Scene as Level).ParticlesFG.Emit(WarpDashIndicator.particle, 5, Position, Vector2.One * 4f, num - (float) Math.PI / 2f);
-            (Scene as Level).ParticlesFG.Emit(WarpDashIndicator.particle, 5, Position, Vector2.One * 4f, num + (float) Math.PI / 2f);
+            (Scene as Level).ParticlesFG.Emit(particle, 5, Position, Vector2.One * 4f, num - (float) Math.PI / 2f);
+            (Scene as Level).ParticlesFG.Emit(particle, 5, Position, Vector2.One * 4f, num + (float) Math.PI / 2f);
             SlashFx.Burst(Position, num);
             if (oneUse) {
                 RemoveSelf();

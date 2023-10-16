@@ -14,6 +14,7 @@ using MonoMod.Utils;
 using System.Reflection;
 using VivHelper.Module__Extensions__Etc;
 using KeraLua;
+using Microsoft.Xna.Framework.Graphics;
 
 namespace VivHelper {
     public class VivHelperCommands {
@@ -136,7 +137,7 @@ namespace VivHelper {
             value = value.Floor();
             value *= 8;
             Engine.Commands.Log(string.Format("Entities currently {0} the mouse:", ignoreCollidable ? "at the position of" : "colliding with"));
-            Console.WriteLine(string.Format("Entities currently {0} the mouse:", ignoreCollidable ? "at the position of" : "colliding with"));
+            Logger.Log(LogLevel.Debug, "VivHelper", string.Format("Entities currently {0} the mouse:", ignoreCollidable ? "at the position of" : "colliding with"));
             foreach (Entity e in level.Entities) {
                 if (e.Collider == null)
                     continue;
@@ -155,13 +156,21 @@ namespace VivHelper {
                 string s = e.GetType().ToString();
                 if (string.IsNullOrWhiteSpace(identifier)) {
                     Engine.Commands.Log(s);
-                    Console.WriteLine(s);
+                    Logger.Log("VivHelper", s);
                 } else {
                     if (s.Contains(identifier)) {
                         Engine.Commands.Log(s);
-                        Console.WriteLine(s);
+                        Logger.Log("VivHelper", s);
                     }
                 }
+            }
+        }
+
+        [Command("updateShader","")]
+        public static void UpdateShader() {
+
+            if (Everest.Content.TryGet("Effects/bookshader.cso", out ModAsset m)) {
+                Variables.BookShader = new Effect(Engine.Graphics.GraphicsDevice, m.Data);
             }
         }
     }

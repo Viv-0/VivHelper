@@ -7,6 +7,7 @@ using Celeste;
 using Monocle;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
+using Celeste.Mod;
 
 namespace VivHelper.Triggers {
     [CustomEntity("VivHelper/ChangeRespawnIfFlag")]
@@ -22,7 +23,7 @@ namespace VivHelper.Triggers {
         }
 
         [MonoMod.MonoModLinkTo("Celeste.Trigger", "System.Void OnEnter(Celeste.Player)")]
-        internal void Trigger_OnEnter(Player player) { Console.WriteLine("Trigger::OnEnter Link failed"); base.OnEnter(player); }
+        internal void Trigger_OnEnter(Player player) { Logger.Log("VivHelper", "Trigger::OnEnter Link failed"); base.OnEnter(player); }
 
         public override void OnEnter(Player player) {
             Trigger_OnEnter(player);

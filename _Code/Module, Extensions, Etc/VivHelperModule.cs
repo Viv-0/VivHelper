@@ -362,7 +362,6 @@ namespace VivHelper {
             IL.Monocle.Engine.Update += Engine_Update;
             IL.Monocle.Commands.UpdateClosed += Commands_UpdateClosed;
 
-
             //BronzeBerry.Load();
 
             //ModInterop
@@ -405,6 +404,10 @@ namespace VivHelper {
                 CelesteTAS_EntityDebugColor = CelesteTASModuleInstance.SettingsType.GetProperty("EntityHitboxColor", BindingFlags.Instance | BindingFlags.Public)?.GetGetMethod(false);
                 CelesteTAS_TriggerDebugColor = CelesteTASModuleInstance.SettingsType.GetProperty("TriggerHitboxColor", BindingFlags.Instance|BindingFlags.Public)?.GetGetMethod(false);
                 hook_Scene_OccasionalCelesteTASDataCheck = new Hook(typeof(Scene).GetMethod("BeforeUpdate", BindingFlags.Public | BindingFlags.Instance), typeof(VivHelperModule).GetMethod("Scene_BeforeUpdate", BindingFlags.NonPublic | BindingFlags.Static));
+            }
+
+            if(Everest.Content.TryGet("Effects/bookshader.cso", out ModAsset m)) {
+                Variables.BookShader = new Effect(Engine.Graphics.GraphicsDevice, m.Data);
             }
         }
 
@@ -472,25 +475,6 @@ namespace VivHelper {
         public static void LateInitialize(On.Celeste.GameLoader.orig_Begin orig, GameLoader self) {
             orig(self);
             CILAbuse.LoadIL();
-        }
-
-        private static void NOTAHOOK(ILContext il) {
-            DynamicMethodDefinition dmd = new DynamicMethodDefinition("VivHelper._playerwjc_yieldnum", typeof(int), new Type[] { typeof(Player), typeof(int) });
-            var gen = dmd.GetILProcessor();
-            foreach (VariableDefinition v in il.Body.Variables) {
-                gen.Body.Variables.Add(new VariableDefinition(v.VariableType)); //deepcopy
-            }
-            ILCursor cursor = new(il);
-            List<Instruction> instrs = new List<Instruction>();
-            cursor.Index = 0;
-            while (!((cursor.Previous?.MatchLdarg(0) ?? false) && (cursor.Previous?.Previous?.MatchStloc(0) ?? false) && (cursor.Previous?.Previous?.Previous?.MatchLdcI4(5) ?? false))) {
-                gen.Append(cursor.Next);
-                cursor.Index++;
-            }
-            gen.Emit(OpCodes.Pop);
-            gen.Emit(OpCodes.Ldloc_0);
-            gen.Emit(OpCodes.Ret);
-            VivHelper.player_WallJumpCheck_getNum = (Func<Player, int, int>) dmd.Generate().CreateDelegate<Func<Player, int, int>>();
         }
 
         private static void Scene_BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {

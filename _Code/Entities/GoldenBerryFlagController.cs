@@ -8,6 +8,7 @@ using Monocle;
 using Microsoft.Xna.Framework;
 using MonoMod.Utils;
 using Mono.Cecil.Cil;
+using Celeste.Mod;
 
 namespace VivHelper.Entities {
 
