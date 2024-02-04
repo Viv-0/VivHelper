@@ -43,7 +43,7 @@ namespace VivHelper.Effects {
             this.Scroll = scroll;
             this.count = count;
             particles = new Particle[count];
-            List<Color> _colors = VivHelper.ColorsFromString(colors);
+            List<Color> _colors = VivHelper.OldColorsFromString(colors);
             var _angle = angle * -Calc.DegToRad;
             var _angleDiff = Math.Abs(angleDiff * Calc.DegToRad);
             for (int i = 0; i < count; i++) {

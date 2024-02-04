@@ -58,10 +58,10 @@ namespace VivHelper.Triggers {
             vel = new float[] { data.Float("ExitVelocityX", velMod ? 1 : 0), data.Float("ExitVelocityY", velMod ? 1 : 0) };
             vel2 = data.Float("ExitVelocityS", -1);
             rotMod = data.Bool("RotationType", false);
-            rot = 0 - ((float) Math.PI * data.Float("RotationActor", 0) / 180);
+            rot = 0 - Calc.DegToRad * data.Float("RotationActor", 0);
             dreaming = data.Bool("Dreaming", true);
             transition = data.Enum("TransitionType", TransitionType.None);
-            flashColor = VivHelper.ColorFix(data.Attr("Color", "White"));
+            flashColor = VivHelper.OldColorFunction(data.Attr("Color", "White"));
             flags = data.Attr("ZFlagsData", "").Split(',');
             addTriggerOffset = data.Bool("AddTriggerOffset", true);
             timeSlowDown = data.Float("TimeSlowDown", 0f);

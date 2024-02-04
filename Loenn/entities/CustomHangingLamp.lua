@@ -14,7 +14,7 @@ local chl = {
     },
     fieldInformation = {
         directory = {fieldType = "path", allowFiles = true, allowFolders = false, filenameProcessor = function(filename, rawFilename, prefix) return vivUtil.trim(filename):sub(1,filename:match('^.*()/')-1) end},
-        LightColor = {fieldType = "VivHelper.color", allowXNAColors = true}
+        LightColor = {fieldType = "VivHelper.oldColor", allowXNAColors = true}
     },
     minimumSize = {8, 16}
 }

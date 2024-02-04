@@ -24,6 +24,8 @@ namespace VivHelper.Entities {
 
         public bool saveToSession = false;
 
+        public bool toggleBloomRendering = true;
+
         //Priority determinance is basically my easy workaround for if there is one loaded ColorController that is default by accident.
         public int version = 0;
 
@@ -35,12 +37,13 @@ namespace VivHelper.Entities {
         }
 
         public HoldableBarrierColorController(EntityData e, Vector2 v, int version) : this() {
-            particleColor = VivHelper.ColorFix(e.Attr("ParticleColor", "5a6ee1"));
-            baseColor = VivHelper.ColorFix(e.Attr("EdgeColor", "5a6ee1"));
+            particleColor = VivHelper.OldColorFunction(e.Attr("ParticleColor", "5a6ee1"));
+            baseColor = VivHelper.OldColorFunction(e.Attr("EdgeColor", "5a6ee1"));
 
-            particleDir = Vector2.UnitX.Rotate(0 - AngleVersion(e.Float("ParticleAngle", (version == 1 ? 270f : (float) Math.PI * 1.5f)), version));
+            particleDir = Vector2.UnitX.Rotate(0 - AngleVersion(e.Float("ParticleAngle", version == 1 ? 270f : (Consts.PIover2 * 3)), version));
             solidOnRelease = e.Bool("SolidOnRelease", true);
             saveToSession = e.Bool("Persistent", false);
+            toggleBloomRendering = e.Bool("renderBloom", true);
         }
 
         internal float AngleVersion(float f, int version) {

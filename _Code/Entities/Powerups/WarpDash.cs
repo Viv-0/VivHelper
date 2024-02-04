@@ -14,11 +14,18 @@ using Celeste.Mod.Entities;
 using System.Reflection;
 using static MonoMod.InlineRT.MonoModRule;
 using YamlDotNet.Core.Tokens;
+using MonoMod.Cil;
+using Mono.Cecil.Cil;
 
 namespace VivHelper.Entities {
 
     public class WarpDashIndicator : Component {
+
         public static ParticleType particle;
+        public static MTexture[] textures;
+
+        private Player player;
+        private TrailManager.Snapshot snapshot;
 
         public WarpDashIndicator() : base(true, true) {
             if (particle == null)
@@ -29,16 +36,55 @@ namespace VivHelper.Entities {
                 };
         }
 
-        public override void Render() {
-            Vector2 aim = (Vector2) VivHelper.player_lastAim.GetValue(Entity as Player);
-            Color c = (Entity as Player).Hair.GetHairColor(0);
-            Vector2 rawPosition = Entity.Position - new Vector2(16,32) + aim * 36;
-            SpawnPoint._texture.Draw(rawPosition, Vector2.Zero, c);
-            for (int i = 1; i < 6; i++) { 
-                SpawnPoint._texture.Draw(rawPosition + aim * i, Vector2.Zero, c * (1- (i * 0.125f)));
-                SpawnPoint._texture.Draw(rawPosition - aim * i, Vector2.Zero, c * (1 - (i * 0.125f)));
+        public override void Update() {
+            base.Update();
+            if(snapshot != null) {
+                snapshot.RemoveSelf();
+            }
+            if (player == null)
+                player = Entity as Player;
+            if (Visible) {
+                snapshot = TrailManager.Add(Entity.Position, player.Sprite, player.Hair, new Vector2((float)player.Facing, 1f) * player.Sprite.Scale, player.GetCurrentTrailColor(), Entity.Depth + 1, 1f);
+                snapshot.Visible = false;
             }
         }
+
+        public override void Render() {
+            base.Render();
+            if (player == null)
+                return;
+            Vector2 aim = ((Vector2) VivHelper.player_lastAim.GetValue(player)).EightWayNormal();
+            Vector2 oldPos = snapshot.Position;
+            snapshot.Position = Entity.Position + aim * 36;
+            snapshot.Render();
+            snapshot.Position = oldPos;
+        }
+
+        /*public void HudRender(Level level) {
+            Player p = Entity as Player;
+            Color c = p.Hair.GetHairColor(0);
+            MTexture tex;
+            float angle = aim.Angle();
+            switch (angle) {
+                case 0:
+                case -Consts.PI:
+                case Consts.PI:
+                    tex = textures[0];
+                    break;
+                case Consts.PIover4:
+                case 3*Consts.PIover4:
+                    tex = textures[3];
+                    break;
+                case Consts.PIover2:
+                case -Consts.PIover2:
+                    tex = textures[1];
+                    break;
+                default: tex = textures[2]; break;
+            }
+            Vector2 newPos = level.WorldToScreen();
+            tex.DrawCentered(newPos, c, level.Zoom, 0, p.Facing == Facings.Right ? Microsoft.Xna.Framework.Graphics.SpriteEffects.None : Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally);
+            tex.DrawCentered(newPos, c, level.Zoom, 0, p.Facing == Facings.Right ? Microsoft.Xna.Framework.Graphics.SpriteEffects.None : Microsoft.Xna.Framework.Graphics.SpriteEffects.FlipHorizontally);
+        }*/
     }
 
     [CustomEntity("VivHelper/WarpDashRefill")]
@@ -60,14 +106,16 @@ namespace VivHelper.Entities {
 
         public static int WarpDashUpdate(Player player) {
             Celeste.Celeste.Freeze(0.05f);
-            player.DashDir = (Vector2) VivHelper.player_lastAim.GetValue(player);
+            player.DashDir = ((Vector2) VivHelper.player_lastAim.GetValue(player)).EightWayNormal();
             if (player.DashDir == Vector2.Zero) {
                 player.DashDir = Vector2.UnitX * (int) player.Facing;
             }
             ExplodeLaunchModifier.DisableFreeze = true;
+            Vector2 oldPos = player.Position;
+            Solid h = null;
             for (float t = 0f; t < 36; t++) {
                 player.Position.X += player.DashDir.X;
-                Solid h = player.CollideFirst<Solid>();
+                h = player.CollideFirst<Solid>();
                 if (h != null && h.OnDashCollide != null) {
                     h.OnDashCollide(player, Vector2.Normalize(player.DashDir.XComp()));
                 }
@@ -77,7 +125,11 @@ namespace VivHelper.Entities {
                     h.OnDashCollide(player, Vector2.Normalize(player.DashDir.YComp()));
                 }
             }
-            Vector2 oldPos = player.Position;
+            player.Position = Calc.Round(player.Position);
+            h = player.CollideFirst<Solid>();
+            if (h != null && h.OnDashCollide != null) {
+                h.OnDashCollide(player, Vector2.Normalize(player.DashDir.XComp()));
+            }
             ExplodeLaunchModifier.DetectFreeze = false;
             ExplodeLaunchModifier.DisableFreeze = false;
             Vector2 beforeDashSpeed = player.Speed;
@@ -129,7 +181,7 @@ namespace VivHelper.Entities {
             if (warp == null)
                 player.Add(warp = new WarpDashIndicator());
             warp.Visible = true;
-            if (player.Scene.OnInterval(0.2f)) {
+            if (player.Scene.OnInterval(0.1f)) {
                 (player.Scene as Level).ParticlesBG.Emit(WarpDashIndicator.particle, player.Center + Calc.Random.Range(Vector2.One * -2f, Vector2.One * 2f), Calc.Random.NextAngle());
             }
         }
@@ -138,10 +190,10 @@ namespace VivHelper.Entities {
             player.Get<WarpDashIndicator>().Visible = false;
         }
         public WarpDashRefill(EntityData data, Vector2 offset) : base(data, offset) {
-            sprite.ClearAnimations();
-            sprite.Path = "VivHelper/TSStelerefill/";
+            sprite = new Sprite(GFX.Game, "VivHelper/TSStelerefill/");
             sprite.AddLoop("idle", "idle", 0.1f);
-            outline.Texture = GFX.Game["VivHelper/TSStelerefill/outline"];
+            sprite.Play("idle");
+            outline = new Image(GFX.Game["VivHelper/TSStelerefill/outline"]);
         }
 
         protected override void OnPlayer(Player player) {
@@ -160,14 +212,14 @@ namespace VivHelper.Entities {
             global::Celeste.Celeste.Freeze(0.05f);
             yield return null;
             (Scene as Level).Shake();
-            sprite.Visible = flash.Visible = false;
-            if (oneUse)
-                outline.Visible = false;
+            if (sprite != null) { sprite.Visible = false; }
+            if (flash != null) { flash.Visible = true; }
+            if (!oneUse && outline != null) outline.Visible = true;
             Depth = 8999;
             yield return 0.05f;
             float num = player.Speed.Angle();
-            (Scene as Level).ParticlesFG.Emit(WarpDashIndicator.particle, 5, Position, Vector2.One * 4f, num - (float) Math.PI / 2f);
-            (Scene as Level).ParticlesFG.Emit(WarpDashIndicator.particle, 5, Position, Vector2.One * 4f, num + (float) Math.PI / 2f);
+            (Scene as Level).ParticlesFG.Emit(WarpDashIndicator.particle, 5, Position, Vector2.One * 4f, num - Consts.PIover2);
+            (Scene as Level).ParticlesFG.Emit(WarpDashIndicator.particle, 5, Position, Vector2.One * 4f, num + Consts.PIover2);
             SlashFx.Burst(Position, num);
             if (oneUse) {
                 RemoveSelf();

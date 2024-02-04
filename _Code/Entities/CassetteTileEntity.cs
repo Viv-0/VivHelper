@@ -13,7 +13,6 @@ using Mono.Cecil.Cil;
 using Celeste.Mod;
 
 namespace VivHelper.Entities {
-    [CustomEntity("VivHelper/CassetteTileEntity")]
     [TrackedAs(typeof(CassetteBlock))]
     [Tracked]
     public class CassetteTileEntity : CassetteBlock {
@@ -81,6 +80,7 @@ namespace VivHelper.Entities {
             SurfaceSoundIndex = SurfaceIndex.TileToIndex[tileType];
             blendin = data.Bool("blendin", false);
             connectOnTileset = data.Bool("ConnectTilesets");
+            
 
         }
 
@@ -234,6 +234,7 @@ namespace VivHelper.Entities {
             foreach (StaticMover staticMover in staticMovers) {
                 staticMover.Entity.Depth = base.Depth + 1;
             }
+            Get<LightOcclude>().Visible = Collidable;
         }
 
         public override void Render() {

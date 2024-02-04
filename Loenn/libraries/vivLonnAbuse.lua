@@ -31,6 +31,7 @@ local drawing = require("utils.drawing")
 local drawableFunction = require("structs.drawable_function")
 local drawableRectangle = require("structs.drawable_rectangle")
 local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
+local loadedState = require('loaded_state')
 
 local form = require('ui.forms.form')
 
@@ -170,30 +171,6 @@ placementUtils.finalizePlacement = function(room, layer, item)
     if handler and handler._vivh_finalizePlacement then handler._vivh_finalizePlacement(room, layer, item) end
 end
 
-local _orig_form_getFormFields = form.getFormFields
-form.getFormFields = function(data, options)
-    if options._vivh_submenuOverride then
-        return options._vivh_submenuOverride
-    end
-    local elements = _orig_form_getFormFields(data, options)
-    local elementsToRemove = {} -- maps string to the formField that steals the data. Data can only be stolen once, and will be stored in formField._vivh_data
-    for _,v in ipairs(elements) do
-        for _,v2 in ipairs(v._vivh_dataToSteal or {}) do
-            elementsToRemove[v2] = v
-        end
-    end
-    for i=#elements,1,-1 do
-        local q = elementsToRemove[elements[i].name]
-        if  q ~= nil then
-            -- First, add the element we've stolen to the formField stealing it in formField._vivh_data
-            q._vivh_data[elements[i].name] = elements[i]
-            q._vivh_fieldInformation[elements[i].name] = form.getFieldOptions(elements[i].name, options)
-            table.remove(elements, i) -- Then, remove the element from the form Fields list.
-        end
-    end
-    return elements
-end
-
 -- ##########################################################################################
 
 
@@ -202,7 +179,7 @@ function triggers._vivh_unloadSeq() -- Handles hotreload.
     triggers.addDrawables = _orig_triggers_addDrawables
     triggers.getDrawable = _orig_triggers_getDrawable
     placementUtils.finalizePlacement = _orig_placementUtils_finalizePlacement
-    form.getFormFields = _orig_form_getFormFields
+    loadedState.side.map._vivh_tags = nil
 end
 
 return {}

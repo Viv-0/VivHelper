@@ -1,4 +1,5 @@
 ﻿using Celeste;
+using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using Monocle;
 using System;
@@ -8,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace VivHelper.Entities {
+    [CustomEntity("VivHelper/CustomFakeWall")]
     internal class CustomFakeWall : Entity {
         public enum Modes {
             Wall,

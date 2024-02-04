@@ -26,7 +26,7 @@ namespace VivHelper.Entities {
         Entity tiedEntity;
 
         Image texture;
-        Sprite altSprite;
+        bool forceRender;
         private bool drawWithOutline;
         public bool sprite_or_image => texture == null;
 
@@ -50,8 +50,8 @@ namespace VivHelper.Entities {
             respawnMethodName = e.Attr("RespawnMethodName", "Respawn");
             if (string.IsNullOrWhiteSpace(respawnMethodName))
                 respawnMethodName = "Respawn";
-            color1 = VivHelper.ColorFix(e.Attr("InnerColor", "888888"));
-            color2 = VivHelper.ColorFix(e.Attr("OuterColor", "d0d0d0"));
+            color1 = VivHelper.OldColorFunction(e.Attr("InnerColor", "888888"));
+            color2 = VivHelper.OldColorFunction(e.Attr("OuterColor", "d0d0d0"));
             alpha = Calc.Clamp(e.Float("Alpha", 1f), 0f, 1f);
             respawnTime = e.Float("RespawnTime", -1f);
             Depth = depth = e.Int("Depth", 100);
@@ -101,7 +101,7 @@ namespace VivHelper.Entities {
                 Collidable = true;
             }
             tiedEntity.Collidable = false;
-            dynRefill.Invoke(respawnMethodName, VivHelper.EmptyObjectArray);
+            dynRefill.Invoke(respawnMethodName, Everest._EmptyObjectArray);
             tiedEntity.Collidable = false;
         }
 
@@ -119,6 +119,10 @@ namespace VivHelper.Entities {
             object o = null;
             if (spriteVarname.StartsWith("$")) {
                 switch (spriteVarname.ToLowerInvariant()) {
+                    case "$render":
+                        o = null;
+                        forceRender = true;
+                        break;
                     case "$sprite":
                         o = entity.Get<Sprite>();
                         break;
@@ -128,33 +132,35 @@ namespace VivHelper.Entities {
                 }
             }
             else o = dynRefill.Get(spriteVarname);
-            if (o == null) {
-                o = entity.Get<Image>();
-                if(o == null) {
-                    return false;
-                }
-                texture = o as Image;
-            } else if ((o as Sprite) != null) {
-                texture = new Image((o as Sprite).Animations["idle"].Frames[0]);
-            } else if ((o as Image) != null) {
-                texture = (o as Image);
-            } else if ((o as MTexture) != null) {
-                texture = new Image(o as MTexture);
-            } else { return false; }
+            if (!forceRender) {
+                if (o == null) {
+                    o = entity.Get<Image>();
+                    if (o == null) {
+                        return false;
+                    }
+                    texture = o as Image;
+                } else if ((o as Sprite) != null) {
+                    texture = new Image((o as Sprite).Animations["idle"].Frames[0]);
+                } else if ((o as Image) != null) {
+                    texture = (o as Image);
+                } else if ((o as MTexture) != null) {
+                    texture = new Image(o as MTexture);
+                } else { return false; }
+                texture.CenterOrigin();
+                texture.RenderPosition = Center;
+            }
             if (dynRefill.Get("respawnTimer") != null) {
                 respawnTimerName = "respawnTimer";
-            } else if(dynRefill.Get("_respawnTimeRemaining") != null) {
+            } else if (dynRefill.Get("_respawnTimeRemaining") != null) {
                 respawnTimerName = "_respawnTimeRemaining";
-            } else return false;
-
+            } else
+                return false;
             //Everything is good so we continue with making the wall work
 
             if (dynRefill.Get("oneUse") != null && oneUse > -1)
                 dynRefill.Set("oneUse", oneUse == 1);
             else if (dynRefill.Get("OneUse") != null && oneUse > -1)
                 dynRefill.Set("OneUse", oneUse == 1);
-            texture.CenterOrigin();
-            texture.RenderPosition = Center;
             tiedEntity = entity;
             tiedEntity.Position = Center;
             tiedEntity.Collidable = tiedEntity.Visible = false;
@@ -171,10 +177,12 @@ namespace VivHelper.Entities {
                 tiedEntity.Collidable = false;
             } else {
                 Collidable = false;
-                respawnTimer = (respawnTime > 0 ? respawnTime : dynRefill.Get<float>(respawnTimerName));
+                respawnTimer = respawnTime > 0 ? respawnTime : dynRefill.Get<float>(respawnTimerName);
                 dynRefill.Set(respawnTimerName, 0f);
             }
-            if (dynRefill.Get<bool>("oneUse")) {
+            if (dynRefill.Get("oneUse") is { } b && (bool)b) {
+                RemoveSelf();
+            } else if (dynRefill.Get("OneUse") is { } c && (bool) c) {
                 RemoveSelf();
             }
         }
@@ -194,14 +202,19 @@ namespace VivHelper.Entities {
                     Draw.Line(TopLeft + Vector2.UnitY * (i + 2), TopLeft + Vector2.UnitY * (i + 6), color2);
                     Draw.Line(TopRight + Vector2.UnitY * (i + 2), TopRight + Vector2.UnitY * (i + 6), color2);
                 }
-                texture.Color = Color.White * 0.25f;
+                if (texture != null) texture.Color = Color.White * 0.25f;
             } else {
                 Draw.HollowRect(X - 1, Y - 1, Width + 2, Height + 2, color2);
                 Draw.Rect(X + 1, Y + 1, Width - 2, Height - 2, color1);
-                texture.Color = Color.White;
+                if (texture != null) texture.Color = Color.White;
             }
-            if(drawWithOutline) texture.DrawOutline();
-            texture.Render();
+            if (forceRender) {
+                tiedEntity.Render();
+            } else {
+                if (drawWithOutline)
+                    texture.DrawOutline();
+                texture.Render();
+            }
 
         }
     }

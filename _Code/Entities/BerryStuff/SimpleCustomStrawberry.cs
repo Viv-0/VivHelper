@@ -73,7 +73,7 @@ namespace VivHelper {
             } else if (Golden) {
                 num = 2;
             }
-            Audio.Play("event:/game/general/strawberry_get", Position, "colour", num, "count", collectIndex);
+            Audio.Play(SFX.game_gen_strawberry_get, Position, "colour", num, "count", collectIndex);
             Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
             dyn.Get<Sprite>("sprite").Play("collect");
             while (dyn.Get<Sprite>("sprite").Animating) {
@@ -142,7 +142,7 @@ namespace VivHelper {
                 _ = Scene;
                 Tag = Tags.TransitionUpdate;
                 Depth = -2000010;
-                Audio.Play("event:/game/general/strawberry_get", Position, "colour", 1, "count", collectIndex);
+                Audio.Play(SFX.game_gen_strawberry_get, Position, "colour", 1, "count", collectIndex);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 dyn.Get<Sprite>("sprite").Play("collect");
                 while (dyn.Get<Sprite>("sprite").Animating)

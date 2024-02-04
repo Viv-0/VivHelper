@@ -29,6 +29,10 @@ using VivHelper.Triggers;
 using MonoMod.ModInterop;
 using VivHelper.Module__Extensions__Etc.Helpers;
 using VivHelper.Entities.Powerups;
+using VivHelper.Entities.SpikeStuff;
+using System.Runtime.InteropServices.ComTypes;
+using VivHelper.Module__Extensions__Etc.CustomWipeSupport;
+using Celeste.Mod.Meta;
 
 namespace VivHelper {
     public class VivHelperModule : EverestModule {
@@ -66,7 +70,7 @@ namespace VivHelper {
         public static string[] UnspawnedEntityNames = new string[]
         { "VivHelper/CollectibleGroup", "VivHelper/MapRespriter", "VivHelper/HideRoomInMap",
           "VivHelper/CustomDashStateDefiner", "VivHelper/PreviousBerriesToFlag", "VivHelper/DisableArbitrarySpawnInDebug",
-          "VivHelper/DisableNeutralOnHoldable"
+          "VivHelper/DisableNeutralOnHoldable", "VivHelper/GoldenBerryToFlag"
         };
 
         public VivHelperModule() {
@@ -291,9 +295,10 @@ namespace VivHelper {
             StrawberryRegistry.Register(typeof(CustomStrawberry), true, false);
         }
 
-        private static IDetour hook_CrushBlock_AttackSequence;
-        private static IDetour hook_Player_origUpdate;
-        private static IDetour hook_Player_origWallJump;
+        private static ILHook hook_CrushBlock_AttackSequence;
+        private static ILHook hook_Player_origUpdate;
+        private static ILHook hook_Player_origWallJump;
+        private static Hook hook_MapMeta_addWipes;
 
         public override void Load() {
             Logger.SetLogLevel("VivHelper", LogLevel.Info);
@@ -321,7 +326,6 @@ namespace VivHelper {
             On.Celeste.Level.LoadLevel += Level_LoadLevel;
             Everest.Events.Level.OnLoadEntity += Level_OnLoadEntity;
             Everest.Events.LevelLoader.OnLoadingThread += LoadingThreadMod;
-            CornerBoostCassetteBlock.Load();
             SolidModifierComponent.Load();
             EntityMuterComponent.Load();
             ExplodeLaunchModifier.Load();
@@ -334,7 +338,7 @@ namespace VivHelper {
             MethodInfo m = typeof(CrushBlock).GetMethod("AttackSequence", BindingFlags.NonPublic | BindingFlags.Instance).GetStateMachineTarget();
             hook_CrushBlock_AttackSequence = new ILHook(m, (il) => AttackSequence_CrushCustomFallingBlock(m.DeclaringType.GetField("<>4__this"), il));
             hook_Player_origWallJump = new ILHook(typeof(Player).GetMethod("orig_WallJump", BindingFlags.Instance | BindingFlags.NonPublic), DisableNeutralsOnHoldable);
-            On.Celeste.Mod.Meta.MapMeta.ApplyTo += parseCustomWipes;
+            hook_MapMeta_addWipes = new Hook(typeof(MapMeta).GetMethod("ApplyTo"), typeof(VivHelperModule).GetMethod(nameof(parseCustomWipes), BindingFlags.NonPublic | BindingFlags.Static));
 
             //Add PreviousRoom value to VivHelperSession
             On.Celeste.Level.TransitionRoutine += Level_TransitionRoutine;
@@ -361,7 +365,6 @@ namespace VivHelper {
 
             IL.Monocle.Engine.Update += Engine_Update;
             IL.Monocle.Commands.UpdateClosed += Commands_UpdateClosed;
-
 
             //BronzeBerry.Load();
 
@@ -432,7 +435,6 @@ namespace VivHelper {
             On.Celeste.Level.LoadLevel -= Level_LoadLevel;
             Everest.Events.Level.OnLoadEntity -= Level_OnLoadEntity;
             Everest.Events.LevelLoader.OnLoadingThread -= LoadingThreadMod;
-            CornerBoostCassetteBlock.Unload();
             SolidModifierComponent.Unload();
             EntityMuterComponent.Unload();
             ExplodeLaunchModifier.Unload();
@@ -453,7 +455,7 @@ namespace VivHelper {
             BoostFunctions.Unload();
             TeleportV2Hooks.Unload();
             Collectible.Unload();
-            On.Celeste.Mod.Meta.MapMeta.ApplyTo -= parseCustomWipes;
+            hook_MapMeta_addWipes?.Dispose();
             WrappableCrushBlockReskinnable.Unload();
             AudioFixSwapBlock.Unload();
             CassetteTileEntity.Unload();
@@ -471,38 +473,37 @@ namespace VivHelper {
 
         public static void LateInitialize(On.Celeste.GameLoader.orig_Begin orig, GameLoader self) {
             orig(self);
-            CILAbuse.LoadIL();
-        }
-
-        private static void NOTAHOOK(ILContext il) {
-            DynamicMethodDefinition dmd = new DynamicMethodDefinition("VivHelper._playerwjc_yieldnum", typeof(int), new Type[] { typeof(Player), typeof(int) });
-            var gen = dmd.GetILProcessor();
-            foreach (VariableDefinition v in il.Body.Variables) {
-                gen.Body.Variables.Add(new VariableDefinition(v.VariableType)); //deepcopy
-            }
-            ILCursor cursor = new(il);
-            List<Instruction> instrs = new List<Instruction>();
-            cursor.Index = 0;
-            while (!((cursor.Previous?.MatchLdarg(0) ?? false) && (cursor.Previous?.Previous?.MatchStloc(0) ?? false) && (cursor.Previous?.Previous?.Previous?.MatchLdcI4(5) ?? false))) {
-                gen.Append(cursor.Next);
-                cursor.Index++;
-            }
-            gen.Emit(OpCodes.Pop);
-            gen.Emit(OpCodes.Ldloc_0);
-            gen.Emit(OpCodes.Ret);
-            VivHelper.player_WallJumpCheck_getNum = (Func<Player, int, int>) dmd.Generate().CreateDelegate<Func<Player, int, int>>();
+            // Temporary.
+            VivHelper.player_WallJumpCheck_getNum = (player, dir) => {
+                int num = 3;
+                bool flag = player.DashAttacking && player.DashDir.X == 0f && player.DashDir.Y == -1f;
+                if (flag) {
+                    Spikes.Directions directions = ((dir <= 0) ? Spikes.Directions.Right : Spikes.Directions.Left);
+                    foreach (Spikes entity in player.Scene.Tracker.GetEntities<Spikes>()) {
+                        if (entity.Direction == directions && player.CollideCheck(entity, player.Position + Vector2.UnitX * dir * 5f)) {
+                            flag = false;
+                            break;
+                        }
+                    }
+                }
+                if (flag) {
+                    num = 5;
+                }
+                return num;
+            };
+//            CILAbuse.LoadIL();
         }
 
         private static void Scene_BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
             orig(self);
             if (self.OnRawInterval(self.Paused ? 3f : 40f)) {
                 try {
-                    EntityDebugColor = (Color) CelesteTAS_EntityDebugColor.Invoke(CelesteTASModuleInstance._Settings, VivHelper.EmptyObjectArray);
+                    EntityDebugColor = (Color) CelesteTAS_EntityDebugColor.Invoke(CelesteTASModuleInstance._Settings, Array.Empty<object>());
                 } catch {
                     EntityDebugColor = null;
                 }
                 try {
-                    TriggerDebugColor = (Color) CelesteTAS_TriggerDebugColor.Invoke(CelesteTASModuleInstance._Settings, VivHelper.EmptyObjectArray);
+                    TriggerDebugColor = (Color) CelesteTAS_TriggerDebugColor.Invoke(CelesteTASModuleInstance._Settings, Array.Empty<object>());
                 } catch {
                     TriggerDebugColor = null;
                 }
@@ -512,7 +513,7 @@ namespace VivHelper {
             }*/
         }
 
-        private void parseCustomWipes(On.Celeste.Mod.Meta.MapMeta.orig_ApplyTo orig, Celeste.Mod.Meta.MapMeta self, AreaData area) {
+        private static void parseCustomWipes(Action<MapMeta, AreaData> orig, Celeste.Mod.Meta.MapMeta self, AreaData area) {
             orig(self, area);
             if (self.Wipe == "VivHelper/FastSpotlight") {
                 area.Wipe = (scene, wipeIn, onComplete) => { new FastSpotlight(scene, wipeIn, onComplete); };
@@ -577,20 +578,25 @@ namespace VivHelper {
             if (UnspawnedEntityNames.Contains(entityData.Name))
                 return true;
             if (entityData.Name == "VivHelper/CustomFallingBlock") {
-                string SID = AreaData.Get(level.Session).GetSID();
+                string SID = AreaData.Get(level.Session).SID;
                 if (MapSIDsWithOlderCFB_Behavior.Contains(SID)) {
                     level.Add(new CustomFallingBlock_140(entityData, offset));
                 } else {
                     level.Add(new CustomFallingBlock(entityData, offset));
                 }
                 return true;
-            }
-            if (entityData.Name == "VivHelper/CassetteTileEntity") {
+            } else if (entityData.Name == "VivHelper/CassetteTileEntity" ||
+                       entityData.Name == "VivHelper/CornerBoostCassetteBlock" ||
+                       entityData.Name == "VivHelper/CassetteBooster") {
                 level.HasCassetteBlocks = true;
                 if (level.CassetteBlockTempo == 1f) {
                     level.CassetteBlockTempo = entityData.Float("tempo", 1f);
                 }
-                level.CassetteBlockBeats = Math.Max(entityData.Int("index", 0) + 1, level.CassetteBlockBeats);
+                int newCap = entityData.Has("log2idx") ? VivHelper.bitlog2((uint) entityData.Int("log2idx", 1)) + 1 :
+                    entityData.Int("index", 0) + 1;
+                level.CassetteBlockBeats = Math.Max(level.CassetteBlockBeats, newCap);
+
+
 
                 if (!createdCassetteManager) {
                     createdCassetteManager = true;
@@ -600,13 +606,32 @@ namespace VivHelper {
                         }
                     }
                 }
+
+                switch (entityData.Name) {
+                    case "VivHelper/CassetteTileEntity":
+                        level.Add(new CassetteTileEntity(entityData, offset));
+                        break;
+                    case "VivHelper/CornerBoostCassetteBlock":
+                        level.Add(new CornerBoostCassetteBlock(entityData, offset, new EntityID(levelData.Name, entityData.ID)));
+                        break;
+                    case "VivHelper/CassetteBooster":
+                        level.Add(new CassetteBooster(entityData, offset));
+                        break;
+                }
+                return true;
+            }
+            else if(entityData.Name.StartsWith("VivHelper/AnimatedSpikes") && Enum.TryParse<Spikes.Directions>(entityData.Name.Substring(23), out var dir)) {
+                switch (entityData.Int("version", 0)) {
+                    case 2: level.Add(new BetterAnimatedSpikes(entityData, offset, (DirectionPlus) (1 << (int) dir))); return true;
+                    default: level.Add(new AnimatedSpikes(entityData, offset, dir)); return true;
+                }
             }
             return false;
         }
 
         private static void AttackSequence_CrushCustomFallingBlock(FieldInfo f, ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(instr => instr.MatchStloc(5))) {
+            if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchStloc(5))) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldfld, f);
                 cursor.Emit(OpCodes.Dup);
@@ -723,7 +748,7 @@ namespace VivHelper {
                             }
                         }
                     } else if (mutingObjects.Contains(entity.Name)) {
-                        VivHelperModule.Session.MakeChangesToAudioSet(entity);
+                        VivHelperModule.Session.MapChangesToAudioSet(entity);
                     } else if (entity.Name == "VivHelper/DisableNeutralOnHoldable") {
                         VivHelperModule.Session.DisableNeutralsOnHoldable = true;
                     } else if(entity.Name == "VivHelper/DashPowerupManager") {
@@ -755,7 +780,6 @@ namespace VivHelper {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.EmitDelegate<Func<bool, Player, bool>>((b, player) => b || player.CollideAnyWhere<CustomSpike>(c => c.NoRefillDash, player.Position) || player.CollideAnyWhere<RestrictingFloor>(c => c.PreventDashRefill, out _));
             }
-
             // Adds a forced Session check for locking the Camera
             if (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchCallvirt(player_get_CameraTarget))) //Goes to the first instance of get_CameraTarget
             {
@@ -799,10 +823,10 @@ namespace VivHelper {
 
         private void Player_Render(ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchCall<Color>("get_Red") || instr.MatchCall<Color>("get_White"))) {
+            while (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchStfld<GraphicsComponent>("Color"))) {
                 cursor.EmitDelegate<Func<Color, Color>>((Color c) => FlashCombine(c));
+                cursor.Index++;
             }
-
         }
 
         private static Color FlashCombine(Color c) {
@@ -986,10 +1010,9 @@ namespace VivHelper {
         public static void SendErrorMessageThroughDebugConsole(string message) {
             if (message == null)
                 return;
-            if (Engine.Commands.Open)
-                Engine.Commands.Log(message);
-            else
-                CommandDebugString = (CommandDebugString == null ? message : CommandDebugString + "\n" + message);
+
+            Engine.Commands.Open = true;
+            Engine.Commands.Log(message);
         }
 
 

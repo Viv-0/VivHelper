@@ -132,41 +132,41 @@ namespace VivHelper.Entities.Boosters {
                 player.Speed.Y = 0;
             if (player.Holding == null && player.DashDir != Vector2.Zero && Input.GrabCheck && !dyn.Get<bool>("IsTired") && player.CanUnDuck) {
                 foreach (Holdable component in player.Scene.Tracker.GetComponents<Holdable>()) {
-                    if (component.Check(player) && (bool) VivHelper.player_Pickup.Invoke(player, component)) {
+                    if (component.Check(player) && (bool) VivHelper.player_Pickup.Invoke(player, new object[] { component })) {
                         return Player.StPickup;
                     }
                 }
             }
             if (Math.Abs(player.DashDir.Y) < 0.1f) {
                 foreach (JumpThru entity in player.Scene.Tracker.GetEntities<JumpThru>()) {
-                    if (player.CollideCheck(entity) && player.Bottom - entity.Top <= 6f && !(bool) VivHelper.player_DashCorrectCheck.Invoke(player, Vector2.UnitY * (entity.Top - player.Bottom))) {
+                    if (player.CollideCheck(entity) && player.Bottom - entity.Top <= 6f && !(bool) VivHelper.player_DashCorrectCheck.Invoke(player, new object[] { Vector2.UnitY * (entity.Top - player.Bottom)})) {
                         player.MoveVExact((int) (entity.Top - player.Bottom));
                     }
                 }
                 if (player.CanUnDuck && Input.Jump.Pressed && dyn.Get<float>("jumpGraceTimer") > 0f) {
-                    VivHelper.player_SuperJump(player, VivHelper.EmptyObjectArray);
+                    VivHelper.player_SuperJump.Invoke(player, Array.Empty<object>());
                     return 0;
                 }
             }
             //Optimized Dash Update behaviors
             if (Input.Jump.Pressed && player.CanUnDuck) {
-                if ((bool) VivHelper.player_WallJumpCheck(player, VivHelper.oneOne)) {
+                if ((bool) VivHelper.player_WallJumpCheck.Invoke(player, VivHelper.oneOne)) {
                     if (Math.Abs(player.DashDir.X) <= 0.2f && player.DashDir.Y <= -0.75f) {
-                        VivHelper.player_SuperWallJump(player, VivHelper.negOne);
+                        VivHelper.player_SuperWallJump.Invoke(player, VivHelper.negOne);
                     } else if (player.Facing == Facings.Right && Input.GrabCheck && player.Stamina > 0f && player.Holding == null && !ClimbBlocker.Check(player.Scene, player, player.Position + Vector2.UnitX * 3f)) {
-                        VivHelper.player_ClimbJump(player, VivHelper.EmptyObjectArray);
+                        VivHelper.player_ClimbJump.Invoke(player, Array.Empty<object>());
                     } else {
-                        VivHelper.player_WallJump(player, VivHelper.negOne);
+                        VivHelper.player_WallJump.Invoke(player, VivHelper.negOne);
                     }
                     return 0;
                 }
-                if ((bool) VivHelper.player_WallJumpCheck(player, VivHelper.negOne)) {
+                if ((bool) VivHelper.player_WallJumpCheck.Invoke(player, VivHelper.negOne)) {
                     if (Math.Abs(player.DashDir.X) <= 0.2f && player.DashDir.Y <= -0.75f) {
-                        VivHelper.player_SuperWallJump(player, VivHelper.oneOne);
+                        VivHelper.player_SuperWallJump.Invoke(player, VivHelper.oneOne);
                     } else if (player.Facing == Facings.Left && Input.GrabCheck && player.Stamina > 0f && player.Holding == null && !ClimbBlocker.Check(player.Scene, player, player.Position - Vector2.UnitX * 3f)) {
-                        VivHelper.player_ClimbJump(player, VivHelper.EmptyObjectArray);
+                        VivHelper.player_ClimbJump.Invoke(player, Array.Empty<object>());
                     } else {
-                        VivHelper.player_WallJump(player, VivHelper.oneOne);
+                        VivHelper.player_WallJump.Invoke(player, VivHelper.oneOne);
                     }
                     return 0;
                 }
@@ -503,7 +503,7 @@ namespace VivHelper.Entities.Boosters {
                 compositeSprite.Add("pop", 0.08f, 9, 10, 11, 12, 13, 14, 15, 16, 17);
                 string _cs = data.NoEmptyString("ColorSet");
                 if (_cs != null)
-                    compositeSprite.DefineColorSet(VivHelper.ColorsFromString(_cs, ','));
+                    compositeSprite.DefineColorSet(VivHelper.OldColorsFromString(_cs, ','));
                 else {
                     compositeSprite.DefineColorSet(new List<Color>
                     {
@@ -528,11 +528,11 @@ namespace VivHelper.Entities.Boosters {
             var c = data.Color("BurstColor", useComposite ? compositeSprite.colorSet[3] : Calc.HexToColor("2c956e"));
             P_Burst = new ParticleType(Booster.P_Burst) { Color = Color.Lerp(c, Color.Black, 0.15f) * 0.9f, Color2 = Color.Lerp(c, Color.White, 0.15f) * 0.9f, ColorMode = ParticleType.ColorModes.Choose };
 
-            audioEnter = data.Attr("audioOnEnter", "event:/game/05_mirror_temple/redbooster_enter");
-            audioExit = data.Attr("audioOnExit", "event:/game/05_mirror_temple/redbooster_end");
-            audioDash = data.Attr("audioOnBoost", "event:/game/05_mirror_temple/redbooster_dash");
-            audioMove = data.Attr("audioWhileDashing", "event:/game/05_mirror_temple/redbooster_move");
-            audioRespawn = data.Attr("audioOnRespawn", "event:/game/05_mirror_temple/redbooster_reappear");
+            audioEnter = data.Attr("audioOnEnter", SFX.game_05_redbooster_enter);
+            audioExit = data.Attr("audioOnExit", SFX.game_05_redbooster_end);
+            audioDash = data.Attr("audioOnBoost", SFX.game_05_redbooster_dash);
+            audioMove = data.Attr("audioWhileDashing", SFX.game_05_redbooster_move_loop);
+            audioRespawn = data.Attr("audioOnRespawn", SFX.game_05_redbooster_reappear);
 
             base.Depth = -8500;
             base.Collider = new Circle(10f, 0f, 2f);
@@ -568,7 +568,7 @@ namespace VivHelper.Entities.Boosters {
             if (P_Appear != null) {
                 ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
                 for (int i = 0; i < 360; i += 30) {
-                    particlesBG.Emit(P_Appear, 1, base.Center, Vector2.One * 2f, (float) i * ((float) Math.PI / 180f));
+                    particlesBG.Emit(P_Appear, 1, base.Center, Vector2.One * 2f, i * Consts.DEG1);
                 }
             }
         }

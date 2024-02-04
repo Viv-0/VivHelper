@@ -44,7 +44,8 @@ namespace VivHelper.Entities {
         public static bool inSpace, DashRefillRestrict, DashRestrict, StaminaRefillRestrict;
         public static PlayerIndicator p;
         public static void Load() {
-            using (new DetourContext() { After = { "*" } }) {
+            // pre-Core: using (new DetourContext() { After = { "*" } }) {
+            using (new DetourConfigContext(new DetourConfig("VivHelper", before: new[] { "*" })).Use()) {
                 On.Celeste.Player.UseRefill += Player_UseRefill;
 
                 On.Celeste.Player.Update += Player_Update;
@@ -238,22 +239,22 @@ namespace VivHelper.Entities {
                             vector.Add(Vector2.UnitY);
                             break;
                         case 2:
-                            vector.Add(Vector2.UnitY.Rotate(0.66667f * (float) Math.PI));
+                            vector.Add(Vector2.UnitY.Rotate(Consts.PIover3 * 2f));
                             break;
                         case 3:
-                            vector.Add(Vector2.UnitY.Rotate(0.33333f * (float) Math.PI));
+                            vector.Add(Vector2.UnitY.Rotate(Consts.PIover3));
                             break;
                         case 4:
-                            vector.Add(Vector2.UnitY.Rotate(1.33333f * (float) Math.PI));
+                            vector.Add(Vector2.UnitY.Rotate(Consts.PIover3 * 4f));
                             break;
                         case 5:
-                            vector.Add(Vector2.UnitY.Rotate(1.66667f * (float) Math.PI));
+                            vector.Add(Vector2.UnitY.Rotate(Consts.PIover3 * 5f));
                             break;
                         case 6:
-                            vector.Add(Vector2.UnitY.Rotate((float) Math.PI));
+                            vector.Add(Vector2.UnitY.Rotate(Consts.PI));
                             break;
                         case 7:
-                            for (int h = 0; h < 6; h++) { vector.Add(Vector2.UnitY.Rotate((float) Math.PI * h / 3f)); }
+                            for (int h = 0; h < 6; h++) { vector.Add(Vector2.UnitY.Rotate(Consts.PI * h / 3f)); }
                             break;
                         default:
                             throw new Exception("Temp was invalid: " + TypeAsInt);
@@ -311,19 +312,19 @@ namespace VivHelper.Entities {
                             v = Vector2.UnitY;
                             break;
                         case 2:
-                            v = Vector2.UnitY.Rotate(0.75f * (float) Math.PI) * 1.414f;
+                            v = Vector2.UnitY.Rotate(Consts.PIover4 * 3) * 1.414f;
                             break;
                         case 3:
-                            v = Vector2.UnitY.Rotate(0.25f * (float) Math.PI) * 1.414f;
+                            v = Vector2.UnitY.Rotate(Consts.PIover4) * 1.414f;
                             break;
                         case 4:
-                            v = Vector2.UnitY.Rotate(1.25f * (float) Math.PI) * 1.414f;
+                            v = Vector2.UnitY.Rotate(Consts.PIover4 * 5) * 1.414f;
                             break;
                         case 5:
-                            v = Vector2.UnitY.Rotate(1.75f * (float) Math.PI) * 1.414f;
+                            v = Vector2.UnitY.Rotate(Consts.PIover4 * 7) * 1.414f;
                             break;
                         case 6:
-                            v = Vector2.UnitY.Rotate((float) Math.PI);
+                            v = Vector2.UnitY.Rotate(Consts.PI);
                             break;
                         default:
                             v = Vector2.Zero;

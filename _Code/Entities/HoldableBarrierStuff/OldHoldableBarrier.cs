@@ -252,7 +252,7 @@ namespace VivHelper.Entities {
         }
 
         public override void Render() {
-            Color color = (colorController?.particleColor ?? VivHelper.ColorFix(VivHelperModule.Session.savedHBController?.particleColorHex ?? VivHelperModule.defaultHBController.particleColorHex)) * 0.5f;
+            Color color = (colorController?.particleColor ?? VivHelper.OldColorFunction(VivHelperModule.Session.savedHBController?.particleColorHex ?? VivHelperModule.defaultHBController.particleColorHex)) * 0.5f;
             foreach (Vector2 particle in particles) {
                 Draw.Pixel.Draw(Position + particle, Vector2.Zero, color);
             }

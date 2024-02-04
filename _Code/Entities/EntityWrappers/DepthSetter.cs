@@ -30,13 +30,16 @@ namespace VivHelper.Entities {
         public override void Awake(Scene scene) {
             base.Awake(scene);
             Collidable = true;
-            foreach (Entity e in scene.Entities.Where<Entity>((f) => Collide.Check(this, f))) {
-                var prev = e.Collidable;
-                e.Collidable = true;
-                if (Collide.Check(this, e) && VivHelper.MatchTypeFromTypeSet(e.GetType(), Types, assignableTypes)) {
+            foreach (Entity e in scene.Entities.Where<Entity>((f) => {
+                var prev = f.Collidable;
+                f.Collidable = true;
+                var ret = Collide.Check(this, f);
+                f.Collidable = prev;
+                return ret;
+            })) {
+                if (VivHelper.MatchTypeFromTypeSet(e.GetType(), Types, assignableTypes)) {
                     e.Depth = newDepth;
                 }
-                e.Collidable = prev;
             }
             RemoveSelf();
         }

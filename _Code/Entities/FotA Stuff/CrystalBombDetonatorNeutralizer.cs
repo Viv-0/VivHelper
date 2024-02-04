@@ -144,7 +144,7 @@ namespace VivHelper.Entities {
 
         private void OnCollideSpring(Spring spring) {
             Sprite sprite = spring.Get<Sprite>();
-            Spring.Orientations springOrientation = ((sprite.Rotation == (float) Math.PI / 2f) ? Spring.Orientations.WallLeft : ((sprite.Rotation == -(float) Math.PI / 2f) ? Spring.Orientations.WallRight : Spring.Orientations.Floor));
+            Spring.Orientations springOrientation = ((sprite.Rotation == Consts.PIover2) ? Spring.Orientations.WallLeft : ((sprite.Rotation == -Consts.PIover2) ? Spring.Orientations.WallRight : Spring.Orientations.Floor));
             Audio.Play("event:/game/general/spring", spring.BottomCenter);
             spring.Get<StaticMover>().TriggerPlatform();
             spring.Get<Wiggler>().Start();
@@ -248,7 +248,7 @@ namespace VivHelper.Entities {
             Vector2 position;
             Vector2 positionRange;
             if (dir.X > 0f) {
-                direction = (float) Math.PI;
+                direction = Consts.PI;
                 position = new Vector2(base.Right, base.Y - 4f);
                 positionRange = Vector2.UnitY * 6f;
             } else if (dir.X < 0f) {
@@ -256,11 +256,11 @@ namespace VivHelper.Entities {
                 position = new Vector2(base.Left, base.Y - 4f);
                 positionRange = Vector2.UnitY * 6f;
             } else if (dir.Y > 0f) {
-                direction = -(float) Math.PI / 2f;
+                direction = -Consts.PIover2;
                 position = new Vector2(base.X, base.Bottom);
                 positionRange = Vector2.UnitX * 6f;
             } else {
-                direction = (float) Math.PI / 2f;
+                direction = Consts.PIover2;
                 position = new Vector2(base.X, base.Top);
                 positionRange = Vector2.UnitX * 6f;
             }

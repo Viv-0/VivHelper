@@ -19,9 +19,9 @@ namespace VivHelper.Module__Extensions__Etc {
         }
 
         public int ActivatePowerup(DashReplace powerup = null) {
-            ActivePowerup = powerup;
+            ActivePowerup = powerup ?? throw new Exception("tried to activate a powerup that was unregistered. Send this to @vividescence on Discord.");
             powerup.actionOnActivation?.Invoke(Entity as Player);
-            return ActivePowerup.innerState();
+            return powerup.innerState.Invoke();
         }
 
         public void EndActivePowerup() {

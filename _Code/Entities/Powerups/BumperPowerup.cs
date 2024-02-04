@@ -21,12 +21,12 @@ namespace VivHelper.Entities {
             outline = new Image(GFX.Game["VivHelper/genericCircleRefill/outline"]);
             outline.CenterOrigin();
             outline.Visible = false;
-            Add(sprite = new Sprite(GFX.Game, "VivHelper/TSSbumperrefill/"));
-            sprite.AddLoop("idle", "", 0.1f);
+            sprite = new Sprite(GFX.Game, "VivHelper/TSSbumperrefill/");
+            sprite.AddLoop("idle", "idle", 0.1f);
             sprite.Play("idle");
             sprite.CenterOrigin();
             Add(flash = new Sprite(GFX.Game, "VivHelper/TSSbumperrefill/"));
-            flash.Add("flash", "", 0.05f);
+            flash.Add("flash", "flash", 0.05f);
             flash.OnFinish = delegate {
                 flash.Visible = false;
             };
@@ -55,8 +55,8 @@ namespace VivHelper.Entities {
             Depth = 8999;
             yield return 0.05f;
             float num = player.Speed.Angle();
-            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num - (float) Math.PI / 2f);
-            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num + (float) Math.PI / 2f);
+            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num - Consts.PIover2);
+            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num + Consts.PIover2);
             SlashFx.Burst(Position, num);
             if (oneUse) {
                 RemoveSelf();
@@ -64,13 +64,19 @@ namespace VivHelper.Entities {
         }
 
         public static void EffectBefore(Player player) {
-            player.SceneAs<Level>().ParticlesFG.Emit(Bumper.P_Ambience, 2, player.Center, Vector2.One * 4f);
+            if(player.Scene.OnInterval(0.05f))
+                player.SceneAs<Level>().ParticlesFG.Emit(Bumper.P_Ambience, 1, player.Center, Vector2.One * 4f);
         }
 
         public static void EffectAt(Player player) {
             Vector2 dir = (Vector2) VivHelper.player_lastAim.GetValue(player);
-            ExplodeLaunchModifier.EightWayLaunch(player, player.Position - dir, ExplodeLaunchModifier.RestrictBoost.NoBoost);
-            player.SceneAs<Level>().ParticlesFG.Emit(Bumper.P_Launch, 10, player.Center, Vector2.One * 6f, -dir.Angle());
+            Audio.Play(SFX.game_06_pinballbumper_hit);
+            ExplodeLaunchModifier.EightWayLaunch(player, player.Center - dir, ExplodeLaunchModifier.RestrictBoost.NoBoost);
+            if (dir.X != 0 && dir.Y < -0.7f && dir.Y > -0.71f) {
+                player.Speed.Y = -225; // makes the Y value 225 which just feels better to play
+                player.Speed.X = Math.Sign(player.Speed.X) * 225;
+            }
+            player.SceneAs<Level>().ParticlesFG.Emit(Bumper.P_Launch, 10, player.Center, Vector2.One * 6f, Consts.PI + dir.Angle());
         }
     }
 }

@@ -49,7 +49,7 @@ namespace VivHelper {
 
     public class DashPowerupManager {
         #region Hooks
-        private static IDetour hook_StateMachine_ForceState, hook_StateMachine_set_State;
+        private static ILHook hook_StateMachine_ForceState, hook_StateMachine_set_State;
 
         public static void Load() {
             entityDataLinks = new Dictionary<string, List<string>>();
@@ -264,10 +264,10 @@ namespace VivHelper {
         }
 
         public static void LoadDefaultPowerups() {
-            AddPowerup(RedDashRefill.RedDashPowerup, new List<string> { "VivHelper/RedDashRefill" }, () => 5, true, RedDashRefill.EffectBefore, RedDashRefill.EffectAt, null, RedDashRefill.EffectDuring, null, "powerups/reddash");
+            AddPowerup(RedDashRefill.RedDashPowerup, new List<string> { "VivHelper/RedDashRefill" }, () => Player.StRedDash, true, RedDashRefill.EffectBefore, RedDashRefill.EffectAt, null, RedDashRefill.EffectDuring, null, "VivHelper/powerups/reddash");
             AddPowerup(WarpDashRefill.WarpDashPowerup, new List<string> { "VivHelper/WarpDashRefill" }, () => WarpDashRefill.WarpDashState, false, WarpDashRefill.EffectBefore, null, WarpDashRefill.EffectCancel, null, null, null);
+            AddPowerup(BumperRefill.BumperPowerup, new List<string> { "VivHelper/BumperRefill" }, () => Player.StLaunch, false, BumperRefill.EffectBefore, BumperRefill.EffectAt, null, null, null, null);
             //AddPowerup(FireworkRefill.FireworkPowerup, new List<string> { "VivHelper/FireworkRefill" }, () => 2, false, FireworkRefill.EffectBefore, FireworkRefill.EffectAt, null, null, FireworkRefill.RoutineAfter, null, null, null);
-        
         }
     }
     // This is a test class going to be sent around with the API to automate powerup addition

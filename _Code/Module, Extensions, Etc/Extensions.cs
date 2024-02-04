@@ -182,10 +182,8 @@ namespace VivHelper {
                 return;
             }
             SolidModifierComponent main = entity.Get<SolidModifierComponent>();
-            if (main.ContactMod + smc.ContactMod > 2)
-                main.ContactMod = 3;
-            else if (main.ContactMod != smc.ContactMod)
-                main.ContactMod = Math.Max(main.ContactMod, smc.ContactMod);
+            main.bufferClimbJump |= smc.bufferClimbJump;
+            main.triggerClimbOnTouch |= smc.triggerClimbOnTouch;
             // If A has default and B doesn't, prioritize B (A|B)
             // If A has a specific integer value (positive) and B has a behavior integer value (negative), prioritize the negative
             // If A and B have specific integer values (positive), choose the greater of the two
@@ -223,7 +221,7 @@ namespace VivHelper {
             int a = mod(171 * _a, 30269);
             int b = mod(172 * _b, 30307);
             int c = mod(170 * _c, 30323);
-            return ts[(int) (mod(a / 30269.0 + b / 30307.0 + c / 30323.0, 1.0)) * ts.Length];
+            return ts[(int) (mod(a / 30269.0 + b / 30307.0 + c / 30323.0, 1.0) * ts.Length)];
         }
 
         public static T ConsistentChooser<T>(int _a, int _b, int _c, List<T> ts) {
@@ -231,7 +229,7 @@ namespace VivHelper {
             int a = mod(171 * _a, 30269);
             int b = mod(172 * _b, 30307);
             int c = mod(170 * _c, 30323);
-            return ts[(int) (mod(a / 30269.0 + b / 30307.0 + c / 30323.0, 1.0)) * ts.Count];
+            return ts[(int) (mod(a / 30269.0 + b / 30307.0 + c / 30323.0, 1.0) * ts.Count)];
         }
 
         private static FieldInfo chooser_choices = typeof(Chooser<string>).GetField("choices", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -399,7 +397,7 @@ namespace VivHelper {
             if (defaultColorParametrization?.Count > 0 && defaultColorParametrization.Contains(key))
                 return _defaultValue;
             else if (self.StringIfNotEmpty(key, out string val)) {
-                return ColorFixWithNull(val) ?? _defaultValue;
+                return OldColorFunctionWithNull(val) ?? _defaultValue;
             } else
                 return _defaultValue;
         }
@@ -413,13 +411,13 @@ namespace VivHelper {
                         if (pair.Key == val)
                             return pair.Value;
                 }
-                return ColorFixWithNull(val) ?? _defaultValue;
+                return OldColorFunctionWithNull(val) ?? _defaultValue;
             } else
                 return _defaultValue;
         }
         public static Color? ColorOrNull(this EntityData self, string key, Color? defaultValue = null) {
             if (self.StringIfNotEmpty(key, out string val)) {
-                return ColorFixWithNull(val);
+                return OldColorFunctionWithNull(val);
             } else
                 return defaultValue;
         }
@@ -430,7 +428,7 @@ namespace VivHelper {
                         if (pair.Key == val)
                             return pair.Value;
                 }
-                return ColorFixWithNull(val);
+                return OldColorFunctionWithNull(val);
             } else
                 return defaultValue;
         }

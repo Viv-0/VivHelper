@@ -72,7 +72,7 @@ namespace VivHelper.Entities {
         public static int BooUpdate(Player player) {
             foreach (VertexLight vl in player.Scene.Tracker.GetComponents<VertexLight>()) {
                 if (vl.Alpha != 0f && Vector2.Subtract(vl.Center, player.Center).Length() <= vl.EndRadius) {
-                    Audio.Play("event:/char/badeline/disappear");
+                    Audio.Play(SFX.char_bad_disappear);
                     return 0;
                 }
             }
@@ -120,7 +120,7 @@ namespace VivHelper.Entities {
         public void OnPlayer(Player player) {
             if (player.StateMachine.State != VivHelperModule.BooState) {
                 player.StateMachine.State = VivHelperModule.BooState;
-                Audio.Play("event:/game/general/assist_dreamblockbounce");
+                Audio.Play(SFX.game_assist_dreamblockbounce);
                 Input.Rumble(RumbleStrength.Medium, RumbleLength.Medium);
                 Collidable = false;
                 dyn.Set<float>("respawnTimer", 5f);

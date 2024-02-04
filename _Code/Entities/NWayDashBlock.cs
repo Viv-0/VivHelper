@@ -28,7 +28,7 @@ namespace VivHelper.Entities {
                 viableDashDirections.Add(new Vector2(-1, 0));
             if (d.Bool("Down", true))
                 viableDashDirections.Add(new Vector2(0, 1));
-            detailColor = VivHelper.ColorFix(d.Attr("DetailColor", "Black"));
+            detailColor = VivHelper.OldColorFunction(d.Attr("DetailColor", "Black"));
         }
 
         public DashCollisionResults NWayDashed(Player player, Vector2 direction) {

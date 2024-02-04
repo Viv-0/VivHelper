@@ -44,10 +44,10 @@ namespace VivHelper.Entities {
                 to = ZipMover.target + new Vector2(ZipMover.Width / 2f, ZipMover.Height / 2f);
                 sparkAdd = (from - to).SafeNormalize(5f).Perpendicular();
                 float num = (from - to).Angle();
-                sparkDirFromA = num + (float) Math.PI / 8f;
-                sparkDirFromB = num - (float) Math.PI / 8f;
-                sparkDirToA = num + (float) Math.PI - (float) Math.PI / 8f;
-                sparkDirToB = num + (float) Math.PI + (float) Math.PI / 8f;
+                sparkDirFromA = num + Consts.PIover8;
+                sparkDirFromB = num - Consts.PIover8;
+                sparkDirToA = num + Consts.PIover8 * 7;
+                sparkDirToB = num + Consts.PIover8 * 9;
                 if (zipMover.theme == Themes.Moon) {
                     cog = GFX.Game["objects/zipmover/moon/cog"];
                 } else {
@@ -74,7 +74,7 @@ namespace VivHelper.Entities {
                 Vector2 vector = (to - from).SafeNormalize();
                 Vector2 value = vector.Perpendicular() * 3f;
                 Vector2 value2 = -vector.Perpendicular() * 4f;
-                float rotation = ZipMover.percent * (float) Math.PI * 2f;
+                float rotation = ZipMover.percent * Consts.TAU;
                 Draw.Line(from + value + offset, to + value + offset, colorOverride.HasValue ? colorOverride.Value : ropeColor);
                 Draw.Line(from + value2 + offset, to + value2 + offset, colorOverride.HasValue ? colorOverride.Value : ropeColor);
                 for (float num = 4f - ZipMover.percent * (float) Math.PI * 8f % 4f; num < (to - from).Length(); num += 4f) {
@@ -191,7 +191,7 @@ namespace VivHelper.Entities {
             for (int i = 4; (float) i <= base.Height - 4f; i += 8) {
                 int num3 = num;
                 for (int j = 4; (float) j <= base.Width - 4f; j += 8) {
-                    int index = (int) (mod((num2 + (float) num * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * (float) count);
+                    int index = (int) (VivHelper.mod((num2 + (float) num * percent * Consts.TAU * 2f) / Consts.PIover2, 1f) * (float) count);
                     MTexture mTexture = innerCogs[index];
                     Rectangle rectangle = new Rectangle(0, 0, mTexture.Width, mTexture.Height);
                     Vector2 zero = Vector2.Zero;
@@ -214,7 +214,7 @@ namespace VivHelper.Entities {
                     mTexture = mTexture.GetSubtexture(rectangle.X, rectangle.Y, rectangle.Width, rectangle.Height, temp);
                     mTexture.DrawCentered(Position + new Vector2(j, i) + zero, Color.White * ((num < 0) ? 0.5f : 1f));
                     num = -num;
-                    num2 += (float) Math.PI / 3f;
+                    num2 += Consts.PIover3;
                 }
                 if (num3 == num) {
                     num = -num;
@@ -252,12 +252,12 @@ namespace VivHelper.Entities {
                 }
                 if (base.Scene.CollideCheck<Solid>(value + new Vector2(-2f, num * -2))) {
                     for (int i = num2; i < num3; i += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(P_Scrape, base.TopLeft + new Vector2(0f, (float) i + (float) num * 2f), (num == 1) ? (-(float) Math.PI / 4f) : ((float) Math.PI / 4f));
+                        SceneAs<Level>().ParticlesFG.Emit(P_Scrape, base.TopLeft + new Vector2(0f, (float) i + (float) num * 2f), Consts.PIover4 * ((num == 1) ? -1 : 1));
                     }
                 }
                 if (base.Scene.CollideCheck<Solid>(value + new Vector2(base.Width + 2f, num * -2))) {
                     for (int j = num2; j < num3; j += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(P_Scrape, base.TopRight + new Vector2(-1f, (float) j + (float) num * 2f), (num == 1) ? ((float) Math.PI * -3f / 4f) : ((float) Math.PI * 3f / 4f));
+                        SceneAs<Level>().ParticlesFG.Emit(P_Scrape, base.TopRight + new Vector2(-1f, (float) j + (float) num * 2f), Consts.PIover4 * ((num == 1) ? -3 : 3));
                     }
                 }
             } else {
@@ -276,12 +276,12 @@ namespace VivHelper.Entities {
                 }
                 if (base.Scene.CollideCheck<Solid>(value2 + new Vector2(num4 * -2, -2f))) {
                     for (int k = num5; k < num6; k += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(P_Scrape, base.TopLeft + new Vector2((float) k + (float) num4 * 2f, -1f), (num4 == 1) ? ((float) Math.PI * 3f / 4f) : ((float) Math.PI / 4f));
+                        SceneAs<Level>().ParticlesFG.Emit(P_Scrape, base.TopLeft + new Vector2((float) k + (float) num4 * 2f, -1f), Consts.PIover4 * ((num4 == 1) ? 3 : 1));
                     }
                 }
                 if (base.Scene.CollideCheck<Solid>(value2 + new Vector2(num4 * -2, base.Height + 2f))) {
                     for (int l = num5; l < num6; l += 8) {
-                        SceneAs<Level>().ParticlesFG.Emit(P_Scrape, base.BottomLeft + new Vector2((float) l + (float) num4 * 2f, 0f), (num4 == 1) ? ((float) Math.PI * -3f / 4f) : (-(float) Math.PI / 4f));
+                        SceneAs<Level>().ParticlesFG.Emit(P_Scrape, base.BottomLeft + new Vector2((float) l + (float) num4 * 2f, 0f), Consts.PIover4 * ((num4 == 1) ? -3 : -1));
                     }
                 }
             }
@@ -332,10 +332,6 @@ namespace VivHelper.Entities {
                 streetlight.SetAnimationFrame(1);
                 yield return 0.5f;
             }
-        }
-
-        private float mod(float x, float m) {
-            return (x % m + m) % m;
         }
     }
 

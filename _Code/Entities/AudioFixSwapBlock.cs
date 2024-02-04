@@ -44,9 +44,9 @@ namespace VivHelper.Entities {
             if (lerp == target) {
                 if (target == 0) {
                     Audio.SetParameter(self.dyn.Get<EventInstance>("returnSfx"), "end", 1f);
-                    Audio.Play("event:/game/05_mirror_temple/swapblock_return_end", self.Center);
+                    Audio.Play(SFX.game_05_swapblock_return_end, self.Center);
                 } else {
-                    Audio.Play("event:/game/05_mirror_temple/swapblock_move_end", self.Center);
+                    Audio.Play(SFX.game_05_swapblock_move_end, self.Center);
                 }
             }
             return false;

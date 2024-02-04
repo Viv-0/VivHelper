@@ -36,9 +36,11 @@ namespace VivHelper.Module__Extensions__Etc {
 
         private static void Scene_BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
             orig(self);
-            if (self is Level level && self.Tracker.TryGetEntity<Player>(out Player player) && VivHelperModule.Session.TeleportState) {
-                VivHelperModule.Session.TeleportAction?.Invoke(player, level);
-                VivHelperModule.Session.TeleportAction = null;
+            if (self is Level level) {
+                if (VivHelperModule.Session.TeleportState) {
+                    VivHelperModule.Session.TeleportAction?.Invoke(self.Tracker.GetEntity<Player>(), level);
+                    VivHelperModule.Session.TeleportAction = null;
+                }
             }
         }
 
@@ -258,6 +260,8 @@ namespace VivHelper.Module__Extensions__Etc {
             VivHelperModule.Session.TeleportState = false;
             VivHelperModule.Session.TeleportAction = null;
         }
+
+
 
     }
 }

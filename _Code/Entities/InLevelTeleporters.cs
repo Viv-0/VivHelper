@@ -84,7 +84,7 @@ namespace VivHelper.Entities {
             OHMod = OOHMod;
             CooldownTime = cooldowntime;
             if (!string.IsNullOrWhiteSpace(spritePath) && particleColor != Color.Transparent) { // If the path isn't null, then we want to draw things "standardly"
-                float rot = (float) (Math.PI / 2) * (int) dir;
+                float rot = Consts.PIover2 * (int) dir;
                 particlePosition = Position + Vector2.UnitX.Rotate(rot) * 15f + Vector2.UnitY.Rotate(rot) * (length-1) / ((int) dir % 3 == 0 ? 2 : -2);
                 particleScope = Vector2.UnitY.Rotate(rot) * (length-2) / 2;
                 particleDir = -rot;
@@ -105,7 +105,7 @@ namespace VivHelper.Entities {
                         }
                         Image image = new Image(q.GetSubtexture(0, yTilePosition * 8, 8, 8));
                         image.Position = Vector2.UnitX.Rotate(rot) * 16 + Vector2.UnitY.Rotate(rot) * (-8*i + ((int)dir%3==0 ? length : 0));
-                        image.Rotation = rot + (float)Math.PI;
+                        image.Rotation = rot + Consts.PI;
                         image.Color = particleColor;
                         Add(image);
                     }
@@ -133,7 +133,7 @@ namespace VivHelper.Entities {
                             image.Justify = Vector2.Zero;
                             image.AddLoop("idle", 0.06f, s[yTilePosition]);
                             image.Position = Vector2.UnitX.Rotate(rot) * 16 + Vector2.UnitY.Rotate(rot) * (-8 * i + ((int) dir % 3 == 0 ? length : 0));
-                            image.Rotation = rot + (float) Math.PI;
+                            image.Rotation = rot + Consts.PI;
                             image.Color = particleColor;
                             Add(image);
                         }
@@ -321,10 +321,10 @@ namespace VivHelper.Entities {
             Vector2 speed = player.Speed;
             if (OHMod) {
                 //Direction is in the form of "right->down->left->up" because positive Y is downwards, and Pi/2 * Direction equals the angle in code.
-                if ((int) d == 3) // If the entry direction is Up, cap the speed @ 150 speed
+                if (d == Directions.Up) // If the entry direction is Up, cap the speed @ 150 speed
                     speed.Y = Math.Max(speed.Y, 150f);
                 //This code is an improvement on the Matrix transform found in OutbackHelper
-                float anglediff = (Direction - d) * (float) Math.PI / 2f; //the difference in angle is what the speed gets rotated by, with
+                float anglediff = (Direction - d) * Consts.PIover2; //the difference in angle is what the speed gets rotated by, with
                 speed = speed.Rotate(anglediff);
                 speed *= -1f;
                 //Dash Cancel action
@@ -333,24 +333,23 @@ namespace VivHelper.Entities {
                 }
                 //Optimized code
                 if (player.StateMachine.State != 5) {
-                    if ((int) d == 1) { //If the entry direction is Up or Down, multiply speed by 1.5 on both axes (WHAT)
+                    if (d == Directions.Up) { //If the entry direction is Down, multiply speed by 1.5 on both axes (WHAT)
                         speed *= 1.5f;
                         if ((int) Direction % 2 == 0) { // if the exit direction is left or right, modify speed for some reason? 
-                            speed.Y -= 150f; // I don't know why, but I presume this is to make it feel "floatier" so you dont die without seeing it.
+                            speed.Y -= 150f; // I presume this is to make it feel "floatier" so you dont die without seeing it. That being said, why is it -=.
                         }
-                    } else if ((int) d == 3) {
+                    } else if (d == Directions.Up) { //If the entry direction is Up, multiply speed by 1.5 on both axes (WHAT)
                         speed *= 1.5f;
                     }
                 }
-                if ((int) Direction == 1) { // If the exit Direction is Upwards, cap the Y speed at -150 so you dont yeet to space
+                if (Direction == Directions.Down) { // If the exit Direction is Upwards, cap the Y speed at -150 so you dont yeet to space
                     speed.Y = Math.Min(player.Speed.Y, -150f);
                 }
             } else {
                 // NORMAL ASS PHYSICS
-                float anglediff = (Direction - d) * (float) Math.PI / 2f;
+                float anglediff = (Direction - d) * Consts.PIover2;
                 speed = speed.Rotate(anglediff);
                 speed *= -1f;
-
             }
             return speed + new Vector2(speedOut * (float) Math.Cos(Calc.Angle(speed)), speedOut * (float) Math.Sin(Calc.Angle(speed)));
         }
@@ -404,7 +403,7 @@ namespace VivHelper.Entities {
         }
 
         public Vector2 TeleportEntityWithSpeed(Entity entity, float distance, Vector2 speed, Directions d) {
-            float anglediff = (Direction - d) * (float) Math.PI / 2f;
+            float anglediff = (Direction - d) * Consts.PIover2;
             speed = speed.Rotate(anglediff);
             speed *= -1f;
             switch (Direction) {

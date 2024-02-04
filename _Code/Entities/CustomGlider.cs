@@ -103,17 +103,17 @@ namespace VivHelper.Entities {
             GlowPath = e.Attr("GlowPath", "");
             if (string.IsNullOrWhiteSpace(GlowPath))
                 GlowPath = "";
-            GlideC1 = VivHelper.ColorFix(e.Attr("GlideColor1", "4FFFF3"));
-            GlideC2 = VivHelper.ColorFix(e.Attr("GlideColor2", "FFF899"));
-            GlowC1 = VivHelper.ColorFix(e.Attr("GlowColor1", "B7F3FF"));
-            GlowC2 = VivHelper.ColorFix(e.Attr("GlowColor2", "F4FDFF"));
+            GlideC1 = VivHelper.OldColorFunction(e.Attr("GlideColor1", "4FFFF3"));
+            GlideC2 = VivHelper.OldColorFunction(e.Attr("GlideColor2", "FFF899"));
+            GlowC1 = VivHelper.OldColorFunction(e.Attr("GlowColor1", "B7F3FF"));
+            GlowC2 = VivHelper.OldColorFunction(e.Attr("GlowColor2", "F4FDFF"));
 
             P_Glide = new ParticleType {
                 Acceleration = Vector2.UnitY * 60f,
                 SpeedMin = 30f,
                 SpeedMax = 40f,
-                Direction = -(float) Math.PI / 2f,
-                DirectionRange = (float) Math.PI / 2f,
+                Direction = -Consts.PIover2,
+                DirectionRange = Consts.PIover2,
                 LifeMin = 0.6f,
                 LifeMax = 1.2f,
                 ColorMode = ParticleType.ColorModes.Blink,
@@ -134,7 +134,7 @@ namespace VivHelper.Entities {
             P_Glow = new ParticleType {
                 SpeedMin = 8f,
                 SpeedMax = 16f,
-                DirectionRange = (float) Math.PI * 2f,
+                DirectionRange = Consts.TAU,
                 LifeMin = 0.4f,
                 LifeMax = 0.8f,
                 Size = 1f,
@@ -151,13 +151,13 @@ namespace VivHelper.Entities {
                 SpeedMultiplier = 0.2f,
                 LifeMin = 0.6f,
                 LifeMax = 1.2f,
-                DirectionRange = (float) Math.PI * 3f / 4f
+                DirectionRange = Consts.PIover4 * 3
             };
             P_Platform = new ParticleType {
                 Acceleration = Vector2.UnitY * 60f,
                 SpeedMin = 5f,
                 SpeedMax = 20f,
-                Direction = -(float) Math.PI / 2f,
+                Direction = -Consts.PIover2,
                 LifeMin = 0.6f,
                 LifeMax = 1.4f,
                 FadeMode = ParticleType.FadeModes.Late,
@@ -182,8 +182,8 @@ namespace VivHelper.Entities {
             if (base.Scene.OnInterval(0.05f)) {
                 level.Particles.Emit(P_Glow, 1, base.Center + Vector2.UnitY * -9f, new Vector2(10f, 4f));
             }
-            float target = ((!Hold.IsHeld) ? 0f : ((!Hold.Holder.OnGround()) ? Calc.ClampedMap(Hold.Holder.Speed.X, -300f, 300f, (float) Math.PI / 3f, -(float) Math.PI / 3f) : Calc.ClampedMap(Hold.Holder.Speed.X, -300f, 300f, 0.6981317f, -0.6981317f)));
-            sprite.Rotation = Calc.Approach(sprite.Rotation, target, (float) Math.PI * Engine.DeltaTime);
+            float target = ((!Hold.IsHeld) ? 0f : ((!Hold.Holder.OnGround()) ? Calc.ClampedMap(Hold.Holder.Speed.X, -300f, 300f, Consts.PIover3, -Consts.PIover3) : Calc.ClampedMap(Hold.Holder.Speed.X, -300f, 300f, 0.6981317f, -0.6981317f)));
+            sprite.Rotation = Calc.Approach(sprite.Rotation, target, Consts.PI * Engine.DeltaTime);
             if (Hold.IsHeld && !Hold.Holder.OnGround() && (sprite.CurrentAnimationID == "fall" || sprite.CurrentAnimationID == "fallLoop")) {
                 if (!fallingSfx.Playing) {
                     Audio.Play("event:/new_content/game/10_farewell/glider_engage", Position);
@@ -327,7 +327,7 @@ namespace VivHelper.Entities {
             if (sprite.CurrentAnimationID != "fall" && sprite.CurrentAnimationID != "fallLoop") {
                 sprite.Play("fall");
                 sprite.Scale = new Vector2(1.5f, 0.6f);
-                level.Particles.Emit(P_Expand, 16, base.Center + (Vector2.UnitY * -12f).Rotate(sprite.Rotation), new Vector2(8f, 3f), -(float) Math.PI / 2f + sprite.Rotation);
+                level.Particles.Emit(P_Expand, 16, base.Center + (Vector2.UnitY * -12f).Rotate(sprite.Rotation), new Vector2(8f, 3f), -Consts.PIover2 + sprite.Rotation);
                 if (Hold.IsHeld) {
                     Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                 }

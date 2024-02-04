@@ -121,7 +121,7 @@ namespace VivHelper.Entities.Watchtowers {
             }
             MTexture mTexture = GFX.Gui["towerarrow"];
             float y = (float) num3 * up - (float) (Math.Sin(timerUp) * 18.0 * (double) MathHelper.Lerp(0.5f, 1f, multUp)) - (1f - multUp) * 12f;
-            mTexture.DrawCentered(new Vector2(960f, y), color * up, 1f, (float) Math.PI / 2f);
+            mTexture.DrawCentered(new Vector2(960f, y), color * up, 1f, Consts.PIover2);
             float y2 = 1080f - (float) num3 * down + (float) (Math.Sin(timerDown) * 18.0 * (double) MathHelper.Lerp(0.5f, 1f, multDown)) + (1f - multDown) * 12f;
             mTexture.DrawCentered(new Vector2(960f, y2), color * down, 1f, 4.712389f);
             if (!TrackMode && !OnlyY) {
@@ -142,7 +142,7 @@ namespace VivHelper.Entities.Watchtowers {
                 float x = (float) num2 * num5 - (float) (Math.Sin(num7) * 18.0 * (double) MathHelper.Lerp(0.5f, 1f, num6)) - (1f - num6) * 12f;
                 mTexture.DrawCentered(new Vector2(x, 540f), color * num5);
                 float x2 = 1920f - (float) num2 * num8 + (float) (Math.Sin(num10) * 18.0 * (double) MathHelper.Lerp(0.5f, 1f, num9)) + (1f - num9) * 12f;
-                mTexture.DrawCentered(new Vector2(x2, 540f), color * num8, 1f, (float) Math.PI);
+                mTexture.DrawCentered(new Vector2(x2, 540f), color * num8, 1f, Consts.PI);
             } else if (TrackMode) {
                 int num11 = 1080 - num3 * 2 - 128 - 64;
                 int num12 = 1920 - num2 - 64;

@@ -184,15 +184,15 @@ namespace VivHelper.Entities {
             string t = data.Attr("Color", "");
             if (t == "")
                 t = "ffffff";
-            color = VHM.ColorFix(t);
+            color = VHM.OldColorFunction(t);
             string u = data.Attr("ShatterColor", "");
             if (u == "")
                 u = t;
-            shatterColor = VHM.ColorFix(u);
+            shatterColor = VHM.OldColorFunction(u);
             t = data.Attr("BorderColor", "");
             if (t == "")
                 t = "000000";
-            borderColor = VHM.ColorFix(t);
+            borderColor = VHM.OldColorFunction(t);
             this.offset = Calc.Random.NextFloat();
             base.Tag = Tags.TransitionUpdate;
             scale = data.Float("Scale", 1f);
@@ -411,10 +411,10 @@ namespace VivHelper.Entities {
                 int a = (int) Position.X;
                 int b = (int) Position.Y;
                 image = new Image(Extensions.ConsistentChooser<MTexture>(a, b, r, atlasSubtextures));
-                image.Rotation = Extensions.ConsistentChooser<float>(a, b, r, 0, 1, 2, 3) * ((float) Math.PI / 2f);
+                image.Rotation = Extensions.ConsistentChooser<float>(a, b, r, 0, 1, 2, 3) * (Consts.PIover2);
             } else {
                 image = new Image(Calc.Random.Choose(atlasSubtextures));
-                image.Rotation = (float) Calc.Random.Choose(0, 1, 2, 3) * ((float) Math.PI / 2f);
+                image.Rotation = (float) Calc.Random.Choose(0, 1, 2, 3) * (Consts.PIover2);
             }
             image.Position = offset;
             image.CenterOrigin();

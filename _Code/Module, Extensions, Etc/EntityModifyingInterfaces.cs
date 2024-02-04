@@ -22,7 +22,6 @@ namespace VivHelper {
         public static void Load() {
             IL.Monocle.EntityList.UpdateLists += EntityList_UpdateLists;
         }
-
         public static void Unload() {
             IL.Monocle.EntityList.UpdateLists -= EntityList_UpdateLists;
         }
@@ -43,13 +42,21 @@ namespace VivHelper {
             }
         }
 
+        private static void Level_AfterRender(ILContext il) {
+            ILCursor cursor = new(il);
+            if(cursor.TryGotoNext(MoveType.After, i => i.MatchCall<Scene>("AfterRender"))) {
+                cursor.Emit(OpCodes.Ldarg_0);
+                cursor.Emit(OpCodes.Call, typeof(EntityChangingInterfaces).GetMethod("PostRenderCall"));
+            }
+        }
+
         public static void PreAwakeCall(EntityList list, List<Entity> toAwake) {
             Scene scene = list.Scene;
             foreach (Entity e in toAwake) {
-                if (e is PreAwakeHolder postAwakeHolder)
+                if (e is IPreAwake postAwakeHolder)
                     postAwakeHolder.PreAwake(scene);
                 foreach (Component c in e.Components) {
-                    if (c is PreAwakeHolder p)
+                    if (c is IPreAwake p)
                         p.PreAwake(scene);
                 }
             }
@@ -58,21 +65,22 @@ namespace VivHelper {
         public static List<Entity> PostAwakeCall(List<Entity> toAwake, EntityList list) {
             Scene scene = list.Scene;
             foreach (Entity e in toAwake) {
-                if (e is PostAwakeHolder postAwakeHolder)
+                if (e is IPostAwake postAwakeHolder)
                     postAwakeHolder.PostAwake(scene);
                 foreach (Component c in e.Components) {
-                    if (c is PostAwakeHolder p)
+                    if (c is IPostAwake p)
                         p.PostAwake(scene);
                 }
             }
             return toAwake;
         }
+
     }
     ///<summary>
     /// Solely used for meta-entities as a precautionary measure to modify things that are changed in Awake before Awake is called. Useful in scenarios where you need to modify the contents of some function before its Awake is called.
     /// This is modifiable and is deterministic on helper load order which is of major concern to me, but since noone else has used this tactic yet it should be fine. I'm also majorly concerned about performance issues regarding this but it hasn't been an issue for me yet.
     ///</summary>
-    public interface PreAwakeHolder {
+    public interface IPreAwake {
         /// <summary>
         /// A function that calls for all members of toAwake before all other objects have been awoken.
         /// </summary>
@@ -83,7 +91,7 @@ namespace VivHelper {
     /// Solely used for meta-entities as a precautionary measure to modify things that are changed in Awake after Awake is called but before the next update is called.
     /// This is modifiable and is deterministic on helper load order which is of major concern to me, but since noone else has used this tactic yet it should be fine. I'm also majorly concerned about performance issues regarding this but it hasn't been an issue for me yet.
     /// </summary>
-    public interface PostAwakeHolder {
+    public interface IPostAwake {
 
         /// <summary>
         /// A function that calls for all members of toAwake after all other objects have been awoken.

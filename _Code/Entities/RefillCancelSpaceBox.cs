@@ -130,17 +130,17 @@ namespace VivHelper.Entities {
                 positionRange = Vector2.UnitY * (base.Height - 6f) * 0.5f;
                 num = (int) (base.Height / 8f) * 4;
             } else if (dir == -Vector2.UnitX) {
-                direction = (float) Math.PI;
+                direction = Consts.PI;
                 position = base.CenterLeft + Vector2.UnitX * 12f;
                 positionRange = Vector2.UnitY * (base.Height - 6f) * 0.5f;
                 num = (int) (base.Height / 8f) * 4;
             } else if (dir == Vector2.UnitY) {
-                direction = (float) Math.PI / 2f;
+                direction = Consts.PIover2;
                 position = base.BottomCenter - Vector2.UnitY * 12f;
                 positionRange = Vector2.UnitX * (base.Width - 6f) * 0.5f;
                 num = (int) (base.Width / 8f) * 4;
             } else {
-                direction = -(float) Math.PI / 2f;
+                direction = -Consts.PIover2;
                 position = base.TopCenter + Vector2.UnitY * 12f;
                 positionRange = Vector2.UnitX * (base.Width - 6f) * 0.5f;
                 num = (int) (base.Width / 8f) * 4;

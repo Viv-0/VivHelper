@@ -29,8 +29,8 @@ namespace VivHelper.Entities {
             base.Awake(scene);
             colorController = scene.Tracker.GetEntity<HoldableBarrierColorController>();
             Collidable = true;
-            innerC = (colorController?.particleColor ?? VivHelper.ColorFix(VivHelperModule.Session.savedHBController?.particleColorHex ?? VivHelperModule.defaultHBController.particleColorHex)) * 0.5f;
-            outerC = (colorController?.baseColor ?? VivHelper.ColorFix(VivHelperModule.Session.savedHBController?.baseColorHex ?? VivHelperModule.defaultHBController.baseColorHex)) * 0.5f;
+            innerC = (colorController?.particleColor ?? VivHelper.OldColorFunction(VivHelperModule.Session.savedHBController?.particleColorHex ?? VivHelperModule.defaultHBController.particleColorHex)) * 0.5f;
+            outerC = (colorController?.baseColor ?? VivHelper.OldColorFunction(VivHelperModule.Session.savedHBController?.baseColorHex ?? VivHelperModule.defaultHBController.baseColorHex)) * 0.5f;
             MTexture inner = GFX.Game["VivHelper/holdableJumpThru/00"];
             MTexture outer = GFX.Game["VivHelper/holdableJumpThru/01"];
             int num = inner.Width / 8;

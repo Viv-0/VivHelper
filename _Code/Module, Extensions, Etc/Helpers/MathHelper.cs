@@ -8,13 +8,33 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace VivHelper {
+    public static partial class Consts {
+        public const float DEG1 = (float) Math.PI / 180f;
+        public const float PIover8 = (float) Math.PI / 8f;
+        public const float PIover6 = (float) Math.PI / 6f;
+        public const float PIover4 = (float) Math.PI / 4f;
+        public const float PIover3 = (float) Math.PI / 3f;
+        public const float PIover2 = (float) Math.PI / 2f;
+        public const float PI = (float) Math.PI;
+        public const float TAU = (float) Math.PI * 2f;
+    }
+
     public static partial class VivHelper {
+
         public static int mod(int x, int m) => (x % m + m) % m;
         public static float mod(float x, float m) => (x % m + m) % m;
         public static double mod(double x, double m) => (x % m + m) % m;
         public static long mod(long x, long m) => (x % m + m) % m;
 
         public static Vector2 mod(Vector2 x, Vector2 m) => new Vector2(mod(x.X, m.X), mod(x.Y, m.Y));
+
+        public const double _12root2 = 1.05946309436;
+        // Used for faster approximations of Math.Pow, mainly added because of its low error component within the range ideal for EventInstance::setPitch
+        public static double approxPow(double a, double b) {
+            int tmp = (int) (BitConverter.DoubleToInt64Bits(a) >> 32);
+            int tmp2 = (int) (b * (tmp - 1072632447) + 1072632447);
+            return BitConverter.Int64BitsToDouble(((long) tmp2) << 32);
+        }
 
         public static bool isPrime(int number) {
             if (number <= 1)
@@ -50,6 +70,15 @@ namespace VivHelper {
             uCount = (uint) (u - ((u >> 1) & 3681400539) - ((u >> 2) & 1227133513));
             return (int) ((uCount + (uCount >> 3)) & 3340530119) % 63;
         }
+        private static int[] tab32 = new int[32] {
+            0,  9,  1, 10, 13, 21,  2, 29,
+            11, 14, 16, 18, 22, 25,  3, 30,
+            8, 12, 20, 28, 15, 17, 24,  7,
+            19, 27, 23,  6, 26,  5,  4, 31};
+
+        // TO-DO, when porting to Core, swap to System.Numerics.BitOperations.Log2(value)
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static int bitlog2(uint value) => System.Numerics.BitOperations.Log2(value);
 
         public static uint int2uint(int i) {
             FloatIntUnion u;
@@ -128,13 +157,5 @@ namespace VivHelper {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float FloatsDistanceAway(float x, int dist) { return FloatIntUnion.FloatsDistanceAway(x, dist); }
 
-
-        // I would argue that Geometry is math
-        public static bool RectToRect(Rectangle a, Rectangle b) {
-            if (a.Right > b.Left && a.Bottom > b.Top && a.Left < b.Right) {
-                return a.Top < b.Bottom;
-            }
-            return false;
-        }
     }
 }

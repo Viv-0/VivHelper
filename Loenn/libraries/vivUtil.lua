@@ -65,6 +65,14 @@ function vivUtil.isNullEmptyOrWhitespace(s)
     end return true
 end
 
+function vivUtil.GetColorV2(entity, keyV1, keyV2, allowXNAColors) 
+    if entity[keyV2] then
+
+    elseif entity[keyV1] then
+        return vivUtil.getColor(entity[keyV1], allowXNAColors)
+    end
+end
+
 -- Format for VivHelper is "abgr" (format follows Color.PackedValue)
 function vivUtil.getColor(color, allowXNAColors)
     if type(color) == "nil" then 
@@ -330,6 +338,97 @@ function vivUtil.printJustifyText(text, x, y, width, height, font, fontSize, tri
     love.graphics.printf(text, 0, 0, width / fontSize, align or "center")
 
     love.graphics.pop()
+end
+
+function vivUtil.sortByKeys(t) 
+    local tkeys = {}
+    -- populate the table that holds the keys
+    for k in pairs(t) do table.insert(tkeys, k) end
+    -- sort the keys
+    table.sort(tkeys)
+    return tkeys
+end
+
+function vivUtil.print_table(node, filename)
+    local cache, stack, output = {},{},{}
+    local depth = 1
+    local output_str = "{\n"
+
+    while true do
+        local size = 0
+        for k,v in pairs(node) do
+            size = size + 1
+        end
+
+        local cur_index = 1
+        for k,v in pairs(node) do
+            if (cache[node] == nil) or (cur_index >= cache[node]) then
+
+                if (string.find(output_str,"}",output_str:len())) then
+                    output_str = output_str .. ",\n"
+                elseif not (string.find(output_str,"\n",output_str:len())) then
+                    output_str = output_str .. "\n"
+                end
+
+                -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
+                table.insert(output,output_str)
+                output_str = ""
+
+                local key
+                if (type(k) == "number" or type(k) == "boolean") then
+                    key = "["..tostring(k).."]"
+                else
+                    key = "['"..tostring(k).."']"
+                end
+
+                if (type(v) == "number" or type(v) == "boolean") then
+                    output_str = output_str .. string.rep('\t ',depth) .. key .. " = "..tostring(v)
+                elseif (type(v) == "table") then
+                    output_str = output_str .. string.rep('\t ',depth) .. key .. " = {\n"
+                    table.insert(stack,node)
+                    table.insert(stack,v)
+                    cache[node] = cur_index+1
+                    break
+                else
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = '"..tostring(v).."'"
+                end
+
+                if (cur_index == size) then
+                    output_str = output_str .. "\n" .. string.rep('\t ',depth-1) .. "}"
+                else
+                    output_str = output_str .. ","
+                end
+            else
+                -- close the table
+                if (cur_index == size) then
+                    output_str = output_str .. "\n" .. string.rep('\t ',depth-1) .. "}"
+                end
+            end
+
+            cur_index = cur_index + 1
+        end
+
+        if (size == 0) then
+            output_str = output_str .. "\n" .. string.rep('\t ',depth-1) .. "}"
+        end
+
+        if (#stack > 0) then
+            node = stack[#stack]
+            stack[#stack] = nil
+            depth = cache[node] == nil and depth + 1 or depth - 1
+        else
+            break
+        end
+    end
+
+    -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
+    table.insert(output,output_str)
+    output_str = table.concat(output)
+
+    file = io.open(filename, "w")
+    file:write(output_str)
+    file:close()
+    print("File written to " .. filename)
 end
 
 return vivUtil

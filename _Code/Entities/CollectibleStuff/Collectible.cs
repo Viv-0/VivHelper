@@ -32,7 +32,7 @@ namespace VivHelper.Entities {
         };
 
         internal static int idIntegerForDecalEntities = 0;
-        private static IDetour hook_Level_orig_LoadLevel;
+        private static ILHook hook_Level_orig_LoadLevel;
         public static void Load() {
             hook_Level_orig_LoadLevel = new ILHook(typeof(Level).GetMethod("orig_LoadLevel", BindingFlags.Public | BindingFlags.Instance), ParseCollectibleDecals);
         }
@@ -168,7 +168,7 @@ namespace VivHelper.Entities {
 
         public Collectible(EntityData data, Vector2 offset, EntityID id) : base(data.Position + offset) {
 
-            particleColor = VivHelper.ColorFix(data.Attr("particleColor", "Goldenrod"));
+            particleColor = VivHelper.OldColorFunction(data.Attr("particleColor", "Goldenrod"));
             audioEvent = data.Attr("CollectAudio", "event:/VivHelper/coin:1");
             group = data.Attr("group", "");
 

@@ -45,7 +45,7 @@ function ccb.sprite(room, entity)
     local x, y = entity.x or 0, entity.y or 0
     local width, height = entity.width or 24, entity.height or 24
 
-    local blockTexture, crystalTexture = getTextures(entity.Directory, entity.Core == "Cold")
+    local blockTexture, crystalTexture = getTextures(entity.Directory or "objects/BumpBlockNew", entity.Core == "Cold")
 
     local ninePatch = drawableNinePatch.fromTexture(blockTexture, ninePatchOptions, x, y, width, height)
     local crystalSprite = drawableSprite.fromTexture(crystalTexture, entity)

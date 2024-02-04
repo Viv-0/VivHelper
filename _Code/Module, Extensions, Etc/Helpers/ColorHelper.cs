@@ -1,16 +1,13 @@
 ﻿using Celeste;
+using Celeste.Mod;
 using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Mono.Cecil.Cil;
 using Monocle;
 using MonoMod.Utils;
+using System;
+using System.Collections.Generic;
 using System.Reflection;
-using Mono.Cecil.Cil;
 using System.Text.RegularExpressions;
-using Celeste.Mod;
 
 namespace VivHelper {
     public static partial class VivHelper {
@@ -32,30 +29,91 @@ namespace VivHelper {
             return _getHue(scene, pos);
         }
 
-        public static Color? ColorFixWithNull(string s) {
+        public delegate bool PrependColorFunction(string value, out Color? color);
+        public delegate bool AppendedColorFunction(ref Color? color);
+
+        public static Color? GetColor(EntityData data, string legacyColor, string newColor, bool allowNull, Color? defaultColor = null, PrependColorFunction prependedColorFunction = null, AppendedColorFunction appendedColorFunction = null) {
+            object value;
+            Color? ret = null;
+            if(data.Values.TryGetValue(newColor, out value) && value is string parse) {
+                if (!(prependedColorFunction?.Invoke(parse, out ret) ?? false)) {
+                    ret = NewColorFunction(parse);
+                    if (!allowNull && ret == null)
+                        ret = defaultColor ?? Color.White;
+                }
+            } else if(data.Values.TryGetValue(legacyColor, out value) && value is string parse2) {
+                if (!(prependedColorFunction?.Invoke(parse2, out ret) ?? false)) {
+                    ret = allowNull ? OldColorFunctionWithNull(parse2) : OldColorFunction(parse2);
+                }
+            }
+            appendedColorFunction?.Invoke(ref ret);
+            return ret;
+        }
+
+        // Uses the RGBA format
+        public static Color? NewColorFunction(string hex) {
+            if (string.IsNullOrWhiteSpace(hex))
+                return null;
+            if (colorHelper.ContainsKey(hex.ToLower()))
+                return colorHelper[hex.ToLower()];
+            // Manual HexToColor
+            int num = 0;
+            bool nonPreMult = true;
+            if (hex.StartsWith("#")) num = 1;
+            else if (hex.StartsWith("0x")) num = 2;
+            else if (hex.StartsWith("pm")) { num = 2; nonPreMult = false; }
+            byte HexToByte(char c) { int res = "0123456789ABCDEF".IndexOf(char.ToUpper(c)); if (res < 0) throw new IndexOutOfRangeException(); return (byte) res; }
+            try {
+                switch (hex.Length - num) {
+                    case 6:
+                        return new Color(HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]),
+                                         HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]),
+                                         HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]));
+                    case 8:
+                        int r = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                        int g = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                        int b = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                        int a = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                        if (nonPreMult) {
+                            float alpha = a / 255f;
+                            return new Color(alpha * (float) r / 255f, alpha * (float) g / 255f, alpha * (float) b / 255f, alpha);
+                        } else
+                            return new Color(r, g, b, a);
+                }
+            } catch (IndexOutOfRangeException i) { }
+            return null;
+        }
+
+        #region Legacy Color Functions - do not use
+
+        [Obsolete]
+        public static Color? OldColorFunctionWithNull(string s) {
             if (string.IsNullOrWhiteSpace(s))
                 return null;
             if (s == "Transparent" || s.Length == 8 && s.Substring(0, 2) == "00" && int.TryParse(s.Substring(2), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out int _)) { return Color.Transparent; } //Do this check first because we check for any other case of transparency, which is equivalent to no other valid case in this case
 
-            var c = ColorFix(s);
+            var c = OldColorFunction(s);
             if (c == Color.Transparent)
                 return null;
             return c;
         }
 
-        public static Color ColorFix(string s) {
+        [Obsolete]
+        public static Color OldColorFunction(string s) {
             if (colorHelper.ContainsKey(s.ToLower()))
                 return colorHelper[s.ToLower()];
-            return AdvHexToColor(s);
+            return OldHexToColor(s);
         }
 
-        public static Color ColorFix(string s, float alpha) {
+        [Obsolete]
+        public static Color OldColorFunction(string s, float alpha) {
             if (colorHelper.ContainsKey(s.ToLower()))
                 return colorHelper[s.ToLower()];
-            return Extensions.ColorCopy(AdvHexToColor(s), alpha);
+            return Extensions.ColorCopy(OldHexToColor(s), alpha);
         }
 
-        public static Color AdvHexToColor(string hex, bool nullIfInvalid = false) {
+        [Obsolete]
+        public static Color OldHexToColor(string hex) {
             string hexplus = hex.Trim('#');
             if (hexplus.StartsWith("0x"))
                 hexplus = hexplus.Substring(2);
@@ -75,7 +133,7 @@ namespace VivHelper {
             result.PackedValue = hex;
             return result;
         }
-
+        #endregion
         public static string ColorToHex(Color c, bool rgba = false) {
             string t = c.R.ToString("X") + c.G.ToString("X") + c.B.ToString("X");
             return rgba ? t + c.A.ToString("X") : c.A.ToString("X") + t;
@@ -85,10 +143,10 @@ namespace VivHelper {
             return new Color((a.R / 255f) * (b.R / 255f), (a.G / 255f) * (b.G / 255f), (a.B / 255f) * (b.B / 255f), (a.A / 255f) * (b.A / 255f));
         }
 
-        public static List<Color> ColorsFromString(string str, char sep = ',') {
+        public static List<Color> OldColorsFromString(string str, char sep = ',') {
             List<Color> l = new List<Color>();
             foreach (string s in str.Split(sep)) {
-                l.Add(ColorFix(s.Trim()));
+                l.Add(OldColorFunction(s.Trim()));
             }
             return l;
         }

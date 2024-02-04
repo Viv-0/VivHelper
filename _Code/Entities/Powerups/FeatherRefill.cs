@@ -170,8 +170,8 @@ namespace VivHelper.Entities.Powerups {
             Depth = 8999;
             yield return 0.05f;
             float num = player.Speed.Angle();
-            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num - (float) Math.PI / 2f);
-            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num + (float) Math.PI / 2f);
+            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num - Consts.PIover2);
+            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num + Consts.PIover2);
             SlashFx.Burst(Position, num);
             if (oneUse) {
                 RemoveSelf();

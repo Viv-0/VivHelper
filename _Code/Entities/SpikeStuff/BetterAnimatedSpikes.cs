@@ -30,21 +30,22 @@ namespace VivHelper.Entities.SpikeStuff {
             AddTag(Tags.TransitionUpdate);
             var str = data.NoEmptyString("directory", "danger/tentacles");
             centerVert = str == "danger/tentacles" || data.Bool("centeredVertically");
-            var mts = GFX.Game.orig_GetAtlasSubtextures(str + "_" + dir.ToString().ToLower());
-            if(mts == null || mts.Count == 0) {
-                mts = GFX.Game.GetAtlasSubtextures(str);
-                rotation = true;
+            if (str == "danger/tentacles") {
+                sprite = GFX.SpriteBank.Create("tentacles");
+            } else {
+                var mts = GFX.Game.orig_GetAtlasSubtextures(str + "_" + dir.ToString().ToLower());
+                if (mts == null || mts.Count == 0) {
+                    mts = GFX.Game.GetAtlasSubtextures(str);
+                    rotation = true;
+                }
+                if (mts.Count < 1) {
+                    RemoveSelf();
+                    return;
+                }
+                sprite = new Sprite(GFX.Game, str);
+                sprite.AddLoop("loop", data.Float("frameDelta", 0.1f), mts.ToArray());
+                sprite.Texture = mts[0];
             }
-            if(mts.Count < 1) {
-                RemoveSelf();
-                return;
-            }
-            sprite = new Sprite(GFX.Game, str);
-            sprite.AddLoop("loop", data.Float("frameDelta", 0.1f), mts.ToArray());
-            sprite.Texture = mts[0];
-            string c = data.Attr("Color", "White");
-            if (c != "Rainbow")
-                color = VivHelper.ColorFixWithNull(c) ?? Color.White;
             Visible = true;
             Collidable = true;
             if (!data.Bool("DoNotAttach", false))
@@ -66,7 +67,7 @@ namespace VivHelper.Entities.SpikeStuff {
         protected void AddSprite(float i) {
             Sprite s = VivHelper.CloneSprite(sprite);
             if (rotation) {
-                s.Play("loop", randomizeFrame: true);
+                s.Play(Calc.Random.Choose(s.Animations.Keys.ToArray()), randomizeFrame: true);
                 s.JustifyOrigin(0.5f, centerVert ? 0.5f : 1f);
                 sprite.Position = ((Direction == DirectionPlus.Up || Direction == DirectionPlus.Down) ? Vector2.UnitX : Vector2.UnitY) * (i + 0.5f) * s.Texture.Width;
                 sprite.Scale.X = Calc.Random.Choose(-1, 1);
@@ -77,15 +78,15 @@ namespace VivHelper.Entities.SpikeStuff {
                         sprite.Y++;
                         break;
                     case DirectionPlus.Right:
-                        sprite.Rotation = (float) Math.PI / 2f;
+                        sprite.Rotation = Consts.PIover2;
                         sprite.X--;
                         break;
                     case DirectionPlus.Left:
-                        sprite.Rotation = (float) Math.PI / -2f;
+                        sprite.Rotation = Consts.PIover2 * -1;
                         sprite.X++;
                         break;
                     case DirectionPlus.Down:
-                        sprite.Rotation = (float) Math.PI;
+                        sprite.Rotation = Consts.PI;
                         sprite.Y--;
                         break;
                 }

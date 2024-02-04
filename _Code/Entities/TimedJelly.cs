@@ -9,8 +9,4 @@ using Microsoft.Xna.Framework;
 
 namespace VivTestMod.Entities
 {
-    public class TimedJelly : Actor
-    {
-
-    }
 }

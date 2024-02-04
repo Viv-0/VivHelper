@@ -29,8 +29,8 @@ cte.fieldInformation = function(entity)
         options = colorNames,
         editable = false
     }
-    orig["enabledTint"] = {fieldType = "VivHelper.color", allowXNAColors = true, allowEmpty = true }
-    orig["disabledTint"] = {fieldType = "VivHelper.color", allowXNAColors = true, allowEmpty = true }
+    orig["enabledTint"] = {fieldType = "VivHelper.oldColor", allowXNAColors = true, allowEmpty = true }
+    orig["disabledTint"] = {fieldType = "VivHelper.oldColor", allowXNAColors = true, allowEmpty = true }
     return orig
 end
 cte.placements = {}

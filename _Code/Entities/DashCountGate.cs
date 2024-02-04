@@ -30,7 +30,7 @@ namespace VivHelper.Entities {
             textureHeight = texture.Height;
             Depth = -10001;
             dashCount = 0;
-            laserColor = VivHelper.ColorFixWithNull(data.Attr("BeamColor", null));
+            laserColor = VivHelper.OldColorFunctionWithNull(data.Attr("BeamColor", null));
             enabled = Collidable = invert;
             Add(new DashListener(OnDash));
             if (data.Has("H")) {

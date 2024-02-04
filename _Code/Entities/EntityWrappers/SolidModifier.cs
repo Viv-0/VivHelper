@@ -10,7 +10,7 @@ using Celeste.Mod.Entities;
 
 
 namespace VivHelper.Entities {
-    [CustomEntity("VivHelper/SolidModifier")]
+    [CustomEntity("VivHelper/SolidModifier","VivHelper/SolidModifier2")]
     public class SolidModifier : Entity {
         //Types = exact type, assignableTypes = IsAssignableFrom
         public List<Type> Types, assignableTypes;
@@ -18,6 +18,7 @@ namespace VivHelper.Entities {
         public bool touchTrigger;
         public bool bottomTouch;
         public int cornerboost;
+        public bool retainMomentumThroughCornerBoost;
 
         public bool all;
 
@@ -46,7 +47,13 @@ namespace VivHelper.Entities {
                     }
                 }
             }
-            cornerboost = data.Int("CornerBoostBlock", 0);
+            if(data.Name == "VivHelper/SolidModifier2") {
+                cornerboost = -data.Int("cornerBoostBlock", 0);
+                retainMomentumThroughCornerBoost = cornerboost == 2 || data.Bool("RetainWallSpeed", true);
+
+            } else {
+                cornerboost = data.Int("CornerBoostBlock", 0);
+            }
             bufferClimbJumpTrigger = data.Bool("TriggerOnBufferInput");
             switch (data.Int("TriggerOnTouch")) {
                 case 0:
@@ -74,7 +81,7 @@ namespace VivHelper.Entities {
             base.Awake(scene);
             foreach (Solid solid in CollideAll<Solid>()) {
                 Type t = solid.GetType();
-                if (t == null) { throw new Exception("Please report this to Viv on Discord @Vividiem#1113 asap, thank you"); } //Added this get because of a very bizarre crash that occurred once ever.
+                if (t == null) { throw new Exception("Please report this to Viv on Discord @vividescence asap, thank you"); } //Added this get because of a very bizarre crash that occurred once ever.
                 if (VivHelper.MatchTypeFromTypeSet(t, Types, assignableTypes)) //Added the count check because of a weird bug.
                 {
                     solid.AddOrAddToSolidModifierComponent(new SolidModifierComponent(cornerboost, bufferClimbJumpTrigger, touchTrigger, bottomTouch));

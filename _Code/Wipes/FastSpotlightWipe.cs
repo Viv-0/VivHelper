@@ -50,7 +50,7 @@ namespace VivHelper {
         public static void DrawSpotlight(Vector2 position, float radius, Color color) {
             Vector2 vector = new Vector2(1f, 0f);
             for (int i = 0; i < vertexBuffer.Length; i += 12) {
-                Vector2 vector2 = Calc.AngleToVector(((float) i + 12f) / (float) vertexBuffer.Length * ((float) Math.PI * 2f), 1f);
+                Vector2 vector2 = Calc.AngleToVector(((float) i + 12f) / (float) vertexBuffer.Length * (Consts.TAU), 1f);
                 vertexBuffer[i].Position = new Vector3(position + vector * 5000f, 0f);
                 vertexBuffer[i].Color = color;
                 vertexBuffer[i + 1].Position = new Vector3(position + vector * radius, 0f);

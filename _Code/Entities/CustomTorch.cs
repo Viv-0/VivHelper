@@ -31,7 +31,7 @@ namespace VivHelper.Entities {
             base.Depth = 2000;
             startLit = data.Bool("startLit", false);
             unlightOnDeath = data.Bool("unlightOnDeath", false);
-            color = VivHelper.ColorFix(data.Attr("Color", "Cyan"));
+            color = VivHelper.OldColorFunction(data.Attr("Color", "Cyan"));
             alpha = data.Float("Alpha", 1f);
             FlagName = "torch_" + id.Key;
             if (alpha < 0 || alpha > 1) { alpha = 1f; }
@@ -45,7 +45,7 @@ namespace VivHelper.Entities {
             Add(light = new VertexLight(color, 1f, startFade, endFade));
             Add(bloom = new BloomPoint(alpha / 2f, 8f));
             torchData["sprite"] = VivHelperModule.spriteBank.Create("CustomTorch");
-            torchData.Get<Sprite>("sprite").Color = VivHelper.ColorFix(data.Attr("spriteColor", "ffffff"));
+            torchData.Get<Sprite>("sprite").Color = VivHelper.OldColorFunction(data.Attr("spriteColor", "ffffff"));
             Add(torchData.Get<Sprite>("sprite"));
             bloom.Visible = false;
             light.Visible = false;

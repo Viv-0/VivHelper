@@ -115,12 +115,12 @@ namespace VivHelper.Entities {
             spawnType = data.Enum<SpawnTypes>("spawnType", SpawnTypes.LevelUp);
             switch (spawnType) {
                 case SpawnTypes.LevelUp:
-                    color = VivHelper.ColorFix(data.Attr("Color", "White"), 1f);
+                    color = VivHelper.OldColorFunction(data.Attr("Color", "White"), 1f);
                     if (nodes.Length > 0)
                         node = nodes[0];
                     break;
                 case SpawnTypes.FlashSpawn:
-                    color = VivHelper.ColorFix(data.Attr("Color", "White"), 1f);
+                    color = VivHelper.OldColorFunction(data.Attr("Color", "White"), 1f);
                     break;
                 case SpawnTypes.ForsakenCity:
                     if (nodes.Length > 0)
@@ -391,7 +391,7 @@ namespace VivHelper.Entities {
                 }
                 LevelUpOrb orb = new LevelUpOrb(node ?? retrievedEntity.Position, color);
                 orb.Target = retrievedEntity.Position;
-                orb.Routine.Replace(orb.CircleRoutine((orbs.Count + 1) / 8f * ((float) Math.PI * 2f)));
+                orb.Routine.Replace(orb.CircleRoutine((orbs.Count + 1) / 8f * (Consts.TAU)));
                 Scene.Add(orb);
                 orbs.Add(orb);
             }

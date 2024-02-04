@@ -144,7 +144,7 @@ namespace VivHelper.Entities {
             : this(data.Position + offset, offset, size, dir, data.Attr("type", "default"), data.Bool("Grouped", false), data.Bool("DoNotAttach", false)) {
 
             string str = data.Attr("Color", "");
-            oneColor = (str == "" ? Color.Transparent : VivHelper.ColorFix(str));
+            oneColor = (str == "" ? Color.Transparent : VivHelper.OldColorFunction(str));
         }
 
         public RainbowTriggerSpikes(Vector2 position, Vector2 offset, int size, DirectionPlus direction, string overrideType, bool grouped, bool doNotAttach)

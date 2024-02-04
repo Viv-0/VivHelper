@@ -62,11 +62,11 @@ namespace VivHelper.Entities.Boosters {
             }
 
             if (Engine.Scene.OnInterval(0.02f)) {
-                (Engine.Scene as Level).ParticlesBG.Emit(OrangeBooster.P_Burst, 2, player.Center + new Vector2(0f, -2f), new Vector2(3f, 3f), (float) Math.PI / 2f);
+                (Engine.Scene as Level).ParticlesBG.Emit(OrangeBooster.P_Burst, 2, player.Center + new Vector2(0f, -2f), new Vector2(3f, 3f), Consts.PIover2);
             }
 
 
-            int j = (int) BoostFunctions.rdU.Invoke(player, VivHelper.EmptyObjectArray);
+            int j = (int) BoostFunctions.rdU.Invoke(player, Everest._EmptyObjectArray);
             j = j == 5 ? VivHelperModule.OrangeState : j;
 
             return j;
@@ -121,7 +121,7 @@ namespace VivHelper.Entities.Boosters {
         public static ParticleType P_Appear = new ParticleType {
             Size = 1f,
             Color = Color.Orange,
-            DirectionRange = (float) Math.PI / 30f,
+            DirectionRange = Consts.PI / 30f,
             LifeMin = 0.6f,
             LifeMax = 1f,
             SpeedMin = 40f,
@@ -204,7 +204,7 @@ namespace VivHelper.Entities.Boosters {
         }
 
         public void Appear() {
-            Audio.Play("event:/game/05_mirror_temple/redbooster_reappear", Position);
+            Audio.Play(SFX.game_05_redbooster_reappear, Position);
             sprite.Play("appear");
             wiggler.Start();
             Visible = true;
@@ -214,7 +214,7 @@ namespace VivHelper.Entities.Boosters {
         private void AppearParticles() {
             ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
             for (int i = 0; i < 360; i += 30) {
-                particlesBG.Emit(P_Appear, 1, base.Center, Vector2.One * 2f, (float) i * ((float) Math.PI / 180f));
+                particlesBG.Emit(P_Appear, 1, base.Center, Vector2.One * 2f, i * Consts.DEG1);
             }
         }
 
@@ -222,7 +222,7 @@ namespace VivHelper.Entities.Boosters {
             if (respawnTimer <= 0f && cannotUseTimer <= 0f && !BoostingPlayer) {
                 cannotUseTimer = 0.45f;
                 Boost(player, this);
-                Audio.Play("event:/game/05_mirror_temple/redbooster_enter", Position);
+                Audio.Play(SFX.game_05_redbooster_enter, Position);
                 wiggler.Start();
                 sprite.Play("inside");
                 sprite.FlipX = (player.Facing == Facings.Left);
@@ -240,13 +240,12 @@ namespace VivHelper.Entities.Boosters {
             booster.PlayerBoosted(player);
         }
 
-        public void PlayerBoosted(Player player) {
+        public override void PlayerBoosted(Player player) {
             player.Center = Center;
-            Audio.Play("event:/game/05_mirror_temple/redbooster_dash", Position);
-            loopingSfx.Play("event:/game/05_mirror_temple/redbooster_move");
+            Audio.Play(SFX.game_05_redbooster_dash, Position);
+            loopingSfx.Play(SFX.game_05_redbooster_move_loop);
             loopingSfx.DisposeOnTransition = false;
-            BoostingPlayer = true;
-            base.Tag = ((int) Tags.Persistent | (int) Tags.TransitionUpdate);
+            base.PlayerBoosted(player);
             sprite.Play("spin");
             sprite.FlipX = (player.Facing == Facings.Left);
             outline.Visible = true;
@@ -279,7 +278,7 @@ namespace VivHelper.Entities.Boosters {
         }
 
         public override void PlayerReleased() {
-            Audio.Play("event:/game/05_mirror_temple/redbooster_end", sprite.RenderPosition);
+            Audio.Play(SFX.game_05_redbooster_end, sprite.RenderPosition);
             sprite.Play("pop");
             cannotUseTimer = 0f;
             respawnTimer = 1f;
@@ -289,7 +288,7 @@ namespace VivHelper.Entities.Boosters {
         }
 
         public void Respawn() {
-            Audio.Play("event:/game/05_mirror_temple/redbooster_reappear", Position);
+            Audio.Play(SFX.game_05_redbooster_reappear, Position);
             sprite.Position = Vector2.Zero;
             sprite.Play("loop", restart: true);
             wiggler.Start();

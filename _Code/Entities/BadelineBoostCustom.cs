@@ -126,11 +126,12 @@ namespace VivHelper.Entities {
     public class BadelineBoostCustom : BadelineBoost {
         #region Hooks
         private static Func<BadelineBoost, Player> baddyboost_holding = typeof(BadelineBoost).GetField("holding", BindingFlags.NonPublic | BindingFlags.Instance).CreateFastGetter<BadelineBoost, Player>();
-        private static IDetour hook_BadelineBoost_AddCustomRefill;
+        private static ILHook hook_BadelineBoost_AddCustomRefill;
         private static FieldInfo player_dashCooldownTimer = typeof(Player).GetField("dashCooldownTimer", BindingFlags.NonPublic | BindingFlags.Instance);
 
         public static void Load() {
-            using (new DetourContext { After = { "*" } }) {
+            // pre-Core: using (new DetourContext { After = { "*" } }) {
+            using (new DetourConfigContext(new DetourConfig("VivHelper", before: new[] { "*" })).Use()) {
                 MethodInfo n = typeof(BadelineBoost).GetMethod("BoostRoutine", BindingFlags.Instance | BindingFlags.NonPublic).GetStateMachineTarget();
                 hook_BadelineBoost_AddCustomRefill = new ILHook(n, (il) => BoostRoutineAddCustomRefillTraits(n.DeclaringType.GetField("<>4__this"), il)); //Fixes "visual" bug with BadelineBoost, and replaces the Action within the Alarm to be a new function that resolves itself.
 

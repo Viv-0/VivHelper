@@ -44,8 +44,8 @@ namespace VivHelper.Entities {
             LightLength = data.Height;
             DisableFlag = data.Attr("DisableFlag");
             Flag = data.Attr("ChangeFlag");
-            Rotation = data.Float("rotation") * ((float) Math.PI / 180f);
-            color = VivHelper.ColorFix(data.Attr("Color", "ccffff")) * Calc.Clamp(data.Float("Alpha", 1f), 0f, 1f);
+            Rotation = data.Float("rotation") * Consts.DEG1;
+            color = VivHelper.OldColorFunction(data.Attr("Color", "ccffff")) * Calc.Clamp(data.Float("Alpha", 1f), 0f, 1f);
             texture = GFX.Game[data.Attr("Texture", "util/lightbeam")];
             FadeWhenNear = data.Bool("FadeWhenNear", true);
             NoParticles = data.Bool("NoParticles", false);
@@ -57,7 +57,7 @@ namespace VivHelper.Entities {
             Level level = base.Scene as Level;
             Player entity = base.Scene.Tracker.GetEntity<Player>();
             if (entity != null && (string.IsNullOrEmpty(Flag) || level.Session.GetFlag(Flag))) {
-                Vector2 value = Calc.AngleToVector(Rotation + (float) Math.PI / 2f, 1f);
+                Vector2 value = Calc.AngleToVector(Rotation + Consts.PIover2, 1f);
                 Vector2 value2 = Calc.ClosestPointOnLine(Position, Position + value * 10000f, entity.Center);
                 float target = Math.Min(1f, Math.Max(0f, (value2 - Position).Length() - 8f) / (float) LightLength);
                 if ((value2 - entity.Center).Length() > (float) LightWidth / 2f || !FadeWhenNear) {
@@ -69,11 +69,11 @@ namespace VivHelper.Entities {
                 alpha = Calc.Approach(alpha, target, Engine.DeltaTime * 4f);
             }
             if (alpha >= 0.5f && level.OnInterval(0.8f) && !NoParticles && (DisableParticlesOnFlag == "" || !(DisableParticlesOnFlag == "*" || level.Session.GetFlag(DisableParticlesOnFlag)))) {
-                Vector2 vector = Calc.AngleToVector(Rotation + (float) Math.PI / 2f, 1f);
+                Vector2 vector = Calc.AngleToVector(Rotation + Consts.PIover2, 1f);
                 Vector2 position = Position - vector * 4f;
                 float scaleFactor = Calc.Random.Next(LightWidth - 4) + 2 - LightWidth / 2;
                 position += scaleFactor * vector.Perpendicular();
-                level.Particles.Emit(LightBeam.P_Glow, 1, position, Vector2.Zero, Color.Lerp(Color.White, color, 0.5f), Rotation + (float) Math.PI / 2f);
+                level.Particles.Emit(LightBeam.P_Glow, 1, position, Vector2.Zero, Color.Lerp(Color.White, color, 0.5f), Rotation + Consts.PIover2);
             }
             base.Update();
         }
@@ -93,7 +93,7 @@ namespace VivHelper.Entities {
         }
 
         private void DrawTexture(float offset, float width, float length, float a) {
-            float rotation = Rotation + (float) Math.PI / 2f;
+            float rotation = Rotation + Consts.PIover2;
             if (width >= 1f) {
                 texture.Draw(Position + Calc.AngleToVector(Rotation, 1f) * offset, new Vector2(0f, 0.5f), color * a * alpha, new Vector2(1f / (float) texture.Width * length, width), rotation);
             }

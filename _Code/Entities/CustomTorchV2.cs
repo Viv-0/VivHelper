@@ -27,7 +27,7 @@ namespace VivHelper.Entities {
         public CustomTorch2(EntityData data, Vector2 offset, EntityID id) : base(data.Position + offset) {
             startLit = data.Bool("startLit", false);
             unlightOnDeath = data.Bool("unlightOnDeath", false);
-            color = VivHelper.ColorFix(data.Attr("Color", "Cyan"));
+            color = VivHelper.OldColorFunction(data.Attr("Color", "Cyan"));
             alpha = data.Float("Alpha", 1f);
             FlagName = "VivHelperTorch_" + id.Key;
             if (alpha < 0 || alpha > 1) { alpha = 1f; }
@@ -36,7 +36,7 @@ namespace VivHelper.Entities {
             Collider = new Circle(data.Float("RegisterRadius", 4f));
             sprite = VivHelperModule.spriteBank.Create("CustomTorch");
             if (sprite == null) { throw new Exception("CustomTorch Sprite is missing!"); }
-            sprite.Color = VivHelper.ColorFix(data.Attr("spriteColor", "White"));
+            sprite.Color = VivHelper.OldColorFunction(data.Attr("spriteColor", "White"));
             Add(sprite);
             Add(light = new VertexLight(color, 1f, startFade, endFade));
             Add(bloom = new BloomPoint(alpha / 2f, 8f));

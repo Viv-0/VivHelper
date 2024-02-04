@@ -43,7 +43,7 @@ namespace VivHelper.Entities
             outline = new Image(GFX.Game["VivHelper/redDashRefill/redOutline"]);
             outline.CenterOrigin();
             outline.Visible = false;
-            Add(sprite = new Sprite(GFX.Game, "VivHelper/redDashRefill/redIdle"));
+            sprite = new Sprite(GFX.Game, "VivHelper/redDashRefill/redIdle");
             sprite.AddLoop("idle", "", 0.1f);
             sprite.Play("idle");
             sprite.CenterOrigin();
@@ -102,8 +102,8 @@ namespace VivHelper.Entities
             Depth = 8999;
             yield return 0.05f;
             float num = player.Speed.Angle();
-            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, Color.Red, num - (float) Math.PI / 2f);
-            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, Color.Red, num + (float) Math.PI / 2f);
+            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, Color.Red, num - Consts.PIover2);
+            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, Color.Red, num + Consts.PIover2);
             SlashFx.Burst(Position, num);
             if (oneUse) {
                 RemoveSelf();

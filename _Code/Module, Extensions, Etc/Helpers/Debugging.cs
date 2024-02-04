@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace VivHelper.Module__Extensions__Etc.Helpers {
     internal static class Debugging {
 
-        private static IDetour abomination;
+        private static ILHook abomination;
 
         public static void Load() {
             abomination = new ILHook(typeof(System.Diagnostics.Debug).GetMethod("WriteLine", new Type[2] { typeof(string), typeof(object[]) }), Abomination);

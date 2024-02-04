@@ -43,7 +43,7 @@ namespace VivHelper.Entities {
             Add(dyn.Get<Image>("image"));
             Add(light = new VertexLight(Color.White, 0f, 48, 64));
             Add(point = new BloomPoint(0f, 36f));
-            dyn.Set<float>("rotateSpeed", (float) (Calc.Random.Choose<int>(-6, -4, -3, -2, -1, 1, 2, 3, 4, 6) * 10) * ((float) Math.PI / 180f));
+            dyn.Set<float>("rotateSpeed", (float) (Calc.Random.Choose<int>(-6, -4, -3, -2, -1, 1, 2, 3, 4, 6) * 10) * Consts.DEG1);
         }
 
         public override void Awake(Scene scene) {

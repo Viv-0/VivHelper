@@ -57,7 +57,7 @@ namespace VivHelper.Entities {
             Position = position;
         }
 
-        private static IDetour hook_Level_orig_LoadLevel;
+        private static ILHook hook_Level_orig_LoadLevel;
         private static Dictionary<string, GroupedParallaxDecal> ParallaxDecalByGroup;
 
         public static void Load() {

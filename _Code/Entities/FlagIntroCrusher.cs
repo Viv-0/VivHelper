@@ -42,7 +42,7 @@ namespace VivHelper.Entities {
             Add(shakingSfx = new SoundSource());
         }
 
-        public FlagIntroCrusher(EntityData data, Vector2 offset) : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Char("tileType", '3')) {
+        public FlagIntroCrusher(EntityData data, Vector2 offset) : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset,data.Has("tileType") ? data.Char("tileType", '3') : data.Char("tiletype", '3')) {
             if (!string.IsNullOrWhiteSpace(data.Attr("flags")))
                 flags = data.Attr("flags").Split(',');
             delay = data.Float("delay", 1.2f);
@@ -91,7 +91,7 @@ namespace VivHelper.Entities {
                 time2 -= Engine.DeltaTime;
             }
             for (int i = 2; (float) i < Width; i += 4) {
-                SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + (float) i, Y), Vector2.One * 4f, (float) Math.PI / 2f);
+                SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + (float) i, Y), Vector2.One * 4f, Consts.PIover2);
                 SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(X + (float) i, Y), Vector2.One * 4f);
             }
             shakingSfx.Param("release", 1f);
@@ -103,8 +103,8 @@ namespace VivHelper.Entities {
             }
             while (!(time2 >= 1f));
             for (int j = 0; (float) j <= Width; j += 4) {
-                SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(X + (float) j, Bottom), Vector2.One * 4f, -(float) Math.PI / 2f);
-                float direction = ((!((float) j < Width / 2f)) ? 0f : ((float) Math.PI));
+                SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(X + (float) j, Bottom), Vector2.One * 4f, -Consts.PIover2);
+                float direction = (!((float) j < Width / 2f)) ? 0f : Consts.PI;
                 SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_LandDust, 1, new Vector2(X + (float) j, Bottom), Vector2.One * 4f, direction);
             }
             shakingSfx.Stop();

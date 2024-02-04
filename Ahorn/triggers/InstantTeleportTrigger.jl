@@ -13,7 +13,8 @@ using Ahorn.VivHelper
 	AddTriggerOffset::Bool=false,
 	VelocityModifier::Bool=false, ExitVelocityX::Number=0.0, ExitVelocityY::Number=0.0, Dreaming::Bool=false,
 	TransitionType::String="None", TimeBeforeTeleport::Number=0.0, CameraType::Integer=3,
-	ResetDashes::Bool=true, ForceNormalState::Bool=false
+	ResetDashes::Bool=true, ForceNormalState::Bool=false,
+	bringHoldablesThrough::Bool=false
 )
 @mapdef Trigger "VivHelper/CustomInstantTeleportTrigger" CustomInstantTeleportTrigger(
 	x::Integer, y::Integer, width::Integer=8, height::Integer=8,
@@ -23,7 +24,8 @@ using Ahorn.VivHelper
 	RotationType::Bool=false, RotationActor::Number=0.0,
 	TimeSlowDown::Number=0.0, TimeBeforeTeleport::Number=0.0,
 	TransitionType::String="None", CameraType::Integer=3,
-	ResetDashes::Bool=true, ForceNormalState::Bool=false
+	ResetDashes::Bool=true, ForceNormalState::Bool=false,
+	bringHoldablesThrough::Bool=false
 )
 
 const placements = Ahorn.PlacementDict(

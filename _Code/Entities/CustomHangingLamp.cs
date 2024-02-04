@@ -94,7 +94,7 @@ namespace VivHelper.Entities {
 
             //Other
             Add(bloom = new BloomPoint(Vector2.UnitY * (Length - cH), Calc.Clamp(e.Float("BloomAlpha", 1f), 0f, 1f), Calc.Clamp(e.Float("BloomRadius", 48f), 0f, 128f)));
-            Add(light = new VertexLight(Vector2.UnitY * (Length - cH), VivHelper.ColorFix(e.Attr("LightColor", "White")), Calc.Clamp(e.Float("LightAlpha", 1f), 0f, 1f), Calc.Clamp(e.Int("LightFadeIn", 24), 0, 120), Calc.Clamp(e.Int("LightFadeOut", 48), 0, 120)));
+            Add(light = new VertexLight(Vector2.UnitY * (Length - cH), VivHelper.OldColorFunction(e.Attr("LightColor", "White")), Calc.Clamp(e.Float("LightAlpha", 1f), 0f, 1f), Calc.Clamp(e.Int("LightFadeIn", 24), 0, 120), Calc.Clamp(e.Int("LightFadeOut", 48), 0, 120)));
             AudioPath = e.Attr("AudioPath", "event:/game/02_old_site/lantern_hit");
             InvWeight = 1f / Math.Max(e.Float("WeightMultiplier", 1f), 0.025f); //Efficiency good
             Add(sfx = new SoundSource());
@@ -147,7 +147,7 @@ namespace VivHelper.Entities {
                     sprites[i].Rotation = rotation;
                 }
             }
-            Vector2 vector = Calc.AngleToVector(rotation + (float) Math.PI / 2f, lightDistance);
+            Vector2 vector = Calc.AngleToVector(rotation + Consts.PIover2, lightDistance);
             bloom.Position = light.Position = vector + Position.Round() - Position;
             sfx.Position = vector;
         }

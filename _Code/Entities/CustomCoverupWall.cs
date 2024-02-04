@@ -38,6 +38,9 @@ namespace VivHelper.Entities {
             instant = data.Bool("instant", true);
             renderPlayerOver = data.Bool("RenderPlayerOver");
             blendIn = data.Bool("blendIn");
+            if(data.Has("lightOcclude")) {
+                Add(new LightOcclude(data.Float("lightOcclude", 1f)));
+            }
         }
 
         public override void Awake(Scene scene) {

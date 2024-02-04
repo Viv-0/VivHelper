@@ -135,8 +135,8 @@ namespace VivHelper.Entities {
                     Vector2 vector = new Vector2(Left - 1f, Top + 4f + (float) (i * 8));
                     Vector2 point = vector + Vector2.UnitX;
                     if (Scene.CollideCheck<Solid>(vector) && !Scene.CollideCheck<Solid>(point)) {
-                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector + value, (float) Math.PI);
-                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector - value, (float) Math.PI);
+                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector + value, Consts.PI);
+                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector - value, Consts.PI);
                     }
                 }
             }
@@ -157,8 +157,8 @@ namespace VivHelper.Entities {
                     Vector2 vector3 = new Vector2(Left + 4f + (float) (k * 8), Top - 1f);
                     Vector2 point3 = vector3 + Vector2.UnitY;
                     if (Scene.CollideCheck<Solid>(vector3) && !Scene.CollideCheck<Solid>(point3)) {
-                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector3 + value3, -(float) Math.PI / 2f);
-                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector3 - value3, -(float) Math.PI / 2f);
+                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector3 + value3, -Consts.PIover2);
+                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector3 - value3, -Consts.PIover2);
                     }
                 }
             }
@@ -168,8 +168,8 @@ namespace VivHelper.Entities {
                     Vector2 vector4 = new Vector2(Left + 4f + (float) (l * 8), Bottom + 1f);
                     Vector2 point4 = vector4 - Vector2.UnitY * 2f;
                     if (Scene.CollideCheck<Solid>(vector4) && !Scene.CollideCheck<Solid>(point4)) {
-                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector4 + value4, (float) Math.PI / 2f);
-                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector4 - value4, (float) Math.PI / 2f);
+                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector4 + value4, Consts.PIover2);
+                        SceneAs<Level>().ParticlesFG.Emit(P_Dust, vector4 - value4, Consts.PIover2);
                     }
                 }
             }
@@ -188,7 +188,7 @@ namespace VivHelper.Entities {
             Collidable = false;
             if (!Scene.CollideCheck<Solid>(Center)) {
                 for (int m = 0; m < 32; m++) {
-                    float num = Calc.Random.NextFloat((float) Math.PI * 2f);
+                    float num = Calc.Random.NextFloat(Consts.TAU);
                     SceneAs<Level>().ParticlesFG.Emit(TouchSwitch.P_Fire, Position + iconOffset + Calc.AngleToVector(num, 4f), num);
                 }
             }

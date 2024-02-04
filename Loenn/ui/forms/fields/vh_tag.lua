@@ -1,14 +1,18 @@
 local stringField = require("ui.forms.fields.string")
+local intField = require("ui.forms.fields.integer")
 local utils = require("utils")
 local loadedState = require("loaded_state")
 local nilField = require("ui.forms.fields.nil")
 local entities = require("entities")
 local triggers = require("triggers")
+local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 
 local vh_tag = {}
-vh_tag.fieldType = "VivHelper.tag"
+vh_tag.fieldType = "VivHelper.tagString`"
+
 
 local function tagFunction(table, key, value)
+    if not table then print('error, no table found') return false end
     if value and value:match("%S") ~= nil then -- if value is not whitespace, empty, or nil
         if not table[key] then table[key] = {} end
         if not table[key][value] then
@@ -24,7 +28,7 @@ local function setTagsFromMap(handler, item)
     if not fieldInformation then return end
     for propName, propData in pairs(fieldInformation) do
 
-        if propData.fieldType == "VivHelper.tag" then
+        if propData.fieldType == "VivHelper.tagString" then
 
             tagFunction(loadedState.map._vivh_tags, propData._vivh_fieldSubdata, item[propName] or "")
         end
@@ -67,15 +71,14 @@ function vh_tag.getElement(name, value, options)
     if not loadedState.side.map._vivh_tags then
         populateTags(loadedState.side.map)
     end
-    local field = stringField.getElement(name, value, options)
 
+    local field
 
     if options.editable then -- If the field is editable, that means a new value can be added to the list of tags for the key _vivh_fieldSubdata
-        
         options.validator = function(v) 
-            return loadedState.map._vivh_tags[options._vivh_fieldSubdata][v] == nil -- Is string not in the hashset?
+            return vivUtil.isNullEmptyOrWhitespace(v) or loadedState.map._vivh_tags[options._vivh_fieldSubdata][v] ~= nil -- Is string not in the hashset?
         end
-
+        field = stringField.getElement(name, value, options)
         -- Simple hook-in format
         local oldCallback = field.field.cb
         field.field.cb = function(...)
@@ -85,7 +88,9 @@ function vh_tag.getElement(name, value, options)
 
         fieldCallback(options, field.field, field.field.text, "")
     else 
-        options.options = loadedState.side.map._vivh_tags[options._vivh_fieldSubdata]
+        options.options = loadedState.map._vivh_tags[options._vivh_fieldSubdata]
+        
+        field = stringField.getElement(name, value, options)
     end
 
     return field
@@ -97,27 +102,38 @@ function vh_tag.addTagControlToHandler(handler, propertyName, tagKey, _editable)
         local orig = handler.fieldInformation
         handler.fieldInformation = function(...)
             local ret = orig(...)
-            local prop = ret[propertyName]
-            if not prop then prop = {} end
-            prop.fieldType = "VivHelper.tag"
-            prop._vivh_fieldSubdata = tagKey
-            prop.editable = _editable
+            if ret[propertyName] then 
+                ret[propertyName].fieldType = "VivHelper.tagString"
+                ret[propertyName]._vivh_fieldSubdata = tagKey
+                ret[propertyName].editable = _editable
+            else
+                ret[propertyName] = {
+                    fieldType = "VivHelper.tagString",
+                    _vivh_fieldSubdata = tagKey,
+                    editable = _editable
+                }
+            end
             return ret
         end
     elseif t == "table" then
-        local prop = handler.fieldInformation[propertyName]
-        if not prop then prop = {} end
-        prop.fieldType = "VivHelper.tag"
-        prop._vivh_fieldSubdata = tagKey
-        prop.editable = _editable
+        if handler.fieldInformation[propertyName] then 
+            handler.fieldInformation[propertyName].fieldType = "VivHelper.tagString"
+            handler.fieldInformation[propertyName]._vivh_fieldSubdata = tagKey
+            handler.fieldInformation[propertyName].editable = _editable
+        else
+            handler.fieldInformation[propertyName] = {
+                fieldType = "VivHelper.tagString",
+                _vivh_fieldSubdata = tagKey,
+                editable = _editable
+            }
+        end
     elseif t == "nil" then
-        handler.fieldInformation = { prop = {fieldType = "VivHelper.tag", _vivh_fieldSubdata = tagKey, editable = _editable}}
-        local prop = handler.fieldInformation[propertyName]
-        if not prop then prop = {} end
+        handler.fieldInformation = { }
+        handler.fieldInformation[propertyName] = {fieldType = "VivHelper.tagString", _vivh_fieldSubdata = tagKey, editable = _editable}
     end
     local orig2 = handler.onDelete
-    if orig2 then handler.onDelete = function(room, item, nodeIndex) if nodeIndex == 0 then loadedState.map._vivh_tags[loadedState.map._vivh_fieldSubdata][tagKey] = nil end return orig2(room, entity, nodeIndex) end
-    else handler.onDelete = function(room, item, nodeIndex) if nodeIndex == 0 then loadedState.map._vivh_tags[loadedState.map._vivh_fieldSubdata][tagKey] = nil end return true end end
+    if orig2 then handler.onDelete = function(room, item, nodeIndex) if nodeIndex == 0 then loadedState.map._vivh_tags[tagKey][item[propertyName]] = nil end return orig2(room, entity, nodeIndex) end
+    else handler.onDelete = function(room, item, nodeIndex) if nodeIndex == 0 then loadedState.map._vivh_tags[tagKey][item[propertyName]] = nil end return true end end
 end
 
 return vh_tag

@@ -29,12 +29,12 @@ HBC2.placements = {
     data = {
         EdgeColor="5a6ee1", ParticleColor="5a6ee1",
         ParticleAngle=270, SolidOnRelease=true,
-        Persistent=false
+        Persistent=false, renderBloom=true
     }
 }
 HBC2.fieldInformation = {
-    EdgeColor = {fieldType = "VivHelper.color", allowXNAColors = true},
-    ParticleColor = {fieldType = "VivHelper.color", allowXNAColors = true},
+    EdgeColor = {fieldType = "VivHelper.oldColor", allowXNAColors = true},
+    ParticleColor = {fieldType = "VivHelper.oldColor", allowXNAColors = true},
     ParticleAngle = {minimumValue = 0.0, maximumValue = 360.0}
 }
 HBC2.sprite = function(room,entity) return {

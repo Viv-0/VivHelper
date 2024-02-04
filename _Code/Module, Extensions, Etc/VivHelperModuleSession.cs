@@ -29,6 +29,7 @@ namespace VivHelper {
             public string baseColorHex { get; set; }
             public Vector2 particleDir { get; set; }
             public bool solidOnRelease { get; set; }
+            public bool toggleBloom { get; set; } = true;
         }
         public class CrystalBombDetonatorCh {
             public string particleColorHex { get; set; }
@@ -108,11 +109,14 @@ namespace VivHelper {
 
         public float OrangeSpeed = 220f;
 
+        [YamlDotNet.Serialization.YamlIgnore]
+        public SolidModifierComponent currentActiveSolidModifier = null;
+
 
         [YamlDotNet.Serialization.YamlIgnore] //This will be set on all load-ins
         public Dictionary<string, SoundChange> AudioChanges = new Dictionary<string, SoundChange>();
 
-        public void MakeChangesToAudioSet(EntityData data) {
+        public void MapChangesToAudioSet(EntityData data) {
             var eventName = data.Attr("eventName");
             if (string.IsNullOrWhiteSpace(eventName) || eventName == "event:/none")
                 return;

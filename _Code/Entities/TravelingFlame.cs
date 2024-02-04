@@ -45,7 +45,7 @@ namespace VivHelper.Entities {
 
             read = data.Int("CurveGen", -1);
             rotateType = data.Int("RotationType");
-            color = VivHelper.ColorFix(data.Attr("ColorTint", "White").Trim());
+            color = VivHelper.OldColorFunction(data.Attr("ColorTint", "White").Trim());
             Add(sprite = VivHelperModule.spriteBank.Create("floatingFlame"));
             sprite.CenterOrigin();
             sprite.SetColor(color);

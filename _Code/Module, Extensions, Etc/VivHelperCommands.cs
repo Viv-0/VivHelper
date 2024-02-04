@@ -13,7 +13,6 @@ using Microsoft.Xna.Framework;
 using MonoMod.Utils;
 using System.Reflection;
 using VivHelper.Module__Extensions__Etc;
-using KeraLua;
 
 namespace VivHelper {
     public class VivHelperCommands {
@@ -50,7 +49,7 @@ namespace VivHelper {
             for (int i = 0; i < stringChars.Length; i++) {
                 stringChars[i] = chars[random.Next(chars.Length)];
             }
-            return new String(stringChars);
+            return new string(stringChars);
         }
 
         [Command("write_seeker_data", "Produces a text file in Celeste/Mods/VivHelper_YAMLData in the proper YAML format for one seeker. Copy and paste\nthe text" +

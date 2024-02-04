@@ -27,7 +27,7 @@ namespace VivHelper.Entities {
             Player p = Entity as Player;
             ExplodeLaunchModifier.EightWayLaunch(p, (Vector2)VivHelper.player_lastAim.GetValue(p), ExplodeLaunchModifier.RestrictBoost.NoBoost);
             for (int i = 0; i < 13; i++) {
-                float angle = (float) Math.PI * 2f / (float) i;
+                float angle = Consts.TAU / (float) i;
                 p_Pop.Acceleration = Calc.AngleToVector(angle, -360) + gravity;
                 SceneAs<Level>().ParticlesFG.Emit(p_Pop, 1, p.Center + Vector2.One.RotateTowards(angle,7f)*12f, Vector2.Zero, color, angle);
             }
@@ -45,7 +45,7 @@ namespace VivHelper.Entities {
             SizeRange = 0f,
             SpeedMin = 20f,
             SpeedMax = 40f,
-            Direction = (float) Math.PI / 2f,
+            Direction = Consts.PIover2,
             DirectionRange = 0.05f,
             Acceleration = Vector2.UnitY * 20f,
             LifeMin = 0.9f,
@@ -165,8 +165,8 @@ namespace VivHelper.Entities {
             Depth = 8999;
             yield return 0.05f;
             float num = player.Speed.Angle();
-            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, color, num - (float) Math.PI / 2f);
-            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, color, num + (float) Math.PI / 2f);
+            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, color, num - Consts.PIover2);
+            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, color, num + Consts.PIover2);
             SlashFx.Burst(Position, num);
             if (oneUse) {
                 RemoveSelf();

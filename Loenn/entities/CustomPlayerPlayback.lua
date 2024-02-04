@@ -23,7 +23,7 @@ playerPlayback.fieldInformation = {
     tutorial = {
         options = baseGameTutorials
     },
-    Color = {fieldType = "VivHelper.color", allowXNAColors = true, allowEmpty = true},
+    Color = {fieldType = "VivHelper.oldColor", allowXNAColors = true, allowEmpty = true},
     SpeedMultiplier = {fieldType = "number", options = {
         {"2x", 2.0},
         {"1x", 1.0},
