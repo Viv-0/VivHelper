@@ -258,6 +258,9 @@ namespace VivHelper {
         }
 
         public static void LoadPresets() {
+            if (presetCustomBoosterStates.ContainsKey("Default")) {
+                presetCustomBoosterStates.Remove("Default");
+            }
             presetCustomBoosterStates.Add("Default", new EntityData {
                 Values = new Dictionary<string, object>
                 {
@@ -267,6 +270,9 @@ namespace VivHelper {
                     {"ColorSet", "000000,8cf7cf,4acfc6,1c7856,0e4a36,172b21,0e1c15,ffffff,291c33" }
                 }
             });
+            if (presetCustomBoosterStates.ContainsKey("Superdash")) {
+                presetCustomBoosterStates.Remove("Superdash");
+            }
             presetCustomBoosterStates.Add("Superdash", new EntityData {
                 Values = new Dictionary<string, object>
                 {
@@ -278,6 +284,9 @@ namespace VivHelper {
                     {"ColorSet", "000000,5cd4ff,5ca6e5,005c7b,003146,192d33,191922,ffffff,291c33" },
                 }
             });
+            if (presetCustomBoosterStates.ContainsKey("FragileDash")) {
+                presetCustomBoosterStates.Remove("FragileDash");
+            }
             presetCustomBoosterStates.Add("FragileDash", new EntityData {
                 Values = new Dictionary<string, object>
                 {
@@ -287,6 +296,9 @@ namespace VivHelper {
                     {"ColorSet", "000000,ffffa7,b2ef5f,84912e,555f1f,3e3e28,2e2e1f,ffffff,291c33" },
                 }
             });
+            if (presetCustomBoosterStates.ContainsKey("HeldDash")) {
+                presetCustomBoosterStates.Remove("HeldDash");
+            }
             presetCustomBoosterStates.Add("HeldDash", new EntityData {
                 Values = new Dictionary<string, object>
                 {
@@ -297,6 +309,9 @@ namespace VivHelper {
                     {"ColorSet", "000000,f1ceab,e5a565,9c5b1a,5f3f10,3d230a,271707,ffffff,291c33" },
                 }
             });
+            if (presetCustomBoosterStates.ContainsKey("DoubleSpeed")) {
+                presetCustomBoosterStates.Remove("DoubleSpeed");
+            }
             presetCustomBoosterStates.Add("DoubleSpeed", new EntityData {
                 Values = new Dictionary<string, object>
                 {
@@ -306,6 +321,9 @@ namespace VivHelper {
                     {"ColorSet", "000000,ceffff,62ffff,16ad75,006241,0e2f1e,00160b,ffffff,291c33" },
                 }
             });
+            if (presetCustomBoosterStates.ContainsKey("HeldSuperdash")) {
+                presetCustomBoosterStates.Remove("HeldSuperdash");
+            }
             presetCustomBoosterStates.Add("HeldSuperdash", new EntityData {
                 Values = new Dictionary<string, object>
                 {
