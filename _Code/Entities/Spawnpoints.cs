@@ -160,8 +160,8 @@ namespace VivHelper.Entities {
             if (scene is Level level) {
                 try {
                     LevelData l = level.Session.MapData.Levels.First(_l => _l.Name == level.Session.Level);
-                    var e = l.Entities.First(_e => trueSpawnPoints.Contains(_e.Name) && _e.Position == self.Position);
-                    if (e.Bool("forceFacing", true))
+                    var e = l.Entities.FirstOrDefault(_e => trueSpawnPoints.Contains(_e.Name) && _e.Position == self.Position);
+                    if (e != null && e.Bool("forceFacing", true))
                         self.Facing = e.Bool("flipX", false) ? Facings.Left : Facings.Right;
                     return;
 
