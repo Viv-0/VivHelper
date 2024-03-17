@@ -23,7 +23,7 @@ namespace VivHelper.Entities {
             sprite.AddLoop("hidden", "hidden", 0.08f);
             sprite.Add("alert", "alert", 0.08f, "alerted");
             sprite.Add("explode", "explode", 0.08f, "hidden");
-            MTexture[] _ = sprite.GetAnimations()["alert"].Frames.Reverse().ToArray();
+            MTexture[] _ = sprite.Animations["alert"].Frames.Reverse().ToArray();
             sprite.Add("unalert", 0.08f, "idle", _);
             sprite.Add("recover", "recover", 0.05f, "idle");
             sprite.CenterOrigin();

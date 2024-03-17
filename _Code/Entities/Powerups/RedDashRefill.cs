@@ -37,9 +37,6 @@ namespace VivHelper.Entities
                     Color2 = Calc.HexToColor("9c1105")
                 };
             }
-            p_shatter = P_Shatter;
-            p_glow = P_Glow;
-            p_regen = P_Regen;
             outline = new Image(GFX.Game["VivHelper/redDashRefill/redOutline"]);
             outline.CenterOrigin();
             outline.Visible = false;

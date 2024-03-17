@@ -7,6 +7,7 @@ using Celeste;
 using Celeste.Mod.Entities;
 using Monocle;
 using Microsoft.Xna.Framework;
+using static VivHelper.VivHelper;
 
 
 namespace VivHelper.Entities {
@@ -30,8 +31,8 @@ namespace VivHelper.Entities {
         }
 
         public CrystalBombDetonatorController(EntityData e, Vector2 v) : this() {
-            particleColor = VivHelper.OldColorFunction(e.Attr("ParticleColor", "Yellow"));
-            baseColor = VivHelper.OldColorFunction(e.Attr("BaseColor", "Purple"));
+            particleColor = VivHelper.GetColorWithFix(e, "ParticleColor", "particleColor", GetColorParams.None, GetColorParams.None, Color.Yellow).Value; // VivHelper.OldColorFunction(e.Attr("ParticleColor", "Yellow"));
+            baseColor = VivHelper.GetColorWithFix(e, "BaseColor", "baseColor", GetColorParams.None, GetColorParams.None, Color.Purple).Value; // VivHelper.OldColorFunction(e.Attr("BaseColor", "Purple"));
             particleDir = Vector2.UnitX.Rotate(0 - (e.Float("ParticleAngle", (float) 270f) * 0.0174533f)); //More efficient to multiply versus division, PI/180
             DetonationDelay = e.Float("DetonationDelay");
             CanBeNeutralized = e.Bool("CanBeNeutralized", true);

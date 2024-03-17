@@ -28,7 +28,6 @@ using VivHelper.Module__Extensions__Etc;
 using VivHelper.Triggers;
 using MonoMod.ModInterop;
 using VivHelper.Module__Extensions__Etc.Helpers;
-using VivHelper.Entities.Powerups;
 using VivHelper.Entities.SpikeStuff;
 using System.Runtime.InteropServices.ComTypes;
 using VivHelper.Module__Extensions__Etc.CustomWipeSupport;
@@ -304,7 +303,7 @@ namespace VivHelper {
             Logger.SetLogLevel("VivHelper", LogLevel.Info);
             VivHelper.StoredTypesByName = new Dictionary<string, Type>();
             On.Celeste.GameLoader.Begin += LateInitialize;
-            On.Celeste.Leader.Update += newLeaderUpdate;
+            IL.Celeste.Leader.Update += Leader_Update;
             On.Celeste.TouchSwitch.ctor_Vector2 += AddCustomSeekerCollision;
             On.Celeste.Player.ctor += Player_ctor;
             On.Celeste.Player.StartDash += orangeRemove;
@@ -373,6 +372,30 @@ namespace VivHelper {
             Debugging.Load();
             //Tester.Load();
         }
+        private static void newLeaderUpdate(On.Celeste.Leader.orig_Update orig, Leader self) {
+            Vector2 vector = self.Entity.Position + self.Position;
+            if (self.PastPoints.Count == 0 || (vector - self.PastPoints[0]).Length() >= getFPDistance()) {
+                self.PastPoints.Insert(0, vector);
+                if (self.PastPoints.Count > 350) {
+                    self.PastPoints.RemoveAt(self.PastPoints.Count - 1);
+                }
+            }
+            int num = (int) getFPDistance();
+            foreach (Follower follower in self.Followers) {
+                if (num >= self.PastPoints.Count) {
+                    break;
+                }
+                Vector2 value = self.PastPoints[num];
+                if (follower.DelayTimer <= 0f && follower.MoveTowardsLeader) {
+                    follower.Entity.Position = follower.Entity.Position + (value - follower.Entity.Position) * (1f - (float) Math.Pow(0.0099999997764825821, Engine.DeltaTime / (Settings.MakeClose ? num == 0 ? 0.05f : .25f : 1f)));
+                }
+                num += getFFDistance();
+            }
+        }
+
+        private void Leader_Update(ILContext il) {
+
+        }
 
         private IEnumerator Player_TempleFallCoroutine(On.Celeste.Player.orig_TempleFallCoroutine orig, Player self) {
             yield return new SwapImmediately(orig(self));
@@ -413,7 +436,7 @@ namespace VivHelper {
 
         public override void Unload() {
             On.Celeste.GameLoader.Begin -= LateInitialize;
-            On.Celeste.Leader.Update -= newLeaderUpdate;
+            IL.Celeste.Leader.Update -= Leader_Update;
             On.Celeste.TouchSwitch.ctor_Vector2 -= AddCustomSeekerCollision;
             On.Celeste.Player.ctor -= Player_ctor;
             On.Celeste.Player.StartDash -= orangeRemove;
@@ -806,10 +829,17 @@ namespace VivHelper {
         }
 
         private Backdrop Level_OnLoadBackdrop(MapData map, BinaryPacker.Element child, BinaryPacker.Element above) {
-            if (child.Name.Equals("VivHelper/WindRainFG", StringComparison.OrdinalIgnoreCase))
-                return new WindRainFG(new Vector2(child.AttrFloat("Scrollx"), child.AttrFloat("Scrolly")), child.Attr("colors"), child.AttrFloat("windStrength"));
-            else if (child.Name.Equals("VivHelper/CustomRain", StringComparison.OrdinalIgnoreCase))
-                return new CustomRain(new Vector2(child.AttrFloat("Scrollx"), child.AttrFloat("Scrolly")), child.AttrFloat("angle", 270f), child.AttrFloat("angleDiff", 3f), child.AttrFloat("speedMult", 1f), child.AttrInt("Amount", 240), child.Attr("colors", "161933"), child.AttrFloat("alpha"));
+            if (child.Name.Equals("VivHelper/WindRainFG", StringComparison.OrdinalIgnoreCase)) {
+                if (child.HasAttr("colors") && !string.IsNullOrWhiteSpace(child.Attr("colors")))
+                    return new WindRainFG(new Vector2(child.AttrFloat("Scrollx"), child.AttrFloat("Scrolly")), "§" + child.Attr("colors"), child.AttrFloat("windStrength"));
+                else
+                    return new WindRainFG(new Vector2(child.AttrFloat("Scrollx"), child.AttrFloat("Scrolly")), child.Attr("Colors"), child.AttrFloat("windStrength"));
+            } else if (child.Name.Equals("VivHelper/CustomRain", StringComparison.OrdinalIgnoreCase)) {
+                if (child.HasAttr("colors") && !string.IsNullOrWhiteSpace(child.Attr("colors")))
+                    return new CustomRain(new Vector2(child.AttrFloat("Scrollx"), child.AttrFloat("Scrolly")), child.AttrFloat("angle", 270f), child.AttrFloat("angleDiff", 3f), child.AttrFloat("speedMult", 1f), child.AttrInt("Amount", 240), "§" + child.Attr("colors", "161933"), child.AttrFloat("alpha"));
+                else
+                    return new CustomRain(new Vector2(child.AttrFloat("Scrollx"), child.AttrFloat("Scrolly")), child.AttrFloat("angle", 270f), child.AttrFloat("angleDiff", 3f), child.AttrFloat("speedMult", 1f), child.AttrInt("Amount", 240), child.Attr("Colors", "161933"), child.AttrFloat("alpha"));
+            } 
             return null;
         }
 
@@ -890,31 +920,10 @@ namespace VivHelper {
             self.Add(csc);
         }
 
-        private static void newLeaderUpdate(On.Celeste.Leader.orig_Update orig, Leader self) {
-            Vector2 vector = self.Entity.Position + self.Position;
-            if (self.PastPoints.Count == 0 || (vector - self.PastPoints[0]).Length() >= getFPDistance()) {
-                self.PastPoints.Insert(0, vector);
-                if (self.PastPoints.Count > 350) {
-                    self.PastPoints.RemoveAt(self.PastPoints.Count - 1);
-                }
-            }
-            int num = (int) getFPDistance();
-            foreach (Follower follower in self.Followers) {
-                if (num >= self.PastPoints.Count) {
-                    break;
-                }
-                Vector2 value = self.PastPoints[num];
-                if (follower.DelayTimer <= 0f && follower.MoveTowardsLeader) {
-                    follower.Entity.Position = follower.Entity.Position + (value - follower.Entity.Position) * (1f - (float) Math.Pow(0.0099999997764825821, Engine.DeltaTime / (Settings.MakeClose ? num == 0 ? 0.05f : .25f : 1f)));
-                }
-                num += getFFDistance();
-            }
-        }
-
-        public static float getFPDistance() {
+        private static float getFPDistance() {
             return (float) (Session.FPDistance < 1 ? 0.1f : Session.FPDistance / 10f);
         }
-        public static int getFFDistance() {
+        private static int getFFDistance() {
             return Session.FFDistance < 1 ? 1 : Session.FFDistance;
         }
 

@@ -9,14 +9,15 @@ using System.Threading.Tasks;
 
 namespace VivHelper {
     public static partial class Consts {
-        public const float DEG1 = (float) Math.PI / 180f;
-        public const float PIover8 = (float) Math.PI / 8f;
-        public const float PIover6 = (float) Math.PI / 6f;
-        public const float PIover4 = (float) Math.PI / 4f;
-        public const float PIover3 = (float) Math.PI / 3f;
-        public const float PIover2 = (float) Math.PI / 2f;
-        public const float PI = (float) Math.PI;
-        public const float TAU = (float) Math.PI * 2f;
+        public const float PIover8 = MathF.PI / 8f;
+        public const float PIover6 = MathF.PI / 6f;
+        public const float PIover4 = MathF.PI / 4f;
+        public const float PIover3 = MathF.PI / 3f;
+        public const float PIover2 = MathF.PI / 2f;
+        public const float PI = MathF.PI;
+        public const float TAU = MathF.PI * 2f;
+        internal static Vector2 DL = new Vector2(-1, 1);
+        internal static Vector2 UR = new Vector2(1, -1);
     }
 
     public static partial class VivHelper {
@@ -34,6 +35,14 @@ namespace VivHelper {
             int tmp = (int) (BitConverter.DoubleToInt64Bits(a) >> 32);
             int tmp2 = (int) (b * (tmp - 1072632447) + 1072632447);
             return BitConverter.Int64BitsToDouble(((long) tmp2) << 32);
+        }
+
+        public static Vector2 CleanUpVector(Vector2 v) {
+            if (Math.Abs(v.X) < 0.01f)
+                v.X = 0;
+            if (Math.Abs(v.Y) < 0.01f)
+                v.Y = 0;
+            return v;
         }
 
         public static bool isPrime(int number) {

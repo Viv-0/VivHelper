@@ -8,6 +8,7 @@ using Monocle;
 using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using System.Reflection;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     [CustomEntity(
@@ -142,9 +143,8 @@ namespace VivHelper.Entities {
 
         public RainbowTriggerSpikes(EntityData data, Vector2 offset, DirectionPlus dir, int size)
             : this(data.Position + offset, offset, size, dir, data.Attr("type", "default"), data.Bool("Grouped", false), data.Bool("DoNotAttach", false)) {
-
-            string str = data.Attr("Color", "");
-            oneColor = (str == "" ? Color.Transparent : VivHelper.OldColorFunction(str));
+            oneColor = VivHelper.GetColorWithFix(data, "Color", "color", GetColorParams.ImplyEmptyAsTransparent, GetColorParams.None, Color.Transparent).Value;
+            //string str = data.Attr("Color", ""); oneColor = (str == "" ? Color.Transparent : VivHelper.OldColorFunction(str));
         }
 
         public RainbowTriggerSpikes(Vector2 position, Vector2 offset, int size, DirectionPlus direction, string overrideType, bool grouped, bool doNotAttach)

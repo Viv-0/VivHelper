@@ -268,6 +268,7 @@ namespace VivHelper {
             AddPowerup(WarpDashRefill.WarpDashPowerup, new List<string> { "VivHelper/WarpDashRefill" }, () => WarpDashRefill.WarpDashState, false, WarpDashRefill.EffectBefore, null, WarpDashRefill.EffectCancel, null, null, null);
             AddPowerup(BumperRefill.BumperPowerup, new List<string> { "VivHelper/BumperRefill" }, () => Player.StLaunch, false, BumperRefill.EffectBefore, BumperRefill.EffectAt, null, null, null, null);
             //AddPowerup(FireworkRefill.FireworkPowerup, new List<string> { "VivHelper/FireworkRefill" }, () => 2, false, FireworkRefill.EffectBefore, FireworkRefill.EffectAt, null, null, FireworkRefill.RoutineAfter, null, null, null);
+            AddPowerup(FeatherRefill.FeatherPowerup, new List<string> { "VivHelper/FeatherRefill" }, () => Player.StStarFly, false, FeatherRefill.EffectBefore, null, null, null, null, null, null, null);
         }
     }
     // This is a test class going to be sent around with the API to automate powerup addition

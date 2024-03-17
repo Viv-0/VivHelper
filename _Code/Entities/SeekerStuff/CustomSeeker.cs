@@ -367,7 +367,7 @@ namespace VivHelper.Entities {
             RegenerateTimerMult = data.Float("RegenerationTimerLength", 1.85f) / 1.85f;
             StrongSkiddingTime = data.Float("StrongSkiddingTime", 0.08f);
             AttackMaxRotateRadians = data.Float("AttackMaxRotateDegrees", 35f) * Calc.DegToRad;
-            TrailColor = VivHelper.OldColorFunction(data.Attr("TrailColor", "99e550"));
+            TrailColor = Calc.HexToColor(data.Attr("TrailColor", "99e550"));
             numberOfDashes = 0;
             maxNumberOfDashes = data.Int("MaxNumberOfDashes", -1);
             finalDash = data.Bool("FinalDash", false);
@@ -381,7 +381,7 @@ namespace VivHelper.Entities {
             deLagValue = Calc.Clamp((float) data.Int("aiDelag", 6), 1, 30) / 60f;
             DisableEffects = data.Bool("DisableEffects", false);
 
-            DeathEffectColor = VivHelper.OldColorFunction(data.Attr("DeathEffectColor", "HotPink"));
+            DeathEffectColor = Calc.HexToColor(data.Attr("DeathEffectColor", "HotPink"));
             RemoveBounceHitbox = data.Bool("RemoveBounceHitbox", false);
             FlagOnDeath = data.Attr("FlagOnDeath", "");
 
@@ -398,7 +398,7 @@ namespace VivHelper.Entities {
             CustomSpritePath = data.Attr("CustomSpritePath");
             CustomShockwavePath = data.Attr("CustomShockwavePath");
             sprite = CustomSpritePath == "" ? GFX.SpriteBank.Create("seeker") : GFX.SpriteBank.Create(CustomSpritePath);
-            tint = VivHelper.OldColorFunction(data.Attr("SeekerColorTint", "ffffff"));
+            tint = Calc.HexToColor(data.Attr("SeekerColorTint", "ffffff"));
 
             sprite.Color = tint;
             Vector2 position = data.Position + offset;
@@ -1193,7 +1193,7 @@ namespace VivHelper.Entities {
             level.Displacement.AddBurst(Position, 0.4f, 36f, 60f, 0.5f);
             if (!disableAllParticles) {
                 for (float num = 0f; num < Consts.TAU; num += 0.17453292f) {
-                    Vector2 position = base.Center + Calc.AngleToVector(num + Calc.Random.Range(Consts.DEG1 * -4, Consts.DEG1 * 4), Calc.Random.Range(12, 18));
+                    Vector2 position = base.Center + Calc.AngleToVector(num + Calc.Random.Range(Calc.DegToRad * -4, Calc.DegToRad * 4), Calc.Random.Range(12, 18));
                     level.Particles.Emit(Seeker.P_Regen, position, num);
                 }
             }

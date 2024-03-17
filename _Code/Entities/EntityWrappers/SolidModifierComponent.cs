@@ -43,7 +43,7 @@ namespace VivHelper {
         public static void Unload() {
             On.Celeste.Player.IsRiding_Solid -= Player_IsRiding_Solid;
             On.Celeste.Player.ClimbJump -= Player_ClimbJump;
-            On.Celeste.Player.Update -= Player_Update;
+            On.Celeste.Player.WallJump -= Player_WallJump;
             IL.Celeste.Player.WallJumpCheck -= Player_WallJumpCheck;
             On.Monocle.StateMachine.Update -= StateMachine_Update;
         }
@@ -137,6 +137,7 @@ namespace VivHelper {
             foreach (SolidModifierComponent smc in q) {
                 if(smc.Entity is Solid solid) {
                     int _end = (smc.CornerBoostBlock > 0) ? smc.CornerBoostBlock : end; // -1 = Speed base, -2 = Speed base + Wall Retention
+                    // TODO - rewrite the Collision Check to occur of groups of 4px first, and then do backsteps at the first detection, if one exists.
                     for (int i = s; i <= _end; i++) {
                         if (player.ClimbBoundsCheck(dir) && !ClimbBlocker.EdgeCheck(scene, player, dir * i)) {
                             if (Collide.Check(player, solid, player.Position + Vector2.UnitX * (dir * i))) { // If the CornerBoostBlock state is not changing the behavior of the walljumpcheck, continue on

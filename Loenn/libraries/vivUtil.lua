@@ -5,6 +5,8 @@ local drawableNinePatch = require("structs.drawable_nine_patch")
 local drawableLine = require("structs.drawable_line")
 local drawableFunction = require('structs.drawable_function')
 local state = require("loaded_state")
+local mods = require('mods')
+local enum_colors = require('consts.xna_colors')
 
 local vivUtil = {}
 local ___p = 2^32
@@ -69,12 +71,12 @@ function vivUtil.GetColorV2(entity, keyV1, keyV2, allowXNAColors)
     if entity[keyV2] then
 
     elseif entity[keyV1] then
-        return vivUtil.getColor(entity[keyV1], allowXNAColors)
+        return vivUtil.oldGetColor(entity[keyV1], allowXNAColors)
     end
 end
 
 -- Format for VivHelper is "abgr" (format follows Color.PackedValue)
-function vivUtil.getColor(color, allowXNAColors)
+function vivUtil.oldGetColor(color, allowXNAColors)
     if type(color) == "nil" then 
         return false
     elseif type(color) == "number" then
@@ -99,9 +101,9 @@ function vivUtil.getColor(color, allowXNAColors)
     return false
 end
 
-function vivUtil.getColorTable(color, allowXNAColors, defaultTable)
+function vivUtil.oldGetColorTable(color, allowXNAColors, defaultTable)
     defaultTable = defaultTable or {0,0,0,1}
-    local parsed, r, g, b, a = vivUtil.getColor(color, allowXNAColors)
+    local parsed, r, g, b, a = vivUtil.oldGetColor(color, allowXNAColors)
     if parsed then
         return {r,g,b,a or 1}
     else return defaultTable end
@@ -126,14 +128,14 @@ function vivUtil.invertGetColor(r,g,b,a) -- returns a string in abgr format, suc
 end
 
 function vivUtil.swapRGBA(str) -- swaps rgba to abgr and vice versa
-    if #str >= 8 then return str:sub(7,8) .. str:sub(5,6) .. str:sub(3,4) .. str:sub(1,2) else return str end
+    if #str == 8 and not enum_colors[str] then return str:sub(7,8) .. str:sub(5,6) .. str:sub(3,4) .. str:sub(1,2) else return str end
 end
 
 function vivUtil.lerp(a,b,t) return a * (1-t) + b * t end
 
 function vivUtil.colorLerp(a,b,lerp)
-    local A, ar, ag, ab, aa = vivUtil.getColor(a, true)
-    local B, br, bg, bb, ba = vivUtil.getColor(b, true)
+    local A, ar, ag, ab, aa = vivUtil.oldGetColor(a, true)
+    local B, br, bg, bb, ba = vivUtil.oldGetColor(b, true)
     return {vivUtil.lerp(ar, br,lerp), vivUtil.lerp(ag,bg,lerp), vivUtil.lerp(ab,bb,lerp), vivUtil.lerp(aa or 1,ba or 1,lerp)}
 end
 function vivUtil.alphMult(color, alpha)
@@ -203,7 +205,7 @@ function vivUtil.getBorder(sprite, color)
         texture.x += xOffset
         texture.y += yOffset
         if sprite.depth then texture.depth = sprite.depth + 1 end
-        texture.color = color and vivUtil.getColorTable(color) or {0, 0, 0, 1}
+        texture.color = color and vivUtil.oldGetColorTable(color) or {0, 0, 0, 1}
         return texture
     end
 
@@ -429,6 +431,10 @@ function vivUtil.print_table(node, filename)
     file:write(output_str)
     file:close()
     print("File written to " .. filename)
+end
+
+function vivUtil.isModLoaded(name)
+    return mods.modMetadata[name] or mods.modMetadata[name .. "_zip"]
 end
 
 return vivUtil

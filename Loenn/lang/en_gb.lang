@@ -91,7 +91,7 @@ triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.CameraTyp
 
 -- New Instant TP trigger
 triggers.VivHelper/TeleportTarget.placements.name.main=Teleport Target
-triggers.VivHelper/TeleportTarget.placements.name.custom=Teleport Target (Customizable Speed Exit)
+triggers.VivHelper/TeleportTarget.placements.name.custom=Teleport Target (Custom)
 triggers.VivHelper/TeleportTarget.placements.description.main=The point by which a player teleports using a (new) Teleport Trigger
 triggers.VivHelper/TeleportTarget.attributes.name.TargetID=Target ID
 triggers.VivHelper/TeleportTarget.attributes.description.TargetID=The ID by which to link a Teleport Trigger to a target.
@@ -218,6 +218,9 @@ entities.VivHelper/BadelineBoostNoRefill.attributes.description.finalCh9GoldenBo
 entities.VivHelper/BadelineBoostNoRefill.attributes.description.finalCh9Dialog=If finalCh9Boost is also set and doesn't go to golden room, this will trigger the Farewell ending dialog.
 entities.VivHelper/BadelineBoostNoRefill.attributes.description.NoDashRefill=If true, the amount of dashes the player has doesn't change from before launching with Badeline.
 entities.VivHelper/BadelineBoostNoRefill.attributes.description.NoStaminaRefill=If true, the amount of stamina the player has doesn't change from before launching with Badeline.
+
+entities.VivHelper/BumperRefill.placements.name.bumper_dash=Bumper Refill
+entities.VivHelper/BumperRefill.placements.name.one_dash=Bumper Refill (One Use)
 
 entities.VivHelper/CassetteBooster.placements.name.cb=Cassette Booster (Custom Indices)
 entities.VivHelper/CassetteBooster.placements.description.cb=A booster that swaps between red and green on given indices of the Cassette Block Tempo.
@@ -377,6 +380,9 @@ entities.VivHelper/FallThru.placements.name.core=Jump Through (Core)
 entities.VivHelper/FallThru.placements.name.moon=Jump Through (Moon)
 entities.VivHelper/FallThru.attributes.description.texture=Changes the appearance of the platform.
 entities.VivHelper/FallThru.attributes.description.surfaceIndex=Footstep sound when walking on the platform.\nLeave at Default for game to decide automatically based on texture.
+
+entities.VivHelper/FeatherRefill.placements.name.feather=Feather Refill
+entities.VivHelper/FeatherRefill.placements.name.one_use=Feather Refill (One Use)
 
 entities.VivHelper/FlagConditionBlock2.placements.name.main=Condition Block (On Flag)
 

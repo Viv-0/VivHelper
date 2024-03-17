@@ -8,6 +8,7 @@ using Celeste.Mod.Entities;
 using Monocle;
 using Microsoft.Xna.Framework;
 using System.Collections;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/ReskinnableJelly")]
@@ -103,48 +104,33 @@ namespace VivHelper.Entities {
             GlowPath = e.Attr("GlowPath", "");
             if (string.IsNullOrWhiteSpace(GlowPath))
                 GlowPath = "";
-            GlideC1 = VivHelper.OldColorFunction(e.Attr("GlideColor1", "4FFFF3"));
-            GlideC2 = VivHelper.OldColorFunction(e.Attr("GlideColor2", "FFF899"));
-            GlowC1 = VivHelper.OldColorFunction(e.Attr("GlowColor1", "B7F3FF"));
-            GlowC2 = VivHelper.OldColorFunction(e.Attr("GlowColor2", "F4FDFF"));
 
-            P_Glide = new ParticleType {
-                Acceleration = Vector2.UnitY * 60f,
-                SpeedMin = 30f,
-                SpeedMax = 40f,
-                Direction = -Consts.PIover2,
-                DirectionRange = Consts.PIover2,
-                LifeMin = 0.6f,
-                LifeMax = 1.2f,
-                ColorMode = ParticleType.ColorModes.Blink,
-                FadeMode = ParticleType.FadeModes.Late,
-                Color = GlideC1,
-                Color2 = GlideC2,
-                Size = 0.5f,
-                SizeRange = 0.2f,
-                RotationMode = ParticleType.RotationModes.SameAsDirection
-            };
+            P_Glide = new ParticleType(Glider.P_Glide);
+            P_Glow = new ParticleType(Glider.P_Glow);
+
+            if (e.StringIfNotEmpty("colors", out var value)) {
+                // Handles a "magic" value (1,0,0,0) which ignores Color2 if it is set.
+                List<Color?> colors = VivHelper.NewColorsFromString(value, ',', VivHelper.GetColorParams.None, false, ParticleOverride);
+                if (colors.Count > 1) ManageParticleOverride(ref P_Glide, colors[0], colors[1]);
+                if (colors.Count > 3) ManageParticleOverride(ref P_Glow, colors[2], colors[3]);                
+            } else {
+#pragma warning disable CS0612
+                P_Glide.Color = VivHelper.OldColorFunction(e.Attr("GlideColor1", "4FFFF3"));
+                P_Glide.Color2 = VivHelper.OldColorFunction(e.Attr("GlideColor2", "FFF899"));
+                P_Glow.Color = VivHelper.OldColorFunction(e.Attr("GlowColor1", "B7F3FF"));
+                P_Glow.Color2 = VivHelper.OldColorFunction(e.Attr("GlowColor2", "F4FDFF"));
+#pragma warning restore CS0612
+            }
             if (!string.IsNullOrWhiteSpace(GlidePath))
                 P_Glide.Source = GFX.Game[GlidePath];
+            if (!string.IsNullOrWhiteSpace(GlowPath))
+                P_Glide.Source = GFX.Game[GlowPath];
             P_GlideUp = new ParticleType(Glider.P_Glide) {
                 Acceleration = Vector2.UnitY * -10f,
                 SpeedMin = 50f,
                 SpeedMax = 60f
             };
-            P_Glow = new ParticleType {
-                SpeedMin = 8f,
-                SpeedMax = 16f,
-                DirectionRange = Consts.TAU,
-                LifeMin = 0.4f,
-                LifeMax = 0.8f,
-                Size = 1f,
-                FadeMode = ParticleType.FadeModes.Late,
-                Color = GlowC1,
-                Color2 = GlowC2,
-                ColorMode = ParticleType.ColorModes.Blink
-            };
-            if (!string.IsNullOrWhiteSpace(GlowPath))
-                P_Glide.Source = GFX.Game[GlowPath];
+            
             P_Expand = new ParticleType(Glider.P_Glow) {
                 SpeedMin = 40f,
                 SpeedMax = 80f,
@@ -422,7 +408,7 @@ namespace VivHelper.Entities {
             wiggler.Start();
         }
 
-        protected override void OnSquish(CollisionData data) {
+        public override void OnSquish(CollisionData data) {
             if (!TrySquishWiggle(data)) {
                 RemoveSelf();
             }

@@ -91,12 +91,12 @@ namespace VivHelper.Entities.CurvedStuff {
             if (identifier == "") { target = data.Nodes[0] + offset; }
             Path = data.Attr("CustomSpritePath", "").TrimEnd('/');
             string t = Path;
-            ropeColor = VivHelper.OldColorFunction(data.Attr("RopeColor", "663931"));
-            ropeLightColor = VivHelper.OldColorFunction(data.Attr("RopeNotchColor", "9b6157"));
+            ropeColor = VivHelper.GetColorWithFix(data, "RopeColor", "ropeColor", VivHelper.GetColorParams.None, VivHelper.GetColorParams.None, new Color(102,57,49)).Value;
+            ropeLightColor = VivHelper.GetColorWithFix(data, "RopeNotchColor", "ropeNotchColor", VivHelper.GetColorParams.None, VivHelper.GetColorParams.None, new Color(155, 97, 87)).Value;
             if (!VivHelper.TryGetEaser(data.Attr("EaseType", "SineIn"), out EaseType))
                 EaseType = Ease.SineIn;
             float lightOcclusion = data.Float("LightOcclusion", 1f);
-            baseColor = VivHelper.OldColorFunction(data.Attr("BaseColor", "FFFFFF"));
+            baseColor = VivHelper.GetColorWithFix(data, "BaseColor", "baseColor", VivHelper.GetColorParams.None, VivHelper.GetColorParams.None, Color.White).Value;
             audio = data.Attr("AudioOnLaunch", "");
             t = t == "" ? "objects/zipmover" : t;
             string path, id, key;

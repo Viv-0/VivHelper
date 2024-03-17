@@ -9,6 +9,7 @@ using Monocle;
 using Microsoft.Xna.Framework;
 using MonoMod.Utils;
 using System.Reflection;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/nWayDashBlock")]
@@ -28,7 +29,7 @@ namespace VivHelper.Entities {
                 viableDashDirections.Add(new Vector2(-1, 0));
             if (d.Bool("Down", true))
                 viableDashDirections.Add(new Vector2(0, 1));
-            detailColor = VivHelper.OldColorFunction(d.Attr("DetailColor", "Black"));
+            detailColor = VivHelper.GetColorWithFix(d, "DetailColor", "detailColor", GetColorParams.None, GetColorParams.None, Color.Black).Value;
         }
 
         public DashCollisionResults NWayDashed(Player player, Vector2 direction) {

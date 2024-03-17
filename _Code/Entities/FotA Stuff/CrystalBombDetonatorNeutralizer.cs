@@ -341,7 +341,7 @@ namespace VivHelper.Entities {
             Position = startPos;
         }
 
-        protected override void OnSquish(CollisionData data) {
+        public override void OnSquish(CollisionData data) {
             if (!TrySquishWiggle(data)) {
                 Explode();
             }

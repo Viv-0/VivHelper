@@ -16,6 +16,7 @@ using VivHelper.Module__Extensions__Etc;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using Celeste.Mod;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     /// If you're looking to copy off of this code for one of your entities, please just ask me to implement it here.
@@ -94,7 +95,7 @@ namespace VivHelper.Entities {
             //            IL.Celeste.MapData.CanTransitionTo += MapData_CanTransitionTo;
         }
         public static void Unload() {
-            On.Celeste.Player.Added += Player_Added;
+            On.Celeste.Player.Added -= Player_Added;
 
             hook_LevelData_orig_ctor?.Dispose();
 
@@ -502,8 +503,8 @@ namespace VivHelper.Entities {
             NoResetRespawn = data.Bool("NoResetRespawn");
             HideFromDebugMap = data.Bool("HideFromDebugMap");
             Depth = data.Int("Depth", 5000);
-            color = VivHelper.OldColorFunction(data.Attr("Color"));
-            outlineColor = VivHelper.OldColorFunction(data.Attr("OutlineColor"));
+            color = VivHelper.GetColorWithFix(data, "Color", "color", GetColorParams.ImplyEmptyAsTransparent, GetColorParams.None, Color.White).Value;
+            outlineColor = VivHelper.GetColorWithFix(data, "OutlineColor", "outlineColor", GetColorParams.ImplyEmptyAsTransparent, GetColorParams.None, Color.Transparent).Value;
             flipX = data.Bool("flipX");
         }
 

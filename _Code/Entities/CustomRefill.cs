@@ -228,7 +228,9 @@ namespace VivHelper.Entities {
                     if (string.IsNullOrWhiteSpace(a))
                         colors[i][j] = null;
                     else
+#pragma warning disable CS0612
                         colors[i][j] = VivHelper.OldColorFunction(a);
+#pragma warning restore CS0612
                 }
             ParticleParser(sources, colors, oDashes > 1);
 
@@ -270,7 +272,7 @@ namespace VivHelper.Entities {
             string[] p = e.Attr("VertexLight", "White,1,16,48").Split(',');
             if (p.Length == 4) {
                 p[0].Trim();
-                Color _c = VivHelper.OldColorFunction(p[0]);
+                Color _c = VivHelper.GetSimpleColor(p[0]);
                 if (float.TryParse(p[1].Trim(), out float f_1) && int.TryParse(p[2].Trim(), out int f_2) && int.TryParse(p[3].Trim(), out int f_3)) {
                     Add(light = new VertexLight(_c, f_1, f_2, f_3));
                 }

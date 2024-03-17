@@ -41,8 +41,9 @@ namespace VivHelper.Entities {
         private bool removeDL = false;
 
         private Type type;
-        private Entity retrievedEntity;
+        public Entity retrievedEntity;
         private bool ScaleWigglerExists;
+        private string LevelName;
 
 
         public enum SpawnTypes {
@@ -69,36 +70,35 @@ namespace VivHelper.Entities {
         private int paramNum;
         public bool IsHeartGem = true;
 
-
         private static int MatchParameterInfo(ParameterInfo[] pI, bool a) {
             int i = pI.Length;
             switch (i) {
                 case 0:
-                    throw new InvalidPropertyException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator has no parameters, " +
+                    throw new InvalidParameterException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator has no parameters, " +
                 "and it needs at minimum 1 Entity parameter. See the documentation for details on how to structure your Custom Coroutine.");
                 case 1:
                     if (pI[0].ParameterType != typeof(Entity))
-                        throw new InvalidPropertyException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator has " +
+                        throw new InvalidParameterException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator has " +
                             "one parameter which is not of type Entity. See the documentation for details on how to structure your Custom Coroutine.");
                     return 1;
                 case 2:
                     if (pI[0].ParameterType != typeof(Entity) || pI[1].ParameterType != typeof(Vector2[]))
-                        throw new InvalidPropertyException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator has two parameters. However, it is formatted improperly. The parameters should be ordered:" +
+                        throw new InvalidParameterException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator has two parameters. However, it is formatted improperly. The parameters should be ordered:" +
                             "\"Monocle.Entity, Microsoft.Xna.Framework.Vector2[]\", and you had: \"" + pI[0].ParameterType.ToString() + ", " + pI[1].ParameterType.ToString() + "\".");
                     if (a) {
-                        throw new InvalidPropertyException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator *should* work, but you also didn't actually add any nodes.");
+                        throw new InvalidParameterException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator *should* work, but you also didn't actually add any nodes.");
                     }
                     return 2;
                 case 3:
                     if (pI[0].ParameterType != typeof(Entity) || pI[1].ParameterType != typeof(Vector2[]) || pI[2].ParameterType != typeof(Dictionary<string, string>))
-                        throw new InvalidPropertyException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator has 3 parameters. However, it is formatted improperly. The parameters should be ordered:" +
+                        throw new InvalidParameterException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator has 3 parameters. However, it is formatted improperly. The parameters should be ordered:" +
                             "\"Monocle.Entity, Microsoft.Xna.Framework.Vector2[], System.Collections.Generic.Dictionary`2[System.String,System.String]\", and you had: \"" + pI[0].ParameterType.ToString() + ", " + pI[1].ParameterType.ToString() + ", " + pI[2].ParameterType.ToString() + "\".");
                     if (!a) {
-                        throw new InvalidPropertyException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator *should* work, but you also didn't actually add any parameters in the property menu.");
+                        throw new InvalidParameterException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator *should* work, but you also didn't actually add any parameters in the property menu.");
                     }
                     return 3;
                 default:
-                    throw new InvalidPropertyException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator has too many parameters. See the " +
+                    throw new InvalidParameterException("DashCodeHeartController: Your Custom DashCodeHeartController IEnumerator has too many parameters. See the " +
                "documentation for details on how to structure your Custom Coroutine.");
             }
         }
@@ -115,12 +115,12 @@ namespace VivHelper.Entities {
             spawnType = data.Enum<SpawnTypes>("spawnType", SpawnTypes.LevelUp);
             switch (spawnType) {
                 case SpawnTypes.LevelUp:
-                    color = VivHelper.OldColorFunction(data.Attr("Color", "White"), 1f);
+                    color = VivHelper.GetColorWithFix(data, "Color", "color", VivHelper.GetColorParams.None, VivHelper.GetColorParams.None, Color.White).Value;
                     if (nodes.Length > 0)
                         node = nodes[0];
                     break;
                 case SpawnTypes.FlashSpawn:
-                    color = VivHelper.OldColorFunction(data.Attr("Color", "White"), 1f);
+                    color = VivHelper.GetColorWithFix(data, "Color", "color", VivHelper.GetColorParams.None, VivHelper.GetColorParams.None, Color.White).Value;
                     break;
                 case SpawnTypes.ForsakenCity:
                     if (nodes.Length > 0)
@@ -136,18 +136,18 @@ namespace VivHelper.Entities {
                 case SpawnTypes.Custom:
                     //Checking to see if the user messed up and reporting all of the Exceptions in English
                     string ClassName = data.Attr("ClassName", "");
-                    if (string.IsNullOrWhiteSpace(ClassName)) { throw new InvalidPropertyException("DashCodeHeartController: You added a Custom DashCodeHeartController with no ClassName to call your IEnumerator from."); }
+                    if (string.IsNullOrWhiteSpace(ClassName)) { throw new InvalidParameterException("DashCodeHeartController: You added a Custom DashCodeHeartController with no ClassName to call your IEnumerator from."); }
                     Type type = VivHelper.GetType(ClassName, false);
                     if (type == null) {
-                        throw new InvalidPropertyException("DashCodeHeartController: You added a Custom DashCodeHeartController with a ClassName \"" + ClassName + "\" which could not be found.");
+                        throw new InvalidParameterException("DashCodeHeartController: You added a Custom DashCodeHeartController with a ClassName \"" + ClassName + "\" which could not be found.");
                     }
                     string MethodName = data.Attr("MethodName", "");
-                    if (string.IsNullOrWhiteSpace(MethodName)) { throw new InvalidPropertyException("DashCodeHeartController: You added a Custom DashCodeHeartController with a ClassName but no IEnumerator MethodName from which we can run the coroutine."); }
+                    if (string.IsNullOrWhiteSpace(MethodName)) { throw new InvalidParameterException("DashCodeHeartController: You added a Custom DashCodeHeartController with a ClassName but no IEnumerator MethodName from which we can run the coroutine."); }
                     MethodInfo methodInfo = type.GetMethod(MethodName, BindingFlags.Static | BindingFlags.Public);
                     if (methodInfo == null)
-                        throw new InvalidPropertyException("DashCodeHeartController: You added a Custom DashCodeHeartController with a ClassName and a MethodName, however the code was not able to find your Method in the class. This could be because the IEnumerator method was not static.");
+                        throw new InvalidParameterException("DashCodeHeartController: You added a Custom DashCodeHeartController with a ClassName and a MethodName, however the code was not able to find your Method in the class. This could be because the IEnumerator method was not static.");
                     if (methodInfo.ReturnType != typeof(IEnumerator))
-                        throw new InvalidPropertyException("DashCodeHeartController: You added a Custom DashCodeHeartController with a ClassName and a MethodName, however, the Method that was found was not an IEnumerator. (If you used IEnumerator<T>, you can't do that, sorry :/)");
+                        throw new InvalidParameterException("DashCodeHeartController: You added a Custom DashCodeHeartController with a ClassName and a MethodName, however, the Method that was found was not an IEnumerator. (If you used IEnumerator<T>, you can't do that, sorry :/)");
                     bool b1 = false;
                     if (nodes.Length > 0) { CustomNodes = nodes; for (int i = 0; i < CustomNodes.Length; i++) CustomNodes[i] += offset; b1 = true; }
                     string CustomParams = data.Attr("CustomParameters", "");
@@ -160,7 +160,7 @@ namespace VivHelper.Entities {
 
                             foreach (string s2 in s1) {
                                 string[] s3 = s2.Split(':');
-                                if (s3.Length < 2) { throw new InvalidPropertyException("Invalid Custom Parameter in DashCodeHeartController, each Parameter must be formatted as \"Tag:Value|\"."); }
+                                if (s3.Length < 2) { throw new InvalidParameterException("Invalid Custom Parameter in DashCodeHeartController, each Parameter must be formatted as \"Tag:Value|\"."); }
                                 CustomParameters.Add(s3[0], s3[1]);
                             }
                         }
@@ -172,7 +172,7 @@ namespace VivHelper.Entities {
                 default:
                     break;
             }
-            flag = data.Attr("CompleteFlag", "DashCode");
+            flag = data.NoEmptyString("CompleteFlag");
         }
 
         public override void Awake(Scene scene) {
@@ -205,11 +205,15 @@ namespace VivHelper.Entities {
 
 
         private bool CheckEntity(Type t, Entity e) {
-            if (typeof(HeartGem).IsAssignableFrom(t) || t.ToString() == "Celeste.Mod.CollabUtils2.Entities.MiniHeart") {
+            if ((typeof(HeartGem).IsAssignableFrom(t) ||
+                typeof(FakeHeart).IsAssignableFrom(t) ||
+                typeof(SummitGem).IsAssignableFrom(t) ||
+                t.ToString() == "Celeste.Mod.CollabUtils2.Entities.MiniHeart")
+                && Collide.RectToPoint((Scene as Level).Bounds, e.Position))
+            {
                 type = t;
                 retrievedEntity = e;
                 e.RemoveSelf();
-
                 return true;
             }
             return false;

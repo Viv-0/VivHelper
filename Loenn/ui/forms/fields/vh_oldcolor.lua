@@ -52,7 +52,7 @@ function colorField._MT.__index:fieldValid(...)
     elseif self._allowRainbow and current == "Rainbow" then
         return true
     else
-        local parsed, r, g, b, a = vivUtil.getColor(current, self._allowXNAColors)
+        local parsed, r, g, b, a = vivUtil.oldGetColor(current, self._allowXNAColors)
 
         return parsed
     end
@@ -79,7 +79,7 @@ end
 
 
 local function cacheFieldPreviewColor(element, new, old)
-    local parsed, r, g, b, a = vivUtil.getColor(new)
+    local parsed, r, g, b, a = vivUtil.oldGetColor(new)
     if not parsed then return false, element._r, element._g, element._b, element._a end
     element._r, element._g, element._b, element._a = r, g, b, a
     return parsed, r, g, b, a

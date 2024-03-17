@@ -19,7 +19,7 @@ namespace VivHelper.Entities {
 
         private Vector2 ImpactCenter {
             get {
-                switch (currentAngle) {
+                switch (angle) {
                     case 0f:
                         return TopLeft + new Vector2(base.Width, base.Height / 2f);
                     case Consts.PIover2:
@@ -64,7 +64,7 @@ namespace VivHelper.Entities {
 
         private string ImpactSFX = "event:/game/general/fallblock_impact";
 
-        private float[] angles;
+        private float angle;
         private string angletext;
         private float accel = 500f;
         private float maxSpeed = 160f;
@@ -122,10 +122,7 @@ namespace VivHelper.Entities {
             ShakeSFX = data.Attr("ShakeSFX", "event:/game/general/fallblock_shake");
             ImpactSFX = data.Attr("ImpactSFX", "event:/game/general/fallblock_impact");
             angletext = data.Attr("Direction", "Down").ToLower();
-            string[] angleTexts = angletext.Split(',');
-            for (int i = 0; i < angleTexts.Length; i++) {
-                angles[i] = Angles[angleTexts[i].Trim()];
-            }
+            angle = Angles[angletext];
             flagOnFall = data.Attr("FlagOnFall", "");
             flagTrigger = data.Attr("FlagTrigger", "");
             flagOnGround = data.Attr("FlagOnGround", "");
@@ -215,7 +212,6 @@ namespace VivHelper.Entities {
                 yield return null;
             }
             HasStartedFalling = true;
-            float angle = angles[0];
             while (true) {
                 if (!EndShaking) {
                     ShakeSfx();

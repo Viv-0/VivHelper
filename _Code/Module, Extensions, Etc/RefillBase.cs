@@ -28,11 +28,9 @@ namespace VivHelper {
 
 	    protected bool oneUse, spriteDrawOutline;
 
-	    protected ParticleType p_shatter = Refill.P_Shatter;
-
-        protected ParticleType p_regen = Refill.P_Regen;
-
-        protected ParticleType p_glow = Refill.P_Glow;
+        protected virtual ParticleType ShatterParticle() => Refill.P_Shatter;
+        protected virtual ParticleType RegenParticle() => Refill.P_Regen;
+        protected virtual ParticleType GlowParticle() => Refill.P_Glow;
 
 	    protected float respawnTimer;
 
@@ -88,10 +86,12 @@ namespace VivHelper {
 		    }
 		    else if (base.Scene.OnInterval(0.1f))
 		    {
-			    level.ParticlesFG.Emit(p_glow, 1, Position, Vector2.One * 5f);
+			    level.ParticlesFG.Emit(GlowParticle(), 1, Position, Vector2.One * 5f);
             }
-            if (sprite != null)
+            if (sprite != null) {
+                sprite.Update();
                 sprite.Position = Position;
+            }
             if (outline != null)
                 outline.Position = Position;
             UpdateY();
@@ -114,7 +114,7 @@ namespace VivHelper {
 			    base.Depth = -100;
 			    wiggler.Start();
 			    Audio.Play("event:/game/general/diamond_return", Position);
-			    level.ParticlesFG.Emit(p_regen, 16, Position, Vector2.One * 2f);
+			    level.ParticlesFG.Emit(RegenParticle(), 16, Position, Vector2.One * 2f);
 		    }
 	    }
 

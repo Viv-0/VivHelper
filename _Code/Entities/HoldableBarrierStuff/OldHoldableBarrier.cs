@@ -49,8 +49,6 @@ namespace VivHelper.Entities {
             On.Celeste.Holdable.Release += OnRelease;
         }
 
-
-
         public static void Unload() {
             On.Celeste.Actor.MoveH -= SolidForHoldablesH;
             On.Celeste.Actor.MoveV -= SolidForHoldablesV;
@@ -64,7 +62,20 @@ namespace VivHelper.Entities {
             //We want to make the barrier solid for any actor that has a Holdable Component and is not being held currently.
             //Somehow this never breaks. I have no clue how this never breaks lmao.
             Holdable h = self.Get<Holdable>();
-            if (self is Player || h == null || h.IsHeld) {
+            if (self is Player player) {
+                if (!(player.Holding != null && self.Scene.Tracker.TryGetEntity<HoldableBarrierColorController>(out var hbcc) &&
+                    (hbcc?.solidOnPlayer ?? VivHelperModule.Session.savedHBController?.solidOnPlayer ?? VivHelperModule.defaultHBController.solidOnPlayer)))
+                    return orig(self, moveH, c, pusher);
+                else {
+                    List<Entity> _barriers = self.Scene.Tracker.GetEntities<HoldableBarrier>();
+                    _barriers.ForEach(entity => entity.Collidable = true); //Just learned that this is doable on an enumerable. Very cool.
+                    bool r = orig(self, moveH, c, pusher);
+                    _barriers.ForEach(entity => entity.Collidable = false); //Thanks to DJMapHelper for that insight.
+                    return r;
+                }
+
+            }
+            if (h == null || h.IsHeld) {
                 return orig(self, moveH, c, pusher);
             }
             //We now know that there is a Holdable Component to this entity, and that it is not being currently held.
@@ -252,7 +263,7 @@ namespace VivHelper.Entities {
         }
 
         public override void Render() {
-            Color color = (colorController?.particleColor ?? VivHelper.OldColorFunction(VivHelperModule.Session.savedHBController?.particleColorHex ?? VivHelperModule.defaultHBController.particleColorHex)) * 0.5f;
+            Color color = (colorController?.particleColor ?? Calc.HexToColor(VivHelperModule.Session.savedHBController?.particleColorHex ?? VivHelperModule.defaultHBController.particleColorHex)) * 0.5f;
             foreach (Vector2 particle in particles) {
                 Draw.Pixel.Draw(Position + particle, Vector2.Zero, color);
             }

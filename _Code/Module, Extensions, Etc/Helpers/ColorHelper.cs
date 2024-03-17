@@ -29,70 +29,20 @@ namespace VivHelper {
             return _getHue(scene, pos);
         }
 
-        public delegate bool PrependColorFunction(string value, out Color? color);
-        public delegate bool AppendedColorFunction(ref Color? color);
-
-        public static Color? GetColor(EntityData data, string legacyColor, string newColor, bool allowNull, Color? defaultColor = null, PrependColorFunction prependedColorFunction = null, AppendedColorFunction appendedColorFunction = null) {
-            object value;
-            Color? ret = null;
-            if(data.Values.TryGetValue(newColor, out value) && value is string parse) {
-                if (!(prependedColorFunction?.Invoke(parse, out ret) ?? false)) {
-                    ret = NewColorFunction(parse);
-                    if (!allowNull && ret == null)
-                        ret = defaultColor ?? Color.White;
-                }
-            } else if(data.Values.TryGetValue(legacyColor, out value) && value is string parse2) {
-                if (!(prependedColorFunction?.Invoke(parse2, out ret) ?? false)) {
-                    ret = allowNull ? OldColorFunctionWithNull(parse2) : OldColorFunction(parse2);
-                }
-            }
-            appendedColorFunction?.Invoke(ref ret);
-            return ret;
-        }
-
-        // Uses the RGBA format
-        public static Color? NewColorFunction(string hex) {
-            if (string.IsNullOrWhiteSpace(hex))
-                return null;
-            if (colorHelper.ContainsKey(hex.ToLower()))
-                return colorHelper[hex.ToLower()];
-            // Manual HexToColor
-            int num = 0;
-            bool nonPreMult = true;
-            if (hex.StartsWith("#")) num = 1;
-            else if (hex.StartsWith("0x")) num = 2;
-            else if (hex.StartsWith("pm")) { num = 2; nonPreMult = false; }
-            byte HexToByte(char c) { int res = "0123456789ABCDEF".IndexOf(char.ToUpper(c)); if (res < 0) throw new IndexOutOfRangeException(); return (byte) res; }
-            try {
-                switch (hex.Length - num) {
-                    case 6:
-                        return new Color(HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]),
-                                         HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]),
-                                         HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]));
-                    case 8:
-                        int r = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
-                        int g = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
-                        int b = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
-                        int a = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
-                        if (nonPreMult) {
-                            float alpha = a / 255f;
-                            return new Color(alpha * (float) r / 255f, alpha * (float) g / 255f, alpha * (float) b / 255f, alpha);
-                        } else
-                            return new Color(r, g, b, a);
-                }
-            } catch (IndexOutOfRangeException i) { }
-            return null;
+        public static Color GetSimpleColor(string color, bool allowXNA = true) {
+            if(allowXNA && colorHelper.TryGetValue(color, out Color result)) { return result; }
+            return Calc.HexToColor(color);
         }
 
         #region Legacy Color Functions - do not use
 
         [Obsolete]
-        public static Color? OldColorFunctionWithNull(string s) {
+        public static Color? OldColorFunctionWithNull(string s, bool ignoreXNA = false) {
             if (string.IsNullOrWhiteSpace(s))
                 return null;
             if (s == "Transparent" || s.Length == 8 && s.Substring(0, 2) == "00" && int.TryParse(s.Substring(2), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out int _)) { return Color.Transparent; } //Do this check first because we check for any other case of transparency, which is equivalent to no other valid case in this case
 
-            var c = OldColorFunction(s);
+            Color c = ignoreXNA ? OldHexToColor(s) : OldColorFunction(s);
             if (c == Color.Transparent)
                 return null;
             return c;
@@ -128,21 +78,8 @@ namespace VivHelper {
             }
             return Color.Transparent;
         }
-        public static Color UintToColor(uint hex) {
-            Color result = default(Color);
-            result.PackedValue = hex;
-            return result;
-        }
-        #endregion
-        public static string ColorToHex(Color c, bool rgba = false) {
-            string t = c.R.ToString("X") + c.G.ToString("X") + c.B.ToString("X");
-            return rgba ? t + c.A.ToString("X") : c.A.ToString("X") + t;
-        }
 
-        public static Color BlendColors(Color a, Color b) {
-            return new Color((a.R / 255f) * (b.R / 255f), (a.G / 255f) * (b.G / 255f), (a.B / 255f) * (b.B / 255f), (a.A / 255f) * (b.A / 255f));
-        }
-
+        [Obsolete]
         public static List<Color> OldColorsFromString(string str, char sep = ',') {
             List<Color> l = new List<Color>();
             foreach (string s in str.Split(sep)) {
@@ -151,6 +88,119 @@ namespace VivHelper {
             return l;
         }
 
+        public static Color UintToColor(uint hex) {
+            Color result = default(Color);
+            result.PackedValue = hex;
+            return result;
+        }
+        #endregion
+
+        public delegate bool ColorOverrides(string value, out Color? color);
+
+        [Flags]
+        public enum GetColorParams {
+            None = 0,
+            AllowNull = 1,
+            ImplyEmptyAsTransparent = 2,
+            DisallowXNAColors = 4
+        }
+
+#pragma warning disable CS0612
+        public static Color? GetColorWithFix(EntityData data, string legacyColor, string newColor, GetColorParams old, GetColorParams @new, Color? defaultColor = null, ColorOverrides specialColorNames = null) {
+            object value;
+            Color? ret = null;
+            if(data.Values.TryGetValue(newColor, out value) && value is string parse) {
+                if (@new.HasFlag(GetColorParams.ImplyEmptyAsTransparent) && parse != null && string.IsNullOrWhiteSpace(parse)) {
+                    ret = Color.Transparent;
+                } else if (!(specialColorNames?.Invoke(parse, out ret) ?? false)) {
+                    ret = NewColorFunction(parse, @new.HasFlag(GetColorParams.DisallowXNAColors));
+                    if (!@new.HasFlag(GetColorParams.AllowNull) && ret == null)
+                        ret = defaultColor ?? Color.White;
+                }
+            } else if(data.Values.TryGetValue(legacyColor, out value) && value is string parse2) {
+                if (old.HasFlag(GetColorParams.ImplyEmptyAsTransparent) && parse2 != null && string.IsNullOrWhiteSpace(parse2)) {
+                    ret = Color.Transparent;
+                } else if (!(specialColorNames?.Invoke(parse2, out ret) ?? false)) {
+                    ret = old.HasFlag(GetColorParams.AllowNull) ? OldColorFunctionWithNull(parse2, old.HasFlag(GetColorParams.DisallowXNAColors)) :
+                            (old.HasFlag(GetColorParams.DisallowXNAColors) ? OldHexToColor(parse2) : OldColorFunction(parse2));
+                }
+            } else if (!@new.HasFlag(GetColorParams.AllowNull) && ret == null)
+                ret = defaultColor ?? Color.White;
+            return ret;
+        }
+
+        public static Color? GetColor(string str, GetColorParams @params, Color? defaultColor = null, ColorOverrides specialColorNames = null) {
+            Color? ret = null;
+            if (@params.HasFlag(GetColorParams.ImplyEmptyAsTransparent) && str != null && string.IsNullOrWhiteSpace(str)) {
+                ret = Color.Transparent;
+            } else if (!(specialColorNames?.Invoke(str, out ret) ?? false)) {
+                ret = NewColorFunction(str, @params.HasFlag(GetColorParams.DisallowXNAColors));
+                if (!@params.HasFlag(GetColorParams.AllowNull) && ret == null)
+                    ret = defaultColor ?? Color.White;
+            }
+            return ret;
+        }
+#pragma warning restore CS0612
+
+        // Uses the RGBA format
+        public static Color? NewColorFunction(string hex, bool disableXNAColors) {
+            if (string.IsNullOrWhiteSpace(hex))
+                return null;
+            if (!disableXNAColors && colorHelper.ContainsKey(hex.ToLower()))
+                return colorHelper[hex.ToLower()];
+            // Manual HexToColor
+            int num = 0;
+            bool nonPreMult = true;
+            if (hex.StartsWith("#")) num = 1;
+            else if (hex.StartsWith("0x")) num = 2;
+            else if (hex.StartsWith("pm")) { num = 2; nonPreMult = false; }
+            byte HexToByte(char c) { int res = "0123456789ABCDEF".IndexOf(char.ToUpper(c)); if (res < 0) throw new IndexOutOfRangeException(); return (byte) res; }
+            try {
+                switch (hex.Length - num) {
+                    case 6:
+                        return new Color(HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]),
+                                         HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]),
+                                         HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]));
+                    case 8:
+                        int r = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                        int g = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                        int b = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                        int a = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                        if (nonPreMult) {
+                            float alpha = a / 255f;
+                            return new Color(alpha * (float) r / 255f, alpha * (float) g / 255f, alpha * (float) b / 255f, alpha);
+                        } else
+                            return new Color(r, g, b, a);
+                }
+            } catch (IndexOutOfRangeException) { return null; }
+            return null;
+        }
+
+        public static List<Color?> NewColorsFromString(string str, char sep = ',', GetColorParams colorParameters = GetColorParams.AllowNull, bool ignoreInvalidColors = false, ColorOverrides specialColorNames = null) {
+            List<Color?> l = new List<Color?>();
+            foreach (string s in str.Split(sep)) {
+                Color? c = null;
+                if (!(specialColorNames?.Invoke(str, out c) ?? false))
+                    c = NewColorFunction(s.Trim(), colorParameters.HasFlag(GetColorParams.DisallowXNAColors));
+                if (c == null) {
+                    if (ignoreInvalidColors)
+                        continue;
+                    else if(!colorParameters.HasFlag(GetColorParams.AllowNull))
+                        throw new Exception($"no Color matches the string {s.Trim()}, found in the string \"{str}\"");
+                }
+                l.Add(c);
+            }
+            return l;
+        }
+
+        public static string ColorToHex(Color c, bool rgba = true) {
+            string t = c.R.ToString("X") + c.G.ToString("X") + c.B.ToString("X");
+            return rgba ? t + c.A.ToString("X") : c.A.ToString("X") + t;
+        }
+
+        public static Color BlendColors(Color a, Color b) {
+            return new Color((a.R / 255f) * (b.R / 255f), (a.G / 255f) * (b.G / 255f), (a.B / 255f) * (b.B / 255f), (a.A / 255f) * (b.A / 255f));
+        }
         internal static Vector4[] ColorArrToVec4Arr(Color[] colors) {
             Vector4[] ret = new Vector4[colors.Length];
             for (int i = 0; i < colors.Length; i++)

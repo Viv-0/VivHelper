@@ -92,6 +92,9 @@ namespace VivHelper.Entities {
         public const int WiggleRoom = 7;
         public const string WarpDashPowerup = "vh_warpdash";
         public static int WarpDashState;
+
+        protected override ParticleType ShatterParticle() => WarpDashIndicator.particle;
+
         public static void WarpDashBegin(Player player) {
             foreach (DashListener component in player.Scene.Tracker.GetComponents<DashListener>()) {
                 if (component.OnDash != null) {
@@ -102,10 +105,10 @@ namespace VivHelper.Entities {
                 wdi.Visible = false;
             }
             Audio.Play("event:/VivHelper/warp");
+            Celeste.Celeste.Freeze(0.05f);
         }
 
         public static int WarpDashUpdate(Player player) {
-            Celeste.Celeste.Freeze(0.05f);
             player.DashDir = ((Vector2) VivHelper.player_lastAim.GetValue(player)).EightWayNormal();
             if (player.DashDir == Vector2.Zero) {
                 player.DashDir = Vector2.UnitX * (int) player.Facing;
@@ -218,8 +221,8 @@ namespace VivHelper.Entities {
             Depth = 8999;
             yield return 0.05f;
             float num = player.Speed.Angle();
-            (Scene as Level).ParticlesFG.Emit(WarpDashIndicator.particle, 5, Position, Vector2.One * 4f, num - Consts.PIover2);
-            (Scene as Level).ParticlesFG.Emit(WarpDashIndicator.particle, 5, Position, Vector2.One * 4f, num + Consts.PIover2);
+            (Scene as Level).ParticlesFG.Emit(ShatterParticle(), 5, Position, Vector2.One * 4f, num - Consts.PIover2);
+            (Scene as Level).ParticlesFG.Emit(ShatterParticle(), 5, Position, Vector2.One * 4f, num + Consts.PIover2);
             SlashFx.Burst(Position, num);
             if (oneUse) {
                 RemoveSelf();

@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Triggers {
     [TrackedAs(typeof(Trigger))]
@@ -65,7 +66,7 @@ namespace VivHelper.Triggers {
             rot = 0 - Calc.DegToRad * data.Float("RotationActor", 0);
             dreaming = data.Bool("Dreaming", true);
             transition = data.Enum("TransitionType", TransitionType.None);
-            flashColor = VivHelper.OldColorFunction(data.Attr("Color", "White"));
+            flashColor = VivHelper.GetColorWithFix(data, "Color", "color", GetColorParams.None, GetColorParams.None, Color.White).Value; // VivHelper.OldColorFunction(data.Attr("Color", "White"));
             flags = data.Attr("ZFlagsData", "").Split(',');
             addTriggerOffset = data.Bool("AddTriggerOffset", true);
             timeSlowDown = data.Float("TimeSlowDown", 0f);

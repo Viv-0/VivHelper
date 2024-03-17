@@ -59,7 +59,7 @@ namespace VivHelper.Entities.Boosters {
             }
 
 
-            int j = (int) BoostFunctions.rdU.Invoke(player, Everest._EmptyObjectArray);
+            int j = (int) BoostFunctions.rdU.Invoke(player, null);
             j = j == 5 ? VivHelperModule.PinkState : j;
 
             return j;
@@ -190,7 +190,7 @@ namespace VivHelper.Entities.Boosters {
         private void AppearParticles() {
             ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
             for (int i = 0; i < 360; i += 30) {
-                particlesBG.Emit(Booster.P_RedAppear, 1, base.Center, Vector2.One * 2f, i * Consts.DEG1);
+                particlesBG.Emit(Booster.P_RedAppear, 1, base.Center, Vector2.One * 2f, i * Calc.DegToRad);
             }
         }
 

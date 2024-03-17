@@ -8,7 +8,6 @@
         <CelestePrefix Condition="'$(CelestePrefix)' == '' And Exists('..\..\..\Celeste.dll')">..\..\..</CelestePrefix>
         <CelestePrefix Condition="'$(CelestePrefix)' == ''">lib-stripped</CelestePrefix>
     </PropertyGroup>
-
     <!--Disable "Copy Local" for all references-->
     <ItemDefinitionGroup>
         <PackageReference PrivateAssets="all" ExcludeAssets="runtime" />
@@ -22,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Reference Include="$(CelestePrefix)\Celeste.dll">
+        <Reference Include="$(CelestePrefix)\Celeste.dll" Publicize="true">
             <Private>false</Private>
         </Reference>
         <Reference Include="$(CelestePrefix)\MMHOOK_Celeste.dll">
@@ -43,6 +42,14 @@
     
     <PropertyGroup>
         <PathMap>$(MSBuildProjectDirectory)=CelesteMod/</PathMap>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+      <WarningsAsErrors>$(WarningsAsErrors);NU1605;CS0612;CS0618</WarningsAsErrors>
+    </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+      <WarningsAsErrors>$(WarningsAsErrors);NU1605;CS0612;CS0618</WarningsAsErrors>
     </PropertyGroup>
 
 </Project>

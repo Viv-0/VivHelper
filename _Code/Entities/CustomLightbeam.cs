@@ -44,8 +44,8 @@ namespace VivHelper.Entities {
             LightLength = data.Height;
             DisableFlag = data.Attr("DisableFlag");
             Flag = data.Attr("ChangeFlag");
-            Rotation = data.Float("rotation") * Consts.DEG1;
-            color = VivHelper.OldColorFunction(data.Attr("Color", "ccffff")) * Calc.Clamp(data.Float("Alpha", 1f), 0f, 1f);
+            Rotation = data.Float("rotation") * Calc.DegToRad;
+            color = VivHelper.GetColorWithFix(data, "Color","color", VivHelper.GetColorParams.None, VivHelper.GetColorParams.None, new Color(204, 255, 255)).Value * Calc.Clamp(data.Float("Alpha", 1f), 0f, 1f);
             texture = GFX.Game[data.Attr("Texture", "util/lightbeam")];
             FadeWhenNear = data.Bool("FadeWhenNear", true);
             NoParticles = data.Bool("NoParticles", false);

@@ -29,7 +29,7 @@ for i, spike in ipairs(spikes) do
         local sprites = oldSpriteFunc(room,entity)
         for _,spike in ipairs(sprites) do 
             local color = nil
-            local colorParsed, r,g,b,a = vivUtil.getColor(entity.Color)
+            local colorParsed, r,g,b,a = vivUtil.oldGetColor(entity.Color)
             if vivUtil.isNullEmptyOrWhitespace(entity.Color) or not colorParsed then
                 color = rainbowHelper.getRainbowHue(room, spike.x, spike.y)
             else color = {r,g,b,a or 1}

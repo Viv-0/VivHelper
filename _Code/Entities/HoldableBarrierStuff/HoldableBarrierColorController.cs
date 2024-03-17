@@ -8,6 +8,7 @@ using Monocle;
 using Celeste.Mod.Entities;
 using Microsoft.Xna.Framework;
 using VivHelper;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     [Tracked]
@@ -21,9 +22,8 @@ namespace VivHelper.Entities {
         public Vector2 particleDir = Vector2.UnitY;
 
         public bool solidOnRelease = true;
-
         public bool saveToSession = false;
-
+        public bool solidOnPlayer;
         public bool toggleBloomRendering = true;
 
         //Priority determinance is basically my easy workaround for if there is one loaded ColorController that is default by accident.
@@ -37,12 +37,13 @@ namespace VivHelper.Entities {
         }
 
         public HoldableBarrierColorController(EntityData e, Vector2 v, int version) : this() {
-            particleColor = VivHelper.OldColorFunction(e.Attr("ParticleColor", "5a6ee1"));
-            baseColor = VivHelper.OldColorFunction(e.Attr("EdgeColor", "5a6ee1"));
+            particleColor = VivHelper.GetColorWithFix(e, "ParticleColor", "particleColor", GetColorParams.None, GetColorParams.None, new Color(90, 110, 255)).Value;
+            baseColor = VivHelper.GetColorWithFix(e, "EdgeColor", "edgeColor", GetColorParams.None, GetColorParams.None, new Color(90, 110, 255)).Value;
 
             particleDir = Vector2.UnitX.Rotate(0 - AngleVersion(e.Float("ParticleAngle", version == 1 ? 270f : (Consts.PIover2 * 3)), version));
             solidOnRelease = e.Bool("SolidOnRelease", true);
             saveToSession = e.Bool("Persistent", false);
+            solidOnPlayer = e.Bool("SolidForPlayer", false);
             toggleBloomRendering = e.Bool("renderBloom", true);
         }
 
@@ -61,7 +62,7 @@ namespace VivHelper.Entities {
         public override void Added(Scene scene) {
             base.Added(scene);
             if (saveToSession) {
-                VivHelperModule.Session.savedHBController = this.Copy();
+                VivHelperModule.Session.savedHBController = Copy();
             }
         }
 

@@ -13,6 +13,7 @@ using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using MonoMod.Utils;
 using System.Reflection;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     public static class CollectibleHooks { }
@@ -168,7 +169,7 @@ namespace VivHelper.Entities {
 
         public Collectible(EntityData data, Vector2 offset, EntityID id) : base(data.Position + offset) {
 
-            particleColor = VivHelper.OldColorFunction(data.Attr("particleColor", "Goldenrod"));
+            particleColor = VivHelper.GetColorWithFix(data, "particleColor", "ParticleColor", GetColorParams.ImplyEmptyAsTransparent, GetColorParams.None, Color.Goldenrod).Value;//        (data.Attr("particleColor", "Goldenrod"));
             audioEvent = data.Attr("CollectAudio", "event:/VivHelper/coin:1");
             group = data.Attr("group", "");
 

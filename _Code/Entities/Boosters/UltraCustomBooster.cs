@@ -568,7 +568,7 @@ namespace VivHelper.Entities.Boosters {
             if (P_Appear != null) {
                 ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
                 for (int i = 0; i < 360; i += 30) {
-                    particlesBG.Emit(P_Appear, 1, base.Center, Vector2.One * 2f, i * Consts.DEG1);
+                    particlesBG.Emit(P_Appear, 1, base.Center, Vector2.One * 2f, i * Calc.DegToRad);
                 }
             }
         }

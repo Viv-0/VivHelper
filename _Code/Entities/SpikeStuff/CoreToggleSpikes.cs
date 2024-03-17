@@ -28,8 +28,8 @@ namespace VivHelper.Entities {
         public CoreToggleSpikes(EntityData data, Vector2 offset, DirectionPlus dir)
             : base(data.Position + offset, dir, GetSize(data.Height, data.Width, dir), data.Bool("OverrideWallBounce"), data.Bool("groundRefill", false), data.Bool("KillFromAnyDirection", false)) {
             coreMode = data.Enum("coreMode", Session.CoreModes.None);
-            hotTint = VivHelper.OldColorFunction(data.Attr("hotColor", "eb2a3a"));
-            coldTint = VivHelper.OldColorFunction(data.Attr("coldColor", "a6fff4"));
+            hotTint = Calc.HexToColor(data.Attr("hotColor", "eb2a3a"));
+            coldTint = Calc.HexToColor(data.Attr("coldColor", "a6fff4"));
             if(data.Bool("AttachToSolid", true)) {
                 Add(new StaticMover {
                     OnShake = OnShake,

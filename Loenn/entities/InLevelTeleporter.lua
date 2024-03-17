@@ -134,7 +134,7 @@ local function getDraw(entity, x, y, dir, nodeline)
     if nodeline then 
         local a = directionalValues[entity.dir1].centerPoint(entity.x,entity.y,entity.l)
         local b = directionalValues[entity.dir2].centerPoint(entity.nodes[1].x,entity.nodes[1].y,entity.l)
-        local line = drawableLine.fromPoints({a[1], a[2], b[1], b[2]}, vivUtil.getColorTable(entity.Color, true, {1,1,1,1}), 1)
+        local line = drawableLine.fromPoints({a[1], a[2], b[1], b[2]}, vivUtil.oldGetColorTable(entity.Color, true, {1,1,1,1}), 1)
         table.insert(sprites, line)
     end
     return sprites

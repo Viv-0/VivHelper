@@ -80,6 +80,10 @@ namespace VivHelper.Entities {
         private static ParticleType P_Glow;
         private static ParticleType P_Regen;
 
+        protected override ParticleType ShatterParticle() => P_Shatter;
+        protected override ParticleType RegenParticle() => P_Regen;
+        protected override ParticleType GlowParticle() => P_Glow;
+
         private Image i1, i2, i3; // i1 Visibility handles all 3 render checks
         private Color color;
         public FireworkRefill(EntityData data, Vector2 offset)
@@ -98,9 +102,6 @@ namespace VivHelper.Entities {
                     ColorMode = ParticleType.ColorModes.Blink
                 };
             }
-            p_shatter = P_Shatter;
-            p_glow = P_Glow;
-            p_regen = P_Regen;
             outline = new Image(GFX.Game["VivHelper/genericCircleRefill/outline"]);
             outline.CenterOrigin();
             outline.Visible = false;

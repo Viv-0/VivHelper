@@ -216,7 +216,7 @@ local function updateFields(data, changedGroup, interactionData)
 
     -- Change group here to make logic simpler
     if changedGroup == "hex" then
-        local parsed, r, g, b, a = vivUtil.getColor(vivUtil.swapRGBA(data.hexColor))
+        local parsed, r, g, b, a = vivUtil.oldGetColor(vivUtil.swapRGBA(data.hexColor))
         if parsed then 
             updateHsvFields(data, r, g, b)
             changedGroup = "hsv"
@@ -364,7 +364,7 @@ function colorPicker.getColorPicker(hexColor, options)
     local language = languageRegistry.getLanguage()
     local callback = options.callback or function() end
 
-    local parsed, r, g, b, a = vivUtil.getColor(hexColor)
+    local parsed, r, g, b, a = vivUtil.oldGetColor(hexColor)
     local h, s, v = utils.rgbToHsv(r or 0, g or 0, b or 0)
 
     local fieldOrder = getFormFieldOrder(options)

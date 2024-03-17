@@ -8,6 +8,7 @@ using Monocle;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
 using Celeste.Mod.VivHelper;
+using static MonoMod.InlineRT.MonoModRule;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/CPP")]
@@ -84,7 +85,7 @@ namespace VivHelper.Entities {
             customID = e.Attr("CustomStringID", "");
             color = null;
             if (e.Attr("Color") != "")
-                color = VivHelper.OldColorFunction(e.Attr("Color"));
+                color = VivHelper.GetColorWithFix(e, "Color", "color", VivHelper.GetColorParams.None, VivHelper.GetColorParams.None, Color.White).Value;
             base.Depth = e.Int("Depth", 9008);
             if (Sprite != null) {
                 Sprite.Color = color ?? Hair.Color;

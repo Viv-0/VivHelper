@@ -225,7 +225,7 @@ namespace VivHelper.Entities {
 
         public override void Render() {
             if (list.Count > 0) {
-                Color color = (colorController?.baseColor ?? VivHelper.OldColorFunction(VivHelperModule.Session.savedHBController?.baseColorHex ?? VivHelperModule.defaultHBController.baseColorHex));
+                Color color = colorController?.baseColor ?? Calc.HexToColorWithAlpha(VivHelperModule.Session.savedHBController?.baseColorHex ?? VivHelperModule.defaultHBController.baseColorHex);
                 foreach (HoldableBarrier item in list) {
                     if (item.Visible) {
                         Draw.Rect(item.Collider, color * 0.15f);

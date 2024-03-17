@@ -14,7 +14,8 @@ namespace VivHelper.Entities {
     [TrackedAs(typeof(DashBlock))]
     [CustomEntity("VivHelper/CustomDashBlock = Load")]
     public class CustomDashBlock : DashBlock {
-        public static Entity Load(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Bool("disableFallingBlocksBreak", false) ? new CustomDashBlockAlt(entityData, offset, new EntityID(levelData.Name, entityData.ID)) : new CustomDashBlock(entityData, offset, new EntityID(levelData.Name, entityData.ID));
+        public static Entity Load(Level level, LevelData levelData, Vector2 offset, EntityData entityData) =>
+            entityData.Bool("disableFallingBlocksBreak", false) ? new CustomDashBlockAlt(entityData, offset, new EntityID(levelData.Name, entityData.ID)) : new CustomDashBlock(entityData, offset, new EntityID(levelData.Name, entityData.ID));
 
         protected bool permanent;
 
@@ -31,8 +32,6 @@ namespace VivHelper.Entities {
         private bool canDash;
         private string audioEvent;
         private string flagBreak, flagDisable;
-        private bool disableByDefault;
-        private bool disableFallingBlockBreak;
 
         public CustomDashBlock(EntityData data, Vector2 offset, EntityID id)
             : base(data, offset, id) {
@@ -113,9 +112,9 @@ namespace VivHelper.Entities {
                     }
                 }
             }
-            if (breakStaticMovers)
-                DestroyStaticMovers();
-            else
+            if (breakStaticMovers) {
+                this.FixedDestroyStaticMovers();
+            } else
                 DisableStaticMovers();
             if (flagBreak != "") {
                 (Scene as Level)?.Session?.SetFlag(flagBreak);

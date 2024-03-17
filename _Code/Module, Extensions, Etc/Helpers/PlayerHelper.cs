@@ -93,7 +93,7 @@ namespace VivHelper {
                 if (output < 0)
                     return false;
                 if (output > 25)
-                    throw new InvalidPropertyException("You tried to put in a custom state value over 25. I recommend retrieving the classname or using the default values provided in the dropdown.");
+                    throw new InvalidParameterException("You tried to put in a custom state value over 25. I recommend retrieving the classname or using the default values provided in the dropdown.");
                 return true;
             }
             output = Array.IndexOf(manualStates, input);
@@ -104,17 +104,17 @@ namespace VivHelper {
                 return true;
             List<string> subset = input.Split('.').ToList();
             if (subset.Count < 2)
-                throw new InvalidPropertyException("You input an invalid custom state.");
+                throw new InvalidParameterException("You input an invalid custom state.");
             string fieldName = subset.Last();
             subset.RemoveAt(subset.Count - 1);
             string temp1 = string.Join(".", subset); //This is everything but the fieldname, which should be the classname path, Array Resizing was slower in this case.
             if (!VivHelper.TryGetType(temp1, out Type type))
-                throw new InvalidPropertyException("The custom state class path was invalid!");
+                throw new InvalidParameterException("The custom state class path was invalid!");
             FieldInfo field = type.GetField(fieldName, BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic); //If its nonpublic this would make me angy.
             if (field == null)
-                throw new InvalidPropertyException("The custom state field name was invalid!");
+                throw new InvalidParameterException("The custom state field name was invalid!");
             if (field.FieldType != typeof(int))
-                throw new InvalidPropertyException("The custom state field was found but not shown to be a valid field (it is not an integer)");
+                throw new InvalidParameterException("The custom state field was found but not shown to be a valid field (it is not an integer)");
             output = (int) field.GetValue(null);
             return true;
         }

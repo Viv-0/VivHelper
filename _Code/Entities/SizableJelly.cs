@@ -336,7 +336,7 @@ namespace VivHelper.Entities {
             wiggler.Start();
         }
 
-        protected override void OnSquish(CollisionData data) {
+        public override void OnSquish(CollisionData data) {
             if (!TrySquishWiggle(data, 3, 3)) {
                 RemoveSelf();
             }

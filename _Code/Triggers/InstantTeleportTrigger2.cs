@@ -220,7 +220,7 @@ namespace VivHelper.Triggers {
             startPos = data.Position + offset;
             targetID = data.NoEmptyString("TargetID", null);
             if (targetID == null)
-                throw new InvalidPropertyException($"Teleport Trigger in room {roomName} at position {data.Position} has an empty targetID property.");
+                throw new InvalidParameterException($"Teleport Trigger in room {roomName} at position {data.Position} has an empty targetID property.");
             ExitDirection = data.Has("onExit") ? (data.Bool("onExit", false) ? Calc.Clamp(data.Int("ExitDirection", 15), -2, 15) : 0) : Calc.Clamp(data.Int("ExitDirection", 0), -2, 15);
             string _f = data.Attr("RequiredFlags", "");
             if (!string.IsNullOrWhiteSpace(_f))
@@ -239,7 +239,7 @@ namespace VivHelper.Triggers {
             bringHoldableThrough = data.Bool("BringHoldableThrough");
             switch (transition) {
                 case TransitionType.ColorFlash:
-                    transitionInfo = new List<object>() { VivHelper.OldColorFunction(data.Attr("FlashColor")) * Calc.Clamp(data.Float("FlashAlpha", 1f), 0f, 1f) };
+                    transitionInfo = new List<object>() { Calc.HexToColor("FlashColor") * Calc.Clamp(data.Float("FlashAlpha", 1f), 0f, 1f) };
                     break;
                 case TransitionType.Lightning:
                     int c = data.Int("LightningCount", 2);
@@ -253,7 +253,7 @@ namespace VivHelper.Triggers {
                         else
                             q = new float[] { -130, 130 };
                     } catch (Exception d) {
-                        throw new InvalidPropertyException($"Lightning Offset Range property in Teleport Trigger in Room {roomName}, Position {startPos}, invalid: needs to be an integer or two integers separated by commas.", d);
+                        throw new InvalidParameterException($"Lightning Offset Range property in Teleport Trigger in Room {roomName}, Position {startPos}, invalid: needs to be an integer or two integers separated by commas.", d);
                     }
                     float[] j = new float[2] { data.Float("LightningDelay"), 0.25f };
                     if (float.TryParse(data.Attr("LightningMaxDelay", ""), out j[1]))
@@ -513,7 +513,6 @@ namespace VivHelper.Triggers {
             preActive = false;
             if (player?.Dead ?? true) //Cancels on death
             {
-                Console.WriteLine("player was dead at PreTeleport");
                 ClearTeleportFunction(level);
                 return;
             }
@@ -537,8 +536,6 @@ namespace VivHelper.Triggers {
         }
 
         public void Teleport(Player player, Level level) {
-            if (player?.Dead ?? true)
-                Console.WriteLine("player was dead at Teleport Call");
             if (player is null || player.Dead) {
                 Logger.Log(LogLevel.Info, nameof(VivHelperModule), "Attempted to Teleport but player is either dead or null.");
                 ClearTeleportFunction(level);

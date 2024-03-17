@@ -53,14 +53,25 @@ namespace VivHelper.Entities {
                 else if (!b)
                     text = "{" + t1 + "}";
             }
-            outlineColor = VivHelper.OldColorFunction(data.Attr("OutlineColor", "Black"), 1f);
-            outline = data.Has("outline") ? data.Bool("outline") : outlineColor != Color.Transparent;
+            if (data.StringIfNotEmpty("colors", out var _colors)) {
+                List<Color?> colors = VivHelper.NewColorsFromString(_colors, ',', VivHelper.GetColorParams.ImplyEmptyAsTransparent);
+                switch (colors.Count) {
+                    case 0: color = Color.White; outline = false; break;
+                    case 1: color = colors[0] ?? Color.White; outline = false; break;
+                    default: color = colors[0] ?? Color.White; outlineColor = colors[1] ?? Color.Transparent; outline = outlineColor != Color.Transparent; break;
+                }
+            } else {
+#pragma warning disable CS0612
+                color = VivHelper.OldColorFunction(data.Attr("TextColor1", "White"), 1f);
+                outlineColor = VivHelper.OldColorFunction(data.Attr("OutlineColor", "Black"), 1f);
+                outline = data.Has("outline") ? data.Bool("outline") : outlineColor != Color.Transparent;
+#pragma warning restore CS0612
+            }
             pausetype = data.Enum<PauseRenderTypes>("PauseType", PauseRenderTypes.Hidden);
             scale = Vector2.One * data.Float("Scale", 1.25f);
             RenderDistance = data.Float("RenderDistance", 128f);
             if (!VivHelper.TryGetEaser(data.Attr("EaseType", "CubeInOut"), out EaseType))
                 EaseType = Ease.CubeInOut;
-            color = VivHelper.OldColorFunction(data.Attr("TextColor1", "White"), 1f);
             alwaysRender = data.Bool("AlwaysRender");
 
             lockPosition = data.Bool("LockPosition", false);

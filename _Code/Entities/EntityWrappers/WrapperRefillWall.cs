@@ -11,6 +11,7 @@ using Microsoft.Xna.Framework;
 using MonoMod;
 using MonoMod.Utils;
 using System.Reflection;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/RefillWallWrapper")]
@@ -50,8 +51,8 @@ namespace VivHelper.Entities {
             respawnMethodName = e.Attr("RespawnMethodName", "Respawn");
             if (string.IsNullOrWhiteSpace(respawnMethodName))
                 respawnMethodName = "Respawn";
-            color1 = VivHelper.OldColorFunction(e.Attr("InnerColor", "888888"));
-            color2 = VivHelper.OldColorFunction(e.Attr("OuterColor", "d0d0d0"));
+            color1 = VivHelper.GetColorWithFix(e, "InnerColor", "innerColor", GetColorParams.None, GetColorParams.None, new Color(32, 128, 32, 255)).Value;
+            color2 = VivHelper.GetColorWithFix(e, "OuterColor", "outerColor", GetColorParams.None, GetColorParams.None, new Color(147, 189, 64, 255)).Value;
             alpha = Calc.Clamp(e.Float("Alpha", 1f), 0f, 1f);
             respawnTime = e.Float("RespawnTime", -1f);
             Depth = depth = e.Int("Depth", 100);
@@ -101,7 +102,7 @@ namespace VivHelper.Entities {
                 Collidable = true;
             }
             tiedEntity.Collidable = false;
-            dynRefill.Invoke(respawnMethodName, Everest._EmptyObjectArray);
+            dynRefill.Invoke(respawnMethodName, Array.Empty<object>);
             tiedEntity.Collidable = false;
         }
 

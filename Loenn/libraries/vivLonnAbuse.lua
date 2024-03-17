@@ -28,16 +28,17 @@ local colors = require("consts.colors")
 local placementUtils = require("placement_utils")
 local utils = require("utils")
 local drawing = require("utils.drawing")
+local mods = require('mods')
 local drawableFunction = require("structs.drawable_function")
 local drawableRectangle = require("structs.drawable_rectangle")
-local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
+local vivUtil = mods.requireFromPlugin('libraries.vivUtil')
 local loadedState = require('loaded_state')
 
 local form = require('ui.forms.form')
 
-local loennExtended_triggerAPI = require("mods").requireFromPlugin("libraries.api.triggerRendering", "LoennExtended")
-local loennExtended_textAPI = require("mods").requireFromPlugin("libraries.api.textRendering", "LoennExtended")
-local loennExtended_layerAPI = require("mods").requireFromPlugin("libraries.api.layers", "LoennExtended")
+local loennExtended_triggerAPI = mods.requireFromPlugin("libraries.api.triggerRendering", "LoennExtended")
+local loennExtended_textAPI = mods.requireFromPlugin("libraries.api.textRendering", "LoennExtended")
+local loennExtended_layerAPI = mods.requireFromPlugin("libraries.api.layers", "LoennExtended")
 
 --hotreload manager: if triggers._vivh_unloadSeq has had a value set already, we're reloading the plugin, since triggers._vivh_unloadSeq is only created in this file.
 if triggers._vivh_unloadSeq then triggers._vivh_unloadSeq() end 
@@ -111,7 +112,7 @@ function triggers.addDrawables(batch, room, targets, viewport, yieldRate)
         local drawable = nil
         if handler._vivh_drawRect then 
             drawable = drawableFunction.fromFunction(handler._vivh_drawRect, trigger, room, handler) 
-        elseif loennExtended_triggerAPI then 
+        elseif vivUtil.isModLoaded("LoennExtended") then 
             drawable = loennExtended_triggerAPI.getTriggerDrawableBg(trigger)
         else 
             drawable = drawableRectangle.fromRectangle("bordered", trigger.x or 0, trigger.y or 0, trigger.width or 16, trigger.height or 16, colors.triggerColor, colors.triggerBorderColor)
@@ -133,7 +134,7 @@ function triggers.addDrawables(batch, room, targets, viewport, yieldRate)
         local handler = trigger._vivh_handler
         trigger._vivh_handler = nil
         local displayName = handler._vivh_textOverride and handler._vivh_textOverride(room, trigger) or nil
-        if loennExtended_triggerAPI and loennExtended_textAPI then -- LoennExtended
+        if vivUtil.isModLoaded("LoennExtended") then -- LoennExtended
             displayName = displayName or loennExtended_triggerAPI.getDisplayText(trigger)
     
             local color = colors.triggerTextColor
@@ -173,13 +174,12 @@ end
 
 -- ##########################################################################################
 
-
-
 function triggers._vivh_unloadSeq() -- Handles hotreload.
     triggers.addDrawables = _orig_triggers_addDrawables
     triggers.getDrawable = _orig_triggers_getDrawable
     placementUtils.finalizePlacement = _orig_placementUtils_finalizePlacement
     loadedState.side.map._vivh_tags = nil
 end
+
 
 return {}

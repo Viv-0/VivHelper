@@ -35,7 +35,7 @@ namespace VivHelper {
             if (Engine.Commands.Open) {
                 Engine.Commands.Log(input);
             } else {
-                Commands_UpdateClosed?.Invoke(Engine.Commands, Everest._EmptyObjectArray);
+                Commands_UpdateClosed?.Invoke(Engine.Commands, Array.Empty<object>());
                 Engine.Commands.Log(input + (Celeste.Celeste.PlayMode != Celeste.Celeste.PlayModes.Debug ? "Type q and press [ENTER] to exit." : ""));
             }
         }

@@ -50,7 +50,7 @@ namespace VivHelper.Entities {
         private void BreakOutParticles() {
             Level level = SceneAs<Level>();
             for (float num = 0f; num < Consts.TAU; num += 0.17453292f) {
-                Vector2 position = base.Center + Calc.AngleToVector(num + Calc.Random.Range(Consts.DEG1 * -4, Consts.DEG1 * 4), Calc.Random.Range(12, 20));
+                Vector2 position = base.Center + Calc.AngleToVector(num + Calc.Random.Range(Calc.DegToRad * -4, Calc.DegToRad * 4), Calc.Random.Range(12, 20));
                 level.Particles.Emit(Seeker.P_BreakOut, position, num);
             }
         }

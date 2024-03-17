@@ -12,13 +12,14 @@ using MonoMod.Utils;
 using Celeste.Mod.VivHelper;
 using Celeste.Mod;
 using MonoMod.RuntimeDetour;
+using Celeste.Mod.Helpers.LegacyMonoMod;
 
 namespace VivHelper.Entities {
     public class RefillCancel {
         public class PlayerIndicator : Entity {
             private Level level;
             private Player player;
-            private MTexture dashX = GFX.Game["VivHelper/PlayerIndicator/chevron"],
+            private static MTexture dashX = GFX.Game["VivHelper/PlayerIndicator/chevron"],
                           dashRefX = GFX.Game["VivHelper/PlayerIndicator/triangle"],
                           stamRefX = GFX.Game["VivHelper/PlayerIndicator/square"];
 
@@ -45,13 +46,19 @@ namespace VivHelper.Entities {
         public static PlayerIndicator p;
         public static void Load() {
             // pre-Core: using (new DetourContext() { After = { "*" } }) {
-            using (new DetourConfigContext(new DetourConfig("VivHelper", before: new[] { "*" })).Use()) {
+            using(new LegacyDetourContext { After = { "*" } }) { // I tried to use the Core DetourContext and it crashes.
                 On.Celeste.Player.UseRefill += Player_UseRefill;
 
                 On.Celeste.Player.Update += Player_Update;
                 On.Celeste.Player.Die += Player_Die;
                 Everest.Events.Level.OnExit += Level_OnExit;
             }
+        }
+        public static void Unload() {
+            On.Celeste.Player.UseRefill -= Player_UseRefill;
+            On.Celeste.Player.Update -= Player_Update;
+            On.Celeste.Player.Die -= Player_Die;
+            Everest.Events.Level.OnExit -= Level_OnExit;
         }
 
         private static void Level_OnExit(Level level, LevelExit exit, LevelExit.Mode mode, Session session, HiresSnow snow) {
@@ -147,12 +154,6 @@ namespace VivHelper.Entities {
             return orig.Invoke(self, twoDashes);
         }
 
-        public static void Unload() {
-            On.Celeste.Player.UseRefill -= Player_UseRefill;
-            On.Celeste.Player.Update -= Player_Update;
-            On.Celeste.Player.Die -= Player_Die;
-            Everest.Events.Level.OnExit -= Level_OnExit;
-        }
     }
 
     [CustomEntity("VivHelper/RefillCancelSpace")]

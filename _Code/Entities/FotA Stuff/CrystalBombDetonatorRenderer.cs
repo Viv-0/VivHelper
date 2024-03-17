@@ -217,7 +217,7 @@ namespace VivHelper.Entities {
             if (trackedFields.Count <= 0)
                 return;
 
-            Color color = (colorController?.baseColor ?? VivHelper.OldColorFunction(VivHelperModule.Session.savedCBDController?.baseColorHex ?? VivHelperModule.defaultCBDController.baseColorHex)) * 0.5f;
+            Color color = (colorController?.baseColor ?? Calc.HexToColor(VivHelperModule.Session.savedCBDController?.baseColorHex ?? VivHelperModule.defaultCBDController.baseColorHex)) * 0.5f;
             foreach (CrystalBombDetonator2 crystalBombDetonator in trackedFields) {
                 if (crystalBombDetonator.Visible)
                     Draw.Rect(crystalBombDetonator.Collider, color);

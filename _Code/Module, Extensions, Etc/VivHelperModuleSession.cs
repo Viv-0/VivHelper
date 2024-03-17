@@ -29,6 +29,7 @@ namespace VivHelper {
             public string baseColorHex { get; set; }
             public Vector2 particleDir { get; set; }
             public bool solidOnRelease { get; set; }
+            public bool solidOnPlayer { get; set; }
             public bool toggleBloom { get; set; } = true;
         }
         public class CrystalBombDetonatorCh {

@@ -15,6 +15,7 @@ using FMOD.Studio;
 using YamlDotNet.Core.Tokens;
 using System.Linq.Expressions;
 using YamlDotNet.Helpers;
+using static Celeste.TrackSpinner;
 
 namespace VivHelper {
     public static class Extensions {
@@ -155,7 +156,7 @@ namespace VivHelper {
         public static string ThrowOnEmptyAttr(this EntityData self, string key) {
             string q = self.Attr(key, null);
             if (string.IsNullOrEmpty(q))
-                throw new InvalidPropertyException($"Property \"{key}\" was null or empty for entity of type {self.Name} at Position {self.Position}, when it cannot be for this to function.");
+                throw new InvalidParameterException($"Property \"{key}\" was null or empty for entity of type {self.Name} at Position {self.Position}, when it cannot be for this to function.");
             return q;
         }
 
@@ -390,7 +391,7 @@ namespace VivHelper {
             return texture;
         }
 
-        public static Color Color(this EntityData self, string key, Color? defaultValue = null, List<string> defaultColorParametrization = null) {
+        /*public static Color Color(this EntityData self, string key, Color? defaultValue = null, List<string> defaultColorParametrization = null) {
             Color _defaultValue = Microsoft.Xna.Framework.Color.White;
             if (defaultValue != null)
                 _defaultValue = defaultValue.Value;
@@ -431,7 +432,7 @@ namespace VivHelper {
                 return OldColorFunctionWithNull(val);
             } else
                 return defaultValue;
-        }
+        }*/
 
         public static T BetterEnum<T>(this EntityData self, string key, T defaultValue) where T : struct {
             if (!self.Has(key))
@@ -695,6 +696,31 @@ namespace VivHelper {
             EventInstance i = (EventInstance) EntityMuterComponent.SoundSource_instance.GetValue(self);
             if (i != null && i.getVolume(out _, out float finalVol) == FMOD.RESULT.OK && finalVol != vol)
                 i.setVolume(vol);
+        }
+
+        public static bool IsInBounds(this Level level, Entity entity, float padding) {
+            Rectangle bounds = level.Bounds;
+            if (entity.Right > (float) bounds.Left - padding && entity.Bottom > (float) bounds.Top - padding && entity.Left < (float) bounds.Right + padding) {
+                return entity.Top < (float) bounds.Bottom + padding;
+            }
+            return false;
+        }
+
+        public static Debris BlastFrom(this Debris debris, Vector2 from, (float,float) strengthRange) {
+            float length = Calc.Random.Range(strengthRange.Item1, strengthRange.Item2);
+            debris.speed = (debris.Position - from).SafeNormalize(length);
+            debris.speed = debris.speed.Rotate(Calc.Random.Range(-MathF.PI / 12f, MathF.PI / 12f));
+            return debris;
+        }
+
+        public static void FixedDestroyStaticMovers(this Platform platform) {
+            foreach(StaticMover mover in platform.staticMovers) {
+                mover.Destroy();
+                Console.WriteLine(mover.Entity);
+                if(!platform.Scene.Entities.removing.Contains(mover.Entity))
+                    mover.Entity.RemoveSelf();
+            }
+            platform.staticMovers.Clear();
         }
     }
     public static class FastFieldInfoHelper {
