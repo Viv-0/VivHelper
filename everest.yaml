@@ -1,5 +1,5 @@
 - Name: VivHelper
-  Version: 1.14.4
+  Version: 1.14.5
   DLL: dll/VivHelper.dll
   Dependencies:
     - Name: EverestCore

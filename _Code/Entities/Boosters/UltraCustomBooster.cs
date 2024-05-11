@@ -422,8 +422,7 @@ namespace VivHelper.Entities.Boosters {
     public class UltraCustomBooster : CustomBooster {
         public static Vector2 playerOffset = new Vector2(0, -2);
 
-        public ParticleType P_Appear;
-        public ParticleType P_Burst;
+        public Color AppearColor, BurstColor;
 
         public CustomDashStateCh customDashState;
         public readonly Vector2 startPosition;
@@ -501,21 +500,20 @@ namespace VivHelper.Entities.Boosters {
                 compositeSprite.AddLoop("inside", 0.1f, 5, 6, 7, 8);
                 compositeSprite.AddLoop("spin", 0.06f, 18, 19, 20, 21, 22, 23, 24, 25);
                 compositeSprite.Add("pop", 0.08f, 9, 10, 11, 12, 13, 14, 15, 16, 17);
-                string _cs = data.NoEmptyString("ColorSet");
-                if (_cs != null)
-                    compositeSprite.DefineColorSet(VivHelper.OldColorsFromString(_cs, ','));
+                if (data.Has("ColorSet"))
+                    compositeSprite.DefineColorSet(VivHelper.NewColorsFromString(data.NoEmptyString("ColorSet"), ',').ConvertAll(t => t ?? Color.White));
                 else {
                     compositeSprite.DefineColorSet(new List<Color>
                     {
-                        data.Color("OutlineColor", Color.Black),
-                        data.Color("ShineColor", Calc.HexToColor("8cf7cf")),
-                        data.Color("BubbleColor", Calc.HexToColor("4acfc6")),
-                        data.Color("LightBase", Calc.HexToColor("1c7856")),
-                        data.Color("DarkBase", Calc.HexToColor("0e4a36")),
-                        data.Color("LightCore", Calc.HexToColor("172b21")),
-                        data.Color("DarkCore", Calc.HexToColor("0e1c15")),
-                        data.Color("LightPoof", Color.White),
-                        data.Color("DarkPoof", Calc.HexToColor("291c33"))
+                        VivHelper.GetSimpleColor(data.Attr("OutlineColor", "000000")),
+                        VivHelper.GetSimpleColor(data.Attr("ShineColor","8cf7cf")),
+                        VivHelper.GetSimpleColor(data.Attr("BubbleColor", "4acfc6")),
+                        VivHelper.GetSimpleColor(data.Attr("LightBase", "1c7856")),
+                        VivHelper.GetSimpleColor(data.Attr("DarkBase", "0e4a36")),
+                        VivHelper.GetSimpleColor(data.Attr("LightCore", "172b21")),
+                        VivHelper.GetSimpleColor(data.Attr("DarkCore", "0e1c15")),
+                        VivHelper.GetSimpleColor(data.Attr("LightPoof", "ffffff")),
+                        VivHelper.GetSimpleColor(data.Attr("DarkPoof", "291c33"))
                     });
                 }
                 compositeSprite.CenterOrigin();
@@ -524,10 +522,9 @@ namespace VivHelper.Entities.Boosters {
             } else {
                 Add(sprite = GFX.SpriteBank.Create(data.NoEmptyStringReplace("SpriteReference", "booster")));
             }
-            P_Appear = new ParticleType(Booster.P_Appear) { Color = data.Color("AppearColor", useComposite ? compositeSprite.colorSet[3] : Calc.HexToColor("4acfc6")) };
-            var c = data.Color("BurstColor", useComposite ? compositeSprite.colorSet[3] : Calc.HexToColor("2c956e"));
-            P_Burst = new ParticleType(Booster.P_Burst) { Color = Color.Lerp(c, Color.Black, 0.15f) * 0.9f, Color2 = Color.Lerp(c, Color.White, 0.15f) * 0.9f, ColorMode = ParticleType.ColorModes.Choose };
-
+            AppearColor = VivHelper.GetColor(data.Attr("AppearColor"), VivHelper.GetColorParams.AllowNull, useComposite ? compositeSprite.colorSet[3] : Calc.HexToColor("4acfc6")).Value;
+            BurstColor = VivHelper.GetColor(data.Attr("BurstColor"), VivHelper.GetColorParams.AllowNull, useComposite ? compositeSprite.colorSet[3] : Calc.HexToColor("2c956e")).Value;
+            
             audioEnter = data.Attr("audioOnEnter", SFX.game_05_redbooster_enter);
             audioExit = data.Attr("audioOnExit", SFX.game_05_redbooster_end);
             audioDash = data.Attr("audioOnBoost", SFX.game_05_redbooster_dash);
@@ -565,11 +562,9 @@ namespace VivHelper.Entities.Boosters {
             scene.Add(outline);
         }
         private void AppearParticles() {
-            if (P_Appear != null) {
-                ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
-                for (int i = 0; i < 360; i += 30) {
-                    particlesBG.Emit(P_Appear, 1, base.Center, Vector2.One * 2f, i * Calc.DegToRad);
-                }
+            ParticleSystem particlesBG = SceneAs<Level>().ParticlesBG;
+            for (int i = 0; i < 360; i += 30) {
+                particlesBG.Emit(Booster.P_Appear, 1, base.Center, Vector2.One * 2f, AppearColor, i * Calc.DegToRad);
             }
         }
         public void PlayerBoosted(Player player, Vector2 direction) {
@@ -601,8 +596,9 @@ namespace VivHelper.Entities.Boosters {
                 loopingSfx.Position = player.Center + playerOffset - Position;
                 loopingSfx.UpdateSfxPosition(); //Cheeky hack
 
-                if (Scene.OnInterval(0.02f)) {
-                    (Scene as Level).ParticlesBG.Emit(P_Burst, 2, player.Center + playerOffset, new Vector2(3f, 3f), player.DashDir.Angle());
+                if (Scene.OnInterval(0.05f)) {
+                    Color col = Color.Lerp(BurstColor, Calc.Random.Choose(Color.Black, Color.White), 0.15f) * 0.9f;
+                    (Scene as Level).ParticlesBG.Emit(Booster.P_Burst, 2, player.Center + playerOffset, new Vector2(3f, 3f), col, player.DashDir.Angle());
                 }
                 yield return null;
             }

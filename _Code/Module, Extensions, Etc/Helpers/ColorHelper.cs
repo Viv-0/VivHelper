@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using YamlDotNet.Core.Tokens;
 
 namespace VivHelper {
     public static partial class VivHelper {
@@ -110,7 +111,7 @@ namespace VivHelper {
             object value;
             Color? ret = null;
             if(data.Values.TryGetValue(newColor, out value) && value is string parse) {
-                if (@new.HasFlag(GetColorParams.ImplyEmptyAsTransparent) && parse != null && string.IsNullOrWhiteSpace(parse)) {
+                if (@new.HasFlag(GetColorParams.ImplyEmptyAsTransparent) && string.IsNullOrWhiteSpace(parse)) {
                     ret = Color.Transparent;
                 } else if (!(specialColorNames?.Invoke(parse, out ret) ?? false)) {
                     ret = NewColorFunction(parse, @new.HasFlag(GetColorParams.DisallowXNAColors));
@@ -118,7 +119,7 @@ namespace VivHelper {
                         ret = defaultColor ?? Color.White;
                 }
             } else if(data.Values.TryGetValue(legacyColor, out value) && value is string parse2) {
-                if (old.HasFlag(GetColorParams.ImplyEmptyAsTransparent) && parse2 != null && string.IsNullOrWhiteSpace(parse2)) {
+                if (old.HasFlag(GetColorParams.ImplyEmptyAsTransparent) && string.IsNullOrWhiteSpace(parse2)) {
                     ret = Color.Transparent;
                 } else if (!(specialColorNames?.Invoke(parse2, out ret) ?? false)) {
                     ret = old.HasFlag(GetColorParams.AllowNull) ? OldColorFunctionWithNull(parse2, old.HasFlag(GetColorParams.DisallowXNAColors)) :
@@ -198,9 +199,76 @@ namespace VivHelper {
             return rgba ? t + c.A.ToString("X") : c.A.ToString("X") + t;
         }
 
-        public static Color BlendColors(Color a, Color b) {
-            return new Color((a.R / 255f) * (b.R / 255f), (a.G / 255f) * (b.G / 255f), (a.B / 255f) * (b.B / 255f), (a.A / 255f) * (b.A / 255f));
+        public static Color BlendColors(Color a, Color b) => ColorLerp(a, b, 0.5f);
+
+        public static Color ColorLerp(Color a, Color b, float t) => HSVAtoRGBA(Vector4.Lerp(RGBAtoHSVA(a), RGBAtoHSVA(b), t));
+
+        public static float GetHue(this Color c, int min = -1, int max = -1) {
+            if (c.R == c.G && c.G == c.B)
+                return 0f;
+            if(min == -1 && max == -1) {
+                if (c.R > c.G) {
+                    max = c.R;
+                    min = c.G;
+                } else {
+                    max = c.G;
+                    min = c.R;
+                }
+                if (c.B > max) {
+                    max = c.B;
+                } else if (c.B < min) {
+                    min = c.B;
+                }
+            }
+            float delta = max - min;
+            float hue;
+
+            if (c.R == max)
+                hue = (c.G - c.B) / delta;
+            else if (c.G == max)
+                hue = (c.B - c.R) / delta + 2f;
+            else
+                hue = (c.R - c.G) / delta + 4f;
+
+            hue *= 60f;
+            if (hue < 0f)
+                hue += 360f;
+
+            return hue;
         }
+
+        public static Vector4 RGBAtoHSVA(Color color) {
+            float max = Calc.Max(color.R, color.G, color.B);
+            float min = Calc.Min(color.R, color.G, color.B);
+            float hue = color.GetHue((int)max, (int)min);
+            float saturation = (max == 0) ? 0 : 1f - (1f * min / max);
+            float value = max / 255f;
+            return new Vector4(hue, saturation, value, color.A);
+        }
+        public static Color HSVAtoRGBA(Vector4 hsva) {
+            int hi = Convert.ToInt32(MathF.Floor(hsva.X / 60)) % 6;
+            float f = hsva.X / 60 - MathF.Floor(hsva.X / 60);
+
+            hsva.Z *= 255;
+            int v = Convert.ToInt32(hsva.Z);
+            int p = Convert.ToInt32(hsva.Z * (1 - hsva.Y));
+            int q = Convert.ToInt32(hsva.Z * (1 - f * hsva.Y));
+            int t = Convert.ToInt32(hsva.Z * (1 - (1 - f) * hsva.Y));
+
+            if (hi == 0)
+                return new Color(v, t, p, hsva.W);
+            else if (hi == 1)
+                return new Color(q, v, p, hsva.W);
+            else if (hi == 2)
+                return new Color(p, v, t, hsva.W);
+            else if (hi == 3)
+                return new Color(p, q, v, hsva.W);
+            else if (hi == 4)
+                return new Color(t, p, v, hsva.W);
+            else
+                return new Color(v, p, q, hsva.W);
+        }
+
         internal static Vector4[] ColorArrToVec4Arr(Color[] colors) {
             Vector4[] ret = new Vector4[colors.Length];
             for (int i = 0; i < colors.Length; i++)

@@ -14,7 +14,8 @@ local script = {
 local SimpleColors = {
     "VivHelper/RainbowSpikesUp","VivHelper/RainbowSpikesLeft","VivHelper/RainbowSpikesDown","VivHelper/RainbowSpikesRight",
     "VivHelper/RainbowTriggerSpikesUp","VivHelper/RainbowTriggerSpikesLeft","VivHelper/RainbowTriggerSpikesDown","VivHelper/RainbowTriggerSpikesRight",
-    "VivHelper/GhostBarrier", "VivHelper/DashCodeHeartController", "VivHelper/CustomLightbeam", "VivHelper/CPP", "VivHelper/TeleporterDash"
+    "VivHelper/GhostBarrier", "VivHelper/DashCodeHeartController", "VivHelper/CustomLightbeam", "VivHelper/CPP", "VivHelper/TeleporterDash",
+    "VivHelper/CornerSpike", "VivHelper/InLevelTeleporter", 
 }
 
 -- we want this to apply to All Rooms, regardless of mode, so we use prerun instead
@@ -23,14 +24,14 @@ function script.run(room, args, ctx) return end
 function script.prerun(args, mode, ctx) 
     for _, styleground in ipairs(state.map.stylesFg) do
         if styleground._name == "VivHelper/CustomRain" or styleground._name == "VivHelper/WindRainFG" then
-            styleground.Colors = styleground.colors .. "hewwo"
+            styleground.Colors = styleground.colors
             styleground.colors = nil
         end
     end
     for _, styleground in ipairs(state.map.stylesBg) do
         if styleground._name == "VivHelper/CustomRain" or styleground._name == "VivHelper/WindRainFG" then
-            styleground.Colors = styleground.colors .. "hewwo"
-            styleground["colors"] = nil
+            styleground.Colors = styleground.colors
+            styleground.colors = nil
         end
     end
     for _, room in ipairs(state.map.rooms) do 
@@ -53,7 +54,7 @@ function script.prerun(args, mode, ctx)
                 entity.outlineColor = vivUtil.swapRGBA(entity.OutlineColor)
                 entity.OutlineColor = nil
             elseif entity._name == "VivHelper/HoldableBarrierColorController" or "VivHelper/HoldableBarrierController2" then
-                entity.particleColor = vivUtil.swapRGBA(entity.particleColor)
+                entity.particleColor = vivUtil.swapRGBA(entity.ParticleColor)
                 entity.ParticleColor = nil
                 entity.edgeColor = vivUtil.swapRGBA(entity.EdgeColor)
                 entity.EdgeColor = nil
@@ -93,11 +94,18 @@ function script.prerun(args, mode, ctx)
                 entity.BeamColor = nil
             elseif entity._name == "VivHelper/CustomSpinner" or entity._name == "VivHelper/AnimatedSpinner" then
                 entity.color = vivUtil.swapRGBA(entity.Color)
+                if entity.Type ~= "White" then entity.color = "ffffff00" end
                 entity.Color = nil
                 entity.shatterColor = vivUtil.swapRGBA(entity.ShatterColor) 
                 entity.ShatterColor = nil
                 entity.borderColor = vivUtil.swapRGBA(entity.BorderColor)
                 entity.BorderColor = nil
+                entity.Type = nil
+            elseif entity._name == "VivHelper/CassetteTileEntity" then
+                entity.enabledColor = entity.enabledTint
+                entity.enabledTint = nil
+                entity.disabledColor = entity.disabledTint
+                entity.disabledTint = nil
             end 
         end
         for _, trigger in ipairs(room.triggers) do

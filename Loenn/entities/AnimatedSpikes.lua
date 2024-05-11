@@ -38,7 +38,7 @@ local function DrawV2(idx, room, entity, viewport)
         spikeOffsets(idx, _out, entity)
 --        _out:setJustification(rotatedSpikeJustification[idx+1])
         return _out
-    else return Sprite.fromTexture(mods.internalModContent .. "/missing_image") end
+    else return Sprite.fromMeta(vivUtil.missingImageMeta) end
 end
 
 local ret = {

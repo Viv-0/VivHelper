@@ -537,7 +537,7 @@ namespace VivHelper.Entities {
 
     [CustomEntity("VivHelper/InterRoomSpawner")]
     public class BetweenRoomRespawn : SpawnPoint {
-        public int tag;
+        public int _tag;
 
         public BetweenRoomRespawn(EntityData data, Vector2 offset) : base(data, offset) {
             tag = data.Int("tag");
@@ -552,7 +552,7 @@ namespace VivHelper.Entities {
     public class BetweenRoomRespawnTarget : SpawnPoint {
         public static Entity Load(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new BetweenRoomRespawnTarget(entityData, offset);
 
-        public int tag;
+        public int _tag;
         public BetweenRoomRespawnTarget(EntityData data, Vector2 offset) : base(data, offset) {
             tag = data.Int("tag");
         }

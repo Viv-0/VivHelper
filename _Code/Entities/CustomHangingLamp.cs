@@ -85,7 +85,7 @@ namespace VivHelper.Entities {
             //Lamp
             sprite = new Sprite(GFX.Game, directory + "lamp");
             sprite.Position = Position;
-            sprite.AddLoop("main", "", AnimSpeed);
+            sprite.AddLoop("main", q, AnimSpeed);
             sprite.Origin.X = cW / 2;
             sprite.Origin.Y = -(Length - cH);
             sprite.Play("main");
@@ -145,10 +145,11 @@ namespace VivHelper.Entities {
                 sfx.Play(AudioPath);
                 soundDelay = 0.25f;
             }
-            if (sprites.Count > 1) {
+            if (sprites.Count > 0) {
                 //Skip over Base rotation :)
-                for (int i = 1; i < sprites.Count; i++) {
-                    sprites[i].Rotation = rotation;
+                for (int i = 0; i < sprites.Count; i++) {
+                    sprites[i].Update();
+                    if (i > 0) sprites[i].Rotation = rotation;
                 }
             }
             Vector2 vector = Calc.AngleToVector(rotation + Consts.PIover2, lightDistance);

@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VivHelper.Module__Extensions__Etc.CustomDash {
+namespace VivHelper.Entities {
 
-    public static class CustomDashData {
+    public struct LegacyControls {
+
+    }
+
+    public class LegacyController {
 
     }
 }

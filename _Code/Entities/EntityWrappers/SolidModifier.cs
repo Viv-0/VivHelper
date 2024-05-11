@@ -84,11 +84,29 @@ namespace VivHelper.Entities {
                 if (t == null) { throw new Exception("Please report this to Viv on Discord @vividescence asap, thank you"); } //Added this get because of a very bizarre crash that occurred once ever.
                 if (VivHelper.MatchTypeFromTypeSet(t, Types, assignableTypes)) //Added the count check because of a weird bug.
                 {
-                    solid.AddOrAddToSolidModifierComponent(new SolidModifierComponent(cornerboost, bufferClimbJumpTrigger, touchTrigger, bottomTouch));
+                    if (solid is SolidTiles st &&
+                        VivHelper.GridRectIntersection(st.Grid, new Rectangle((int) Top, (int) Left, (int) Width, (int) Height), out Grid overlap, out Rectangle scope)) {
+                        // Get the size of the overlapping rectangles and produce a Solid object of that size at that point
+                        Solid output = new Solid(new Vector2(scope.X, scope.Y), scope.Width, scope.Height, true); 
+                        output.Collider = overlap;
+                        output.AddOrAddToSolidModifierComponent(new SolidModifierComponent(cornerboost, bufferClimbJumpTrigger, touchTrigger, bottomTouch));
+                        scene.Add(output);
+                    } else {
+                        solid.AddOrAddToSolidModifierComponent(new SolidModifierComponent(cornerboost, bufferClimbJumpTrigger, touchTrigger, bottomTouch));
+                    }
                     if (!all)
                         break;
                 }
             }
+        }
+    }
+    public class SoftSolidTiles : SolidTiles {
+        // This is *solely* used as a fix for CornerBoostBlocks on Solid Tiles
+        public SoftSolidTiles(Vector2 position, Grid grid) : base(position, new VirtualMap<char>(new char[grid.CellsX, grid.CellsY], '0')) {
+            Grid = grid;
+            base.Collider = grid;
+            Visible = false; // Pray noone actually bothers to force Visibility on this
+            Tag -= Tags.Global;
         }
     }
 }

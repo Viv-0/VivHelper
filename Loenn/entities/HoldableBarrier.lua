@@ -39,7 +39,7 @@ HBC2.fieldInformation = {
 }
 HBC2.sprite = function(room,entity) return {
         drawableSpriteStruct.fromTexture("ahorn/VivHelper/HBC", entity),
-        drawableRectangle.fromRectangle("bordered", entity.x-7,entity.y+2,14,6,vivUtil.oldGetColorTable(entity.ParticleColor, true, C1),vivUtil.oldGetColorTable(entity.EdgeColor, true, C2))
+        drawableRectangle.fromRectangle("bordered", entity.x-7,entity.y+2,14,6,vivUtil.GetColorTable(entity, "ParticleColor", "particleColor", true, C1),vivUtil.GetColorTable(entity, "EdgeColor", "edgeColor", true, C2))
 } end
 
 local HoldableJumpthru = {}

@@ -19,52 +19,6 @@ using static Celeste.TrackSpinner;
 
 namespace VivHelper {
     public static class Extensions {
-        //Thanks to JaThePlayer for the class allowing for StateMachine States to be added.
-        private static FieldInfo StateMachine_begins = typeof(StateMachine).GetField("begins", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private static FieldInfo StateMachine_updates = typeof(StateMachine).GetField("updates", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private static FieldInfo StateMachine_ends = typeof(StateMachine).GetField("ends", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private static FieldInfo StateMachine_coroutines = typeof(StateMachine).GetField("coroutines", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        public static int AddState(this StateMachine machine, Func<int> onUpdate, Func<IEnumerator> coroutine = null, Action begin = null, Action end = null) {
-            Action[] begins = (Action[]) StateMachine_begins.GetValue(machine);
-            Func<int>[] updates = (Func<int>[]) StateMachine_updates.GetValue(machine);
-            Action[] ends = (Action[]) StateMachine_ends.GetValue(machine);
-            Func<IEnumerator>[] coroutines = (Func<IEnumerator>[]) StateMachine_coroutines.GetValue(machine);
-            int nextIndex = begins.Length;
-            Array.Resize(ref begins, begins.Length + 1);
-            Array.Resize(ref updates, begins.Length + 1);
-            Array.Resize(ref ends, begins.Length + 1);
-            Array.Resize(ref coroutines, coroutines.Length + 1);
-            StateMachine_begins.SetValue(machine, begins);
-            StateMachine_updates.SetValue(machine, updates);
-            StateMachine_ends.SetValue(machine, ends);
-            StateMachine_coroutines.SetValue(machine, coroutines);
-            machine.SetCallbacks(nextIndex, onUpdate, coroutine, begin, end);
-            return nextIndex;
-        }
-
-        public static int AddState(this StateMachine machine, Func<Player, int> onUpdate, Func<Player, IEnumerator> coroutine = null, Action<Player> begin = null, Action<Player> end = null) {
-            Action[] begins = (Action[]) StateMachine_begins.GetValue(machine);
-            Func<int>[] updates = (Func<int>[]) StateMachine_updates.GetValue(machine);
-            Action[] ends = (Action[]) StateMachine_ends.GetValue(machine);
-            Func<IEnumerator>[] coroutines = (Func<IEnumerator>[]) StateMachine_coroutines.GetValue(machine);
-            int nextIndex = begins.Length;
-            Array.Resize(ref begins, begins.Length + 1);
-            Array.Resize(ref updates, begins.Length + 1);
-            Array.Resize(ref ends, begins.Length + 1);
-            Array.Resize(ref coroutines, coroutines.Length + 1);
-            StateMachine_begins.SetValue(machine, begins);
-            StateMachine_updates.SetValue(machine, updates);
-            StateMachine_ends.SetValue(machine, ends);
-            StateMachine_coroutines.SetValue(machine, coroutines);
-            Func<IEnumerator> _coroutine = null;
-            if (coroutine != null) _coroutine = () => coroutine(machine.Entity as Player);
-            machine.SetCallbacks(nextIndex, () => onUpdate(machine.Entity as Player), _coroutine, () => begin(machine.Entity as Player), () => end(machine.Entity as Player));
-            return nextIndex;
-        }
 
         public static List<Entity> FindAll(this EntityList self, params Type[] types) {
             List<Type> _types = types.ToList();
@@ -391,48 +345,8 @@ namespace VivHelper {
             return texture;
         }
 
-        /*public static Color Color(this EntityData self, string key, Color? defaultValue = null, List<string> defaultColorParametrization = null) {
-            Color _defaultValue = Microsoft.Xna.Framework.Color.White;
-            if (defaultValue != null)
-                _defaultValue = defaultValue.Value;
-            if (defaultColorParametrization?.Count > 0 && defaultColorParametrization.Contains(key))
-                return _defaultValue;
-            else if (self.StringIfNotEmpty(key, out string val)) {
-                return OldColorFunctionWithNull(val) ?? _defaultValue;
-            } else
-                return _defaultValue;
-        }
-        public static Color ColorPlus(this EntityData self, string key, Color? defaultValue = null, params KeyValuePair<string, Color>[] overrides) {
-            Color _defaultValue = Microsoft.Xna.Framework.Color.White;
-            if (defaultValue != null)
-                _defaultValue = defaultValue.Value;
-            if (self.StringIfNotEmpty(key, out string val)) {
-                if (overrides != null) {
-                    foreach (KeyValuePair<string, Color> pair in overrides)
-                        if (pair.Key == val)
-                            return pair.Value;
-                }
-                return OldColorFunctionWithNull(val) ?? _defaultValue;
-            } else
-                return _defaultValue;
-        }
-        public static Color? ColorOrNull(this EntityData self, string key, Color? defaultValue = null) {
-            if (self.StringIfNotEmpty(key, out string val)) {
-                return OldColorFunctionWithNull(val);
-            } else
-                return defaultValue;
-        }
-        public static Color? ColorOrNullPlus(this EntityData self, string key, Color? defaultValue = null, params KeyValuePair<string, Color?>[] overrides) {
-            if (self.StringIfNotEmpty(key, out string val)) {
-                if (overrides != null) {
-                    foreach (KeyValuePair<string, Color?> pair in overrides)
-                        if (pair.Key == val)
-                            return pair.Value;
-                }
-                return OldColorFunctionWithNull(val);
-            } else
-                return defaultValue;
-        }*/
+        public static Color Color(this EntityData self, string key, Color? defaultValue = null, GetColorParams colorParameters = GetColorParams.None, ColorOverrides specialColorNames = null) => ColorOrNull(self, key, defaultValue, colorParameters, specialColorNames) ?? defaultValue ?? Microsoft.Xna.Framework.Color.White;
+        public static Color? ColorOrNull(this EntityData self, string key, Color? defaultValue = null, GetColorParams colorParameters = GetColorParams.AllowNull, ColorOverrides specialColorNames = null) => GetColor(self.Attr(key), colorParameters | GetColorParams.AllowNull, defaultValue, specialColorNames);
 
         public static T BetterEnum<T>(this EntityData self, string key, T defaultValue) where T : struct {
             if (!self.Has(key))

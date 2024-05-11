@@ -157,7 +157,6 @@ namespace VivHelper {
         // Voodoo Magic
         // Allows for mods to use APIs to hook in extra behaviors, such as Shadow Dash, Sun Dash, Time Crystal, etc.
         public string ExtraParameters = string.Empty;
-
         public bool IsRedDashEsque => HeldDash || DashDuration < 0;
 
         public void HandleParameters(CustomDashActionTypes actionForm, Player player) {

@@ -39,9 +39,9 @@ namespace VivHelper.Entities {
 
         // The MovementOperator is a unique struct which defines exactly how it falls
         public struct MovementOperator {
-            public Vector2 speed;
-            public bool needsTrigger;
-            public float ShakeTime;
+            public Vector2 speed; // The speed + direction the block falls
+            public bool needsTrigger; // Whether it needs a "manual trigger" or if it "falls on its own" (either from the player or other methods)
+            public float ShakeTime; // How long it shakes for (before & after) when the Trigger is called
 
         }
         public bool Triggered;

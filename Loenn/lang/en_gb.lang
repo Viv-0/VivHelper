@@ -186,7 +186,6 @@ entities.VivHelper/SolidModifier2.attributes.name.TriggerOnTouch=Trigger On Touc
 entities.VivHelper/SolidModifier2.attributes.description.TriggerOnTouch=An option to toggle whether or not the solid gets "ridden" based on when/how the Player touches the block.
 entities.VivHelper/SolidModifier2.attributes.name.RetainWallSpeed=Retain Momentum?
 entities.VivHelper/SolidModifier2.attributes.description.RetainWallSpeed=Whether or not the block will ensure a cornerboost boosts the player's speed.\nPreviously called "Perfect" CornerBoostBlock, this is recommended.
-entities.VivHelper/SolidModifier.attributes.
 
 entities.VivHelper/AnimatedSpikesUp.placements.name.main=Animated Spikes (Up)
 entities.VivHelper/AnimatedSpikesLeft.placements.name.main=Animated Spikes (Left)
@@ -558,3 +557,12 @@ entities.VivHelper/WarpDashRefill.placements.description.warp_dash=Replaces the 
 entities.VivHelper/WarpDashRefill.placements.name.one_dash=Warp Dash Refill (One Use)
 entities.VivHelper/WarpDashRefill.placements.description.one_dash=Replaces the next dash with a teleport that goes through walls.
 entities.VivHelper/WarpDashRefill.attributes.description.oneUse=If checked, the refill will not respawn.
+
+
+# ------------------------------------------------------------------------- OTHER ---------------------------------------------------------------------------------------------
+tags.VivHelper.spawnpoint.smalldetail=a new spawnpoint index
+tags.VivHelper.spawnpoint.largedetail=a new spawnpoint index, which enable Spawnpoints to link with one another, so you can die in one room and spawn in another
+
+ui.VivHelper.intSender.label=Add
+ui.VivHelper.intSender.tooltip=Assigns %s that's not yet used for this group.
+ui.VivHelper.intGroup.tooltip=Select a tag to use for this item.\nThe tag represents %s.

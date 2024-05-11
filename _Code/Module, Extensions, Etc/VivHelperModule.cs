@@ -372,6 +372,7 @@ namespace VivHelper {
             Debugging.Load();
             //Tester.Load();
         }
+
         private static void newLeaderUpdate(On.Celeste.Leader.orig_Update orig, Leader self) {
             Vector2 vector = self.Entity.Position + self.Position;
             if (self.PastPoints.Count == 0 || (vector - self.PastPoints[0]).Length() >= getFPDistance()) {
@@ -770,7 +771,7 @@ namespace VivHelper {
 
                             }
                         }
-                    } else if (mutingObjects.Contains(entity.Name)) {
+                    } else if (soundObjects.Contains(entity.Name)) {
                         VivHelperModule.Session.MapChangesToAudioSet(entity);
                     } else if (entity.Name == "VivHelper/DisableNeutralOnHoldable") {
                         VivHelperModule.Session.DisableNeutralsOnHoldable = true;
@@ -786,7 +787,7 @@ namespace VivHelper {
             }
             SpawnPointHooks.AddLevelInfoCache(Level.Session);
         }
-        private static string[] mutingObjects = new string[] { "VivHelper/SoundMuter", "VivHelper/SoundReplacer" };
+        private static string[] soundObjects = new string[] { "VivHelper/SoundMuter", "VivHelper/SoundReplacer" };
         private static string[] rainbowObjects = new string[] {"VivHelper/CustomSpinnerV2", "VivHelper/CustomSpinner", "VivHelper/AnimatedSpinner",
         "VivHelper/RainbowSpikesUp", "VivHelper/RainbowSpikesDown", "VivHelper/RainbowSpikesLeft", "VivHelper/RainbowSpikesRight",
         "VivHelper/RainbowTriggerSpikesUp", "VivHelper/RainbowTriggerSpikesDown", "VivHelper/RainbowTriggerSpikesLeft", "VivHelper/RainbowTriggerSpikesRight"};
@@ -811,10 +812,8 @@ namespace VivHelper {
                 if (cursor.TryGotoPrev(MoveType.Before, instr => instr.OpCode == OpCodes.Bne_Un_S)) {
                     cursor.Emit(OpCodes.Ldarg_0);
                     cursor.EmitDelegate<Func<int, Player, int>>((i, p) => {
-                        if (Session?.lockCamera != 0) {
-                            Session.lockCamera = Session.lockCamera - 1;
-                            if (Session.lockCamera == 0 && p.ForceCameraUpdate)
-                                p.ForceCameraUpdate = false;
+                        if (Session?.lockCamera > 0) {
+                            Session.lockCamera = Math.Max(Session.lockCamera - Engine.DeltaTime, 0f);
                             return p.StateMachine.State;
                         }
                         return i;
@@ -896,13 +895,13 @@ namespace VivHelper {
 
         private void Player_ctor(On.Celeste.Player.orig_ctor orig, Player self, Vector2 position, PlayerSpriteMode spriteMode) {
             orig.Invoke(self, position, spriteMode);
-            BooState = self.StateMachine.AddState(BooMushroom.BooUpdate, null, BooMushroom.BooBegin, BooMushroom.BooEnd);
-            PinkState = self.StateMachine.AddState(PinkBoost.PinkUpdate, PinkBoost.PinkCoroutine, PinkBoost.PinkBegin, PinkBoost.PinkEnd);
-            OrangeState = self.StateMachine.AddState(OrangeBoost.Update, OrangeBoost.Coroutine, OrangeBoost.Begin, OrangeBoost.End);
-            WindBoostState = self.StateMachine.AddState(WindBoost.Update, WindBoost.Coroutine, WindBoost.Begin, WindBoost.End);
-            CustomBoostState = self.StateMachine.AddState(UltraCustomBoost.Update, UltraCustomBoost.Coroutine, UltraCustomBoost.Begin, UltraCustomBoost.End);
-            CustomDashState = self.StateMachine.AddState(UltraCustomDash.CDashUpdate, UltraCustomDash.CDashRoutine, UltraCustomDash.CDashBegin, UltraCustomDash.CDashEnd);
-            WarpDashRefill.WarpDashState = self.StateMachine.AddState(WarpDashRefill.WarpDashUpdate, null, WarpDashRefill.WarpDashBegin, WarpDashRefill.WarpDashEnd);
+            BooState = self.StateMachine.AddState<Player>("VivHelper/Boo", BooMushroom.BooUpdate, null, BooMushroom.BooBegin, BooMushroom.BooEnd);
+            PinkState = self.StateMachine.AddState<Player>("VivHelper/PinkBoost", PinkBoost.PinkUpdate, PinkBoost.PinkCoroutine, PinkBoost.PinkBegin, PinkBoost.PinkEnd);
+            OrangeState = self.StateMachine.AddState<Player>("VivHelper/OrangeBoost", OrangeBoost.Update, OrangeBoost.Coroutine, OrangeBoost.Begin, OrangeBoost.End);
+            WindBoostState = self.StateMachine.AddState<Player>("VivHelper/WindBoost", WindBoost.Update, WindBoost.Coroutine, WindBoost.Begin, WindBoost.End);
+            CustomBoostState = self.StateMachine.AddState<Player>("VivHelper/CustomBoost", UltraCustomBoost.Update, UltraCustomBoost.Coroutine, UltraCustomBoost.Begin, UltraCustomBoost.End);
+            CustomDashState = self.StateMachine.AddState<Player>("VivHelper/CustomDash", UltraCustomDash.CDashUpdate, UltraCustomDash.CDashRoutine, UltraCustomDash.CDashBegin, UltraCustomDash.CDashEnd);
+            WarpDashRefill.WarpDashState = self.StateMachine.AddState<Player>("VivHelper/WarpDash", WarpDashRefill.WarpDashUpdate, null, WarpDashRefill.WarpDashBegin, WarpDashRefill.WarpDashEnd);
             if(VivHelperModule.Session.dashPowerupManager is DashPowerupManager m) {
                 self.Add(new DashPowerupController(true, true));
             }

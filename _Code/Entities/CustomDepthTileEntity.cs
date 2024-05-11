@@ -15,6 +15,7 @@ namespace VivHelper.Entities {
         private TileGrid tiles;
 
         private char tileType;
+        private bool bg;
 
         private CustomDepthTileEntity master;
 
@@ -34,20 +35,22 @@ namespace VivHelper.Entities {
             private set;
         }
 
-        public CustomDepthTileEntity(Vector2 position, float width, float height, char tileType, int depth)
+        public CustomDepthTileEntity(Vector2 position, float width, float height, char tileType, int depth, bool bg, bool blockLights = true)
         : base(position, width, height, safe: true) {
             this.tileType = tileType;
             base.Depth = Calc.Clamp(depth, -300000, 20000);
-            Add(new LightOcclude());
-            try {
-                SurfaceSoundIndex = SurfaceIndex.TileToIndex[tileType];
-            } catch {
-                SurfaceSoundIndex = SurfaceIndex.Brick; //bro idfk
+            this.bg = bg;
+            if(bg) {
+                Collidable = false;
             }
+            if(blockLights)
+                Add(new LightOcclude());
+            if(!SurfaceIndex.TileToIndex.TryGetValue(tileType, out SurfaceSoundIndex))
+                SurfaceSoundIndex = SurfaceIndex.Brick;
         }
 
         public CustomDepthTileEntity(EntityData data, Vector2 offset)
-            : this(data.Position + offset, data.Width, data.Height, data.Char("tiletype", '3'), data.Int("Depth", -9000)) {
+            : this(data.Position + offset, data.Width, data.Height, data.Char("tiletype", '3'), data.Int("Depth", -9000), data.Bool("BackgroundTile", false), data.Bool("BlockLights", true)) {
         }
 
         public override void Awake(Scene scene) {
@@ -72,7 +75,8 @@ namespace VivHelper.Entities {
                         }
                     }
                 }
-                tiles = GFX.FGAutotiler.GenerateMap(virtualMap, new Autotiler.Behaviour {
+                Autotiler tiler = bg ? GFX.BGAutotiler : GFX.FGAutotiler;
+                tiles = tiler.GenerateMap(virtualMap, new Autotiler.Behaviour {
                     EdgesExtend = false,
                     EdgesIgnoreOutOfLevel = false,
                     PaddingIgnoreOutOfLevel = false
@@ -82,7 +86,7 @@ namespace VivHelper.Entities {
             }
         }
 
-        private void AddToGroupAndFindChildren(CustomDepthTileEntity from) {
+        private void AddToGroupAndFindChildren(CustomDepthTileEntity from, List<Entity> entities = null) {
             if (from.X < (float) GroupBoundsMin.X) {
                 GroupBoundsMin.X = (int) from.X;
             }
@@ -100,9 +104,12 @@ namespace VivHelper.Entities {
             if (from != this) {
                 from.master = this;
             }
-            foreach (CustomDepthTileEntity entity in base.Scene.Tracker.GetEntities<CustomDepthTileEntity>()) {
-                if (!entity.HasGroup && entity.tileType == tileType && (base.Scene.CollideCheck(new Rectangle((int) from.X - 1, (int) from.Y, (int) from.Width + 2, (int) from.Height), entity) || base.Scene.CollideCheck(new Rectangle((int) from.X, (int) from.Y - 1, (int) from.Width, (int) from.Height + 2), entity))) {
-                    AddToGroupAndFindChildren(entity);
+            // Implement variable entities so that it doesn't pull from hash per tileentity in the chain
+            if (entities == null && !Scene.Tracker.TryGetEntities<CustomDepthTileEntity>(out entities)) 
+                return;
+            foreach (CustomDepthTileEntity entity in entities) {
+                if (!entity.HasGroup && entity.tileType == tileType && entity.bg == bg && (base.Scene.CollideCheck(new Rectangle((int) from.X - 1, (int) from.Y, (int) from.Width + 2, (int) from.Height), entity) || base.Scene.CollideCheck(new Rectangle((int) from.X, (int) from.Y - 1, (int) from.Width, (int) from.Height + 2), entity))) {
+                    AddToGroupAndFindChildren(entity, entities);
                 }
             }
         }

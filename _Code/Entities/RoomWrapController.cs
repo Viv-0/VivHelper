@@ -150,7 +150,7 @@ namespace VivHelper.Entities {
                                 foreach (Trigger trigger in level.Tracker.GetEntities<Trigger>().Where(t => Collide.Check(player, t) && t.GetType().Name.IndexOf("camera", StringComparison.OrdinalIgnoreCase) > -1)) {
                                     VivHelper.PlayerTriggerCheck(player, trigger);
                                 }
-                                VivHelperModule.Session.lockCamera = 1;
+                                VivHelperModule.Session.lockCamera = 0.01f;
                             }
                         };
                     }
@@ -163,7 +163,7 @@ namespace VivHelper.Entities {
                                 foreach (Trigger trigger in level.Tracker.GetEntities<Trigger>().Where(t => Collide.Check(player, t) && t.GetType().Name.IndexOf("camera", StringComparison.OrdinalIgnoreCase) > -1)) {
                                     VivHelper.PlayerTriggerCheck(player, trigger);
                                 }
-                                VivHelperModule.Session.lockCamera = 1;
+                                VivHelperModule.Session.lockCamera = 0.01f;
                             }
                         };
                     }
@@ -176,7 +176,7 @@ namespace VivHelper.Entities {
                                 foreach (Trigger trigger in level.Tracker.GetEntities<Trigger>().Where(t => Collide.Check(player, t) && t.GetType().Name.IndexOf("camera", StringComparison.OrdinalIgnoreCase) > -1)) {
                                     VivHelper.PlayerTriggerCheck(player, trigger);
                                 }
-                                VivHelperModule.Session.lockCamera = 1;
+                                VivHelperModule.Session.lockCamera = 0.01f;
                             }
                         };
                     }
@@ -189,7 +189,7 @@ namespace VivHelper.Entities {
                                 foreach (Trigger trigger in level.Tracker.GetEntities<Trigger>().Where(t => Collide.Check(player, t) && t.GetType().Name.IndexOf("camera", StringComparison.OrdinalIgnoreCase) > -1)) {
                                     VivHelper.PlayerTriggerCheck(player, trigger);
                                 }
-                                VivHelperModule.Session.lockCamera = 1;
+                                VivHelperModule.Session.lockCamera = 0.01f;
                             }
                         };
                     }

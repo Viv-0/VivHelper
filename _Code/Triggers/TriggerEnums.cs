@@ -10,4 +10,10 @@ namespace VivHelper.Triggers {
         OncePerRetry,
         OncePerMapPlay
     }
+
+    public enum TriggerActivationCondition {
+        OnEnter,
+        OnStay,
+        OnLeave,
+    }
 }

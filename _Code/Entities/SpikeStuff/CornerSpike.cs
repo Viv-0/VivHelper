@@ -107,7 +107,7 @@ namespace VivHelper.Entities.SpikeStuff {
             t += (InnerSpike ? "Inner" + b : b);
             image = new Image(Calc.Random.Choose(GFX.Game.GetAtlasSubtextures(t)));
             attrToAction[b].Invoke(this);
-            color = data.Color("Color");
+            color = VivHelper.GetColorWithFix(data, "Color", "color", VivHelper.GetColorParams.ImplyEmptyAsTransparent, VivHelper.GetColorParams.ImplyEmptyAsTransparent, Color.White).Value;
             rainbow = color == Color.Transparent;
             Add(new PlayerCollider(OnCollide));
             if (!data.Bool("DoNotAttach"))

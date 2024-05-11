@@ -2,7 +2,7 @@ local colors = require('consts.xna_colors')
 local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 local drawable_sprite = require('structs.drawable_sprite')
 local drawable_function = require('structs.drawable_function')
-local vh_tag = require("mods").requireFromPlugin("ui.forms.fields.vh_tag")
+local tagHelper = require('libraries.tagHelper')
 
 local colorSet = vivUtil.sortByKeys(colors)
 
@@ -72,7 +72,7 @@ tpSpawn.placements = {
 
 tpSpawn.fieldInformation = {
     forceFacing = {fieldType = "integer", options = {{"Normal", 0},{"Face Right", 1}, {"Face Left", -1}}, editable = false},
-    tag = {fieldType = "VivHelper.tagString", fieldSubtype = "integer"},
+    tag = {fieldType = "VivHelper.tag", fieldSubtype = "integer"},
     Color = {fieldType = "color", allowXNAColors = true, allowEmpty = true},
     OutlineColor = {fieldType = "color", allowXNAColors = true, allowEmpty = true},
     Texture = {fieldType = "path", allowEmpty = true},

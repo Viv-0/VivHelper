@@ -361,5 +361,5 @@ Thumbs.db
 desktop.ini
 *.zip
 
-/Maps/VivHelper/VivHelperTestMap.bin
-/Maps/VivHelper/VivHelperTestMap.bin
+/Maps/*
+_Code/cso.dat

@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Monocle;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,6 +69,9 @@ namespace VivHelper {
                 number += below ? -1 : 1;
             }
         }
+        
+        public static float Determinant(Vector2 a, Vector2 b) => a.X * b.Y - b.X * a.Y;
+
         /// <summary>
         /// retrieves the number of on state values from any uint, in other words, the boolean 1s from the binary number
         /// </summary>
@@ -79,16 +83,9 @@ namespace VivHelper {
             uCount = (uint) (u - ((u >> 1) & 3681400539) - ((u >> 2) & 1227133513));
             return (int) ((uCount + (uCount >> 3)) & 3340530119) % 63;
         }
-        private static int[] tab32 = new int[32] {
-            0,  9,  1, 10, 13, 21,  2, 29,
-            11, 14, 16, 18, 22, 25,  3, 30,
-            8, 12, 20, 28, 15, 17, 24,  7,
-            19, 27, 23,  6, 26,  5,  4, 31};
 
-        // TO-DO, when porting to Core, swap to System.Numerics.BitOperations.Log2(value)
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static int bitlog2(uint value) => System.Numerics.BitOperations.Log2(value);
-
         public static uint int2uint(int i) {
             FloatIntUnion u;
             u.u = 0;
@@ -165,6 +162,43 @@ namespace VivHelper {
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static float FloatsDistanceAway(float x, int dist) { return FloatIntUnion.FloatsDistanceAway(x, dist); }
+
+        // get the intersection of grid points that collide with a given rectangle.
+        public static bool GridRectIntersection(Grid grid, Rectangle rect, out Grid ret, out Rectangle scope) {
+            ret = null;
+            scope = new Rectangle();
+            if (!rect.Intersects(grid.Bounds))
+                return false;
+            int x = (int) (((float) rect.Left - grid.AbsoluteLeft) / grid.CellWidth);
+            int y = (int) (((float) rect.Top - grid.AbsoluteTop) / grid.CellHeight);
+            int width = (int) (((float) rect.Right - grid.AbsoluteLeft - 1f) / grid.CellWidth) - x + 1;
+            int height = (int) (((float) rect.Bottom - grid.AbsoluteTop - 1f) / grid.CellHeight) - y + 1;
+            if (x < 0) {
+                width += x;
+                x = 0;
+            }
+            if (y < 0) {
+                height += y;
+                y = 0;
+            }
+            if (x + width > grid.CellsX) {
+                width = grid.CellsX - x;
+            }
+            if (y + height > grid.CellsY) {
+                height = grid.CellsY - y;
+            }
+            bool[,] map = new bool[width, height];
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < height; j++) {
+                    map[i, j] = grid.Data[x + i, y + j];
+                }
+            }
+            ret = new Grid(grid.CellWidth, grid.CellHeight, map);
+            scope = new Rectangle((int)(x * grid.CellWidth + grid.AbsoluteLeft), (int)(y * grid.CellHeight + grid.AbsoluteTop), width, height);
+            return true;
+        }
+
+        // TO-DO: Implement Rectilinear Decomposition - see https://github.com/mikolalysenko/rectangle-decomposition for reference
 
     }
 }

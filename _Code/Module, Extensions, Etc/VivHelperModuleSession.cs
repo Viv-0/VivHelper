@@ -76,10 +76,10 @@ namespace VivHelper {
 
         /// <summary>
         /// 0 : None,
-        /// >0 : # of Frames
+        /// >0 : # of Seconds (to the nearest frame, rounded up)
         /// <0 : permanent
         /// </summary>
-        public int lockCamera { get; set; } = 0;
+        public float lockCamera { get; set; } = 0;
 
         public Dictionary<string, LevelInfo> LevelInfoCache { get; set; } = new Dictionary<string, LevelInfo>();
 

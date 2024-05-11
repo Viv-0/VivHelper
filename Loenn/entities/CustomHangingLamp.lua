@@ -14,7 +14,8 @@ local chl = {
     },
     fieldInformation = {
         directory = {fieldType = "path", allowFiles = true, allowFolders = false, filenameProcessor = function(filename, rawFilename, prefix) return vivUtil.trim(filename):sub(1,filename:match('^.*()/')-1) end},
-        LightColor = {fieldType = "VivHelper.oldColor", allowXNAColors = true}
+        LightColor = {fieldType = "VivHelper.oldColor", allowXNAColors = true},
+        lightColor = {fieldType = "VivHelper.color", allowXNAColors = true},
     },
     minimumSize = {8, 16}
 }
@@ -62,6 +63,17 @@ function chl.sprite(room, entity)
     bottomSprite:addPosition(0, h - bottomSprite.meta.height)
 
     table.insert(sprites, bottomSprite)
+    local colTable 
+    if entity.LightColor and entity.LightAlpha then
+        colTable = vivUtil.alphMult(vivUtil.oldGetColorTable(entity.LightColor, true, {1,1,1,1}), entity.LightAlpha * 0.6)
+    else
+        colTable = vivUtil.newGetColorTable(entity.lightColor, true, {1,1,1,1})
+        if colTable[4] and (colTable[1] > colTable[4] or colTable[2] > colTable[4] or colTable[3] > colTable[4]) then
+            colTable = vivUtil.alphMult({colTable[1], colTable[2], colTable[3]}, colTable[4] * 0.6)
+        end
+    end
+    table.insert(sprites, vivUtil.drawableCircle("line", entity.x + 4, entity.y + entity.height - 4, entity.LightFadeOut, colTable))
+
     return sprites
 end
 

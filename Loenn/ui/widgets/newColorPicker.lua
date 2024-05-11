@@ -29,26 +29,6 @@ local fieldTypes = {
     b = "integer",
     a = "integer",
 }
-
-local areaHSVShader = love.graphics.newShader[[
-    uniform float hue;
-    vec3 hsv_to_rgb(float h, float s, float v) {
-        return mix(vec3(1.0), clamp((abs(fract(h + vec3(3.0, 2.0, 1.0) / 3.0) * 6.0 - 3.0) - 1.0), 0.0, 1.0), s) * v;
-    }
-    vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
-    {
-        vec3 rgb = hsv_to_rgb(hue, texture_coords[0], 1 - texture_coords[1]);
-        return vec4(rgb[0], rgb[1], rgb[2], 1.0) * color;
-    }
-]]
-local alphaShader = love.graphics.newShader[[
-    vec4 lerp(vec4 a, vec4 b, float t) { return a*(1-t)+b*t;  }
-
-    vec4 effect(vec4 color, Image tex, vec2 tc, vec2 sc)
-    {
-        return lerp(vec4(Texel(tex, tc).rgb, 1), color, tc[0]);
-    }
-]]
 --[[local rainbowShader = love.graphics.newShader[[
     vec3 hsv_to_rgb(float h, float s, float v) {
         return mix(vec3(1.0), clamp((abs(fract(h + vec3(3.0, 2.0, 1.0) / 3.0) * 6.0 - 3.0) - 1.0), 0.0, 1.0), s) * v;
@@ -63,7 +43,7 @@ local alphaShader = love.graphics.newShader[[
 ]]
 
 local function updateAreaColors(hue)
-    areaHSVShader:send("hue", hue)
+    vivUtil.areaHSVShader:send("hue", hue)
 end
 
 local function getColorPickerArea(h, s, v, width, height)
@@ -96,13 +76,31 @@ local function getAlphaSlider(_r,_g,_b, width, height)
     local imageData = canvas:newImageData()
 
     imageData:mapPixel(function(x,y,r,g,b,a)
-        local alpha = x / (width - 1)
         -- Draw checkerboard pattern, with 1,1,1,1 and 0.5,0.5,0.5,1 alternating every N pixels
         local n = 5
         local Z = (math.floor(x/8) + math.floor((y+4)/8)) % 2 
         
-        local t = {(1 - 0.5 * Z), (1 - 0.5 * Z), (1 - 0.5 * Z), 1}
-        return t[1],t[2],t[3],t[4]
+        local t = {(1 - 0.5 * Z), (1 - 0.5 * Z), (1 - 0.5 * Z)}
+        return t[1],t[2],t[3],1
+    end,0,0,width,height)
+
+    local image = love.graphics.newImage(imageData)
+
+    return image, imageData
+end
+
+local function getRainbowButton(width, height) 
+    local canvas = love.graphics.newCanvas(width, height)
+    local imageData = canvas:newImageData()
+
+    imageData:mapPixel(function(x,y,r,g,b,a)
+        if x == 0 or x == 1 or x == width or x == width - 1 or y == 0 or y == 1 or y == width or y == width - 1 then
+            return 0,0,0,0
+        end
+        local cx, cy = width / 2, height / 2
+        local hue = 57.2957795 * math.atan2(y-cy,x-cx)
+        local cr, cg, cb = utils.hsvToRgb(hue, 1, 1)
+        return cr, cg, cb, 1
     end,0,0,width,height)
 
     local image = love.graphics.newImage(imageData)
@@ -161,6 +159,16 @@ local function alphaInteraction(interactionData)
     end
 end
 
+local function rainbowInteraction(interactionData)
+    return function(widget,x,y)
+        local formFields = interactionData.formFields
+        local data = formHelper.getFormData(formFields)
+
+        data.r = 1 ; data.g = 1 ; data.b = 1 ; data.a = 0
+        formHelper.setFormData(formFields,data)
+    end
+end
+
 local function getFormFieldOrder(options)
     local fieldOrder = {}
 
@@ -206,9 +214,15 @@ local function updateRgbFields(data, h, s, v)
     data.b = utils.round(b * 255)
 end
 
--- RGB normalized
+-- RGB(A) normalized
 local function updateHexField(data, r, g, b, a)
-    data.hexColor = vivUtil.invertGetColor(r,g,b,a)
+    -- Make sure we have alpha from data rather than argument
+    -- Argument has fallback
+    if data.alpha and data.alpha < 255 then -- if alpha is 255, this is equivalent to rgb
+        data.hexColor = utils.rgbaToHex(r, g, b, a)
+    else
+        data.hexColor = utils.rgbToHex(r, g, b)
+    end
 end
 
 local function updateFields(data, changedGroup, interactionData)
@@ -216,7 +230,7 @@ local function updateFields(data, changedGroup, interactionData)
 
     -- Change group here to make logic simpler
     if changedGroup == "hex" then
-        local parsed, r, g, b, a = vivUtil.oldGetColor(vivUtil.swapRGBA(data.hexColor))
+        local parsed, r, g, b, a = vivUtil.
         if parsed then 
             updateHsvFields(data, r, g, b)
             changedGroup = "hsv"
@@ -270,7 +284,7 @@ local function areaDrawing(interactionData)
     return function(orig, widget)
         local previousShader = love.graphics.getShader()
 
-        love.graphics.setShader(areaHSVShader)
+        love.graphics.setShader(vivUtil.areaHSVShader)
         orig(widget)
         love.graphics.setShader(previousShader)
 
@@ -326,12 +340,10 @@ local function alphaSliderDraw(interactionData)
     return function(orig, widget)
         local previousShader = love.graphics.getShader()
         local pr,pg,pb,pa = love.graphics.getColor()
-        love.graphics.setShader(alphaShader)
+        love.graphics.setShader(vivUtil.alphaShader)
         local formData = formHelper.getFormData(interactionData.formFields)
-        if not formData.r then formData.r = 0 end 
-        if not formData.g then formData.g = 0 end 
-        if not formData.b then formData.b = 0 end 
-        love.graphics.setColor(formData.r/255,formData.g/255,formData.b/255,1)
+        local r, g, b = formData.r or 0, formData.g or 0, formData.b or 0
+        love.graphics.setColor(r/255,g/255,b/255,1)
         orig(widget)
         love.graphics.setColor(pr,pg,pb,pa)
         love.graphics.setShader(previousShader)
@@ -356,8 +368,32 @@ local function alphaSliderDraw(interactionData)
     end
 end
 
+local function rainbowButtonDraw(interactionData)
+    return function(orig, widget)
+        local pr,pg,pb,pa = love.graphics.getColor()
+        local previousLineWidth = love.graphics.getLineWidth()
+
+        local formData = formHelper.getFormData(interactionData.formFields)
+        local widgetX, widgetY = widget.screenX, widget.screenY
+        local width, height = widget.width, widget.height
+        orig(widget)
+        love.graphics.setLineWidth(1)
+        if string.lower(formData.hexColor) == "rainbow" or (formData.r == 1 and formData.g == 1 and formData.b == 1 and formData.a == 0) then
+            love.graphics.setColor(1,1,1,1)
+        else 
+            love.graphics.setColor(0,0,0,1)
+        end
+        love.graphics.rectangle("line", widgetX, widgetY, width, height)
+        love.graphics.setColor(0,0,0,1)
+        love.graphics.rectangle("line", widgetX + 1, widgetY + 1, width - 2, height - 2)
+
+        love.graphics.setLineWidth(previousLineWidth)
+        love.graphics.setColor(pr, pg, pb, pa)
+    end
+end
+
 function colorPicker.getColorPicker(hexColor, options)
-    if hexColor == "Rainbow" then hexColor = "00000000" end
+    if hexColor == "Rainbow" then hexColor = "ffffff00" end
 
     options = options or {}
 
@@ -420,6 +456,10 @@ function colorPicker.getColorPicker(hexColor, options)
     local areaCanvas = getColorPickerArea(h, s, v, areaSize, areaSize)
     local sliderImage, sliderImageData = getColorPickerSlider(h, s, v, sliderWidth, areaSize)
     local alphaImage, alphaImageData = getAlphaSlider(r,g,b, areaSize, sliderWidth)
+    local rainbowImage, rainbowImageData = nil, nil
+    if options.includeRainbow then
+        rainbowImage, rainbowImageData = getRainbowButton(sliderWidth, sliderWidth)
+    end
 
     local interactionData = {
         areaCanvas = areaCanvas,
@@ -454,10 +494,19 @@ function colorPicker.getColorPicker(hexColor, options)
         interactive = 1,
         onDrag = alphaInteraction(interactionData),
         onClick = alphaInteraction(interactionData)}):hook({
-            draw = alphaSliderDraw(interactionData, r,g,b)
+            draw = alphaSliderDraw(interactionData)
         })
-    local rainbowButton = uiElements.image()
-
+    local column2 = sliderElement
+    if rainbowImage then
+        local rainbowElement = uiElements.image(rainbowImage):with({
+        interactive = 1,
+        onClick = rainbowInteraction(interactionData)}):hook({
+            draw = rainbowButtonDraw(interactionData)
+        })
+        column2 = uiElements.column()
+        column2.children = {sliderElement, rainbowElement}
+        column2.cacheable = false
+    end
 
     local column1 = uiElements.column() -- Creates a column "object" that contains children that are itemizable to the grid
     column1.children = {areaElement, alphaElement} 
@@ -465,7 +514,7 @@ function colorPicker.getColorPicker(hexColor, options)
 
     local elements = {
         column1, -- puts the column object first in the elements of the window
-        sliderElement,
+        column2,
     }
 
     if #fieldOrder > 0 then

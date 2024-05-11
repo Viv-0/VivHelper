@@ -34,7 +34,7 @@ local drawableSprite = require("structs.drawable_sprite")
 
 local function getSprites(room, entity, onlyBase)
     -- Shallowcopy so we can change the alpha later
-    local color = vivUtil.oldGetColorTable(entity.Color or {0.8, 1.0, 1.0, 0.4})
+    local color = vivUtil.GetColorTable(entity,"Color","color" or {0.8, 1.0, 1.0, 0.4})
 
     if not color[4] then
         color[4] = 0.4

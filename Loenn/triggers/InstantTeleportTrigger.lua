@@ -1,6 +1,6 @@
 local vivUtil = require("mods").requireFromPlugin("libraries.vivUtil")
 local state = require("loaded_state")
-local vh_tag = require("mods").requireFromPlugin("ui.forms.fields.vh_tagString")
+local tagHelper = require('mods').requireFromPlugin('ui.utils.tagHelper')
 
 local oldFieldOrder = { 
     "x","y","width","height",
@@ -25,7 +25,7 @@ local function oldTextFunction(room, item) return "Instant Teleport [VivHelper]\
 local ittOB = { name = "VivHelper/BasicInstantTeleportTrigger",
     fieldInformation = oldFieldInfo,
     fieldOrder = oldFieldOrder,
-    _vivh_textOverride = oldTextFunction,
+    triggerText = oldTextFunction,
     _vivh_finalizePlacement = function(room, layer, item) item.WarpRoom = room.name end
 }
 ittOB.placements = {
@@ -37,7 +37,7 @@ ittOB.placements = {
         AddTriggerOffset=false, ResetDashes=false
     }
 }
-local ittOM = { name = "VivHelper/MainInstantTeleportTrigger", fieldInformation = oldFieldInfo, fieldOrder = oldFieldOrder, _vivh_replaceDrawTextFunc = oldTextFunction, _vivh_finalizePlacement = function(room, layer, item) item.WarpRoom = room.name end }
+local ittOM = { name = "VivHelper/MainInstantTeleportTrigger", fieldInformation = oldFieldInfo, fieldOrder = oldFieldOrder, triggerText = oldTextFunction, _vivh_finalizePlacement = function(room, layer, item) item.WarpRoom = room.name end }
 ittOM.placements = {
     name = "main",
     data = {
@@ -50,10 +50,11 @@ ittOM.placements = {
     }
 }
 local ittOC = { name = "VivHelper/CustomInstantTeleportTrigger",
-fieldInformation = oldFieldInfo,
-fieldOrder = oldFieldOrder,
-_vivh_replaceDrawTextFunc = oldTextFunction,
-_vivh_finalizePlacement = function(room, layer, item) item.WarpRoom = room.name end }
+    fieldInformation = oldFieldInfo,
+    fieldOrder = oldFieldOrder,
+    triggerText = oldTextFunction,
+    _vivh_finalizePlacement = function(room, layer, item) item.WarpRoom = room.name end
+}
 ittOC.placements = {
     name = "main",
     data = {
@@ -85,7 +86,7 @@ local Target = { name = "VivHelper/TeleportTarget", placements = {{
         SpeedModifier = {fieldType = "string", options = {"NoChange","Add","Multiply","Set"}, editable = false}
     }
 }
-vh_tag.addTagControlToHandler(Target, "TargetID", "teleporttarget", true)
+tagHelper.addTagControlToHandler(Target, "TargetID", "teleporttarget", true)
 
 local Teleporter = { name = "VivHelper/ITPT1Way", 
     placements = {{

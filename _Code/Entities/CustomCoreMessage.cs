@@ -48,8 +48,13 @@ namespace VivHelper.Entities {
                 '\n',
                 '\r'
                 }, StringSplitOptions.RemoveEmptyEntries);
-                if (t2.Length > 0)
-                    text = t2[data.Int("line")];
+                if (t2.Length > 0) {
+                    int l = data.Int("line", 0);
+                    if (l < t2.Length)
+                        l = 0;
+                    text = "LINE " + l + " OUT OF RANGE";
+                }
+
                 else if (!b)
                     text = "{" + t1 + "}";
             }

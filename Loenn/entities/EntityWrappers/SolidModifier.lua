@@ -34,7 +34,7 @@ return {{
         drawableFunc.fromFunction(require('utils.drawing').printCenteredText, "~Legacy - SolidModifier [VivHelper]", entity.x,entity.y,entity.width,entity.height,nil,0.5)
     } end,
     depth = -100000
-},
+}, {
     name = "VivHelper/SolidModifier2",
     fieldInformation = {
         cornerBoostBlock = {fieldType = "integer", options = {
@@ -52,10 +52,10 @@ return {{
     placements = {
         {name = "main", data = { width = 8, height = 8, 
             Types = "*Solid", EntitySelect = true,
-            CornerBoostBlock = 0,  TriggerOnBufferInput = false, TriggerOnTouch = 0, RetainWallSpeed = false
+            cornerBoostBlock = 0,  TriggerOnBufferInput = false, TriggerOnTouch = 0, RetainWallSpeed = false
         }},
         {name = "cb", data = { width = 8, height = 8, Types = "*Solid", EntitySelect = true, 
-            CornerBoostBlock = -1, RetainWallSpeed = true
+            cornerBoostBlock = -1, RetainWallSpeed = true
         }},
         {name = "touch", data = { width = 8, height = 8, Types = "*Solid", EntitySelect = true, 
             TriggerOnTouch = 0, TriggerOnBufferInput = false
@@ -66,5 +66,4 @@ return {{
         drawableFunc.fromFunction(require('utils.drawing').printCenteredText, "SolidModifier [VivHelper]", entity.x,entity.y,entity.width,entity.height,nil,0.5)
     } end,
     depth = -100000
-
-}
+}}

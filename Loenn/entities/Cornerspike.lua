@@ -34,7 +34,7 @@ local cs = {
         return t .. "_" .. entity.EdgeDirection .. "00"
     end,
     color = function(room,entity) 
-        vivUtil.oldGetColorTable(entity.Color, true, {1,1,1,1})
+        vivUtil.GetColorTable(entity, "Color", "color", true, {1,1,1,1})
     end,
     justification = function(room,entity)
         local sub = entity.EdgeDirection:sub(entity.EdgeDirection:sub(1, 5) == "Inner" and 6 or 0)
