@@ -112,7 +112,7 @@ namespace VivHelper.Entities {/*
             } else if (base.Scene.OnInterval(0.05f)) {
                 float num = Calc.Random.NextAngle();
                 ParticleType type = (fireMode ? P_FireAmbience : P_Ambience);
-                float direction = (fireMode ? (-(float) Math.PI / 2f) : num);
+                float direction = (fireMode ? (-Consts.QUARTERTURN) : num);
                 float length = (fireMode ? 12 : 8);
                 SceneAs<Level>().Particles.Emit(type, 1, base.Center + Calc.AngleToVector(num, length), Vector2.One * 2f, direction);
             }

@@ -212,7 +212,7 @@ namespace VivHelper.Entities {
         }
 
         public void MakeFloaty() {
-            Add(wave = new SineWave(Calc.Random.Range(0.1f, 0.4f), Calc.Random.NextFloat() * ((float) Math.PI * 2f)));
+            Add(wave = new SineWave(Calc.Random.Range(0.1f, 0.4f), Calc.Random.NextFloat() * (Consts.TAU)));
         }
 
         public void MakeSolid(float x, float y, float w, float h, int surfaceSoundIndex, bool blockWaterfalls = true) {
@@ -224,7 +224,7 @@ namespace VivHelper.Entities {
 
         public void CreateSmoke(Vector2 offset, bool inbg) {
             Level level = base.Scene as Level;
-            ParticleEmitter particleEmitter = new ParticleEmitter(inbg ? level.ParticlesBG : level.ParticlesFG, ParticleTypes.Chimney, offset, new Vector2(4f, 1f), -(float) Math.PI / 2f, 1, 0.2f);
+            ParticleEmitter particleEmitter = new ParticleEmitter(inbg ? level.ParticlesBG : level.ParticlesFG, ParticleTypes.Chimney, offset, new Vector2(4f, 1f), -Consts.PIover2, 1, 0.2f);
             Add(particleEmitter);
             particleEmitter.SimulateCycle();
         }
@@ -337,7 +337,7 @@ namespace VivHelper.Entities {
 
         public void FinalFlagTrigger() {
             Wiggler component = Wiggler.Create(1f, 4f, delegate (float v) {
-                (image as FinalFlagDecalImage).Rotation = (float) Math.PI / 15f * v;
+                (image as FinalFlagDecalImage).Rotation = Consts.PI / 15f * v;
             }, start: true);
             Vector2 position = Position;
             position.X = Calc.Snap(position.X, 8f) - 8f;

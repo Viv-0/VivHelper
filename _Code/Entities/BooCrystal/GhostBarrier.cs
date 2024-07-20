@@ -8,14 +8,17 @@ using Monocle;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.VivHelper;
 using MonoMod.Utils;
+using Celeste.Mod.Entities;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities.BooCrystal {
     [TrackedAs(typeof(GhostBarrier))]
+    [CustomEntity("VivHelper/GhostBarrier")]
     public class GhostBarrier : SeekerBarrier {
         public Color color;
         private DynData<SeekerBarrier> dyn;
         public GhostBarrier(EntityData data, Vector2 offset) : base(data, offset) {
-            color = VivHelper.ColorFix(data.Attr("Color", "Lavender"));
+            color = VivHelper.GetColorWithFix(data, "Color", "color", GetColorParams.None, GetColorParams.None, Color.Lavender).Value;
             dyn = new DynData<SeekerBarrier>(this);
         }
 

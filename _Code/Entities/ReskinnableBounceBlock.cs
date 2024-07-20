@@ -128,7 +128,7 @@ namespace VivHelper.Entities {
             LifeMax = 0.8f,
             SpeedMin = 5f,
             SpeedMax = 25f,
-            DirectionRange = (float) Math.PI / 6f
+            DirectionRange = Consts.PIover6
         };
 
         private ParticleType P_IceBreak;
@@ -229,12 +229,12 @@ namespace VivHelper.Entities {
                     P_FireBreak.Color2 = RisingLava.Hot[2];
                     break;
                 case 1:
-                    P_FireBreak.Color = VivHelper.ColorFix(hotColors[0]);
+                    P_FireBreak.Color = VivHelper.GetColor(hotColors[0], VivHelper.GetColorParams.None, RisingLava.Hot[0]).Value;
                     P_FireBreak.ColorMode = ParticleType.ColorModes.Static;
                     break;
                 case 2:
-                    P_FireBreak.Color = VivHelper.ColorFix(hotColors[0]);
-                    P_FireBreak.Color2 = VivHelper.ColorFix(hotColors[1]);
+                    P_FireBreak.Color = VivHelper.GetColor(hotColors[0], VivHelper.GetColorParams.None, RisingLava.Hot[0]).Value;
+                    P_FireBreak.Color2 = VivHelper.GetColor(hotColors[1], VivHelper.GetColorParams.None, RisingLava.Hot[2]).Value;
                     break;
                 default:
                     string mapId = AreaData.Get((Engine.Scene as Level)?.Session ?? (Engine.Scene as LevelLoader).Level.Session).SID;
@@ -247,12 +247,12 @@ namespace VivHelper.Entities {
                     P_IceBreak.Color2 = RisingLava.Cold[2];
                     break;
                 case 1:
-                    P_IceBreak.Color = VivHelper.ColorFix(coldColors[0]);
+                    P_IceBreak.Color = VivHelper.GetColor(hotColors[0], VivHelper.GetColorParams.None, RisingLava.Cold[0]).Value;
                     P_IceBreak.ColorMode = ParticleType.ColorModes.Static;
                     break;
                 case 2:
-                    P_IceBreak.Color = VivHelper.ColorFix(coldColors[0]);
-                    P_IceBreak.Color2 = VivHelper.ColorFix(coldColors[1]);
+                    P_IceBreak.Color = VivHelper.GetColor(hotColors[0], VivHelper.GetColorParams.None, RisingLava.Cold[0]).Value;
+                    P_IceBreak.Color2 = VivHelper.GetColor(hotColors[1], VivHelper.GetColorParams.None, RisingLava.Cold[2]).Value;
                     break;
                 default:
                     throw new Exception("Too many colors in the Cold Particle Colors parameter of a Custom Bounce Block in room " + data.Level.Name);
@@ -462,11 +462,11 @@ namespace VivHelper.Entities {
         private void ReformParticles() {
             Level level = SceneAs<Level>();
             for (int i = 0; (float) i < base.Width; i += 4) {
-                level.Particles.Emit(P_Reform, new Vector2(base.X + 2f + (float) i + (float) Calc.Random.Range(-1, 1), base.Y), -(float) Math.PI / 2f);
-                level.Particles.Emit(P_Reform, new Vector2(base.X + 2f + (float) i + (float) Calc.Random.Range(-1, 1), base.Bottom - 1f), (float) Math.PI / 2f);
+                level.Particles.Emit(P_Reform, new Vector2(base.X + 2f + (float) i + (float) Calc.Random.Range(-1, 1), base.Y), -Consts.PIover2);
+                level.Particles.Emit(P_Reform, new Vector2(base.X + 2f + (float) i + (float) Calc.Random.Range(-1, 1), base.Bottom - 1f), Consts.PIover2);
             }
             for (int j = 0; (float) j < base.Height; j += 4) {
-                level.Particles.Emit(P_Reform, new Vector2(base.X, base.Y + 2f + (float) j + (float) Calc.Random.Range(-1, 1)), (float) Math.PI);
+                level.Particles.Emit(P_Reform, new Vector2(base.X, base.Y + 2f + (float) j + (float) Calc.Random.Range(-1, 1)), Consts.PI);
                 level.Particles.Emit(P_Reform, new Vector2(base.Right - 1f, base.Y + 2f + (float) j + (float) Calc.Random.Range(-1, 1)), 0f);
             }
         }

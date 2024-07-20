@@ -21,18 +21,18 @@ namespace VivHelper.Entities {
         public static Entity Load0(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new ColoredCustomCoreMessage(entityData, offset, 0);
         public static Entity Load1(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new ColoredCustomCoreMessage(entityData, offset, 1);
 
-        private string text;
+        protected string text;
         public float alpha, defaultFadedValue;
-        private bool outline, alwaysRender, lockPosition;
-        private float RenderDistance, alphaMult;
-        private Vector2 scale;
-        private Ease.Easer EaseType;
-        private Color color, outlineColor;
-        private Vector2[] nodes;
-        private bool CustomPositionRange;
-        private float MoveSpeed;
+        protected bool outline, alwaysRender, lockPosition;
+        protected float RenderDistance, alphaMult;
+        protected Vector2 scale;
+        protected Ease.Easer EaseType;
+        protected Color color, outlineColor;
+        protected Vector2[] nodes;
+        protected bool CustomPositionRange;
+        protected float MoveSpeed;
         //AlwaysHidden = 0, AlwaysShown = 1, Fade = 2 
-        private PauseRenderTypes pausetype;
+        protected PauseRenderTypes pausetype;
 
         public ColoredCustomCoreMessage(EntityData data, Vector2 offset, int legacy)
             : base(data.Position + offset) {
@@ -40,26 +40,43 @@ namespace VivHelper.Entities {
             var t1 = data.Attr("dialog", "app_ending");
             var b = false;
             if (t1.StartsWith("*§")) { text = t1.Substring(2); b = true; } else text = Dialog.Clean(t1);
-            if (text.Contains("\n") || text.Contains("\r")) {
+            if(data.Int("line", 0) < 0) {
+                text.Replace("\\n", "\n");
+            } else if (text.Contains("\n") || text.Contains("\r")) {
                 var t2 = text.Split(new char[2]
                 {
                 '\n',
                 '\r'
                 }, StringSplitOptions.RemoveEmptyEntries);
-                if (t2.Length > 0)
-                    text = t2[data.Int("line")];
+                if (t2.Length > 0) {
+                    int l = data.Int("line", 0);
+                    if (l < t2.Length)
+                        l = 0;
+                    text = "LINE " + l + " OUT OF RANGE";
+                }
+
                 else if (!b)
                     text = "{" + t1 + "}";
             }
-            
-            outlineColor = VivHelper.ColorFix(data.Attr("OutlineColor", "Black"), 1f);
-            outline = data.Has("outline") ? data.Bool("outline") : outlineColor != Color.Transparent;
+            if (data.StringIfNotEmpty("colors", out var _colors)) {
+                List<Color?> colors = VivHelper.NewColorsFromString(_colors, ',', VivHelper.GetColorParams.ImplyEmptyAsTransparent);
+                switch (colors.Count) {
+                    case 0: color = Color.White; outline = false; break;
+                    case 1: color = colors[0] ?? Color.White; outline = false; break;
+                    default: color = colors[0] ?? Color.White; outlineColor = colors[1] ?? Color.Transparent; outline = outlineColor != Color.Transparent; break;
+                }
+            } else {
+#pragma warning disable CS0612
+                color = VivHelper.OldColorFunction(data.Attr("TextColor1", "White"), 1f);
+                outlineColor = VivHelper.OldColorFunction(data.Attr("OutlineColor", "Black"), 1f);
+                outline = data.Has("outline") ? data.Bool("outline") : outlineColor != Color.Transparent;
+#pragma warning restore CS0612
+            }
             pausetype = data.Enum<PauseRenderTypes>("PauseType", PauseRenderTypes.Hidden);
             scale = Vector2.One * data.Float("Scale", 1.25f);
             RenderDistance = data.Float("RenderDistance", 128f);
             if (!VivHelper.TryGetEaser(data.Attr("EaseType", "CubeInOut"), out EaseType))
                 EaseType = Ease.CubeInOut;
-            color = VivHelper.ColorFix(data.Attr("TextColor1", "White"), 1f);
             alwaysRender = data.Bool("AlwaysRender");
 
             lockPosition = data.Bool("LockPosition", false);
@@ -118,6 +135,8 @@ namespace VivHelper.Entities {
         }
 
         public override void Render() {
+            if (alpha <= 0)
+                return;
             Vector2 position = ((Level) base.Scene).Camera.Position;
             Vector2 value = position + new Vector2(160f, 90f);
             Vector2 position2 = lockPosition ? (Position - position) * 6f : (Position - position + (Position - value) * 0.2f) * 6f;
@@ -125,7 +144,7 @@ namespace VivHelper.Entities {
                 position2.X = 1920f - position2.X;
             }
             if (outline) {
-                ActiveFont.DrawOutline(text, position2, new Vector2(0.5f, 0.5f), scale, color * alpha, 2f, outlineColor * alpha);
+                ActiveFont.DrawOutline(text, position2, new Vector2(0.5f, 0.5f), scale, color * alpha, scale.X > 0.5f ? 2f : 1f, outlineColor * alpha);
             } else {
                 ActiveFont.Draw(text, position2, new Vector2(0.5f, 0.5f), scale, color * alpha);
             }

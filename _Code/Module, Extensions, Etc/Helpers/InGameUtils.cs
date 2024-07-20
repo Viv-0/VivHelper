@@ -10,6 +10,7 @@ using System.Reflection;
 using MonoMod.Utils;
 using System.Runtime.CompilerServices;
 using Mono.Cecil.Cil;
+using Microsoft.Xna.Framework.Graphics.PackedVector;
 
 namespace VivHelper {
     public static partial class VivHelper {
@@ -63,6 +64,12 @@ namespace VivHelper {
             var lookup = (System.Collections.IDictionary) autotiler_lookup.GetValue(GFX.FGAutotiler);
             var terrainType = lookup[Base];
             return !(bool) Ignore.Invoke(terrainType, new object[] { Compare });
+        }
+
+        public static Vector2 ScreenToHiResCamera(Vector2 position, Camera camera) {
+            // Camera is always in the low res group, so we need to scale the matrix data from the matrix data we have
+            // Inversion is a distributive property
+            return Vector2.Transform(position, camera.Matrix);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

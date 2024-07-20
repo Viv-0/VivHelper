@@ -25,7 +25,7 @@ namespace VivHelper.Entities {
 
         public FlagConditionBlock(EntityData data, Vector2 offset, int legacy) : base(data.Position + offset, data.Width, data.Height, true) {
             flag = data.Attr("Flag", "");
-            tileType = data.Char((legacy == 0 ? "tileType" : "tiletype"), '3');
+            tileType = data.Has("tiletype") ? data.Char("tiletype", '3') : data.Char("tileType", '3');
             blendIn = data.Bool("blendIn", false);
             SurfaceSoundIndex = SurfaceIndex.TileToIndex[tileType];
             EnableAssistModeChecks = false;

@@ -12,19 +12,7 @@ using MonoMod;
 using VivHelper.Entities.SpikeStuff;
 
 namespace VivHelper.Entities {
-    [CustomEntity(
-        "VivHelper/AnimatedSpikesUp = LoadUp",
-        "VivHelper/AnimatedSpikesDown = LoadDown",
-        "VivHelper/AnimatedSpikesLeft = LoadLeft",
-        "VivHelper/AnimatedSpikesRight = LoadRight"
-    )]
     public class AnimatedSpikes : Spikes {
-
-        public static Entity LoadUp(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Int("version", 0) > 1 ? new BetterAnimatedSpikes(entityData, offset, DirectionPlus.Up) : new AnimatedSpikes(entityData, offset, Celeste.Spikes.Directions.Up);
-        public static Entity LoadDown(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Int("version", 0) > 1 ? new BetterAnimatedSpikes(entityData, offset, DirectionPlus.Down) : new AnimatedSpikes(entityData, offset, Celeste.Spikes.Directions.Down);
-        public static Entity LoadLeft(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Int("version", 0) > 1 ? new BetterAnimatedSpikes(entityData, offset, DirectionPlus.Left) : new AnimatedSpikes(entityData, offset, Celeste.Spikes.Directions.Left);
-        public static Entity LoadRight(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Int("version", 0) > 1 ? new BetterAnimatedSpikes(entityData, offset, DirectionPlus.Right) : new AnimatedSpikes(entityData, offset, Celeste.Spikes.Directions.Right);
-
 
         public Sprite sprite;
         protected DynData<Spikes> dyn;
@@ -65,7 +53,7 @@ namespace VivHelper.Entities {
             sprite.Scale.X = Calc.Random.Choose(-1, 1);
             sprite.SetAnimationFrame(Calc.Random.Next(sprite.CurrentAnimationTotalFrames));
             if (Direction == Directions.Up) {
-                sprite.Rotation = -(float) Math.PI / 2f;
+                sprite.Rotation = -Consts.PIover2;
                 float y = sprite.Y;
                 sprite.Y = y + 1f;
             } else if (Direction == Directions.Right) {
@@ -73,15 +61,15 @@ namespace VivHelper.Entities {
                 float y = sprite.X;
                 sprite.X = y - 1f;
             } else if (Direction == Directions.Left) {
-                sprite.Rotation = (float) Math.PI;
+                sprite.Rotation = Consts.PI;
                 float y = sprite.X;
                 sprite.X = y + 1f;
             } else if (Direction == Directions.Down) {
-                sprite.Rotation = (float) Math.PI / 2f;
+                sprite.Rotation = Consts.PIover2;
                 float y = sprite.Y;
                 sprite.Y = y - 1f;
             }
-            sprite.Rotation += (float) Math.PI / 2f;
+            sprite.Rotation += Consts.PIover2;
             Add(sprite);
         }
 

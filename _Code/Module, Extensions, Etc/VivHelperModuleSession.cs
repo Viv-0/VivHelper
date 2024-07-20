@@ -29,6 +29,8 @@ namespace VivHelper {
             public string baseColorHex { get; set; }
             public Vector2 particleDir { get; set; }
             public bool solidOnRelease { get; set; }
+            public bool solidOnPlayer { get; set; }
+            public bool toggleBloom { get; set; } = true;
         }
         public class CrystalBombDetonatorCh {
             public string particleColorHex { get; set; }
@@ -74,10 +76,10 @@ namespace VivHelper {
 
         /// <summary>
         /// 0 : None,
-        /// >0 : # of Frames
+        /// >0 : # of Seconds (to the nearest frame, rounded up)
         /// <0 : permanent
         /// </summary>
-        public int lockCamera { get; set; } = 0;
+        public float lockCamera { get; set; } = 0;
 
         public Dictionary<string, LevelInfo> LevelInfoCache { get; set; } = new Dictionary<string, LevelInfo>();
 
@@ -108,11 +110,14 @@ namespace VivHelper {
 
         public float OrangeSpeed = 220f;
 
+        [YamlDotNet.Serialization.YamlIgnore]
+        public SolidModifierComponent currentActiveSolidModifier = null;
+
 
         [YamlDotNet.Serialization.YamlIgnore] //This will be set on all load-ins
         public Dictionary<string, SoundChange> AudioChanges = new Dictionary<string, SoundChange>();
 
-        public void MakeChangesToAudioSet(EntityData data) {
+        public void MapChangesToAudioSet(EntityData data) {
             var eventName = data.Attr("eventName");
             if (string.IsNullOrWhiteSpace(eventName) || eventName == "event:/none")
                 return;

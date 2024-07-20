@@ -27,19 +27,19 @@ local HBC2 = {
 HBC2.placements = {
     name = "main",
     data = {
-        EdgeColor="5a6ee1", ParticleColor="5a6ee1",
+        edgeColor="5a6ee1", particleColor="5a6ee1",
         ParticleAngle=270, SolidOnRelease=true,
-        Persistent=false
+        Persistent=false, renderBloom=true
     }
 }
 HBC2.fieldInformation = {
-    EdgeColor = {fieldType = "VivHelper.color", allowXNAColors = true},
-    ParticleColor = {fieldType = "VivHelper.color", allowXNAColors = true},
+    edgeColor = {fieldType = "color", allowXNAColors = true, useAlpha = true},
+    particleColor = {fieldType = "color", allowXNAColors = true, useAlpha = true},
     ParticleAngle = {minimumValue = 0.0, maximumValue = 360.0}
 }
 HBC2.sprite = function(room,entity) return {
         drawableSpriteStruct.fromTexture("ahorn/VivHelper/HBC", entity),
-        drawableRectangle.fromRectangle("bordered", entity.x-7,entity.y+2,14,6,vivUtil.getColorTable(entity.ParticleColor, true, C1),vivUtil.getColorTable(entity.EdgeColor, true, C2))
+        drawableRectangle.fromRectangle("bordered", entity.x-7,entity.y+2,14,6,vivUtil.GetColorTable(entity, "ParticleColor", "particleColor", true, C1),vivUtil.GetColorTable(entity, "EdgeColor", "edgeColor", true, C2))
 } end
 
 local HoldableJumpthru = {}

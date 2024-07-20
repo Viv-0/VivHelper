@@ -24,7 +24,7 @@ namespace VivHelper.Effects {
 
             public void Init() {
                 Position = new Vector2(-32f + Calc.Random.NextFloat(384f), -32f + Calc.Random.NextFloat(244f));
-                Rotation = (float) Math.PI / 2f + Calc.Random.Range(-0.05f, 0.05f);
+                Rotation = Consts.PIover2 + Calc.Random.Range(-0.05f, 0.05f);
                 Speed = Calc.Random.Range(200f, 600f);
                 Scale = new Vector2(4f + (Speed - 200f) / 400f * 12f, 1f);
             }
@@ -45,18 +45,21 @@ namespace VivHelper.Effects {
         public float windStrength;
 
         public Vector2 scroll;
-
+#pragma warning disable CS0612
         public WindRainFG(Vector2 scroll, string colors, float windStrength) {
             this.Scroll = scroll;
             this.windStrength = windStrength;
-            if (colors == "") { this.Colors = new Color[] { VivHelper.ColorFix("161933") }; } else {
-                string[] c = colors.Split(',');
+            if (colors == "") this.Colors = new Color[] { Calc.HexToColor("161933") };
+            else if (colors[0] == '§') {
+                string[] c = colors.Substring(1).Split(',');
                 this.Colors = new Color[c.Length];
                 for (int i = 0; i < c.Length; i++) {
                     c[i].Trim();
                     c[i].TrimStart('#');
-                    Colors[i] = VivHelper.ColorFix(c[i]);
+                    Colors[i] = VivHelper.OldColorFunction(c[i]);
                 }
+            } else {
+                
             }
             for (int i = 0; i < particles.Length; i++) {
                 particles[i].Init();
@@ -64,6 +67,7 @@ namespace VivHelper.Effects {
             level = null;
         }
 
+#pragma warning restore CS0612
         public override void Update(Scene scene) {
             base.Update(scene);
             bool flag = (scene as Level).Raining = IsVisible(scene as Level);

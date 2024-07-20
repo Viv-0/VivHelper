@@ -139,7 +139,7 @@ namespace VivHelper.Entities.Cloud {
                 }
             }
             if (speed < 0f && base.Scene.OnInterval(0.02f)) {
-                (base.Scene as Level).ParticlesBG.Emit(particleType, 1, Position + new Vector2(0f, 2f), new Vector2(base.Collider.Width / 2f, 1f), (float) Math.PI / 2f);
+                (base.Scene as Level).ParticlesBG.Emit(particleType, 1, Position + new Vector2(0f, 2f), new Vector2(base.Collider.Width / 2f, 1f), Consts.PIover2);
             }
             if (fragile && speed < 0f) {
                 sprite.Scale.Y = Calc.Approach(sprite.Scale.Y, 0f, Engine.DeltaTime * 4f);

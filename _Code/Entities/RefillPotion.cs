@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework;
 using static Celeste.TrackSpinner;
 using System.Collections;
 using VivHelper.Module__Extensions__Etc;
+using Celeste.Mod;
 
 namespace VivHelper.Entities {
 
@@ -77,7 +78,7 @@ namespace VivHelper.Entities {
                 image.FlipY = Calc.Random.Chance(0.5f);
                 float length = Calc.Random.Range(30, 40);
                 speed = (Position - from).SafeNormalize(length) * 1.25f;
-                speed = speed.Rotate(Calc.Random.Range(-(float) Math.PI / 12f, (float) Math.PI / 12f));
+                speed = speed.Rotate(Calc.Random.Range(Consts.PI / -12f, Consts.PI / 12f));
                 return this;
             }
 
@@ -137,7 +138,7 @@ namespace VivHelper.Entities {
                 return false;
             if (player.Holding != null)
                 return false;
-            if (!Input.GrabCheck || (bool) VivHelper.player_IsTired(player, VivHelper.EmptyObjectArray))
+            if (!Input.GrabCheck || (bool) VivHelper.player_IsTired.Invoke(player, Array.Empty<object>()))
                 return false;
             if (player.StateMachine.State == Player.StNormal || player.StateMachine.State == Player.StLaunch) {
                 return !player.Ducking;
@@ -182,8 +183,8 @@ namespace VivHelper.Entities {
             floating = data.Bool("floating", false);
             useWhenUnable = data.Bool("useAlways", false);
             solidCollider = new Hitbox(8f, 10f, -4f, -10f);
-            dashCollider = new Circle(6f, 0f, -7f);
-            dashCollider2 = new Circle(10f, 0f, -7f);
+            dashCollider = new Circle(7f, 0f, -8f);
+            dashCollider2 = new Circle(11f, 0f, -8f);
             Collider = solidCollider;
             Add(hold = new Holdable(0.1f));
             hold.PickupCollider = new Hitbox(18f, 22f, -9f, -16f);
@@ -210,7 +211,7 @@ namespace VivHelper.Entities {
 
             base.Update();
             if (base.Scene.OnInterval(0.2f)) {
-                SceneAs<Level>().Particles.Emit(gas, 1, base.Center + Vector2.UnitY * -9f, new Vector2(2f, 4f), (float)Math.PI/-2f - 0.4f + Calc.Random.NextFloat(0.8f) );
+                SceneAs<Level>().Particles.Emit(gas, 1, base.Center + Vector2.UnitY * -9f, new Vector2(2f, 4f), -Consts.PIover2 - 0.4f + Calc.Random.NextFloat(0.8f) );
             }
             if (shattering)
                 return;
@@ -338,9 +339,9 @@ namespace VivHelper.Entities {
             if (player is not null)
                 SceneAs<Level>().Shake();
             sprite.Visible = false;
-            float num = player?.DashDir.Angle() ?? (float) Math.PI / -2f;
+            float num = player?.DashDir.Angle() ?? -Consts.PIover2;
             for (int i = 0; i < 4; i++) {
-                Vector2 v = Vector2.UnitX.Rotate((float) Math.PI * 2f / (i + 1));
+                Vector2 v = Vector2.UnitX.Rotate(Consts.TAU / (i + 1));
                 Scene.Add(Engine.Pooler.Create<Debris>().Init(Position + Vector2.UnitY * -4 + v * 2, Position + Vector2.UnitY * -4));
             }
             SlashFx.Burst(Position, num);
@@ -382,9 +383,9 @@ namespace VivHelper.Entities {
         public override void DebugRender(Camera camera) {
             base.DebugRender(camera);
             Collider = dashCollider;
-            Collider.Render(camera, Color.HotPink * 0.5f);
+            Collider.Render(camera, Color.HotPink * 0.8f);
             Collider = dashCollider2;
-            Collider.Render(camera, Color.HotPink * 0.25f);
+            Collider.Render(camera, Color.HotPink * 0.6f);
             Collider = solidCollider;
         }
 
@@ -393,7 +394,7 @@ namespace VivHelper.Entities {
             Vector2 position;
             Vector2 positionRange;
             if (dir.X > 0f) {
-                direction = (float) Math.PI;
+                direction = Consts.PI;
                 position = new Vector2(base.Right, base.Y - 4f);
                 positionRange = Vector2.UnitY * 6f;
             } else if (dir.X < 0f) {
@@ -401,11 +402,11 @@ namespace VivHelper.Entities {
                 position = new Vector2(base.Left, base.Y - 4f);
                 positionRange = Vector2.UnitY * 6f;
             } else if (dir.Y > 0f) {
-                direction = -(float) Math.PI / 2f;
+                direction = -Consts.PIover2;
                 position = new Vector2(base.X, base.Bottom);
                 positionRange = Vector2.UnitX * 6f;
             } else {
-                direction = (float) Math.PI / 2f;
+                direction = Consts.PIover2;
                 position = new Vector2(base.X, base.Top);
                 positionRange = Vector2.UnitX * 6f;
             }
@@ -419,7 +420,7 @@ namespace VivHelper.Entities {
             return false;
         }
 
-        protected override void OnSquish(CollisionData data) {
+        public override void OnSquish(CollisionData data) {
             if (!TrySquishWiggle(data, 3, 3) && !SaveData.Instance.Assists.Invincible) {
                 Shatter(null, false);
             }

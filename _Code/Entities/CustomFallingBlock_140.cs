@@ -11,18 +11,18 @@ using System.Collections;
 namespace VivHelper.Entities {
     [Tracked]
     public class CustomFallingBlock_140 : Solid {
-        private static Dictionary<string, float> angles = new Dictionary<string, float>() { { "right", 0f }, { "down", (float) Math.PI / 2f }, { "left", (float) Math.PI }, { "up", (float) Math.PI * 1.5f } };
+        private static Dictionary<string, float> angles = new Dictionary<string, float>() { { "right", 0f }, { "down", Consts.PIover2 }, { "left", Consts.PI }, { "up", (float) Consts.PIover2 * 3 } };
 
         private Vector2 ImpactCenter {
             get {
                 switch (angle) {
                     case 0f:
                         return TopLeft + new Vector2(base.Width, base.Height / 2f);
-                    case (float) Math.PI / 2f:
+                    case Consts.PIover2:
                         return TopLeft + new Vector2(base.Width / 2f, base.Height);
-                    case (float) Math.PI:
+                    case Consts.PI:
                         return TopLeft + new Vector2(0, base.Height / 2f);
-                    case (float) Math.PI * 1.5f:
+                    case Consts.PIover2 * 3:
                         return TopLeft + new Vector2(base.Width / 2f, 0);
                     default:
                         return TopLeft + new Vector2(base.Width / 2f, base.Height);
@@ -191,7 +191,7 @@ namespace VivHelper.Entities {
                 StopShaking();
                 for (int i = 2; (float) i < Width; i += 4) {
                     if (Scene.CollideCheck<Solid>(TopLeft + new Vector2(i, -2f))) {
-                        SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + (float) i, Y), Vector2.One * 4f, (float) Math.PI / 2f);
+                        SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + (float) i, Y), Vector2.One * 4f, Consts.PIover2);
                     }
                     SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(X + (float) i, Y), Vector2.One * 4f);
                 }
@@ -256,8 +256,8 @@ namespace VivHelper.Entities {
         private void LandParticles() {
             for (int i = 2; (float) i <= base.Width; i += 4) {
                 if (base.Scene.CollideCheck<Solid>(base.BottomLeft + new Vector2(i, 3f))) {
-                    SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(base.X + (float) i, base.Bottom), Vector2.One * 4f, -(float) Math.PI / 2f);
-                    float direction = (!((float) i < base.Width / 2f)) ? 0f : ((float) Math.PI);
+                    SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(base.X + (float) i, base.Bottom), Vector2.One * 4f, -Consts.PIover2);
+                    float direction = (!((float) i < base.Width / 2f)) ? 0f : Consts.PI;
                     SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_LandDust, 1, new Vector2(base.X + (float) i, base.Bottom), Vector2.One * 4f, direction);
                 }
             }

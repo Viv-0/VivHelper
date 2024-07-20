@@ -16,7 +16,8 @@ dashBlock.placements = {
         AudioEvent = "",
         FlagOnBreak = "",
         FlagOnDisable = "",
-        disableFallingBlocksBreak=false
+        disableFallingBlocksBreak=false,
+        BreakStaticMovers=false
     }, fieldInformation = {
         AudioEvent = {options = {"gameDefault","event:/game/general/wall_break_dirt", "event:/game/general/wall_break_wood", "event:/game/general/wall_break_ice", "event:/game/general/wall_break_stone"}}
     }

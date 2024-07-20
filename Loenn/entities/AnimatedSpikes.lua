@@ -4,6 +4,7 @@ local animation = require('mods').requireFromPlugin('libraries.drawable_animatio
 local Sprite = require('structs.drawable_sprite')
 local utils = require('utils')
 local spikeHelper = require('helpers.spikes') -- used for specifically Ahorn-form plugins
+local settings = require('mods').requireFromPlugin('libraries.VivHelperSettings')
 
 local textureEndings = {"_right", "_up","_left","_down"}
 local function spikeOffsets(idx, animation, entity)
@@ -23,7 +24,7 @@ end
 local baseSpikeJustifications = {{0.0, 0.5},{0.5, 1.0},{1.0, 0.5},{0.5, 0.0}}
 local rotatedSpikeJustification = {{0.0, 0.5},{0.0, 0.5},{1.0, 0.5},{1.0, 0.5}}
 
-local function Draw(idx, room, entity, viewport)
+local function DrawV2(idx, room, entity, viewport)
     local _entity = utils.deepcopy(entity)
     local _out,_valid = animation.fromTextures(entity.directory .. textureEndings[idx + 1], entity.timeDelay or 0.1, _entity)
     if _valid then
@@ -37,7 +38,7 @@ local function Draw(idx, room, entity, viewport)
         spikeOffsets(idx, _out, entity)
 --        _out:setJustification(rotatedSpikeJustification[idx+1])
         return _out
-    else return Sprite.fromTexture(mods.internalModContent .. "/missing_image") end
+    else return Sprite.fromMeta(vivUtil.missingImageMeta) end
 end
 
 local ret = {
@@ -46,22 +47,11 @@ local ret = {
         placements = {
             name = "main", data = {
                 version = 2,
-                width = 16, Color = "ffffff",
+                width = 16, color = "ffffff",
                 directory = "danger/tentacles",
                 centerVert = true
                 }
             },
-        ignoredFields = {"version"},
-        fieldInformation = {
-            directory = {fieldType = "path", allowFolders = false, allowFiles = true, filenameProcessor = function(filename, rawFilename, prefix) return vivUtil.trim(filename):gsub("%d+",""):gsub("_up","") end
-            },
-            Color = {fieldType = "VivHelper.color", allowXNAColors = true, allowRainbow = true }
-        },
-        sprite =function(room,entity,viewport) if entity.version == 2 then return Draw(1,room,entity,viewport) else
-            local _entity = utils.deepcopy(entity) 
-            _entity.type = "tentacles"
-            return spikeHelper.getSpikeSprites(_entity, "up")
-        end end,
         selection = function(room,entity) return utils.rectangle(entity.x,entity.y-4,entity.width,4) end
     },{
         name = "VivHelper/AnimatedSpikesLeft",
@@ -73,17 +63,6 @@ local ret = {
                 centerVert = true
                 }
             },
-        ignoredFields = {"version"},
-        fieldInformation = {
-            directory = {fieldType = "path", allowFolders = true, allowFiles = false, filenameProcessor = function(filename, rawFilename, prefix) return vivUtil.trim(filename):gsub("%d+",""):gsub("_left","") end
-            },
-            Color = {fieldType = "VivHelper.color", allowXNAColors = true, allowRainbow = true }
-        },
-        sprite = function(room,entity,viewport) if entity.version == 2 then return Draw(2,room,entity,viewport) else
-            local _entity = utils.deepcopy(entity) 
-            _entity.type = "tentacles"
-            return spikeHelper.getSpikeSprites(_entity, "left")
-        end end,
         selection = function(room,entity) return utils.rectangle(entity.x-4,entity.y,4,entity.height) end
     },{
         name = "VivHelper/AnimatedSpikesDown",
@@ -95,17 +74,6 @@ local ret = {
                 centerVert = true
                 }
             },
-        ignoredFields = {"version"},
-        fieldInformation = {
-            directory = {fieldType = "path", allowFolders = true, allowFiles = false, filenameProcessor = function(filename, rawFilename, prefix) return vivUtil.trim(filename):gsub("%d+",""):gsub("_down","") end
-            },
-            Color = {fieldType = "VivHelper.color", allowXNAColors = true, allowRainbow = true }
-        },
-        sprite = function(room,entity,viewport) if entity.version == 2 then return Draw(3,room,entity,viewport) else
-            local _entity = utils.deepcopy(entity) 
-            _entity.type = "tentacles"
-            return spikeHelper.getSpikeSprites(_entity, "down")
-        end end,
         selection = function(room,entity) return utils.rectangle(entity.x,entity.y,entity.width,4) end
     },{
         name = "VivHelper/AnimatedSpikesRight",
@@ -117,23 +85,24 @@ local ret = {
                 centerVert = true
                 }
             },
-        ignoredFields = {"version"},
-        fieldInformation = {
-            directory = {fieldType = "path", allowFolders = true, allowFiles = false, filenameProcessor = function(filename, rawFilename, prefix) return vivUtil.trim(filename):gsub("%d+",""):gsub("_right","") end
-            },
-            Color = {fieldType = "VivHelper.color", allowXNAColors = true, allowRainbow = true }
-        },
-        sprite = function(room,entity,viewport) if entity.version == 2 then return Draw(0,room,entity,viewport) else
-            local _entity = utils.deepcopy(entity) 
-            _entity.type = "tentacles"
-            return spikeHelper.getSpikeSprites(_entity, "right")
-        end end,
         selection = function(room,entity) return utils.rectangle(entity.x,entity.y,4,entity.height) end
     }
 }
 
 for _,h in ipairs(ret) do
-    ret.rotate = vivUtil.getNameRotationHandler({"VivHelper/AnimatedSpikesUp","VivHelper/AnimatedSpikesRight","VivHelper/AnimatedSpikesDown","VivHelper/AnimatedSpikesLeft"})
-    ret.flip = vivUtil.getNameFlipHandler({"VivHelper/AnimatedSpikesUp","VivHelper/AnimatedSpikesRight","VivHelper/AnimatedSpikesDown","VivHelper/AnimatedSpikesLeft"})
+    h.rotate = vivUtil.getNameRotationHandler({"VivHelper/AnimatedSpikesUp","VivHelper/AnimatedSpikesRight","VivHelper/AnimatedSpikesDown","VivHelper/AnimatedSpikesLeft"})
+    h.flip = vivUtil.getNameFlipHandler({"VivHelper/AnimatedSpikesUp","VivHelper/AnimatedSpikesRight","VivHelper/AnimatedSpikesDown","VivHelper/AnimatedSpikesLeft"})
+    h.ignoredFields = {"version"}
+    h.fieldInformation = {
+        directory = {fieldType = "path", allowFolders = false, allowFiles = true, filenameProcessor = function(filename, rawFilename, prefix) return vivUtil.trim(filename):gsub("%d+",""):gsub("_up","") end
+        },
+        Color = {fieldType = "VivHelper.oldColor", allowXNAColors = true, allowRainbow = true },
+        color = {fieldType = "color", allowXNAColors = true, allowRainbow = true, useAlpha = true}
+    }
+    h.sprite = function(room,entity,viewport)
+        local _entity = utils.deepcopy(entity) 
+        _entity.type = "tentacles"
+        return spikeHelper.getSpikeSprites(_entity, "right")
+    end
 end
 return ret

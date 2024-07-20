@@ -1,6 +1,6 @@
 local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 local rectangle = require('structs.drawable_rectangle')
-local func = require('structs.drawable_function')
+local text = require('structs.drawable_text')
 
 
 local rww = {
@@ -14,13 +14,14 @@ rww.fieldOrder = {
     "RespawnTime","oneUse",
     "TypeName","ImageVariableName",
     "RespawnMethodName","Depth",
-    "InnerColor","OuterColor"
+    "innerColor","outerColor"
 }
 
 rww.fieldInformation = {
-    InnerColor = {fieldType = "color", allowXNAColors = true, allowEmpty = false},
-    OuterColor = {fieldType = "color", allowXNAColors = true, allowEmpty = false},
-    Depth = {fieldType = "integer" }
+    innerColor = {fieldType = "color", allowXNAColors = true, allowEmpty = false, useAlpha = true},
+    outerColor = {fieldType = "color", allowXNAColors = true, allowEmpty = false, useAlpha = true},
+    Depth = {fieldType = "integer" },
+    ImageVariableName = {fieldType = "string", options = {{"Use Refill Render", "$render"}}, editable = true}
 }
 
 rww.placements = {
@@ -30,17 +31,17 @@ rww.placements = {
         RespawnTime = -1.0, oneUse = false,
         TypeName = "Refill", ImageVariableName = "sprite",
         RespawnMethodName = "Respawn", Depth = 100,
-        InnerColor = "208020", OuterColor = "93bd40"
+        innerColor = "208020", outerColor = "93bd40"
     }
 }
 
 rww.sprite = function(room,entity)
-    local incolor = vivUtil.getColorTable(entity.InnerColor, true)
-    local outcolor = vivUtil.getColorTable(entity.OuterColor, true)
+    local incolor = vivUtil.GetColorTable(entity, "InnerColor", "innerColor", true, {0.125, 0.5, 0.125, 1})
+    local outcolor = vivUtil.GetColorTable(entity, "OuterColor", "outerColor", true, {0.576, 0.741, 0.251, 1})
     vivUtil.alphMult(incolor, (entity.oneUse ? 0.25 : 0.7))
     vivUtil.alphMult(outcolor, (entity.oneUse ? 0.25 : 0.7))
     return { rectangle.fromRectangle("bordered",entity.x,entity.y,entity.width,entity.height,incolor,outcolor),
-        func.fromFunction(require('utils.drawing').printCenteredText,"Custom Refill Wall", entity.x,entity.y,entity.width,entity.height,nil,0.5)
+        text.fromText("Custom Refill Wall", entity.x,entity.y,entity.width,entity.height,nil,0.5)
     }
 end
 

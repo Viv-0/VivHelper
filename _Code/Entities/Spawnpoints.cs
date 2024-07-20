@@ -16,6 +16,7 @@ using VivHelper.Module__Extensions__Etc;
 using MonoMod.Cil;
 using MonoMod.RuntimeDetour;
 using Celeste.Mod;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     /// If you're looking to copy off of this code for one of your entities, please just ask me to implement it here.
@@ -68,9 +69,9 @@ namespace VivHelper.Entities {
         private static MethodInfo Level_loadNewPlayer = typeof(Level).GetMethod("LoadNewPlayer", BindingFlags.NonPublic | BindingFlags.Static);
         private static FieldInfo MapEditor_mapData = typeof(MapEditor).GetField("mapData", BindingFlags.NonPublic | BindingFlags.Instance);
         private static FieldInfo MapEditor_levels = typeof(MapEditor).GetField("levels", BindingFlags.NonPublic | BindingFlags.Instance);
-        private static IDetour hook_LevelData_orig_ctor;
-        private static IDetour hook_Level_orig_Pause;
-        private static IDetour hook_MapEditor_orig_Render;
+        private static ILHook hook_LevelData_orig_ctor;
+        private static ILHook hook_Level_orig_Pause;
+        private static ILHook hook_MapEditor_orig_Render;
 
         //95% of these hooks you should never ever ever do in your Celeste mods, please dont do this,
         //all of these have some awkward changes that if anyone hooks these methods I'm going to have to redesign.
@@ -94,7 +95,7 @@ namespace VivHelper.Entities {
             //            IL.Celeste.MapData.CanTransitionTo += MapData_CanTransitionTo;
         }
         public static void Unload() {
-            On.Celeste.Player.Added += Player_Added;
+            On.Celeste.Player.Added -= Player_Added;
 
             hook_LevelData_orig_ctor?.Dispose();
 
@@ -158,15 +159,13 @@ namespace VivHelper.Entities {
         private static void Player_Added(On.Celeste.Player.orig_Added orig, Player self, Scene scene) {
             orig(self, scene);
             if (scene is Level level) {
-                try {
-                    LevelData l = level.Session.MapData.Levels.First(_l => _l.Name == level.Session.Level);
-                    var e = l.Entities.First(_e => trueSpawnPoints.Contains(_e.Name) && _e.Position == self.Position);
-                    if (e.Bool("forceFacing", true))
+                LevelData l = level.Session.MapData.Levels.First(_l => _l.Name == level.Session.Level);
+                var e = l.Entities.FirstOrDefault(_e => trueSpawnPoints.Contains(_e.Name) && _e.Position == self.Position);
+                if (e != null && e.Has("forceFacing")) {
+                    if (e.Values["forceFacing"] is int i && i != 0)
+                        self.Facing = (Facings) i;
+                    else if (e.Values["forceFacing"] is bool b && b)
                         self.Facing = e.Bool("flipX", false) ? Facings.Left : Facings.Right;
-                    return;
-
-                } catch {
-                    return;
                 }
             }
         }
@@ -483,24 +482,21 @@ namespace VivHelper.Entities {
 
         public SpawnPoint(EntityData data, Vector2 offset) : base(data.Position + offset) {
             texture = null;
-            if (data.Bool("ShowTexture", true)) {
-                string t = data.Attr("Texture");
-                if (string.IsNullOrWhiteSpace(t)) {
+            string t = data.Attr("Texture");
+            if (data.Bool("ShowTexture", string.IsNullOrWhiteSpace(t))) {
+                if (string.IsNullOrWhiteSpace(t) || t.ToLower() == "default") {
                     texture = _texture;
                 } else {
-                    GFX.Game.PushFallback(null);
+                    GFX.Game.PushFallback(_texture);
                     texture = GFX.Game[t];
-                    if (texture == null) {
-                        texture = _texture;
-                    }
                     GFX.Game.PopFallback();
                 }
             }
             NoResetRespawn = data.Bool("NoResetRespawn");
             HideFromDebugMap = data.Bool("HideFromDebugMap");
             Depth = data.Int("Depth", 5000);
-            color = VivHelper.ColorFix(data.Attr("Color"));
-            outlineColor = VivHelper.ColorFix(data.Attr("OutlineColor"));
+            color = VivHelper.GetColorWithFix(data, "Color", "color", GetColorParams.ImplyEmptyAsTransparent, GetColorParams.None, Color.White).Value;
+            outlineColor = VivHelper.GetColorWithFix(data, "OutlineColor", "outlineColor", GetColorParams.ImplyEmptyAsTransparent, GetColorParams.None, Color.Transparent).Value;
             flipX = data.Bool("flipX");
         }
 
@@ -533,7 +529,7 @@ namespace VivHelper.Entities {
 
     [CustomEntity("VivHelper/InterRoomSpawner")]
     public class BetweenRoomRespawn : SpawnPoint {
-        public int tag;
+        public int _tag;
 
         public BetweenRoomRespawn(EntityData data, Vector2 offset) : base(data, offset) {
             tag = data.Int("tag");
@@ -548,7 +544,7 @@ namespace VivHelper.Entities {
     public class BetweenRoomRespawnTarget : SpawnPoint {
         public static Entity Load(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => new BetweenRoomRespawnTarget(entityData, offset);
 
-        public int tag;
+        public int _tag;
         public BetweenRoomRespawnTarget(EntityData data, Vector2 offset) : base(data, offset) {
             tag = data.Int("tag");
         }

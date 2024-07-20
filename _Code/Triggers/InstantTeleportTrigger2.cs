@@ -9,10 +9,6 @@ using System.Linq;
 using System.Reflection;
 using Celeste.Mod;
 using MonoMod.Utils;
-using MonoMod.RuntimeDetour;
-using MonoMod.Cil;
-using Mono.Cecil.Cil;
-using Microsoft.Xna.Framework.Graphics;
 
 namespace VivHelper.Triggers {
 
@@ -88,7 +84,6 @@ namespace VivHelper.Triggers {
         public bool modifyVelocity;
         public string targetID;
         public string roomName;
-        public bool active;
         public bool addTriggerOffset;
         public List<float> DebugWidths, DebugHeights;
 
@@ -191,7 +186,6 @@ namespace VivHelper.Triggers {
         public bool ignoreIfDummy;
         public string targetID;
         public string specificRoom, specificRoomErrorCheckName;
-        public static bool active = false;
         public bool onlyOnce;
         public bool endCutscene;
         public bool preActive;
@@ -226,7 +220,7 @@ namespace VivHelper.Triggers {
             startPos = data.Position + offset;
             targetID = data.NoEmptyString("TargetID", null);
             if (targetID == null)
-                throw new InvalidPropertyException($"Teleport Trigger in room {roomName} at position {data.Position} has an empty targetID property.");
+                throw new InvalidParameterException($"Teleport Trigger in room {roomName} at position {data.Position} has an empty targetID property.");
             ExitDirection = data.Has("onExit") ? (data.Bool("onExit", false) ? Calc.Clamp(data.Int("ExitDirection", 15), -2, 15) : 0) : Calc.Clamp(data.Int("ExitDirection", 0), -2, 15);
             string _f = data.Attr("RequiredFlags", "");
             if (!string.IsNullOrWhiteSpace(_f))
@@ -245,7 +239,7 @@ namespace VivHelper.Triggers {
             bringHoldableThrough = data.Bool("BringHoldableThrough");
             switch (transition) {
                 case TransitionType.ColorFlash:
-                    transitionInfo = new List<object>() { VivHelper.ColorFix(data.Attr("FlashColor")) * Calc.Clamp(data.Float("FlashAlpha", 1f), 0f, 1f) };
+                    transitionInfo = new List<object>() { Calc.HexToColor("FlashColor") * Calc.Clamp(data.Float("FlashAlpha", 1f), 0f, 1f) };
                     break;
                 case TransitionType.Lightning:
                     int c = data.Int("LightningCount", 2);
@@ -259,7 +253,7 @@ namespace VivHelper.Triggers {
                         else
                             q = new float[] { -130, 130 };
                     } catch (Exception d) {
-                        throw new InvalidPropertyException($"Lightning Offset Range property in Teleport Trigger in Room {roomName}, Position {startPos}, invalid: needs to be an integer or two integers separated by commas.", d);
+                        throw new InvalidParameterException($"Lightning Offset Range property in Teleport Trigger in Room {roomName}, Position {startPos}, invalid: needs to be an integer or two integers separated by commas.", d);
                     }
                     float[] j = new float[2] { data.Float("LightningDelay"), 0.25f };
                     if (float.TryParse(data.Attr("LightningMaxDelay", ""), out j[1]))
@@ -304,6 +298,7 @@ namespace VivHelper.Triggers {
                 DelayedAwakeAction(scene);
             }
             if ((scene as Level).Session.DoNotLoad.Contains(ID)) {
+                Logger.Log("VivHelper", "Teleporter with ID `" + ID + "` is getting removed");
                 RemoveSelf();
             }
         }
@@ -317,28 +312,33 @@ namespace VivHelper.Triggers {
                         customDelay = Math.Max(0f, customDelay - (level.Wipe.Duration));
                     }
                 }
-                if (session != null && specificRoom != null) {
+
+                if (session == null) { if (specificRoom == null) { RemoveSelf(); return; } } else {
+                    LevelData l2 = null;
                     List<LevelData> levels = session.MapData.Levels;
-                    LevelData data = levels.FirstOrDefault(f => f.Name == specificRoom);
-                    if (data != null) {
-                        if (data.Dummy && ignoreIfDummy)
-                            Collidable = false;
-                        if (specificRoom == null || !VivHelper.IsValidRoomName(specificRoom, levels)) {
-                            foreach (LevelData l in levels) {
-                                foreach (EntityData e in l.Entities) {
-                                    if (TeleportTarget.ValidTeleportTargetNames.Contains(e.Name) && e.Attr("TargetID", null) == targetID) {
-                                        specificRoom = l.Name;
-                                        setState = e.NoEmptyString("SetState");
-                                        return;
-                                    }
+                    if (specificRoom == null || !VivHelper.IsValidRoomName(specificRoom, levels)) {
+                        foreach (LevelData l in levels) {
+                            foreach (EntityData e in l.Entities) {
+                                if (TeleportTarget.ValidTeleportTargetNames.Contains(e.Name) && e.Attr("TargetID", null) == targetID) {
+                                    specificRoom = l.Name;
+                                    l2 = l;
+                                    setState = e.NoEmptyString("SetState");
+                                    break; // This should 100% have specificRoom not null
                                 }
                             }
-                            throw new Exception($"There is no TeleportTarget associated with the TargetID \"{targetID}\" in any rooms in your map. Please make sure your TeleportTarget has that ID.");
                         }
+                        throw new Exception($"There is no TeleportTarget associated with the TargetID \"{targetID}\" in any rooms in your map. Please make sure your TeleportTarget has that ID.");
+                    }
+                    if (specificRoom == null) throw new Exception("Please report this to @vividescence on discord immediately, Internal Error: specificRoom still null after check");
+                    if (l2 == null)
+                        l2 = session.MapData.Get(specificRoom);
+                    if (l2 == null) {
+                        throw new Exception($"The room {l2.Name} does not exist in your map, which you have used for an InstantTeleportTrigger. Please ensure the room exists and try again.");
+                    }
+                    if (l2.Dummy && ignoreIfDummy) {
+                        RemoveSelf();
                     }
                 }
-            } else {
-                return;
             }
         }
 
@@ -349,6 +349,8 @@ namespace VivHelper.Triggers {
         }
 
         public override void OnEnter(Player player) {
+            if (player?.Dead ?? true)
+                return;
             base.OnEnter(player);
             if (ExitDirection != 0) {
                 ///Code by Oppenheimer
@@ -374,8 +376,8 @@ namespace VivHelper.Triggers {
                 for (int i = 0; i < sides.Length; i++)
                     if (sides[i] > temp) { EntrySide = 2 << i; temp = sides[i]; }
                 
-            } else if (!VivHelperModule.Session.TeleportState && (flagsNeeded == null || VivHelperModule.OldGetFlags(player.Scene as Level, flagsNeeded, "and"))) {
-                HelperEntities.GetHelperEntity(player.Scene).Add(new Coroutine(TeleportMaster(player)));
+            } else if (!VivHelperModule.Session.TeleportState && (flagsNeeded == null || VivHelperModule.OldGetFlags(Scene as Level, flagsNeeded, "and"))) {
+                HelperEntities.GetHelperEntity(Scene).Add(new Coroutine(TeleportMaster(player)));
             }
         }
 
@@ -384,8 +386,8 @@ namespace VivHelper.Triggers {
                 return;
             if (ExitDirection != 0) {
                 base.OnLeave(player);
-                if (ExitDirection % 15 == 0 && (flagsNeeded == null || VivHelperModule.OldGetFlags(player.Scene as Level, flagsNeeded, "and"))) {
-                    HelperEntities.GetHelperEntity(player.Scene).Add(new Coroutine(TeleportMaster(player)));
+                if (ExitDirection % 15 == 0 && (flagsNeeded == null || VivHelperModule.OldGetFlags(Scene as Level, flagsNeeded, "and"))) {
+                    HelperEntities.GetHelperEntity(Scene).Add(new Coroutine(TeleportMaster(player)));
                     return;
                 }
                 int ExitSide = 0;
@@ -437,25 +439,22 @@ namespace VivHelper.Triggers {
 
         private void ClearTeleportFunction(Level level) {
             Level _level = level ?? Scene as Level ?? HelperEntities.AllUpdateHelperEntity.Scene as Level ?? Engine.Scene as Level;
-            active = false;
             _level.PauseLock = false;
             VivHelperModule.Session.TeleportState = false;
             VivHelperModule.Session.TeleportAction = null;
         }
 
         public IEnumerator TeleportMaster(Player player) {
-            if (active) {
+            if (player?.Dead ?? true)
+                yield break;
+            Level level = player.Scene as Level;
+            if (VivHelperModule.Session.TeleportState || level == null || level.Bounds == null || VivHelperModule.Session.TeleportAction != null) {
                 yield break;
             }
-            active = true;
-            Level level = player.Scene as Level;
             if (customDelay > 0)
                 yield return customDelay;
             if (player?.Dead ?? true) {
                 ClearTeleportFunction(level);
-                yield break;
-            }
-            if (level == null || level.Bounds == null || VivHelperModule.Session.TeleportAction != null) {
                 yield break;
             }
             preActive = true;
@@ -539,7 +538,7 @@ namespace VivHelper.Triggers {
         }
 
         public void Teleport(Player player, Level level) {
-            if (player?.Dead ?? true) {
+            if (player is null || player.Dead) {
                 Logger.Log(LogLevel.Info, nameof(VivHelperModule), "Attempted to Teleport but player is either dead or null.");
                 ClearTeleportFunction(level);
                 return; //Cancels on death
@@ -759,7 +758,7 @@ namespace VivHelper.Triggers {
         private IEnumerator ErrorRoutine(Level level, string roomName) {
             yield return null;
             Audio.SetMusic(null);
-            LevelEnterExt.ErrorMessage = $"Failed to enter {roomName} because there was no valid TeleportTarget in that room.";
+            LevelEnter.ErrorMessage = $"Failed to enter {roomName} because there was no valid TeleportTarget in that room.";
             LevelEnter.Go(new Session(level.Session?.Area ?? new AreaKey(1).SetSID("")), fromSaveData: false);
         }
 

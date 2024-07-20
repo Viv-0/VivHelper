@@ -44,7 +44,7 @@ namespace VivHelper.Entities {
             newRoom = data.Attr("WarpRoom", currentRoom);
             newPos = new Vector2(data.Float("newPosX", -1f), data.Float("newPosY", -1f));
             transition = data.Enum("TransitionType", TransitionType.None);
-            flashColor = VivHelper.ColorFix(data.Attr("Color", "White"));
+            flashColor = VivHelper.GetColorWithFix(data, "Color", "color", VivHelper.GetColorParams.None, VivHelper.GetColorParams.None, Color.White).Value;
             flags = data.Attr("ZFlagsData", "").Split(',');
             cooldown = data.Float("CooldownLength", 0f);
             blendIn = data.Bool("blendin", false);

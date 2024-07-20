@@ -34,7 +34,7 @@ namespace VivHelper.Entities {
             dyn.Get<Sprite>("sprite").Play("flyupRoll");
 
             //Sets the new bird's trail color.
-            dyn.Set<Color>("trailColor", VivHelper.ColorFix(data.Attr("TrailColor", "639bff")));
+            dyn.Set<Color>("trailColor", VivHelper.GetColorWithFix(data, "TrailColor", "trailColor", VivHelper.GetColorParams.None, VivHelper.GetColorParams.None, new Color(99,155,255)).Value); // VivHelper.OldColorFunction(data.Attr("TrailColor", "639bff")
         }
     }
 }

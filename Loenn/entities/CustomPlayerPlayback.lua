@@ -12,7 +12,7 @@ playerPlayback.name = "VivHelper/CPP"
 playerPlayback.depth = 0
 playerPlayback.sprite = function(room,entity)
     local spr = require('structs.drawable_sprite').fromTexture("characters/player_playback/sitDown00")        
-    spr:setColor(vivUtil.getColorTable(entity.Color, true, {0.54, 0.157, 0.157, 0.8}))
+    spr:setColor(vivUtil.GetColorTable(entity, "Color", "color", true, {0.54, 0.157, 0.157, 0.8}))
     spr:setPosition(entity.x, entity.y)
     spr:setJustification(0.5,1)
     return spr    
@@ -23,7 +23,7 @@ playerPlayback.fieldInformation = {
     tutorial = {
         options = baseGameTutorials
     },
-    Color = {fieldType = "VivHelper.color", allowXNAColors = true, allowEmpty = true},
+    Color = {fieldType = "VivHelper.oldColor", allowXNAColors = true, allowEmpty = true},
     SpeedMultiplier = {fieldType = "number", options = {
         {"2x", 2.0},
         {"1x", 1.0},

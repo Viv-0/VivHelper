@@ -177,7 +177,7 @@ namespace VivHelper.Entities {
 
                 }
             }
-            sprite.Rotation = bgRotate ? (float) Calc.Random.Choose(0, 1, 2, 3) * ((float) Math.PI / 2f) : angle;
+            sprite.Rotation = bgRotate ? (float) Calc.Random.Choose(0, 1, 2, 3) * (Consts.PIover2) : angle;
             sprite.CenterOrigin();
             sprite.Scale = Vector2.One * scale * imageScale;
             sprite.Color = color;

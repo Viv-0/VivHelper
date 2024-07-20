@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace VivHelper.Entities.CustomHeart {
+namespace VivHelper.Entities {
     internal class DashCodeEntitySpawner {
     }
 }

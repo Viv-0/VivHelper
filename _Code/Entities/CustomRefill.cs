@@ -228,7 +228,9 @@ namespace VivHelper.Entities {
                     if (string.IsNullOrWhiteSpace(a))
                         colors[i][j] = null;
                     else
-                        colors[i][j] = VivHelper.ColorFix(a);
+#pragma warning disable CS0612
+                        colors[i][j] = VivHelper.OldColorFunction(a);
+#pragma warning restore CS0612
                 }
             ParticleParser(sources, colors, oDashes > 1);
 
@@ -270,7 +272,7 @@ namespace VivHelper.Entities {
             string[] p = e.Attr("VertexLight", "White,1,16,48").Split(',');
             if (p.Length == 4) {
                 p[0].Trim();
-                Color _c = VivHelper.ColorFix(p[0]);
+                Color _c = VivHelper.GetSimpleColor(p[0]);
                 if (float.TryParse(p[1].Trim(), out float f_1) && int.TryParse(p[2].Trim(), out int f_2) && int.TryParse(p[3].Trim(), out int f_3)) {
                     Add(light = new VertexLight(_c, f_1, f_2, f_3));
                 }
@@ -290,7 +292,7 @@ namespace VivHelper.Entities {
             Add(sine[0]);
             Add(sine[1]);
             sine[0].Randomize();
-            sine[1].Counter = (sine[0].Value + (float) (Math.PI / 2f)) % (float) (Math.PI * 2f);
+            sine[1].Counter = (sine[0].Value + Consts.PIover2) % Consts.PIover2;
             //it is 1 quarterrotation off of sine[0]'s random value. Used very cleanly because in isolation, rand(0, 1) + .25 % 1.0 == rand(0, 1),
             // assuming pure randomness, and in the case of the circle works well. Was gonna implement parametrics because I'm masochistic.
 
@@ -439,8 +441,8 @@ namespace VivHelper.Entities {
             Depth = Depths[1];
             yield return 0.05f;
             float num = player.Speed.Angle();
-            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, num - (float) Math.PI / 2f);
-            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, num + (float) Math.PI / 2f);
+            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, num - Consts.PIover2);
+            level.ParticlesFG.Emit(P_Shatter, 5, Position, Vector2.One * 4f, num + Consts.PIover2);
             SlashFx.Burst(Position, num);
             if (count > UseNumber) {
                 RemoveSelf();

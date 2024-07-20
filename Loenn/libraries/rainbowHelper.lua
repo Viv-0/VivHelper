@@ -98,24 +98,25 @@ local function getColorFromController(room, x, y, controller)
     )
 end
 
-function rainbowHelper.getRainbowHue(room, x, y, width, height)
-    width, height = width or 16, height or 16
-    local selfRect = utils.rectangle(x - width / 2, y - height / 2, width, height)
+function rainbowHelper.getRainbowHue(room, x, y, width, height, disableRainbow)
+    if not disableRainbow then
+        width, height = width or 16, height or 16
+        local selfRect = utils.rectangle(x - width / 2, y - height / 2, width, height)
 
-    for _, entity in ipairs(room.entities) do
-        local name = entity._name
-        if name == "MaxHelpingHand/RainbowSpinnerColorController"
-        or name == "MaxHelpingHand/FlagRainbowSpinnerColorController" then
-            return getColorFromController(room, x, y, entity)
-        elseif name == "MaxHelpingHand/RainbowSpinnerColorAreaController"
-            or name == "MaxHelpingHand/FlagRainbowSpinnerColorAreaController" then
-
-            if utils.aabbCheck(entity, selfRect) then
+        for _, entity in ipairs(room.entities) do
+            local name = entity._name
+            if name == "MaxHelpingHand/RainbowSpinnerColorController"
+            or name == "MaxHelpingHand/FlagRainbowSpinnerColorController" then
                 return getColorFromController(room, x, y, entity)
+            elseif name == "MaxHelpingHand/RainbowSpinnerColorAreaController"
+                or name == "MaxHelpingHand/FlagRainbowSpinnerColorAreaController" then
+
+                if utils.aabbCheck(entity, selfRect) then
+                    return getColorFromController(room, x, y, entity)
+                end
             end
         end
     end
-
 
     return vanillaRainbow(room, x, y)
 end

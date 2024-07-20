@@ -1,12 +1,12 @@
 local vivUtil = require("mods").requireFromPlugin("libraries.vivUtil")
 local state = require("loaded_state")
-local vh_tag = require("mods").requireFromPlugin("ui.forms.fields.vh_tag")
+local tagHelper = require('mods').requireFromPlugin('ui.utils.tagHelper')
 
 local oldFieldOrder = { 
     "x","y","width","height",
     "newPosX","newPosY",
     "WarpRoom","TransitionType",
-    "AddTriggerOffset","ResetDashes",
+    "AddTriggerOffset","ResetDashes", "bringHoldablesThrough",
     "TimeBeforeTeleport","ZFlagsData",
     "ExitVelocityX", "ExitVelocityY",
     "ExitVelocityS","Dreaming", "ForceNormalState",
@@ -25,7 +25,7 @@ local function oldTextFunction(room, item) return "Instant Teleport [VivHelper]\
 local ittOB = { name = "VivHelper/BasicInstantTeleportTrigger",
     fieldInformation = oldFieldInfo,
     fieldOrder = oldFieldOrder,
-    _vivh_textOverride = oldTextFunction,
+    triggerText = oldTextFunction,
     _vivh_finalizePlacement = function(room, layer, item) item.WarpRoom = room.name end
 }
 ittOB.placements = {
@@ -37,7 +37,7 @@ ittOB.placements = {
         AddTriggerOffset=false, ResetDashes=false
     }
 }
-local ittOM = { name = "VivHelper/MainInstantTeleportTrigger", fieldInformation = oldFieldInfo, fieldOrder = oldFieldOrder, _vivh_replaceDrawTextFunc = oldTextFunction, _vivh_finalizePlacement = function(room, layer, item) item.WarpRoom = room.name end }
+local ittOM = { name = "VivHelper/MainInstantTeleportTrigger", fieldInformation = oldFieldInfo, fieldOrder = oldFieldOrder, triggerText = oldTextFunction, _vivh_finalizePlacement = function(room, layer, item) item.WarpRoom = room.name end }
 ittOM.placements = {
     name = "main",
     data = {
@@ -46,14 +46,15 @@ ittOM.placements = {
         WarpRoom = "", TransitionType="None",
         AddTriggerOffset=false, ResetDashes=false,
         ExitVelocityX=0.0,ExitVelocityY=0.0,VelocityModifier=false,
-        TimeBeforeTeleport=0.0,ForceNormalState=false
+        TimeBeforeTeleport=0.0,ForceNormalState=false, bringHoldablesThrough = false
     }
 }
 local ittOC = { name = "VivHelper/CustomInstantTeleportTrigger",
-fieldInformation = oldFieldInfo,
-fieldOrder = oldFieldOrder,
-_vivh_replaceDrawTextFunc = oldTextFunction,
-_vivh_finalizePlacement = function(room, layer, item) item.WarpRoom = room.name end }
+    fieldInformation = oldFieldInfo,
+    fieldOrder = oldFieldOrder,
+    triggerText = oldTextFunction,
+    _vivh_finalizePlacement = function(room, layer, item) item.WarpRoom = room.name end
+}
 ittOC.placements = {
     name = "main",
     data = {
@@ -64,18 +65,18 @@ ittOC.placements = {
         ExitVelocityX=0.0,ExitVelocityY=0.0,ExitVelocityS=0.0,VelocityModifier=false,
         TimeBeforeTeleport=0.0,ForceNormalState=false,
         RotationType=false,RotationActor=0.0,
-        TimeSlowDown=0.0
+        TimeSlowDown=0.0, bringHoldablesThrough = false
     }
 }
 
 local Target = { name = "VivHelper/TeleportTarget", placements = {{
         name = "main",
         data = {
-            TargetID="Target", AddTriggerOffset=false, SetState="-1"
+            TargetID="", AddTriggerOffset=false, SetState="-1"
         }},{
         name = "custom",
         data = {
-            TargetID="Target", AddTriggerOffset=false, SetState="-1",
+            TargetID="", AddTriggerOffset=false, SetState="-1",
             RotationValue=0.0, RotateToAngle=false, RotateBeforeSpeedChange=false,
             SpeedModifier="NoChange", SpeedChangeX=0.0, SpeedChangeY=0.0
         }}
@@ -85,13 +86,13 @@ local Target = { name = "VivHelper/TeleportTarget", placements = {{
         SpeedModifier = {fieldType = "string", options = {"NoChange","Add","Multiply","Set"}, editable = false}
     }
 }
-vh_tag.addTagControlToHandler(Target, "TargetID", "teleporttarget", true)
+tagHelper.addTagControlToHandler(Target, "TargetID", "teleporttarget", true)
 
 local Teleporter = { name = "VivHelper/ITPT1Way", 
     placements = {{
         name = "main",
         data = {
-            TargetID="Target", ExitDirection=0, RoomName = "",
+            TargetID="", ExitDirection=0, RoomName = "",
             RequiredFlags="", FlagsOnTeleport="",
             ResetDashes=false,
             BringHoldableThrough=false,
@@ -104,7 +105,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
     }, {
         name = "flash",
         data = {
-            TargetID="Target", ExitDirection=0, RoomName = "",
+            TargetID="", ExitDirection=0, RoomName = "",
             RequiredFlags="", FlagsOnTeleport="",
             ResetDashes=false,
             BringHoldableThrough=false,
@@ -119,7 +120,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
     }, {
         name = "lightning",
         data = {
-            TargetID="Target", ExitDirection=0, RoomName = "",
+            TargetID="", ExitDirection=0, RoomName = "",
             RequiredFlags="", FlagsOnTeleport="",
             ResetDashes=false,
             BringHoldableThrough=false,
@@ -137,7 +138,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
     }, {
         name = "glitch",
         data = {
-            TargetID="Target", ExitDirection=0, RoomName = "",
+            TargetID="", ExitDirection=0, RoomName = "",
             RequiredFlags="", FlagsOnTeleport="",
             ResetDashes=false,
             BringHoldableThrough=false,
@@ -155,7 +156,7 @@ local Teleporter = { name = "VivHelper/ITPT1Way",
     }, {
         name = "wipe",
         data = {
-            TargetID="Target", ExitDirection=0, RoomName = "",
+            TargetID="", ExitDirection=0, RoomName = "",
             RequiredFlags="", FlagsOnTeleport="",
             ResetDashes=false,
             BringHoldableThrough=false,

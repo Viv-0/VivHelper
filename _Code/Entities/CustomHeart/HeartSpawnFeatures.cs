@@ -44,7 +44,7 @@ namespace VivHelper.Entities {
             Vector2 speed = Vector2.Zero;
             Ease = 0.2f;
             while (true) {
-                Vector2 target = Target + Calc.AngleToVector(Calc.Random.NextFloat((float) Math.PI * 2f), 16f + Calc.Random.NextFloat(40f));
+                Vector2 target = Target + Calc.AngleToVector(Calc.Random.NextFloat(Consts.TAU), 16f + Calc.Random.NextFloat(40f));
                 float reset = 0f;
                 while (reset < 1f && (target - Position).Length() > 8f) {
                     Vector2 value = (target - Position).SafeNormalize();

@@ -39,6 +39,14 @@ namespace VivHelper {
         }
     }
 
+    public abstract class SoundChange {
+        protected static Event noneEvent = new Event("event:/none", null);
+        protected static Event defaultEvent = new Event("default", null);
+        public abstract Event GrabEvent();
+        public abstract void AddOrChangeFromEntityData(EntityData data);
+
+    }
+
     public class SoundReplace : SoundChange {
         public SoundReplace(EntityData data) {
             DefaultEvent = null;
@@ -49,8 +57,11 @@ namespace VivHelper {
         // NAME: #### ; NAME2: ####
         // or
         // NAME: FLAG ? ### : ### ; NAME2 ...
-
-        private static Regex ternary = new Regex(@"(.+)?([\d\s]+):(n*u*l*)([\d\s]*)");
+        // $1{space}?{space}$2{space}:{space}$3
+        // $1 = flag
+        // $2 = number value
+        // $3 = null *or* number value
+        private static Regex ternary = new Regex(@"(\w+)?\s?\?\s*(\d+)\s*:\s*(?:(null)|(\d*))");
 
         private void Construct(EntityData data) {
             string flag = data.Attr("flag");
@@ -81,9 +92,8 @@ namespace VivHelper {
                                 p.FlagInvert = true;
                                 p.Flag = _flag.Substring(1);
                             }
-                            if (float.TryParse(m.Captures[3].Value, out float norm)) {
-                                p.Normal = norm;
-                            } else if (m.Captures[2].Value != "null") continue;
+                            if (m.Captures[2].Value == "null") continue;
+                            else if(float.TryParse(m.Captures[2].Value, out float norm)) p.Normal = norm;
                             @params.Add(p);
                         }
                         continue;
@@ -151,13 +161,5 @@ namespace VivHelper {
                 flag = f;
             }
         }
-    }
-
-    public abstract class SoundChange {
-        protected static Event noneEvent = new Event("event:/none", null);
-        protected static Event defaultEvent = new Event("default", null);
-        public abstract Event GrabEvent();
-        public abstract void AddOrChangeFromEntityData(EntityData data);
-
     }
 }

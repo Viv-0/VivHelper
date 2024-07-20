@@ -9,10 +9,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Triggers {
     [TrackedAs(typeof(Trigger))]
@@ -48,6 +48,7 @@ namespace VivHelper.Triggers {
         private bool onExit, DifferentSide; private int direction = -1;
         private bool wackyFollowerOverride;
         private bool TransitionListeners;
+        private bool bringHoldableThrough;
 
         private bool doFlash;
         private float flash;
@@ -62,10 +63,10 @@ namespace VivHelper.Triggers {
             vel = new float[] { data.Float("ExitVelocityX", velMod ? 1 : 0), data.Float("ExitVelocityY", velMod ? 1 : 0) };
             vel2 = data.Float("ExitVelocityS", -1);
             rotMod = data.Bool("RotationType", false);
-            rot = 0 - ((float) Math.PI * data.Float("RotationActor", 0) / 180);
+            rot = 0 - Calc.DegToRad * data.Float("RotationActor", 0);
             dreaming = data.Bool("Dreaming", true);
             transition = data.Enum("TransitionType", TransitionType.None);
-            flashColor = VivHelper.ColorFix(data.Attr("Color", "White"));
+            flashColor = VivHelper.GetColorWithFix(data, "Color", "color", GetColorParams.None, GetColorParams.None, Color.White).Value; // VivHelper.OldColorFunction(data.Attr("Color", "White"));
             flags = data.Attr("ZFlagsData", "").Split(',');
             addTriggerOffset = data.Bool("AddTriggerOffset", true);
             timeSlowDown = data.Float("TimeSlowDown", 0f);
@@ -80,6 +81,7 @@ namespace VivHelper.Triggers {
             DifferentSide = onExit ? data.Bool("DifferentSide") : false;
             wackyFollowerOverride = data.Bool("followerForcePosition");
             TransitionListeners = data.Bool("ActAsTransition", false);
+            bringHoldableThrough = data.Bool("bringHoldablesThrough");
         }
 
         public override void Added(Scene scene) {
@@ -139,12 +141,12 @@ namespace VivHelper.Triggers {
                 Vector2 prevTopRight = player.TopRight - player.Speed; //TopLeft, TopRight, BottomLeft, BottomRight
                 Vector2 prevBottomLeft = player.BottomLeft - player.Speed;
                 // Check if the segment prevLoc -> curLoc crosses any of the boundaries
-                sides[0] *= (this.Left > prevTopRight.X && this.Left <= player.TopRight.X) ? 1 : 0;
-                sides[1] *= (this.Right < prevBottomLeft.X && this.Right >= player.BottomLeft.X) ? 1 : 0;
-                sides[2] *= (this.Top > prevBottomLeft.Y && this.Top <= player.BottomLeft.Y) ? 1 : 0;
-                sides[3] *= (this.Bottom < prevTopRight.Y && this.Bottom >= player.TopRight.Y) ? 1 : 0;
+                sides[0] *= (Left > prevTopRight.X && Left <= player.TopRight.X) ? 1 : 0;
+                sides[1] *= (Right < prevBottomLeft.X && Right >= player.BottomLeft.X) ? 1 : 0;
+                sides[2] *= (Top > prevBottomLeft.Y && Top <= player.BottomLeft.Y) ? 1 : 0;
+                sides[3] *= (Bottom < prevTopRight.Y && Bottom >= player.TopRight.Y) ? 1 : 0;
                 int maxValue = sides.Max();
-                this.direction = Array.IndexOf(sides, maxValue);
+                direction = Array.IndexOf(sides, maxValue);
             } else {
                 TeleportMaster(player);
             }
@@ -229,6 +231,9 @@ namespace VivHelper.Triggers {
                 for (int i = 0; i < leader.PastPoints.Count; i++) {
                     leader.PastPoints[i] -= player.Position;
                 }
+                if (bringHoldableThrough && player.Holding != null) {
+                    player.Holding.Entity.AddTag(Tags.Global);
+                }
                 int state = player.StateMachine.State;
                 //Changed from atpx8's edit. We don't want Persistent goldenberries to be removed through the transition so we need to take it after the follower manager.
                 player.CleanUpTriggers();
@@ -279,6 +284,10 @@ namespace VivHelper.Triggers {
                 Vector2 diff = v - player.Position;
                 player.Position = v;
                 player.Hair.MoveHairBy(diff);
+                if (bringHoldableThrough) {
+                    player.UpdateCarry();
+                    player.Holding?.Entity?.RemoveTag(Tags.Global);
+                }
                 ModifySpeed(player);
                 if (legacyCamera == 2 || legacyCamera == 4)
                     NewCamera(level, player, vals, c);

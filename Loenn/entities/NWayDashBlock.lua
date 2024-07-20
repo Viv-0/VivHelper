@@ -11,13 +11,13 @@ local nway = {
             tiletype="3",
             blendin=true, canDash=true, permanent=true,
             Left=true, Right=true, Up=true, Down=true,
-            DetailColor="000000"
+            detailColor="000000"
         }
     }
 }
 nway.fieldInformation = function(entity)
     local orig = fakeTilesHelper.getFieldInformation("tiletype")(entity)
-    orig["DetailColor"] =  {fieldType = "color",allowXNAColors=true}
+    orig["detailColor"] =  {fieldType = "color",allowXNAColors=true}
     return orig
 end
 

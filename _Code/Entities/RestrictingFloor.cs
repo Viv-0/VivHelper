@@ -78,7 +78,7 @@ namespace VivHelper.Entities {
             if (string.IsNullOrWhiteSpace(customTexture)) {
                 customTexture = "VivHelper/stickyUp";
             }
-            color = data.Color("color", Color.White);
+            color = VivHelper.GetColor(data.Attr("color"), VivHelper.GetColorParams.None, Color.White).Value;
             tiles = new MTexture[3];
             MTexture texture = GFX.Game[customTexture];
             for (int i = 0; i < 3; i++) {
@@ -164,7 +164,7 @@ namespace VivHelper.Entities {
             DisableClimbJumps = data.Bool("DisableClimbJumping");
             DisableWallbounce = data.Bool("DisableWallbounce");
             DisableWallboost = data.Bool("DisableWallBoost");
-            color = data.Color("color", Color.White);
+            color = VivHelper.GetColor(data.Attr("color"), VivHelper.GetColorParams.None, Color.White).Value;
             left = data.Bool("Left", false);
             if (data.Bool("AttachToSolid", true)) {
                 Add(new StaticMover() {

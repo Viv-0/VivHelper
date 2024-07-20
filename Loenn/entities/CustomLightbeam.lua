@@ -2,9 +2,9 @@ local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 
 local clb = {
     name = "VivHelper/CustomLightbeam",
-    fieldOrder = {"width","height","rotation","Texture","Color","Alpha","ChangeFlag","DisableFlag","DisableParticlesFlag","Depth","FadeWhenNear","NoParticles"},
+    fieldOrder = {"width","height","rotation","Texture","color","Alpha","ChangeFlag","DisableFlag","DisableParticlesFlag","Depth","FadeWhenNear","NoParticles"},
     fieldInformation = {
-        Color = {fieldType = "VivHelper.color", allowXNAColors = true },
+        color = {fieldType = "color", allowXNAColors = true },
         Texture = {fieldType = "path", allowFiles = true, allowFolders = false},
         Depth = {fieldType = "integer"}
     }
@@ -17,7 +17,7 @@ clb.placements = {
         rotation = 0,
         ChangeFlag = "",
         DisableFlag = "",
-        Color = "ffffff",
+        color = "ffffff",
         Alpha = 1.0,
         Texture = "util/lightbeam",
         Depth = -9998,
@@ -34,7 +34,7 @@ local drawableSprite = require("structs.drawable_sprite")
 
 local function getSprites(room, entity, onlyBase)
     -- Shallowcopy so we can change the alpha later
-    local color = vivUtil.getColorTable(entity.Color or {0.8, 1.0, 1.0, 0.4})
+    local color = vivUtil.GetColorTable(entity,"Color","color" or {0.8, 1.0, 1.0, 0.4})
 
     if not color[4] then
         color[4] = 0.4

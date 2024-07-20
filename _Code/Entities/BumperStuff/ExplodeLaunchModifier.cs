@@ -21,7 +21,9 @@ namespace VivHelper.Entities {
         public static bool DetectFreeze = false;
 
         public static void Load() {
-            using (new DetourContext { After = { "*" } }) On.Celeste.Celeste.Freeze += _DisableFreeze;
+            // pre-Core: using(new DetourContext { After = {"*"} }) {
+            using (new DetourConfigContext(new DetourConfig("VivHelper", before: new[] { "*" })).Use())
+                On.Celeste.Celeste.Freeze += _DisableFreeze;
             On.Monocle.Entity.DebugRender += AddBumperWrapperCheck;
         }
 
@@ -109,7 +111,7 @@ namespace VivHelper.Entities {
             return vector;
         }
 
-        private static Vector2 CardinalLaunch(Player self, Vector2 from, RestrictBoost restrictBoost) {
+        private static Vector2 CardinalLaunch(Player self, Vector2 from, RestrictBoost restrictBoost, bool restrictDashes = false) {
             DynData<Player> dyn = new DynData<Player>(self);
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             if (restrictBoost == RestrictBoost.BetterBoost)
@@ -132,7 +134,7 @@ namespace VivHelper.Entities {
                 }
             }
             SlashFx.Burst(self.Center, self.Speed.Angle());
-            if (!self.Inventory.NoRefills) {
+            if (!self.Inventory.NoRefills && !restrictDashes) {
                 self.RefillDash();
             }
             self.RefillStamina();
@@ -141,7 +143,7 @@ namespace VivHelper.Entities {
             return self.Speed;
         }
 
-        private static Vector2 DiagonalLaunch(Player self, Vector2 from) {
+        private static Vector2 DiagonalLaunch(Player self, Vector2 from, bool restrictDashes = false) {
             DynData<Player> dyn = new DynData<Player>(self);
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             Celeste.Celeste.Freeze(0.1f);
@@ -151,7 +153,7 @@ namespace VivHelper.Entities {
                 self.AutoJump = true;
             }
             SlashFx.Burst(self.Center, self.Speed.Angle());
-            if (!self.Inventory.NoRefills) {
+            if (!self.Inventory.NoRefills && !restrictDashes) {
                 self.RefillDash();
             }
             self.RefillStamina();
@@ -162,16 +164,16 @@ namespace VivHelper.Entities {
 
         private static Vector2 Diagonal4Way(Vector2 v) {
             float f = v.Angle();
-            if (f > 0f && f <= (float) Math.PI / 2f)
-                return Calc.AngleToVector((float) Math.PI * 0.25f, 1f);
-            if (f > (float) Math.PI / 2f && f <= (float) Math.PI)
-                return Calc.AngleToVector((float) Math.PI * 0.75f, 1f);
-            if (f > (float) -Math.PI && f <= (float) -Math.PI / 2f)
-                return Calc.AngleToVector((float) Math.PI * -0.75f, 1f);
-            return Calc.AngleToVector((float) Math.PI * -0.25f, 1f);
+            if (f > 0f && f <= Consts.PIover2)
+                return Calc.AngleToVector(Consts.PIover4, 1f);
+            if (f > Consts.PIover2 && f <= Consts.PI)
+                return Calc.AngleToVector(Consts.PIover4 * 3, 1f);
+            if (f > (float) -Consts.PI && f <= (float) -Consts.PIover2)
+                return Calc.AngleToVector(Consts.PIover4 * -3, 1f);
+            return Calc.AngleToVector(-Consts.PIover4, 1f);
         }
 
-        public static Vector2 EightWayLaunch(Player self, Vector2 from, RestrictBoost restrictBoost) {
+        public static Vector2 EightWayLaunch(Player self, Vector2 from, RestrictBoost restrictBoost, bool restrictDashes = false) {
             DynData<Player> dyn = new DynData<Player>(self);
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             if (restrictBoost == RestrictBoost.BetterBoost)
@@ -194,7 +196,7 @@ namespace VivHelper.Entities {
                 }
             }
             SlashFx.Burst(self.Center, self.Speed.Angle());
-            if (!self.Inventory.NoRefills) {
+            if (!self.Inventory.NoRefills && !restrictDashes) {
                 self.RefillDash();
             }
             self.RefillStamina();
@@ -220,7 +222,7 @@ namespace VivHelper.Entities {
             return v;
         }
 
-        private static Vector2 Alt4WayLaunch(Player self, Vector2 from, BumperWrapper bw) {
+        private static Vector2 Alt4WayLaunch(Player self, Vector2 from, BumperWrapper bw, bool restrictDashes = false) {
             DynData<Player> dyn = new DynData<Player>(self);
             Input.Rumble(RumbleStrength.Strong, RumbleLength.Medium);
             Celeste.Celeste.Freeze(0.1f);
@@ -231,7 +233,7 @@ namespace VivHelper.Entities {
                 self.AutoJump = true;
             }
             SlashFx.Burst(self.Center, self.Speed.Angle());
-            if (!self.Inventory.NoRefills) {
+            if (!self.Inventory.NoRefills && !restrictDashes) {
                 self.RefillDash();
             }
             self.RefillStamina();

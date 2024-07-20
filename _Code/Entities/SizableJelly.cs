@@ -100,8 +100,8 @@ namespace VivHelper.Entities {
             if (base.Scene.OnInterval(0.05f)) {
                 level.Particles.Emit(Glider.P_Glow, 1, base.Center + Vector2.UnitY * -9f, new Vector2(10f, 4f));
             }
-            float target = ((!Hold.IsHeld) ? 0f : ((!Hold.Holder.OnGround()) ? Calc.ClampedMap(Hold.Holder.Speed.X, -300f, 300f, (float) Math.PI / 3f, -(float) Math.PI / 3f) : Calc.ClampedMap(Hold.Holder.Speed.X, -300f, 300f, 0.6981317f, -0.6981317f)));
-            sprite.Rotation = Calc.Approach(sprite.Rotation, target, (float) Math.PI * Engine.DeltaTime);
+            float target = ((!Hold.IsHeld) ? 0f : ((!Hold.Holder.OnGround()) ? Calc.ClampedMap(Hold.Holder.Speed.X, -300f, 300f, -Consts.PIover3, Consts.PIover3) : Calc.ClampedMap(Hold.Holder.Speed.X, -300f, 300f, 0.6981317f, -0.6981317f)));
+            sprite.Rotation = Calc.Approach(sprite.Rotation, target, Consts.PI * Engine.DeltaTime);
             if (Hold.IsHeld && !Hold.Holder.OnGround() && (sprite.CurrentAnimationID == "fall" || sprite.CurrentAnimationID == "fallLoop")) {
                 if (!fallingSfx.Playing) {
                     Audio.Play("event:/new_content/game/10_farewell/glider_engage", Position);
@@ -241,7 +241,7 @@ namespace VivHelper.Entities {
             if (sprite.CurrentAnimationID != "fall" && sprite.CurrentAnimationID != "fallLoop") {
                 sprite.Play("fall");
                 sprite.Scale = new Vector2(1.5f * scale.X, 0.6f * scale.Y);
-                level.Particles.Emit(Glider.P_Expand, 16, base.Center + (Vector2.UnitY * -12f).Rotate(sprite.Rotation), new Vector2(8f, 3f), -(float) Math.PI / 2f + sprite.Rotation);
+                level.Particles.Emit(Glider.P_Expand, 16, base.Center + (Vector2.UnitY * -12f).Rotate(sprite.Rotation), new Vector2(8f, 3f), -Consts.PIover2 + sprite.Rotation);
                 if (Hold.IsHeld) {
                     Input.Rumble(RumbleStrength.Medium, RumbleLength.Short);
                 }
@@ -336,7 +336,7 @@ namespace VivHelper.Entities {
             wiggler.Start();
         }
 
-        protected override void OnSquish(CollisionData data) {
+        public override void OnSquish(CollisionData data) {
             if (!TrySquishWiggle(data, 3, 3)) {
                 RemoveSelf();
             }

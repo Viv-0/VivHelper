@@ -16,6 +16,13 @@ using static Celeste.TrackSpinner;
 
 namespace VivHelper.Entities.Boosters {
     public static class BoostFunctions {
+
+        public static void CustomBoost(this Player player, CustomBooster booster) {
+            player.Position = booster.Center;
+            player.Speed = Vector2.Zero;
+            DynamicData.For(player).Set("boostTarget", booster.Center);
+            booster.PlayerBoosted(player);
+        }
         public static void Load() {
             On.Celeste.Player.Die += Player_Die;
             On.Celeste.Player.OnCollideH += Player_OnCollideH;
@@ -104,7 +111,7 @@ namespace VivHelper.Entities.Boosters {
                         for (int num = 1; num >= -1; num -= 2) {
                             Vector2 vector = new Vector2(Math.Sign(self.Speed.X), i * num);
                             Vector2 vector2 = self.Position + vector;
-                            if (!self.CollideCheck<Solid>(vector2) && self.CollideCheck<Solid>(vector2 - Vector2.UnitY * num) && !(bool) VivHelper.player_DashCorrectCheck(self, vector)) {
+                            if (!self.CollideCheck<Solid>(vector2) && self.CollideCheck<Solid>(vector2 - Vector2.UnitY * num) && !(bool) VivHelper.player_DashCorrectCheck.Invoke(self, new object[] { vector })) {
                                 self.MoveVExact(i * num);
                                 self.MoveHExact(Math.Sign(self.Speed.X));
                                 return;
@@ -112,7 +119,7 @@ namespace VivHelper.Entities.Boosters {
                         }
                     }
                 }
-                if (customDashState.CanEnterDreamBlock && (bool) VivHelper.player_DreamDashCheck(self, Vector2.UnitX * Math.Sign(self.Speed.X))) {
+                if (customDashState.CanEnterDreamBlock && (bool) VivHelper.player_DreamDashCheck.Invoke(self, new object[] { Vector2.UnitX * Math.Sign(self.Speed.X) })) {
                     self.StateMachine.State = 9;
                     dyn.Set("dashAttackTimer", 0f);
                     dyn.Set("gliderBoostTimer", 0f);
@@ -162,7 +169,7 @@ namespace VivHelper.Entities.Boosters {
                         for (int i = 1; i <= 4; i++) {
                             Vector2 vector = new Vector2(Math.Sign(self.Speed.X), i * num);
                             Vector2 vector2 = self.Position + vector;
-                            if (!self.CollideCheck<Solid>(vector2) && self.CollideCheck<Solid>(vector2 - Vector2.UnitY * num) && !(bool) VivHelper.player_DashCorrectCheck(self, vector)) {
+                            if (!self.CollideCheck<Solid>(vector2) && self.CollideCheck<Solid>(vector2 - Vector2.UnitY * num) && !(bool) VivHelper.player_DashCorrectCheck.Invoke(self, new object[] { vector })) {
                                 self.MoveVExact(i * num);
                                 self.MoveHExact(Math.Sign(self.Speed.X));
                                 return;
@@ -170,7 +177,7 @@ namespace VivHelper.Entities.Boosters {
                         }
                     }
                 }
-                if (customDashState.CanEnterDreamBlock && (bool) VivHelper.player_DreamDashCheck(self, Vector2.UnitX * Math.Sign(self.Speed.X))) {
+                if (customDashState.CanEnterDreamBlock && (bool) VivHelper.player_DreamDashCheck.Invoke(self, new object[] { Vector2.UnitX * Math.Sign(self.Speed.X) })) {
                     self.StateMachine.State = 9;
                     dyn.Set("dashAttackTimer", 0f);
                     dyn.Set("gliderBoostTimer", 0f);
@@ -278,7 +285,7 @@ namespace VivHelper.Entities.Boosters {
                         }
                     }
                 }
-                if (canEnterDreamBlock && (bool) VivHelper.player_DreamDashCheck(self, Vector2.UnitY * Math.Sign(self.Speed.Y))) {
+                if (canEnterDreamBlock && (bool) VivHelper.player_DreamDashCheck.Invoke(self, new object[] { Vector2.UnitY * Math.Sign(self.Speed.Y) })) {
                     self.StateMachine.State = 9;
                     dyn.Set("dashAttackTimer", 0f);
                     dyn.Set("gliderBoostTimer", 0f);
@@ -304,7 +311,7 @@ namespace VivHelper.Entities.Boosters {
                     if (platformByPriority != null) {
                         num2 = platformByPriority.GetLandSoundIndex(self);
                         if (num2 >= 0 && !self.MuffleLanding) {
-                            self.Play((dyn.Get<float>("playFootstepOnLand") > 0f) ? "event:/char/madeline/footstep" : "event:/char/madeline/landing", "surface_index", num2);
+                            self.Play((dyn.Get<float>("playFootstepOnLand") > 0f) ? SFX.char_mad_footstep : SFX.char_mad_land, "surface_index", num2);
                         }
                         if (platformByPriority is DreamBlock) {
                             (platformByPriority as DreamBlock).FootstepRipple(self.Position);
@@ -312,7 +319,7 @@ namespace VivHelper.Entities.Boosters {
                         self.MuffleLanding = false;
                     }
                     if (self.Speed.Y >= 80f) {
-                        Dust.Burst(self.Position, new Vector2(0f, -1f).Angle(), 8, (ParticleType) VivHelper.player_DustParticleFromSurfaceIndex(self, num2));
+                        Dust.Burst(self.Position, new Vector2(0f, -1f).Angle(), 8, (ParticleType) VivHelper.player_DustParticleFromSurfaceIndex.Invoke(self, new object[] { num2 }));
                     }
                     dyn.Set("playFootstepOnLand", 0f);
                 }
@@ -342,7 +349,7 @@ namespace VivHelper.Entities.Boosters {
                         dyn.Set("varJumpTimer", 0f);
                     }
                 }
-                if (canEnterDreamBlock && (bool) VivHelper.player_DreamDashCheck(self, Vector2.UnitY * Math.Sign(self.Speed.Y))) {
+                if (canEnterDreamBlock && (bool) VivHelper.player_DreamDashCheck.Invoke(self, new object[] { Vector2.UnitY * Math.Sign(self.Speed.Y) })) {
                     self.StateMachine.State = 9;
                     dyn.Set("dashAttackTimer", 0f);
                     dyn.Set("gliderBoostTimer", 0f);
@@ -361,7 +368,7 @@ namespace VivHelper.Entities.Boosters {
     }
 
     [Tracked(true)]
-    public class CustomBooster : Entity {
+    public abstract class CustomBooster : Entity {
         protected Coroutine dashRoutine;
         public EntityID ID;
         public const float timerStart = 0.2f;
@@ -376,14 +383,19 @@ namespace VivHelper.Entities.Boosters {
             }
             return dir;
         }
-
         public bool BoostingPlayer { get; protected set; }
 
         public Vector2 storedSpeed;
         public CustomBooster(Vector2 position) : base(position) { }
 
+        public virtual void PlayerBoosted(Player player) {
+            BoostingPlayer = true;
+            base.AddTag((int) Tags.Persistent | (int) Tags.TransitionUpdate);
+        }
+
         public virtual void PlayerReleased() {
             BoostingPlayer = false;
+            base.RemoveTag((int) Tags.Persistent | (int) Tags.TransitionUpdate);
         }
 
         public virtual void PlayerDied(Player player) {

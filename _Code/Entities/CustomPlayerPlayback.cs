@@ -8,11 +8,12 @@ using Monocle;
 using Microsoft.Xna.Framework;
 using Celeste.Mod.Entities;
 using Celeste.Mod.VivHelper;
+using static MonoMod.InlineRT.MonoModRule;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/CPP")]
     [Tracked]
-    class CustomPlayerPlayback : Entity {
+    class CustomPlayerPlayback : Entity, IPreAwake {
         public Vector2 LastPosition;
 
         public List<Player.ChaserState> Timeline;
@@ -84,22 +85,25 @@ namespace VivHelper.Entities {
             customID = e.Attr("CustomStringID", "");
             color = null;
             if (e.Attr("Color") != "")
-                color = VivHelper.ColorFix(e.Attr("Color"));
+                color = VivHelper.GetColorWithFix(e, "Color", "color", VivHelper.GetColorParams.None, VivHelper.GetColorParams.None, Color.White).Value;
             base.Depth = e.Int("Depth", 9008);
-            Sprite.Color = color ?? Hair.Color;
-            Add(Sprite);
+            if (Sprite != null) {
+                Sprite.Color = color ?? Hair.Color;
+                Add(Sprite);
+            }
         }
 
         public CustomPlayerPlayback(Vector2 start, PlayerSpriteMode sprite, string tutorial) {
-            if (!PlaybackData.Tutorials.TryGetValue(tutorial, out var timeline))
+            if (!PlaybackData.Tutorials.TryGetValue(tutorial, out Timeline)) {
                 breaker = "PlayerPlayback at " + start + " errors due to no Tutorial \"" + tutorial + ".\" You may need to restart or reload Assets manually to resolve this change.";
+                return;
+            }
             this.start = start;
             base.Collider = new Hitbox(8f, 11f, -4f, -11f);
-            Timeline = timeline;
             Position = start;
             time = 0f;
             index = 0;
-            Duration = timeline[timeline.Count - 1].TimeStamp;
+            Duration = Timeline[Timeline.Count - 1].TimeStamp;
             TrimStart = 0f;
             TrimEnd = Duration;
             Sprite = new PlayerSprite(sprite);
@@ -119,8 +123,7 @@ namespace VivHelper.Entities {
             index = Timeline.Count;
         }
 
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
+        void IPreAwake.PreAwake(Scene scene) {
             if (breaker != null) //This is the "Active" state that is associated with Update calls, and is modified by if the Tutorial cannot be found.
             {
                 VivHelperModule.SendErrorMessageThroughDebugConsole(breaker);

@@ -15,55 +15,10 @@ using FMOD.Studio;
 using YamlDotNet.Core.Tokens;
 using System.Linq.Expressions;
 using YamlDotNet.Helpers;
+using static Celeste.TrackSpinner;
 
 namespace VivHelper {
     public static class Extensions {
-        //Thanks to JaThePlayer for the class allowing for StateMachine States to be added.
-        private static FieldInfo StateMachine_begins = typeof(StateMachine).GetField("begins", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private static FieldInfo StateMachine_updates = typeof(StateMachine).GetField("updates", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private static FieldInfo StateMachine_ends = typeof(StateMachine).GetField("ends", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        private static FieldInfo StateMachine_coroutines = typeof(StateMachine).GetField("coroutines", BindingFlags.Instance | BindingFlags.NonPublic);
-
-        public static int AddState(this StateMachine machine, Func<int> onUpdate, Func<IEnumerator> coroutine = null, Action begin = null, Action end = null) {
-            Action[] begins = (Action[]) StateMachine_begins.GetValue(machine);
-            Func<int>[] updates = (Func<int>[]) StateMachine_updates.GetValue(machine);
-            Action[] ends = (Action[]) StateMachine_ends.GetValue(machine);
-            Func<IEnumerator>[] coroutines = (Func<IEnumerator>[]) StateMachine_coroutines.GetValue(machine);
-            int nextIndex = begins.Length;
-            Array.Resize(ref begins, begins.Length + 1);
-            Array.Resize(ref updates, begins.Length + 1);
-            Array.Resize(ref ends, begins.Length + 1);
-            Array.Resize(ref coroutines, coroutines.Length + 1);
-            StateMachine_begins.SetValue(machine, begins);
-            StateMachine_updates.SetValue(machine, updates);
-            StateMachine_ends.SetValue(machine, ends);
-            StateMachine_coroutines.SetValue(machine, coroutines);
-            machine.SetCallbacks(nextIndex, onUpdate, coroutine, begin, end);
-            return nextIndex;
-        }
-
-        public static int AddState(this StateMachine machine, Func<Player, int> onUpdate, Func<Player, IEnumerator> coroutine = null, Action<Player> begin = null, Action<Player> end = null) {
-            Action[] begins = (Action[]) StateMachine_begins.GetValue(machine);
-            Func<int>[] updates = (Func<int>[]) StateMachine_updates.GetValue(machine);
-            Action[] ends = (Action[]) StateMachine_ends.GetValue(machine);
-            Func<IEnumerator>[] coroutines = (Func<IEnumerator>[]) StateMachine_coroutines.GetValue(machine);
-            int nextIndex = begins.Length;
-            Array.Resize(ref begins, begins.Length + 1);
-            Array.Resize(ref updates, begins.Length + 1);
-            Array.Resize(ref ends, begins.Length + 1);
-            Array.Resize(ref coroutines, coroutines.Length + 1);
-            StateMachine_begins.SetValue(machine, begins);
-            StateMachine_updates.SetValue(machine, updates);
-            StateMachine_ends.SetValue(machine, ends);
-            StateMachine_coroutines.SetValue(machine, coroutines);
-            Func<IEnumerator> _coroutine = null;
-            if (coroutine != null) _coroutine = () => coroutine(machine.Entity as Player);
-            machine.SetCallbacks(nextIndex, () => onUpdate(machine.Entity as Player), _coroutine, () => begin(machine.Entity as Player), () => end(machine.Entity as Player));
-            return nextIndex;
-        }
 
         public static List<Entity> FindAll(this EntityList self, params Type[] types) {
             List<Type> _types = types.ToList();
@@ -155,7 +110,7 @@ namespace VivHelper {
         public static string ThrowOnEmptyAttr(this EntityData self, string key) {
             string q = self.Attr(key, null);
             if (string.IsNullOrEmpty(q))
-                throw new InvalidPropertyException($"Property \"{key}\" was null or empty for entity of type {self.Name} at Position {self.Position}, when it cannot be for this to function.");
+                throw new InvalidParameterException($"Property \"{key}\" was null or empty for entity of type {self.Name} at Position {self.Position}, when it cannot be for this to function.");
             return q;
         }
 
@@ -182,10 +137,8 @@ namespace VivHelper {
                 return;
             }
             SolidModifierComponent main = entity.Get<SolidModifierComponent>();
-            if (main.ContactMod + smc.ContactMod > 2)
-                main.ContactMod = 3;
-            else if (main.ContactMod != smc.ContactMod)
-                main.ContactMod = Math.Max(main.ContactMod, smc.ContactMod);
+            main.bufferClimbJump |= smc.bufferClimbJump;
+            main.triggerClimbOnTouch |= smc.triggerClimbOnTouch;
             // If A has default and B doesn't, prioritize B (A|B)
             // If A has a specific integer value (positive) and B has a behavior integer value (negative), prioritize the negative
             // If A and B have specific integer values (positive), choose the greater of the two
@@ -223,7 +176,7 @@ namespace VivHelper {
             int a = mod(171 * _a, 30269);
             int b = mod(172 * _b, 30307);
             int c = mod(170 * _c, 30323);
-            return ts[(int) (mod(a / 30269.0 + b / 30307.0 + c / 30323.0, 1.0)) * ts.Length];
+            return ts[(int) (mod(a / 30269.0 + b / 30307.0 + c / 30323.0, 1.0) * ts.Length)];
         }
 
         public static T ConsistentChooser<T>(int _a, int _b, int _c, List<T> ts) {
@@ -231,7 +184,7 @@ namespace VivHelper {
             int a = mod(171 * _a, 30269);
             int b = mod(172 * _b, 30307);
             int c = mod(170 * _c, 30323);
-            return ts[(int) (mod(a / 30269.0 + b / 30307.0 + c / 30323.0, 1.0)) * ts.Count];
+            return ts[(int) (mod(a / 30269.0 + b / 30307.0 + c / 30323.0, 1.0) * ts.Count)];
         }
 
         private static FieldInfo chooser_choices = typeof(Chooser<string>).GetField("choices", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -392,48 +345,8 @@ namespace VivHelper {
             return texture;
         }
 
-        public static Color Color(this EntityData self, string key, Color? defaultValue = null, List<string> defaultColorParametrization = null) {
-            Color _defaultValue = Microsoft.Xna.Framework.Color.White;
-            if (defaultValue != null)
-                _defaultValue = defaultValue.Value;
-            if (defaultColorParametrization?.Count > 0 && defaultColorParametrization.Contains(key))
-                return _defaultValue;
-            else if (self.StringIfNotEmpty(key, out string val)) {
-                return ColorFixWithNull(val) ?? _defaultValue;
-            } else
-                return _defaultValue;
-        }
-        public static Color ColorPlus(this EntityData self, string key, Color? defaultValue = null, params KeyValuePair<string, Color>[] overrides) {
-            Color _defaultValue = Microsoft.Xna.Framework.Color.White;
-            if (defaultValue != null)
-                _defaultValue = defaultValue.Value;
-            if (self.StringIfNotEmpty(key, out string val)) {
-                if (overrides != null) {
-                    foreach (KeyValuePair<string, Color> pair in overrides)
-                        if (pair.Key == val)
-                            return pair.Value;
-                }
-                return ColorFixWithNull(val) ?? _defaultValue;
-            } else
-                return _defaultValue;
-        }
-        public static Color? ColorOrNull(this EntityData self, string key, Color? defaultValue = null) {
-            if (self.StringIfNotEmpty(key, out string val)) {
-                return ColorFixWithNull(val);
-            } else
-                return defaultValue;
-        }
-        public static Color? ColorOrNullPlus(this EntityData self, string key, Color? defaultValue = null, params KeyValuePair<string, Color?>[] overrides) {
-            if (self.StringIfNotEmpty(key, out string val)) {
-                if (overrides != null) {
-                    foreach (KeyValuePair<string, Color?> pair in overrides)
-                        if (pair.Key == val)
-                            return pair.Value;
-                }
-                return ColorFixWithNull(val);
-            } else
-                return defaultValue;
-        }
+        public static Color Color(this EntityData self, string key, Color? defaultValue = null, GetColorParams colorParameters = GetColorParams.None, ColorOverrides specialColorNames = null) => ColorOrNull(self, key, defaultValue, colorParameters, specialColorNames) ?? defaultValue ?? Microsoft.Xna.Framework.Color.White;
+        public static Color? ColorOrNull(this EntityData self, string key, Color? defaultValue = null, GetColorParams colorParameters = GetColorParams.AllowNull, ColorOverrides specialColorNames = null) => GetColor(self.Attr(key), colorParameters | GetColorParams.AllowNull, defaultValue, specialColorNames);
 
         public static T BetterEnum<T>(this EntityData self, string key, T defaultValue) where T : struct {
             if (!self.Has(key))
@@ -697,6 +610,31 @@ namespace VivHelper {
             EventInstance i = (EventInstance) EntityMuterComponent.SoundSource_instance.GetValue(self);
             if (i != null && i.getVolume(out _, out float finalVol) == FMOD.RESULT.OK && finalVol != vol)
                 i.setVolume(vol);
+        }
+
+        public static bool IsInBounds(this Level level, Entity entity, float padding) {
+            Rectangle bounds = level.Bounds;
+            if (entity.Right > (float) bounds.Left - padding && entity.Bottom > (float) bounds.Top - padding && entity.Left < (float) bounds.Right + padding) {
+                return entity.Top < (float) bounds.Bottom + padding;
+            }
+            return false;
+        }
+
+        public static Debris BlastFrom(this Debris debris, Vector2 from, (float,float) strengthRange) {
+            float length = Calc.Random.Range(strengthRange.Item1, strengthRange.Item2);
+            debris.speed = (debris.Position - from).SafeNormalize(length);
+            debris.speed = debris.speed.Rotate(Calc.Random.Range(-MathF.PI / 12f, MathF.PI / 12f));
+            return debris;
+        }
+
+        public static void FixedDestroyStaticMovers(this Platform platform) {
+            foreach(StaticMover mover in platform.staticMovers) {
+                mover.Destroy();
+                Console.WriteLine(mover.Entity);
+                if(!platform.Scene.Entities.removing.Contains(mover.Entity))
+                    mover.Entity.RemoveSelf();
+            }
+            platform.staticMovers.Clear();
         }
     }
     public static class FastFieldInfoHelper {

@@ -366,8 +366,8 @@ namespace VivHelper.Entities {
             TrailCreateInterval = data.Float("TrailCreateInterval", 0.06f);
             RegenerateTimerMult = data.Float("RegenerationTimerLength", 1.85f) / 1.85f;
             StrongSkiddingTime = data.Float("StrongSkiddingTime", 0.08f);
-            AttackMaxRotateRadians = data.Float("AttackMaxRotateDegrees", 35f) * (float) Math.PI / 180f;
-            TrailColor = VivHelper.ColorFix(data.Attr("TrailColor", "99e550"));
+            AttackMaxRotateRadians = data.Float("AttackMaxRotateDegrees", 35f) * Calc.DegToRad;
+            TrailColor = Calc.HexToColor(data.Attr("TrailColor", "99e550"));
             numberOfDashes = 0;
             maxNumberOfDashes = data.Int("MaxNumberOfDashes", -1);
             finalDash = data.Bool("FinalDash", false);
@@ -381,7 +381,7 @@ namespace VivHelper.Entities {
             deLagValue = Calc.Clamp((float) data.Int("aiDelag", 6), 1, 30) / 60f;
             DisableEffects = data.Bool("DisableEffects", false);
 
-            DeathEffectColor = VivHelper.ColorFix(data.Attr("DeathEffectColor", "HotPink"));
+            DeathEffectColor = Calc.HexToColor(data.Attr("DeathEffectColor", "HotPink"));
             RemoveBounceHitbox = data.Bool("RemoveBounceHitbox", false);
             FlagOnDeath = data.Attr("FlagOnDeath", "");
 
@@ -398,7 +398,7 @@ namespace VivHelper.Entities {
             CustomSpritePath = data.Attr("CustomSpritePath");
             CustomShockwavePath = data.Attr("CustomShockwavePath");
             sprite = CustomSpritePath == "" ? GFX.SpriteBank.Create("seeker") : GFX.SpriteBank.Create(CustomSpritePath);
-            tint = VivHelper.ColorFix(data.Attr("SeekerColorTint", "ffffff"));
+            tint = Calc.HexToColor(data.Attr("SeekerColorTint", "ffffff"));
 
             sprite.Color = tint;
             Vector2 position = data.Position + offset;
@@ -466,7 +466,7 @@ namespace VivHelper.Entities {
             base.Added(scene);
             random = new Random(SceneAs<Level>().Session.LevelData.LoadSeed);
             Level level = scene as Level;
-            if ((level.Session.MapData.GetMeta()?.SeekerSlowdown).GetValueOrDefault() && Scene.Entities.AmountOf<CustomSeekerEffectsController>() == 0) {
+            if ((level.Session.MapData.Meta?.SeekerSlowdown).GetValueOrDefault() && Scene.Entities.AmountOf<CustomSeekerEffectsController>() == 0) {
                 level.Add(new CustomSeekerEffectsController());
             }
             CustomSeekersList.Add(this);
@@ -783,7 +783,7 @@ namespace VivHelper.Entities {
             float direction;
             float x;
             if (data.Direction.X > 0f) {
-                direction = (float) Math.PI;
+                direction = Consts.PI;
                 x = base.Right;
             } else {
                 direction = 0f;
@@ -999,9 +999,9 @@ namespace VivHelper.Entities {
             if (Vector2.DistanceSquared(base.Center, FollowTarget) < 2500f && base.Y < FollowTarget.Y) {
                 float num = vector.Angle();
                 if (base.Y < FollowTarget.Y - 2f) {
-                    num = Calc.AngleLerp(num, (float) Math.PI / 2f, 0.5f);
+                    num = Calc.AngleLerp(num, Consts.PIover2, 0.5f);
                 } else if (base.Y > FollowTarget.Y + 2f) {
-                    num = Calc.AngleLerp(num, -(float) Math.PI / 2f, 0.5f);
+                    num = Calc.AngleLerp(num, -Consts.PIover2, 0.5f);
                 }
                 vector = Calc.AngleToVector(num, SpottedTargetSpeed);
                 Vector2 value = Vector2.UnitX * Math.Sign(base.X - lastSpottedAt.X) * 48f;
@@ -1192,8 +1192,8 @@ namespace VivHelper.Entities {
             level.Displacement.AddBurst(Position, 0.4f, 24f, 48f, 0.5f);
             level.Displacement.AddBurst(Position, 0.4f, 36f, 60f, 0.5f);
             if (!disableAllParticles) {
-                for (float num = 0f; num < (float) Math.PI * 2f; num += 0.17453292f) {
-                    Vector2 position = base.Center + Calc.AngleToVector(num + Calc.Random.Range(-(float) Math.PI / 90f, (float) Math.PI / 90f), Calc.Random.Range(12, 18));
+                for (float num = 0f; num < Consts.TAU; num += 0.17453292f) {
+                    Vector2 position = base.Center + Calc.AngleToVector(num + Calc.Random.Range(Calc.DegToRad * -4, Calc.DegToRad * 4), Calc.Random.Range(12, 18));
                     level.Particles.Emit(Seeker.P_Regen, position, num);
                 }
             }
@@ -1250,7 +1250,7 @@ namespace VivHelper.Entities {
                     "Accel: " + Accel, "AttackAccel: " + AttackAccel, "AttackMinXDist: " + AttackMinXDist,
                     "AttackStartSpeed: " + AttackStartSpeed, "AttackTargetSpeed: " + AttackTargetSpeed,
                     "AttackWindUpSpeed: " + (0 - AttackWindUpSpeed), "AttackWindUpTime: " + AttackWindUpTime,
-                    "AttackMaxRotateDegrees: " + (float)Math.Round(AttackMaxRotateRadians * 180 / (float)Math.PI), "",
+                    "AttackMaxRotateDegrees: " + (float)Math.Round(AttackMaxRotateRadians * Calc.RadToDeg), "",
                     "aggroSFXPath: \"" + aggroSFX + "\"", "boopedSFXPath: \"" + boopedSFX + "\"", "reviveSFXPath: \"" + reviveSFX + "\"",
                     "CustomSpritePath: \"" + CustomSpritePath + "\"", "CustomShockwavePath: \"" + CustomShockwavePath + "\"", "",
                     "BounceSpeed: " + BounceSpeed, "DirectionDotThreshold: " + DirectionDotThreshold,

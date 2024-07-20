@@ -16,3 +16,5 @@ end
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Refill, room::Maple.Room)
     Ahorn.drawSprite(ctx, "VivHelper/TSStelerefill/idle00", 0, 0)
 end
+
+end

@@ -8,7 +8,7 @@ using Monocle;
 using Microsoft.Xna.Framework;
 
 namespace VivHelper.Entities {
-    internal class BoostDashRefill : RefillBase {
+    /*internal class BoostDashRefill : RefillBase {
         public BoostDashRefill(EntityData data, Vector2 offset) : base(data, offset) {
             p_shatter = Bumper.P_Launch;
             p_glow = Bumper.P_Ambience;
@@ -26,10 +26,10 @@ namespace VivHelper.Entities {
             flash.OnFinish = delegate {
                 flash.Visible = false;
             };
-            flash.CenterOrigin();*/
+            flash.CenterOrigin();
         }
 
         protected override void OnPlayer(Player player) {
         }
-    }
+    }*/
 }

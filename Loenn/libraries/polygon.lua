@@ -23,12 +23,11 @@ local function drawFilledPolygon(pt, fillColor)
 end
 
 function helper.getSpriteFunc(filled, nodeColor, lineColor, fillColor, positionDrawable)
-    nC = vivUtil.getColorTable(nodeColor, true, {1,0,0,1})
-    lC = vivUtil.getColorTable(lineColor, true, {0,0,0,1})
-    fC = vivUtil.getColorTable(fillColor, true, {0.8, 0.4, 0.4, 0.8})
-
     return function(room, entity)
         if entity.nodes then
+            local nC = vivUtil.GetColorTable(entity, nil, "nodeColor", true, nodeColor or {1,0,0,1})
+            local lC = vivUtil.GetColorTable(entity, nil, "lineColor", true, lineColor or {0,0,0,1})
+            local fC = vivUtil.GetColorTable(entity, nil, "fillColor", true, fillColor or {0.8, 0.4, 0.4, 0.8})
             local points = {}
             local nodeSprites = {}
             if not positionDrawable then

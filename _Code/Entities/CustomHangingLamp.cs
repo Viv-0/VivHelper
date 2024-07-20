@@ -85,7 +85,7 @@ namespace VivHelper.Entities {
             //Lamp
             sprite = new Sprite(GFX.Game, directory + "lamp");
             sprite.Position = Position;
-            sprite.AddLoop("main", "", AnimSpeed);
+            sprite.AddLoop("main", q, AnimSpeed);
             sprite.Origin.X = cW / 2;
             sprite.Origin.Y = -(Length - cH);
             sprite.Play("main");
@@ -94,7 +94,11 @@ namespace VivHelper.Entities {
 
             //Other
             Add(bloom = new BloomPoint(Vector2.UnitY * (Length - cH), Calc.Clamp(e.Float("BloomAlpha", 1f), 0f, 1f), Calc.Clamp(e.Float("BloomRadius", 48f), 0f, 128f)));
-            Add(light = new VertexLight(Vector2.UnitY * (Length - cH), VivHelper.ColorFix(e.Attr("LightColor", "White")), Calc.Clamp(e.Float("LightAlpha", 1f), 0f, 1f), Calc.Clamp(e.Int("LightFadeIn", 24), 0, 120), Calc.Clamp(e.Int("LightFadeOut", 48), 0, 120)));
+#pragma warning disable CS0612
+            Color f = e.Has("lightColor") ? VivHelper.GetColor(e.Attr("lightColor"), VivHelper.GetColorParams.None, Color.White).Value : VivHelper.OldColorFunction(e.Attr("LightColor", "White"), Calc.Clamp(e.Float("LightAlpha", 1f), 0f, 1f));
+#pragma warning restore CS0612
+            float _a = f.A / 255f;
+            Add(light = new VertexLight(Vector2.UnitY * (Length - cH), new Color(f.ToVector3() / _a), _a, Calc.Clamp(e.Int("LightFadeIn", 24), 0, 120), Calc.Clamp(e.Int("LightFadeOut", 48), 0, 120)));
             AudioPath = e.Attr("AudioPath", "event:/game/02_old_site/lantern_hit");
             InvWeight = 1f / Math.Max(e.Float("WeightMultiplier", 1f), 0.025f); //Efficiency good
             Add(sfx = new SoundSource());
@@ -141,13 +145,14 @@ namespace VivHelper.Entities {
                 sfx.Play(AudioPath);
                 soundDelay = 0.25f;
             }
-            if (sprites.Count > 1) {
+            if (sprites.Count > 0) {
                 //Skip over Base rotation :)
-                for (int i = 1; i < sprites.Count; i++) {
-                    sprites[i].Rotation = rotation;
+                for (int i = 0; i < sprites.Count; i++) {
+                    sprites[i].Update();
+                    if (i > 0) sprites[i].Rotation = rotation;
                 }
             }
-            Vector2 vector = Calc.AngleToVector(rotation + (float) Math.PI / 2f, lightDistance);
+            Vector2 vector = Calc.AngleToVector(rotation + Consts.PIover2, lightDistance);
             bloom.Position = light.Position = vector + Position.Round() - Position;
             sfx.Position = vector;
         }

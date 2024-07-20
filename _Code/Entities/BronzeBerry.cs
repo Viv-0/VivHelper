@@ -12,6 +12,7 @@ using MonoMod.Cil;
 using Mono.Cecil.Cil;
 using MonoMod.Utils;
 using Celeste.Mod.Entities;
+using Mono.Cecil;
 
 namespace VivHelper.Entities {
 
@@ -19,12 +20,13 @@ namespace VivHelper.Entities {
 
 
         private static Vector2 controlPoint = new Vector2(28,55);
-        private static IDetour[] detours;
+        private static ILHook[] detours;
         internal static MTexture bronzeGui;
 
         public static void Load() {
-            using(new DetourContext(){ Before = { "*" } }){
-                detours = new IDetour[] {
+            // pre-Core: using(new DetourContext(){ Before = { "*" } }){
+            using (new DetourConfigContext(new DetourConfig("VivHelper", after: new[] { "*" })).Use()) { 
+                detours = new ILHook[] {
                     new ILHook(typeof(OuiChapterPanel).GetNestedType("Option", BindingFlags.Instance|BindingFlags.NonPublic).GetMethod("Render"), ModifyRender),
                     new ILHook(typeof(OuiChapterPanel).GetMethod("SwapRoutine",BindingFlags.NonPublic|BindingFlags.Instance).GetStateMachineTarget(), CacheOptionData)
                 };
@@ -68,10 +70,9 @@ namespace VivHelper.Entities {
 
         private static void bronzeRenderFromCache(object temp, Vector2 renderPoint, float scale) {
             DynamicData d = DynamicData.For(temp); //Idk how to get the Option type so we're using DynamicData
-            string value;
-            if(!d.TryGet("VH_CustomCLN", out value))
+            if (!d.TryGet("VH_CustomCLN", out string value))
                 value = d.Get<string>("CheckpointLevelName");
-            if(VivHelperModule.SaveData.Bronzes.Contains(value)){
+            if (VivHelperModule.SaveData.Bronzes.Contains(value)){
                 if(bronzeGui == null) bronzeGui = GFX.Gui["VivHelper/bronzeberry"];
                 bronzeGui.DrawCentered(renderPoint + controlPoint, Color.White, scale * 0.666f);
             }

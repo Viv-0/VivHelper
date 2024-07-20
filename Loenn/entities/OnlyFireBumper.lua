@@ -1,3 +1,4 @@
+local utils = require('utils')
 local bumper = {}
 
 bumper.name = "VivHelper/EvilBumper"
@@ -9,5 +10,6 @@ bumper.placements = {
     name = "bumper",
     data = {wobble = true}
 }
+bumper.selection = function(room,entity) return utils.rectangle(entity.x-8, entity.y-8, 16, 16) end
 
 return bumper

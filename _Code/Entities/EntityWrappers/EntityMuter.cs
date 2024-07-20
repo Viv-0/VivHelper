@@ -23,7 +23,7 @@ namespace VivHelper.Entities {
         private static Tuple<OpCode, object> baseParametrization = new Tuple<OpCode, object>(OpCodes.Ldarg_0, null);
         public static bool overrideMute = false;
         public static object objPlayingAudio = null;
-        internal static List<IDetour> hooks;
+        internal static List<ILHook> hooks;
 
 
         public static FieldInfo SoundSource_instance = typeof(SoundSource).GetField("instance", BindingFlags.NonPublic | BindingFlags.Instance);
@@ -32,11 +32,12 @@ namespace VivHelper.Entities {
         public static void Load() {
             On.Celeste.SoundSource.Update += SoundSource_Update;
             On.Celeste.Audio.CreateInstance += Audio_CreateInstance;
-            hooks = new List<IDetour>();
+            hooks = new List<ILHook>();
             HookMethodInfoWithAudioMute(typeof(Spring).GetMethod("BounceAnimate", BindingFlags.NonPublic|BindingFlags.Instance), false, null);
         }
 
         private static EventInstance Audio_CreateInstance(On.Celeste.Audio.orig_CreateInstance orig, string path, Vector2? position) {
+            if(path == null) return orig(path, position); // bruh
             string _path = path;
             if (overrideMute) {
                 _path = "event:/none";
@@ -52,12 +53,13 @@ namespace VivHelper.Entities {
                 return i;
             } else return orig(_path, position);
             
-        }
+        } 
 
         public static void Unload() {
             On.Celeste.SoundSource.Update -= SoundSource_Update;
             On.Celeste.Audio.CreateInstance -= Audio_CreateInstance;
-            foreach(IDetour hook in hooks) hook.Dispose();
+            foreach (ILHook hook in hooks) hook?.Dispose();
+            hooks = null;
         }
 
         public static void HookMethodInfoWithAudioMute(MethodInfo info, bool isCoroutine, Tuple<OpCode, object>[] instrs) {
@@ -146,7 +148,7 @@ namespace VivHelper.Entities {
 
     [CustomEntity("VivHelper/EntityMuter")]
     [Tracked]
-    public class EntityMuter : Entity {
+    public class EntityMuter : Entity, IPostAwake {
         public List<Type> Types, assignableTypes;
         public bool all;
         public string flag;
@@ -157,13 +159,13 @@ namespace VivHelper.Entities {
             string q = e.Attr("Types", "");
             assignableTypes = new List<Type>();
             Types = new List<Type>();
+            Depth = int.MinValue;
             if (!string.IsNullOrEmpty(q)) {
                 VivHelper.AppendTypesToList(q, ref Types, ref assignableTypes);
             }
         }
 
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
+        public void PostAwake(Scene scene) {
             Collidable = true;
             foreach (Entity e in scene.Entities.Where<Entity>((f) => Collide.Check(this, f))) {
                 var prev = e.Collidable;

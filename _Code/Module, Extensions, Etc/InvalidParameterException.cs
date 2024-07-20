@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace VivHelper {
-    public class InvalidPropertyException : Exception {
+    public class InvalidParameterException : Exception {
 
-        public InvalidPropertyException() : base() { }
-        public InvalidPropertyException(string message) : base(message) { }
-        public InvalidPropertyException(string message, Exception inner) : base(message, inner) { }
+        public InvalidParameterException() : base() { }
+        public InvalidParameterException(string message) : base(message) { }
+        public InvalidParameterException(string message, Exception inner) : base(message, inner) { }
     }
 }

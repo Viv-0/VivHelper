@@ -3,6 +3,7 @@ local utils = require("utils")
 local drawing = require("utils.drawing")
 local modHandler = require('mods')
 local drawableSprite = require('structs.drawable_sprite')
+local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 
 
 local animation = {}
@@ -287,9 +288,8 @@ end
 function animation.fromTextures(texture, frameDelta, data, suffixList)
     local atlas = data and data.atlas or "Gameplay"
     local spriteMeta = {}
-    local missingSprite = atlases.getResource(modHandler.internalModContent .. "/missing_image", atlas)
     if suffixList then
-        for l in suffixList do table.insert(spriteMeta,atlases.getResource(texture..l, atlas) or missingSprite) end
+        for l in suffixList do table.insert(spriteMeta,atlases.getResource(texture..l, atlas) or vivUtil.missingImageMeta) end
     else
         local idx = 0
         while true do

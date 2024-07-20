@@ -26,7 +26,7 @@ namespace VivHelper.Entities {
             LifeMax = 0.4f,
             SpeedMin = 10f,
             SpeedMax = 20f,
-            DirectionRange = (float) Math.PI / 6f
+            DirectionRange = Consts.PI / 6f
         };
 
         public static ParticleType P_Hit = new ParticleType {
@@ -149,7 +149,7 @@ namespace VivHelper.Entities {
                     light.Visible = true;
                     bloom.Visible = true;
                     sprite.Play("on");
-                    Audio.Play("event:/game/06_reflection/pinballbumper_reset", Position);
+                    Audio.Play(SFX.game_06_pinballbumper_reset, Position);
                 }
             } else if (base.Scene.OnInterval(0.03f)) {
                 float num = Calc.Random.NextAngle();
@@ -175,13 +175,13 @@ namespace VivHelper.Entities {
                         Vector2 vector = (player.Center - base.Center).SafeNormalize();
                         hitDir = -vector;
                         hitWiggler.Start();
-                        sfx.Play("event:/game/09_core/hotpinball_activate");
+                        sfx.Play(SFX.game_09_hotpinball_activate);
                         respawnTimer = RespawnTime;
                         player.Die(vector);
                         SceneAs<Level>().Particles.Emit(P_Hit, 12, base.Center + vector * 12f, Vector2.One * 3f, vector.Angle());
                     }
                 } else {
-                    sfx.Play("event:/game/09_core/pinballbumper_hit");
+                    sfx.Play(SFX.game_06_pinballbumper_hit);
                     respawnTimer = RespawnTime;
                     Vector2 vector2 = Reflect(player);
                     sprite.Play("hit", restart: true);

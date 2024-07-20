@@ -24,8 +24,9 @@ local cs = {
         {"Inner Bottom Left", "InnerUpRight"},
         {"Inner Top Right", "InnerDownLeft"},
         {"Inner Top Left", "InnerDownRight"}
-        }},
-        Color = {fieldType = "VivHelper.color", allowXNAColors = true }
+        },
+        display},
+        color = {fieldType = "color", allowXNAColors = true, useAlpha = true }
     },
     depth = -2,
     texture = function(room,entity)
@@ -34,7 +35,7 @@ local cs = {
         return t .. "_" .. entity.EdgeDirection .. "00"
     end,
     color = function(room,entity) 
-        vivUtil.getColorTable(entity.Color, true, {1,1,1,1})
+        vivUtil.GetColorTable(entity, "Color", "color", true, {1,1,1,1})
     end,
     justification = function(room,entity)
         local sub = entity.EdgeDirection:sub(entity.EdgeDirection:sub(1, 5) == "Inner" and 6 or 0)
@@ -70,7 +71,7 @@ for _,edge in ipairs(edges) do
     table.insert(cs.placements,{
     name = edge, data = {
         type = "default",
-        Color = "ffffff",
+        color = "ffffff",
         EdgeDirection = edge,
         DoNotAttach = true, KillFormat = false
     }})

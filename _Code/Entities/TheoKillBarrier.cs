@@ -18,13 +18,21 @@ namespace VivHelper.Entities {
 
         public TheoKillBarrier(EntityData data, Vector2 offset) : base(data, offset) {
             dyn = new DynData<SeekerBarrier>(this);
+            Active = true;
+            
         }
 
         public override void Update() {
             base.Update();
-            if(CollideFirst<TheoCrystal>() is TheoCrystal tc) {
-                tc.Die();
+            Collidable = true;
+            if(CollideAllByComponent<Holdable>() is { } q) {
+                foreach(Holdable h in q) {
+                    if(h.Entity != null && h.Entity is TheoCrystal tc) {
+                        tc.Die();
+                    }
+                }
             }
+            Collidable = false;
         }
 
         public override void Render() {

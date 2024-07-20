@@ -102,9 +102,9 @@ namespace VivHelper.Entities.AsleepHeart {
             sprite.OnLoop = delegate (string anim) {
                 if (Visible && anim == "spin" && autoPulse) {
                     if (IsFake) {
-                        Audio.Play("event:/new_content/game/10_farewell/fakeheart_pulse", Position);
+                        Audio.Play(SFX.game_10_fakeheart_pulse, Position);
                     } else {
-                        Audio.Play("event:/game/general/crystalheart_pulse", Position);
+                        Audio.Play(SFX.game_gen_crystalheart_pulse, Position);
                     }
                     ScaleWiggler.Start();
                     level.Displacement.AddBurst(Position, 0.35f, 8f, 48f, 0.25f);
@@ -192,9 +192,9 @@ namespace VivHelper.Entities.AsleepHeart {
             }
             if (bounceSfxDelay <= 0f) {
                 if (IsFake) {
-                    Audio.Play("event:/new_content/game/10_farewell/fakeheart_bounce", Position);
+                    Audio.Play(SFX.game_10_fakeheart_bounce, Position);
                 } else {
-                    Audio.Play("event:/game/general/crystalheart_bounce", Position);
+                    Audio.Play(SFX.game_gen_crystalheart_bounce, Position);
                 }
                 bounceSfxDelay = 0.1f;
             }
@@ -222,7 +222,7 @@ namespace VivHelper.Entities.AsleepHeart {
         private IEnumerator CollectRoutine(Player player) {
             Level level = base.Scene as Level;
             bool flag = false;
-            MapMetaModeProperties mapMetaModeProperties = level?.Session.MapData.GetMeta();
+            MapMetaModeProperties mapMetaModeProperties = level?.Session.MapData.Meta;
             if (mapMetaModeProperties != null && mapMetaModeProperties.HeartIsEnd.HasValue) {
                 flag = mapMetaModeProperties.HeartIsEnd.Value;
             }
@@ -446,7 +446,7 @@ namespace VivHelper.Entities.AsleepHeart {
                     strawb.OnCollect();
                 }
             }
-            string sfxEvent = "event:/new_content/game/10_farewell/fakeheart_get";
+            string sfxEvent = SFX.game_10_fakeheart_get;
             sfx = SoundEmitter.Play(sfxEvent, this);
             Add(new LevelEndingHook(delegate {
                 sfx.Source.Stop();
@@ -527,7 +527,7 @@ namespace VivHelper.Entities.AsleepHeart {
         public void ShatterSpinners() {
             Level level = SceneAs<Level>();
             foreach (CrystalStaticSpinner entity3 in level.Tracker.GetEntities<CrystalStaticSpinner>()) {
-                Audio.Play("event:/game/06_reflection/fall_spike_smash", Position);
+                Audio.Play(SFX.game_06_fall_spike_smash, Position);
                 entity3.Destroy(boss: false);
             }
         }

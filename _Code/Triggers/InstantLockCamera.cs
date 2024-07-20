@@ -15,7 +15,7 @@ namespace VivHelper.Triggers {
         public TriggerPersistence Persistence;
         public bool State;
         public EntityID id;
-        public int prevValue;
+        public float prevValue;
         public bool resetOnLeave;
 
         public InstantLockingCameraTrigger(EntityData data, Vector2 offset, EntityID eid) : base(data, offset) {
@@ -29,7 +29,7 @@ namespace VivHelper.Triggers {
             base.OnEnter(player);
             if (resetOnLeave)
                 prevValue = VivHelperModule.Session.lockCamera;
-            VivHelperModule.Session.lockCamera = State ? -1 : 0;
+            VivHelperModule.Session.lockCamera = State ? float.PositiveInfinity : 0;
         }
 
         public override void OnLeave(Player player) {

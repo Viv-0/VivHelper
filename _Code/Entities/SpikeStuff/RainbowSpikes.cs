@@ -10,6 +10,7 @@ using Celeste.Mod.Entities;
 using MonoMod.Utils;
 using Celeste.Mod.VivHelper;
 using System.Reflection;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     [CustomEntity(
@@ -70,8 +71,8 @@ namespace VivHelper.Entities {
 
         public RainbowSpikes(EntityData data, Vector2 offset, DirectionPlus dir)
             : this(data.Position + offset, offset, GetSize(data.Height, data.Width, dir), dir, data.Attr("type", "default"), data.Bool("DoNotAttach", false), data.Bool("OverrideWallBounce"), data.Bool("KillFromAnyDirection", false), data.Bool("groundRefill", false)) {
-            string str = data.Attr("Color", "");
-            oneColor = (str == "" ? Color.Transparent : VivHelper.ColorFix(str));
+            oneColor = VivHelper.GetColorWithFix(data, "Color", "color", GetColorParams.ImplyEmptyAsTransparent, GetColorParams.None, Color.Transparent).Value;
+            //string str = data.Attr("Color", ""); oneColor = (str == "" ? Color.Transparent : VivHelper.OldColorFunction(str));
 
         }
 
@@ -144,7 +145,7 @@ namespace VivHelper.Entities {
             sprite.Scale.X = Calc.Random.Choose(-1, 1);
             sprite.SetAnimationFrame(Calc.Random.Next(sprite.CurrentAnimationTotalFrames));
             if (Direction == DirectionPlus.Up) {
-                sprite.Rotation = -(float) Math.PI / 2f;
+                sprite.Rotation = -Consts.PIover2;
                 float y = sprite.Y;
                 sprite.Y = y + 1f;
             } else if (Direction == DirectionPlus.Right) {
@@ -152,15 +153,15 @@ namespace VivHelper.Entities {
                 float y = sprite.X;
                 sprite.X = y - 1f;
             } else if (Direction == DirectionPlus.Left) {
-                sprite.Rotation = (float) Math.PI;
+                sprite.Rotation = Consts.PI;
                 float y = sprite.X;
                 sprite.X = y + 1f;
             } else if (Direction == DirectionPlus.Down) {
-                sprite.Rotation = (float) Math.PI / 2f;
+                sprite.Rotation = Consts.PIover2;
                 float y = sprite.Y;
                 sprite.Y = y - 1f;
             }
-            sprite.Rotation += (float) Math.PI / 2f;
+            sprite.Rotation += Consts.PIover2;
             Add(sprite);
         }
 

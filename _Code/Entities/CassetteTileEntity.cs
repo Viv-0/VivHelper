@@ -13,7 +13,6 @@ using Mono.Cecil.Cil;
 using Celeste.Mod;
 
 namespace VivHelper.Entities {
-    [CustomEntity("VivHelper/CassetteTileEntity")]
     [TrackedAs(typeof(CassetteBlock))]
     [Tracked]
     public class CassetteTileEntity : CassetteBlock {
@@ -75,12 +74,13 @@ namespace VivHelper.Entities {
 
 
         public CassetteTileEntity(EntityData data, Vector2 offset) : base(data, offset) {
-            enabledColor = data.ColorOrNull("enabledTint") ?? (Color) color.GetValue(this); //Optimized since we don't always need to act on reflection.
-            disabledColor = data.ColorOrNull("disabledTint") ?? Color.Lerp(Color.LightGray, (Color) color.GetValue(this), 0.5f);
+            enabledColor = VivHelper.GetColorWithFix(data, "enabledTint", "enabledColor", VivHelper.GetColorParams.AllowNull, VivHelper.GetColorParams.AllowNull, null) ?? (Color) color.GetValue(this);
+            disabledColor = VivHelper.GetColorWithFix(data, "disabledTint", "disabledColor", VivHelper.GetColorParams.AllowNull, VivHelper.GetColorParams.AllowNull, null) ?? Color.Lerp(Color.LightGray, (Color) color.GetValue(this), 0.5f);
             tileType = data.Char("tiletype", '3');
             SurfaceSoundIndex = SurfaceIndex.TileToIndex[tileType];
             blendin = data.Bool("blendin", false);
             connectOnTileset = data.Bool("ConnectTilesets");
+            
 
         }
 
@@ -109,8 +109,7 @@ namespace VivHelper.Entities {
             if (group != null)
                 return;
             groupLeader = true;
-            group = new List<CassetteTileEntity>();
-            group.Add(this);
+            group = new List<CassetteTileEntity>() { this };
             var GroupBoundsMin = new Point((int) base.Left, (int) base.Top);
             var GroupBoundsMax = new Point((int) base.Right, (int) base.Bottom);
             _FindInGroup(this, ref GroupBoundsMin, ref GroupBoundsMax);
@@ -234,6 +233,7 @@ namespace VivHelper.Entities {
             foreach (StaticMover staticMover in staticMovers) {
                 staticMover.Entity.Depth = base.Depth + 1;
             }
+            Get<LightOcclude>().Visible = Collidable;
         }
 
         public override void Render() {

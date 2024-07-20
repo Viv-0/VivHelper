@@ -38,12 +38,12 @@ namespace VivHelper.Effects {
         private float visibleFade = 1f;
 
         private float linearFade = 1f;
-
+#pragma warning disable CS0612
         public CustomRain(Vector2 scroll, float angle, float angleDiff, float speedMult, int count, string colors, float alpha) {
             this.Scroll = scroll;
             this.count = count;
             particles = new Particle[count];
-            List<Color> _colors = VivHelper.ColorsFromString(colors);
+            List<Color> _colors = colors.StartsWith("§") ? VivHelper.OldColorsFromString(colors.Substring(1)) : VivHelper.NewColorsFromString(colors).ConvertAll<Color>(c => c ?? Color.White);
             var _angle = angle * -Calc.DegToRad;
             var _angleDiff = Math.Abs(angleDiff * Calc.DegToRad);
             for (int i = 0; i < count; i++) {
@@ -52,6 +52,7 @@ namespace VivHelper.Effects {
             this.alpha = alpha;
         }
 
+#pragma warning restore CS0612
         public override void Update(Scene scene) {
             base.Update(scene);
             bool flag = ((scene as Level).Raining = IsVisible(scene as Level));

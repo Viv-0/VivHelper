@@ -17,6 +17,7 @@ followTorch.placements = {
 }
 
 function followTorch.texture(room,entity)
-    return "FollowTorchSprites/ThorcVar/" .. (entity.Color or "Default") .. "Torch00"
+    local key = (entity.Color or "Default") .. "Torch"
+    return "FollowTorchSprites/ThorcVar/" .. key .. "/" .. key .. "00"
 end
 return followTorch

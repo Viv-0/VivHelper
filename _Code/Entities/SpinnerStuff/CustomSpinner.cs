@@ -10,16 +10,12 @@ using Celeste.Mod;
 using System.Collections;
 using System.Reflection;
 using Celeste.Mod.Entities;
-using VHM = VivHelper.VivHelper;
+using static VivHelper.VivHelper;
 
 namespace VivHelper.Entities {
     [Tracked]
-    [CustomEntity("VivHelper/CustomSpinner = Load")]
+    [CustomEntity("VivHelper/CustomSpinner")]
     public class CustomSpinner : Entity {
-        public static Entity Load(Level level, LevelData levelData, Vector2 offset, EntityData entityData) {
-            return new CustomSpinner(entityData, offset);
-        }
-
         public enum Types {
             White = 0, //default
             RainbowClassic, CustomRainbow
@@ -116,7 +112,7 @@ namespace VivHelper.Entities {
         private string[] hitboxString;
 
         protected Color color;
-        public Color borderColor;
+        protected Color borderColor;
 
         public float scale, imageScale;
 
@@ -181,18 +177,9 @@ namespace VivHelper.Entities {
             bgdirectory = directory + "/bg";
             fgdirectory = directory + "/fg";
             shatterDash = data.Bool("shatterOnDash");
-            string t = data.Attr("Color", "");
-            if (t == "")
-                t = "ffffff";
-            color = VHM.ColorFix(t);
-            string u = data.Attr("ShatterColor", "");
-            if (u == "")
-                u = t;
-            shatterColor = VHM.ColorFix(u);
-            t = data.Attr("BorderColor", "");
-            if (t == "")
-                t = "000000";
-            borderColor = VHM.ColorFix(t);
+            color = GetColorWithFix(data, "Color", "color", GetColorParams.None, GetColorParams.None, Color.White).Value;
+            shatterColor = GetColorWithFix(data, "ShatterColor", "shatterColor", GetColorParams.None, GetColorParams.None, Color.White).Value;
+            borderColor = GetColorWithFix(data, "BorderColor", "borderColor", GetColorParams.None, GetColorParams.AllowNull, Color.Black).Value;
             this.offset = Calc.Random.NextFloat();
             base.Tag = Tags.TransitionUpdate;
             scale = data.Float("Scale", 1f);
@@ -305,7 +292,7 @@ namespace VivHelper.Entities {
             }
         }
 
-        private void OnPlayer(Player player) {
+        protected virtual void OnPlayer(Player player) {
             if (shatterDash && VivHelperModule.MatchDashState(player.StateMachine.State)) {
                 Destroy();
                 Celeste.Celeste.Freeze(0.02f);
@@ -411,10 +398,10 @@ namespace VivHelper.Entities {
                 int a = (int) Position.X;
                 int b = (int) Position.Y;
                 image = new Image(Extensions.ConsistentChooser<MTexture>(a, b, r, atlasSubtextures));
-                image.Rotation = Extensions.ConsistentChooser<float>(a, b, r, 0, 1, 2, 3) * ((float) Math.PI / 2f);
+                image.Rotation = Extensions.ConsistentChooser<float>(a, b, r, 0, 1, 2, 3) * (Consts.PIover2);
             } else {
                 image = new Image(Calc.Random.Choose(atlasSubtextures));
-                image.Rotation = (float) Calc.Random.Choose(0, 1, 2, 3) * ((float) Math.PI / 2f);
+                image.Rotation = (float) Calc.Random.Choose(0, 1, 2, 3) * (Consts.PIover2);
             }
             image.Position = offset;
             image.CenterOrigin();

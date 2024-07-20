@@ -36,22 +36,21 @@ namespace VivHelper.Module__Extensions__Etc {
 
         private static void Scene_BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
             orig(self);
-            if (self is Level level && self.Tracker.TryGetEntity<Player>(out Player player) && VivHelperModule.Session.TeleportState) {
-                VivHelperModule.Session.TeleportAction?.Invoke(player, level);
-                VivHelperModule.Session.TeleportAction = null;
+            if (self is Level level) {
+                if (VivHelperModule.Session.TeleportState) {
+                    VivHelperModule.Session.TeleportAction?.Invoke(self.Tracker.GetEntity<Player>(), level);
+                    VivHelperModule.Session.TeleportAction = null;
+                }
             }
         }
 
         private static void Level_Render(ILContext il) {
             ILCursor cursor = new(il);
             if(cursor.TryGotoNext(MoveType.AfterLabel, i=>i.MatchLdarg(0) && i.Next.MatchLdfld<Level>("HiresSnow") && i.Next.Next.MatchBrfalse(out _))) {
-                cursor.Emit(OpCodes.Ldarg_0);
-                cursor.EmitDelegate<Action<Level>>((level) => {
+                cursor.EmitDelegate<Action>(() => {
                     if (VivHelperModule.Session.StallScreenWipe) {
                         VivHelperModule.Session.StallScreenWipe = false;
-                        GameplayRenderer.Begin();
-                        Draw.Rect(level.Camera.X - 2, level.Camera.Y - 2, 1924, 1084, Color.Black);
-                        GameplayRenderer.End();
+                        Engine.Instance.GraphicsDevice.Clear(ScreenWipe.WipeColor);
                     }
                 });
             }
@@ -258,6 +257,8 @@ namespace VivHelper.Module__Extensions__Etc {
             VivHelperModule.Session.TeleportState = false;
             VivHelperModule.Session.TeleportAction = null;
         }
+
+
 
     }
 }

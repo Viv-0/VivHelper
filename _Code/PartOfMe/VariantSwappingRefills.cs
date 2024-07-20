@@ -172,8 +172,8 @@ namespace VivHelper.PartOfMe {
             base.Depth = 8999;
             yield return 0.05f;
             float num = player.Speed.Angle();
-            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num - (float) Math.PI / 2f);
-            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num + (float) Math.PI / 2f);
+            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num - Consts.PIover2);
+            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num + Consts.PIover2);
             SlashFx.Burst(Position, num);
             if (varType == "red") { SaveData.Instance.Assists.PlayAsBadeline = false; } else if (varType == "purp") { SaveData.Instance.Assists.PlayAsBadeline = true; } else { SaveData.Instance.Assists.PlayAsBadeline = redpurpswap; }
             PlayerSpriteMode mode = SaveData.Instance.Assists.PlayAsBadeline ? PlayerSpriteMode.MadelineAsBadeline : player.DefaultSpriteMode;

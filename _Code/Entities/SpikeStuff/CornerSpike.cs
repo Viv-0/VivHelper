@@ -36,7 +36,7 @@ namespace VivHelper.Entities.SpikeStuff {
             {
                 c.Direction = (DirectionPlus)6; //Down = 2 + Left = 4
                 c.image.JustifyOrigin(Vector2.UnitX);
-                c.image.RenderPosition = pseudoconsts.UR;
+                c.image.RenderPosition = Consts.UR;
                 if (c.InnerSpike)
                 {
                     c.Collider = new ColliderList(new Hitbox(5, 3, -8, 0), new Hitbox(3, 5, -3, 3));
@@ -50,7 +50,7 @@ namespace VivHelper.Entities.SpikeStuff {
             {
                 c.Direction = (DirectionPlus)9; //Up = 1 + Right = 8
                 c.image.JustifyOrigin(Vector2.UnitY);
-                c.image.RenderPosition = pseudoconsts.DL;
+                c.image.RenderPosition = Consts.DL;
                 if (c.InnerSpike)
                 {
                     c.Collider = new ColliderList(new Hitbox(5, 3, 3, -3), new Hitbox(3, 5, 0, -8));
@@ -107,7 +107,7 @@ namespace VivHelper.Entities.SpikeStuff {
             t += (InnerSpike ? "Inner" + b : b);
             image = new Image(Calc.Random.Choose(GFX.Game.GetAtlasSubtextures(t)));
             attrToAction[b].Invoke(this);
-            color = data.Color("Color");
+            color = VivHelper.GetColorWithFix(data, "Color", "color", VivHelper.GetColorParams.ImplyEmptyAsTransparent, VivHelper.GetColorParams.ImplyEmptyAsTransparent, Color.White).Value;
             rainbow = color == Color.Transparent;
             Add(new PlayerCollider(OnCollide));
             if (!data.Bool("DoNotAttach"))
@@ -164,9 +164,9 @@ namespace VivHelper.Entities.SpikeStuff {
                 case DirectionPlus.UpLeft:
                     return CollideCheckOutside(solid, Position + Vector2.One);
                 case DirectionPlus.DownLeft:
-                    return CollideCheckOutside(solid, Position + pseudoconsts.UR);
+                    return CollideCheckOutside(solid, Position + Consts.UR);
                 case DirectionPlus.UpRight:
-                    return CollideCheckOutside(solid, Position + pseudoconsts.DL);
+                    return CollideCheckOutside(solid, Position + Consts.DL);
                 case DirectionPlus.DownRight:
                     return CollideCheckOutside(solid, Position - Vector2.One);
                 default:
@@ -228,10 +228,10 @@ namespace VivHelper.Entities.SpikeStuff {
                         v = -Vector2.One;
                         break;
                     case DirectionPlus.DownLeft:
-                        v = pseudoconsts.DL;
+                        v = Consts.DL;
                         break;
                     case DirectionPlus.UpRight:
-                        v = pseudoconsts.UR;
+                        v = Consts.UR;
                         break;
                 }
                 if (player.Speed.Length() <= 0.05f || Vector2.Dot(Vector2.Normalize(v), Vector2.Normalize(player.Speed)) < 0f)

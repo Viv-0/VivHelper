@@ -19,7 +19,7 @@ iltp.fieldInformation = {
     NumberOfUses2 = {fieldType="integer",minimumValue=-1},
     l = {fieldType="integer",minimumValue=2},
     Path = vivUtil.GetFilePathWithNoTrailingNumbers(true),
-    Color = {fieldType="color", allowEmpty = true, allowXNAColors = true}
+    color = {fieldType="color", allowEmpty = true, allowXNAColors = true, useAlpha = true}
 }
 
 iltp.placements = {{
@@ -53,7 +53,7 @@ iltp.placements = {{
         AlwaysRetainSpeed = true,
         Audio="",
         Path="VivHelper/portal/portal",
-        Color="White"
+        color="White"
     }
     }
 }
@@ -134,7 +134,7 @@ local function getDraw(entity, x, y, dir, nodeline)
     if nodeline then 
         local a = directionalValues[entity.dir1].centerPoint(entity.x,entity.y,entity.l)
         local b = directionalValues[entity.dir2].centerPoint(entity.nodes[1].x,entity.nodes[1].y,entity.l)
-        local line = drawableLine.fromPoints({a[1], a[2], b[1], b[2]}, vivUtil.getColorTable(entity.Color, true, {1,1,1,1}), 1)
+        local line = drawableLine.fromPoints({a[1], a[2], b[1], b[2]}, vivUtil.GetColorTable(entity, "Color", "color", true, {1,1,1,1}), 1)
         table.insert(sprites, line)
     end
     return sprites

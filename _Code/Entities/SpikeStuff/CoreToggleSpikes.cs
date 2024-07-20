@@ -28,8 +28,8 @@ namespace VivHelper.Entities {
         public CoreToggleSpikes(EntityData data, Vector2 offset, DirectionPlus dir)
             : base(data.Position + offset, dir, GetSize(data.Height, data.Width, dir), data.Bool("OverrideWallBounce"), data.Bool("groundRefill", false), data.Bool("KillFromAnyDirection", false)) {
             coreMode = data.Enum("coreMode", Session.CoreModes.None);
-            hotTint = VivHelper.ColorFix(data.Attr("hotColor", "eb2a3a"));
-            coldTint = VivHelper.ColorFix(data.Attr("coldColor", "a6fff4"));
+            hotTint = Calc.HexToColor(data.Attr("hotColor", "eb2a3a"));
+            coldTint = Calc.HexToColor(data.Attr("coldColor", "a6fff4"));
             if(data.Bool("AttachToSolid", true)) {
                 Add(new StaticMover {
                     OnShake = OnShake,
@@ -95,19 +95,19 @@ namespace VivHelper.Entities {
             sprite.Scale.X = Calc.Random.Choose(-1, 1);
             sprite.SetAnimationFrame(Calc.Random.Next(sprite.CurrentAnimationTotalFrames));
             if (Direction == DirectionPlus.Up) {
-                sprite.Rotation = -(float) Math.PI / 2f;
+                sprite.Rotation = -Consts.PIover2;
                 sprite.Y++;
             } else if (Direction == DirectionPlus.Right) {
                 sprite.Rotation = 0f;
                 sprite.X--;
             } else if (Direction == DirectionPlus.Left) {
-                sprite.Rotation = (float) Math.PI;
+                sprite.Rotation = Consts.PI;
                 sprite.X++;
             } else if (Direction == DirectionPlus.Down) {
-                sprite.Rotation = (float) Math.PI / 2f;
+                sprite.Rotation = Consts.PIover2;
                 sprite.Y--;
             }
-            sprite.Rotation += (float) Math.PI / 2f;
+            sprite.Rotation += Consts.PIover2;
             Add(sprite);
         }
 

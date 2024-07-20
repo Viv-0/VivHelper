@@ -14,7 +14,8 @@ namespace VivHelper.Entities {
     [TrackedAs(typeof(DashBlock))]
     [CustomEntity("VivHelper/CustomDashBlock = Load")]
     public class CustomDashBlock : DashBlock {
-        public static Entity Load(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Bool("disableFallingBlocksBreak", false) ? new CustomDashBlockAlt(entityData, offset, new EntityID(levelData.Name, entityData.ID)) : new CustomDashBlock(entityData, offset, new EntityID(levelData.Name, entityData.ID));
+        public static Entity Load(Level level, LevelData levelData, Vector2 offset, EntityData entityData) =>
+            entityData.Bool("disableFallingBlocksBreak", false) ? new CustomDashBlockAlt(entityData, offset, new EntityID(levelData.Name, entityData.ID)) : new CustomDashBlock(entityData, offset, new EntityID(levelData.Name, entityData.ID));
 
         protected bool permanent;
 
@@ -31,8 +32,6 @@ namespace VivHelper.Entities {
         private bool canDash;
         private string audioEvent;
         private string flagBreak, flagDisable;
-        private bool disableByDefault;
-        private bool disableFallingBlockBreak;
 
         public CustomDashBlock(EntityData data, Vector2 offset, EntityID id)
             : base(data, offset, id) {
@@ -90,7 +89,7 @@ namespace VivHelper.Entities {
 
         public void Break2(Vector2 from, Vector2 direction, bool playSound = true, bool playDebrisSound = true) {
             if (playSound) {
-                if(audioEvent == "gameDefault") {
+                if (audioEvent == "gameDefault") {
                     if (tileType == '1') {
                         Audio.Play("event:/game/general/wall_break_dirt", Position);
                     } else if (tileType == '3') {
@@ -100,7 +99,8 @@ namespace VivHelper.Entities {
                     } else {
                         Audio.Play("event:/game/general/wall_break_stone", Position);
                     }
-                } else Audio.Play(audioEvent, Position);
+                } else
+                    Audio.Play(audioEvent, Position);
             }
             Collidable = false;
             if (VivHelperModule.Session.DebrisLimiter < 1f) {
@@ -112,9 +112,9 @@ namespace VivHelper.Entities {
                     }
                 }
             }
-            if (breakStaticMovers)
-                DestroyStaticMovers();
-            else
+            if (breakStaticMovers) {
+                this.FixedDestroyStaticMovers();
+            } else
                 DisableStaticMovers();
             if (flagBreak != "") {
                 (Scene as Level)?.Session?.SetFlag(flagBreak);
@@ -157,10 +157,11 @@ namespace VivHelper.Entities {
         private string audioEvent;
         private string flagBreak, flagDisable;
         private bool disableByDefault;
+        private bool disableFallingBlockBreak;
 
         public CustomDashBlockAlt(EntityData data, Vector2 offset, EntityID id)
             : base(data.Position + offset, data.Width, data.Height, true) {
-            base.Depth = -12999;
+            base.Depth = Depths.Solids;
             this.id = id;
             permanent = data.Bool("permanent", defaultValue: true);
             width = data.Width;
@@ -173,7 +174,7 @@ namespace VivHelper.Entities {
             SurfaceSoundIndex = SurfaceIndex.TileToIndex[tileType];
             flagBreak = data.Attr("FlagOnBreak", "");
             flagDisable = data.Attr("FlagToDisable", "");
-            audioEvent = data.Attr("AudioEvent", "event:/game/general/wall_break_stone");
+            audioEvent = data.Attr("AudioEvent", "gameDefault");
             breakStaticMovers = data.Bool("BreakStaticMovers");
         }
 
@@ -214,7 +215,18 @@ namespace VivHelper.Entities {
 
         public void Break2(Vector2 from, Vector2 direction, bool playSound = true, bool playDebrisSound = true) {
             if (playSound) {
-                Audio.Play(audioEvent, Position);
+                if (audioEvent == "gameDefault") {
+                    if (tileType == '1') {
+                        Audio.Play("event:/game/general/wall_break_dirt", Position);
+                    } else if (tileType == '3') {
+                        Audio.Play("event:/game/general/wall_break_ice", Position);
+                    } else if (tileType == '9') {
+                        Audio.Play("event:/game/general/wall_break_wood", Position);
+                    } else {
+                        Audio.Play("event:/game/general/wall_break_stone", Position);
+                    }
+                } else
+                    Audio.Play(audioEvent, Position);
             }
             Collidable = false;
             if (VivHelperModule.Session.DebrisLimiter < 1f) {
@@ -239,24 +251,46 @@ namespace VivHelper.Entities {
                 RemoveSelf();
             }
         }
-
         public void RemoveAndFlagAsGone() {
             RemoveSelf();
             SceneAs<Level>().Session.DoNotLoad.Add(id);
         }
-
 
         protected virtual DashCollisionResults OnDashed(Player player, Vector2 direction) {
             if (!canDash && player.StateMachine.State != 5 && player.StateMachine.State != 10 || (flagDisable != "" && ((Scene as Level)?.Session?.GetFlag(flagBreak) ?? false))) {
                 return DashCollisionResults.NormalCollision;
             }
             if (new int[] { VivHelperModule.OrangeState, VivHelperModule.WindBoostState, VivHelperModule.PinkState }.Contains(player.StateMachine.State)) {
-                Break2(player.Center, direction, audioEvent != "");
+                Break(player.Center, direction, audioEvent != "");
                 return DashCollisionResults.Ignore;
             }
 
-            Break2(player.Center, direction, audioEvent != "");
+            Break(player.Center, direction, audioEvent != "");
             return DashCollisionResults.Rebound;
+        }
+        public void Break(Vector2 from, Vector2 direction, bool playSound = true, bool playDebrisSound = true) {
+            if (playSound) {
+                if (tileType == '1') {
+                    Audio.Play("event:/game/general/wall_break_dirt", Position);
+                } else if (tileType == '3') {
+                    Audio.Play("event:/game/general/wall_break_ice", Position);
+                } else if (tileType == '9') {
+                    Audio.Play("event:/game/general/wall_break_wood", Position);
+                } else {
+                    Audio.Play("event:/game/general/wall_break_stone", Position);
+                }
+            }
+            for (int i = 0; (float) i < base.Width / 8f; i++) {
+                for (int j = 0; (float) j < base.Height / 8f; j++) {
+                    base.Scene.Add(Engine.Pooler.Create<Debris>().Init(Position + new Vector2(4 + i * 8, 4 + j * 8), tileType, playDebrisSound).BlastFrom(from));
+                }
+            }
+            Collidable = false;
+            if (permanent) {
+                RemoveAndFlagAsGone();
+            } else {
+                RemoveSelf();
+            }
         }
     }
 }

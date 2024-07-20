@@ -91,7 +91,7 @@ triggers.VivHelper/CustomInstantTeleportTrigger.attributes.description.CameraTyp
 
 -- New Instant TP trigger
 triggers.VivHelper/TeleportTarget.placements.name.main=Teleport Target
-triggers.VivHelper/TeleportTarget.placements.name.custom=Teleport Target (Customizable Speed Exit)
+triggers.VivHelper/TeleportTarget.placements.name.custom=Teleport Target (Custom)
 triggers.VivHelper/TeleportTarget.placements.description.main=The point by which a player teleports using a (new) Teleport Trigger
 triggers.VivHelper/TeleportTarget.attributes.name.TargetID=Target ID
 triggers.VivHelper/TeleportTarget.attributes.description.TargetID=The ID by which to link a Teleport Trigger to a target.
@@ -170,12 +170,22 @@ entities.VivHelper/EntityMuter.placements.description.main=Mutes most entities i
 entities.VivHelper/FunctionRefillAppender.placements.name.main=Dash/Stamina Refill Modifier
 entities.VivHelper/FunctionRefillAppender.placements.description.main=Place over an entity to have its change the amount of dashes/stamina you get from acting on it.
 
-entities.VivHelper/SolidModifier.placements.name.main=~ Solid Modifier (Blank)
-entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to be impacted by triggering on touch or improves cornerboosts on the block.
-entities.VivHelper/SolidModifier.placements.name.cb=CornerBoost Block Modifier
-entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to improve cornerboosts on the block.
-entities.VivHelper/SolidModifier.placements.name.touch=Touch Contact Modifier
-entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to change what counts as "touching" a block.
+entities.VivHelper/SolidModifier2.placements.name.main=~Solid Modifier (Blank)
+entities.VivHelper/SolidModifier2.placements.description.main=Enables changing of solids to be impacted by triggering on touch or improves cornerboosts on the block.
+entities.VivHelper/SolidModifier2.placements.name.cb=CornerBoost Block Modifier
+entities.VivHelper/SolidModifier2.placements.description.main=Enables changing of solids to improve cornerboosts on the block.
+entities.VivHelper/SolidModifier2.placements.name.touch=Touch Contact Modifier
+entities.VivHelper/SolidModifier2.placements.description.main=Enables changing of solids to change what counts as "touching" a block.
+entities.VivHelper/SolidModifier.attributes.name.CornerBoostBlock=Behavior
+entities.VivHelper/SolidModifier.attributes.description.CornerBoostBlock=The behavior set when getting a climbjump off of this block.
+entities.VivHelper/SolidModifier2.attributes.name.cornerBoostBlock=ClimbJump Window
+entities.VivHelper/SolidModifier2.attributes.description.cornerBoostBlock=This sets the window, in pixels, that you can climbjump or walljump off the solid from.\nSetting to -1 bases it off the player's current speed, and is the recommended setting for CornerBoost Blocks.
+entities.VivHelper/SolidModifier.attributes.name.TriggerOnTouch=Trigger On Touch?
+entities.VivHelper/SolidModifier.attributes.description.TriggerOnTouch=An option to toggle whether or not the solid gets "ridden" based on when/how the Player touches the block.
+entities.VivHelper/SolidModifier2.attributes.name.TriggerOnTouch=Trigger On Touch?
+entities.VivHelper/SolidModifier2.attributes.description.TriggerOnTouch=An option to toggle whether or not the solid gets "ridden" based on when/how the Player touches the block.
+entities.VivHelper/SolidModifier2.attributes.name.RetainWallSpeed=Retain Momentum?
+entities.VivHelper/SolidModifier2.attributes.description.RetainWallSpeed=Whether or not the block will ensure a cornerboost boosts the player's speed.\nPreviously called "Perfect" CornerBoostBlock, this is recommended.
 
 entities.VivHelper/AnimatedSpikesUp.placements.name.main=Animated Spikes (Up)
 entities.VivHelper/AnimatedSpikesLeft.placements.name.main=Animated Spikes (Left)
@@ -207,6 +217,17 @@ entities.VivHelper/BadelineBoostNoRefill.attributes.description.finalCh9GoldenBo
 entities.VivHelper/BadelineBoostNoRefill.attributes.description.finalCh9Dialog=If finalCh9Boost is also set and doesn't go to golden room, this will trigger the Farewell ending dialog.
 entities.VivHelper/BadelineBoostNoRefill.attributes.description.NoDashRefill=If true, the amount of dashes the player has doesn't change from before launching with Badeline.
 entities.VivHelper/BadelineBoostNoRefill.attributes.description.NoStaminaRefill=If true, the amount of stamina the player has doesn't change from before launching with Badeline.
+
+entities.VivHelper/BumperRefill.placements.name.bumper_dash=Bumper Refill
+entities.VivHelper/BumperRefill.placements.name.one_dash=Bumper Refill (One Use)
+
+entities.VivHelper/CassetteBooster.placements.name.cb=Cassette Booster (Custom Indices)
+entities.VivHelper/CassetteBooster.placements.description.cb=A booster that swaps between red and green on given indices of the Cassette Block Tempo.
+entities.VivHelper/CassetteBooster.attributes.description.log2idx=The Sequence that the booster will swap between.\nIf the # of switches is <4, it will ignore the G values that are "above" the # of switches.\nEx. If you have blue and pink in a room and choose GRGG, it will operate as GR, but if you choose GGRG, it will operate as GGR and create a yellow index.
+entities.VivHelper/CassetteBooster.attributes.name.log2idx=Indices
+entities.VivHelper/CassetteBooster.attributes.description.distance=At a distance between the player and the booster hitbox, the cassette state will not change. Used to make the gameplay feel a little easier.
+entities.VivHelper/CassetteBooster.attributes.name.spriteXML=Sprite XML
+entities.VivHelper/CassetteBooster.attributes.description.spriteXML=The name of the green booster sprite you want from Sprites.xml.\nThe red booster sprite *must* be "`spriteXML`Red", i.e. "booster" => "boosterRed".
 
 entities.VivHelper/CassetteTileEntity.placements.name.0=Cassette Tile Entity (0 - Blue)
 entities.VivHelper/CassetteTileEntity.placements.name.1=Cassette Tile Entity (1 - Rose)
@@ -285,9 +306,9 @@ entities.VivHelper/CrumbleJumpThru.attributes.description.texture=Changes the ap
 entities.VivHelper/CrumbleJumpThru.attributes.description.surfaceIndex=Footstep sound when walking on the platform.\nLeave at Default for game to decide automatically based on texture.
 entities.VivHelper/CrumbleJumpThru.attributes.description.Delay=How long after contact with the player the jump thru should stay collidable.
 
-entities.VivHelper/CustomCoreBlock.placements.name.C=Custom Bounce Block
-entities.VivHelper/CustomCoreBlock.placements.name.R=Reskinnable Bounce Block
-entities.VivHelper/CustomCoreBlock.placements.name.RC=Custom Bounce Block (Reskinnable)
+entities.VivHelper/CustomCoreBlock.placements.name.C=Bounce Block (Customizable)
+entities.VivHelper/CustomCoreBlock.placements.name.R=Bounce Block (Reskinnable)
+entities.VivHelper/CustomCoreBlock.placements.name.RC=Bounce Block (Customizable, Reskinnable)
 entities.VivHelper/CustomCoreBlock.attributes.description.CoreState=Hot & Cold do not change with Core State.\nSwap does, and Invert is Cold when Core Mode is Hot and vice versa.
 entities.VivHelper/CustomCoreBlock.attributes.description.RespawnTime=The amount of time it takes for the block to respawn after breaking.
 entities.VivHelper/CustomCoreBlock.attributes.description.WindUpDist=The amount of distance, in pixels, that the Hot Core Block winds up before bouncing back.
@@ -348,16 +369,19 @@ entities.VivHelper/EnterBlock.placements.name.main=Enter Block
 
 entities.VivHelper/ExitDashBlock.placements.name.main=Exit Dash Block
 
-entities.VivHelper/FallThru.placements.name.wood=Jump Through (Wood)
-entities.VivHelper/FallThru.placements.name.dream=Jump Through (Dream)
-entities.VivHelper/FallThru.placements.name.temple=Jump Through (Temple)
-entities.VivHelper/FallThru.placements.name.templeB=Jump Through (Temple B)
-entities.VivHelper/FallThru.placements.name.cliffside=Jump Through (Cliffside)
-entities.VivHelper/FallThru.placements.name.reflection=Jump Through (Reflection)
-entities.VivHelper/FallThru.placements.name.core=Jump Through (Core)
-entities.VivHelper/FallThru.placements.name.moon=Jump Through (Moon)
+entities.VivHelper/FallThru.placements.name.wood=Fall Through (Wood)
+entities.VivHelper/FallThru.placements.name.dream=Fall Through (Dream)
+entities.VivHelper/FallThru.placements.name.temple=Fall Through (Temple)
+entities.VivHelper/FallThru.placements.name.templeB=Fall Through (Temple B)
+entities.VivHelper/FallThru.placements.name.cliffside=Fall Through (Cliffside)
+entities.VivHelper/FallThru.placements.name.reflection=Fall Through (Reflection)
+entities.VivHelper/FallThru.placements.name.core=Fall Through (Core)
+entities.VivHelper/FallThru.placements.name.moon=Fall Through (Moon)
 entities.VivHelper/FallThru.attributes.description.texture=Changes the appearance of the platform.
 entities.VivHelper/FallThru.attributes.description.surfaceIndex=Footstep sound when walking on the platform.\nLeave at Default for game to decide automatically based on texture.
+
+entities.VivHelper/FeatherRefill.placements.name.feather=Feather Refill
+entities.VivHelper/FeatherRefill.placements.name.one_use=Feather Refill (One Use)
 
 entities.VivHelper/FlagConditionBlock2.placements.name.main=Condition Block (On Flag)
 
@@ -514,6 +538,8 @@ entities.VivHelper/SeekerKillBarrier.placements.name.main=Seeker Kill Barrier
 entities.VivHelper/SizableJelly.placements.name.normal=Scalable Jelly (Floating)
 entities.VivHelper/SizableJelly.placements.name.floating=Scalable Jelly (Floating)
 
+
+
 entities.VivHelper/SoundMuter.placements.name.soundmuter=Audio Event Muter
 entities.VivHelper/SoundMuter.placements.description.soundmuter=A map-global entity that mutes a given Audio Event (can be on a flag)
 
@@ -526,8 +552,17 @@ entities.VivHelper/TheoKillBarrier.placements.description.teo=A barrier that kil
 entities.VivHelper/TouchSwitchWall.placements.name.wall=Touch Switch Wall
 entities.VivHelper/TouchSwitchWall.placements.description.wall=A touch switch with a custom rectangular hitbox.
 
-entities.VivHelper/WarpDashRefill.placements.name.red_dash=Warp Dash Refill
-entities.VivHelper/WarpDashRefill.placements.description.red_dash=Replaces the next dash with a teleport that goes through walls.
+entities.VivHelper/WarpDashRefill.placements.name.warp_dash=Warp Dash Refill
+entities.VivHelper/WarpDashRefill.placements.description.warp_dash=Replaces the next dash with a teleport that goes through walls.
 entities.VivHelper/WarpDashRefill.placements.name.one_dash=Warp Dash Refill (One Use)
 entities.VivHelper/WarpDashRefill.placements.description.one_dash=Replaces the next dash with a teleport that goes through walls.
 entities.VivHelper/WarpDashRefill.attributes.description.oneUse=If checked, the refill will not respawn.
+
+
+# ------------------------------------------------------------------------- OTHER ---------------------------------------------------------------------------------------------
+tags.VivHelper.spawnpoint.smalldetail=a new spawnpoint index
+tags.VivHelper.spawnpoint.largedetail=a new spawnpoint index, which enable Spawnpoints to link with one another, so you can die in one room and spawn in another
+
+ui.VivHelper.intSender.label=Add
+ui.VivHelper.intSender.tooltip=Assigns %s that's not yet used for this group.
+ui.VivHelper.intGroup.tooltip=Select a tag to use for this item.\nThe tag represents %s.

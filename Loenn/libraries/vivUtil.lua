@@ -5,9 +5,33 @@ local drawableNinePatch = require("structs.drawable_nine_patch")
 local drawableLine = require("structs.drawable_line")
 local drawableFunction = require('structs.drawable_function')
 local state = require("loaded_state")
+local mods = require('mods')
+local enum_colors = require('consts.xna_colors')
+local atlases = require('atlases')
 
 local vivUtil = {}
 local ___p = 2^32
+
+vivUtil.missingImageMeta = require('atlases').getResource(mods.internalModContent .. "/missing_image")
+
+
+vivUtil.areaHSVShader = love.graphics.newShader[[
+    uniform float hue;
+    vec3 hsv_to_rgb(float h, float s, float v) {
+        return mix(vec3(1.0), clamp((abs(fract(h + vec3(3.0, 2.0, 1.0) / 3.0) * 6.0 - 3.0) - 1.0), 0.0, 1.0), s) * v;
+    }
+    vec4 effect(vec4 color, Image tex, vec2 texture_coords, vec2 screen_coords)
+    {
+        vec3 rgb = hsv_to_rgb(hue, texture_coords[0], 1 - texture_coords[1]);
+        return vec4(rgb[0], rgb[1], rgb[2], 1.0) * color;
+    }
+]]
+vivUtil.alphaShader = love.graphics.newShader[[
+    vec4 effect(vec4 color, Image tex, vec2 tc, vec2 sc)
+    {
+        return mix(vec4(Texel(tex, tc).rgb, 1), color, tc[0]);
+    }
+]]
 
 function vivUtil.rshift(x, s_amount)
 	if math.abs(s_amount) >= 32 then return 0 end
@@ -65,8 +89,77 @@ function vivUtil.isNullEmptyOrWhitespace(s)
     end return true
 end
 
--- Format for VivHelper is "abgr" (format follows Color.PackedValue)
-function vivUtil.getColor(color, allowXNAColors)
+function vivUtil.GetColorKey(entity, keyV1, keyV2)
+    if keyV2 and entity[keyV2] then
+        return entity[keyV2]
+    elseif keyV1 and entity[keyV1] then
+        return entity[keyV1]
+    end
+    return ""
+end
+
+function vivUtil.GetColor(entity, keyV1, keyV2, allowXNAColors, defaultTable) 
+    local parsed = false ; local r = 1 ; local g = 1 ; local b = 1 ; local a = 1
+    if keyV2 and entity[keyV2] then
+        parsed, r, g, b, a = vivUtil.newGetColor(entity[keyV2], allowXNAColors)
+    elseif keyV1 and entity[keyV1] then
+        parsed, r, g, b, a = vivUtil.oldGetColor(entity[keyV1], allowXNAColors)
+    end
+    if parsed then
+        return true, r, g, b, a
+    else 
+        return false, defaultTable[1] or 1, defaultTable[2] or 1, defaultTable[3] or 1, defaultTable[4] or 1
+    end
+end
+function vivUtil.GetColorTable(entity, keyV1, keyV2, allowXNAColors, defaultTable) 
+    local parsed = false ; local r = 1; local g = 1; local b = 1; local a = 1
+    if keyV2 and entity[keyV2] then
+        parsed, r, g, b, a = vivUtil.newGetColor(entity[keyV2], allowXNAColors)
+    elseif keyV1 and entity[keyV1] then
+        parsed, r, g, b, a = vivUtil.oldGetColor(entity[keyV1], allowXNAColors)
+    end
+    if parsed then
+        return {r or 1, g or 1, b or 1, a or 1}
+    else 
+        return {defaultTable[1] or 1, defaultTable[2] or 1, defaultTable[3] or 1, defaultTable[4] or 1}
+    end
+end
+
+function vivUtil.newGetColorTable(color, allowXNAColors, defaultTable)
+    defaultTable = defaultTable or {0,0,0,1}
+    local parsed, r, g, b, a = vivUtil.newGetColor(color, allowXNAColors)
+    if parsed then
+        return {r,g,b,a or 1}
+    else return defaultTable end
+end
+
+function vivUtil.newGetColor(color, allowXNAColors) -- we dont actually need "allowEmpty" here
+    -- removed functionality for number
+    if type(color) == "nil" or type(color) == "number" then
+        return false
+    elseif type(color) == "table" then
+        return true, color[1],color[2],color[3],color[4] or 1
+    elseif type(color) == "string" then -- either rgba or XNAColor
+        local xnaColor = utils.getXNAColor(color)
+        if allowXNAColors and xnaColor then
+            return true, xnaColor[1], xnaColor[2], xnaColor[3], xnaColor[4] or 1
+        end
+        color2 = color:match("^#?%x+$") -- checks for hex color with optional # at the start
+        if color2 ~= nil then
+            color3 = color2:gsub("#", "")
+            if #color == 3 then 
+                local color4 = color3[1] .. color3[1] .. color3[2] .. color3[2] .. color3[3] .. color3[3]
+                return utils.parseHexColor(color4)
+            elseif #color == 6 or #color == 8 then
+                return utils.parseHexColor(color3)
+            else return false
+            end
+        end
+    end
+    return false
+end
+-- Format for old VivHelper is "abgr" (format follows Color.PackedValue)
+function vivUtil.oldGetColor(color, allowXNAColors)
     if type(color) == "nil" then 
         return false
     elseif type(color) == "number" then
@@ -91,17 +184,17 @@ function vivUtil.getColor(color, allowXNAColors)
     return false
 end
 
-function vivUtil.getColorTable(color, allowXNAColors, defaultTable)
+function vivUtil.oldGetColorTable(color, allowXNAColors, defaultTable)
     defaultTable = defaultTable or {0,0,0,1}
-    local parsed, r, g, b, a = vivUtil.getColor(color, allowXNAColors)
+    local parsed, r, g, b, a = vivUtil.oldGetColor(color, allowXNAColors)
     if parsed then
         return {r,g,b,a or 1}
     else return defaultTable end
 end
 
-function vivUtil.invertGetColor(r,g,b,a) -- returns a string in abgr format, such that getColor(invertGetColor(r,g,b,a)) == r,g,b,a is true
+function vivUtil.oldInvertGetColor(r,g,b,a) -- returns a string in abgr format, such that getColor(oldInvertGetColor(r,g,b,a)) := r,g,b,a
     if type(r) == "nil" then return "" -- returns an empty string if r is blank/nil
-    elseif  type(g) == "nil" and type(b) == "nil" and type(a) == "nil" then -- if invertGetColor has 1 parameter
+    elseif  type(g) == "nil" and type(b) == "nil" and type(a) == "nil" then -- if oldInvertGetColor has 1 parameter
         if type(r) == "number" then return string.format("%08x", math.floor(r)) -- yields a number in aabbggrr format
         elseif type(r) == "string" then return r:sub(7,8) .. r:sub(5,6) .. r:sub(3,4) .. r:sub(1,2) -- yields aabbggrr
         end
@@ -118,15 +211,17 @@ function vivUtil.invertGetColor(r,g,b,a) -- returns a string in abgr format, suc
 end
 
 function vivUtil.swapRGBA(str) -- swaps rgba to abgr and vice versa
-    if #str >= 8 then return str:sub(7,8) .. str:sub(5,6) .. str:sub(3,4) .. str:sub(1,2) else return str end
+    if #str == 8 and not enum_colors[str] then return str:sub(7,8) .. str:sub(5,6) .. str:sub(3,4) .. str:sub(1,2) else return str end
 end
 
 function vivUtil.lerp(a,b,t) return a * (1-t) + b * t end
 
 function vivUtil.colorLerp(a,b,lerp)
-    local A, ar, ag, ab, aa = vivUtil.getColor(a, true)
-    local B, br, bg, bb, ba = vivUtil.getColor(b, true)
-    return {vivUtil.lerp(ar, br,lerp), vivUtil.lerp(ag,bg,lerp), vivUtil.lerp(ab,bb,lerp), vivUtil.lerp(aa or 1,ba or 1,lerp)}
+    aH, aS, aV = utils.rgbToHsv(a[1], a[2], a[3])
+    bH, bS, bV = utils.rgbToHsv(b[1], b[2], b[3])
+
+    rR, rG, rB = utils.hsvToRgb(vivUtil.lerp(aH, bH, lerp), vivUtil.lerp(aS, bS, lerp), vivUtil.lerp(aV, bV, lerp))
+    return {rR, rG, rB, vivUtil.lerp(a[4] or 1, b[4] or 1, lerp)}
 end
 function vivUtil.alphMult(color, alpha)
     local newColor = {}
@@ -137,6 +232,14 @@ function vivUtil.alphMult(color, alpha)
     return newColor
 end
 
+function vivUtil.tableLerp(table1, table2, lerp) 
+    local ret = {}
+    for i=1,math.min(#table1, #table2) do
+        table.insert(ret, table1[i] * (1-lerp) + table2[i] * lerp)
+    end
+    return ret
+end
+
 function vivUtil.indexof(keyvaluetable, toFind)
     for key, val in pairs(keyvaluetable) do
         if val == toFind then
@@ -144,6 +247,31 @@ function vivUtil.indexof(keyvaluetable, toFind)
         end
     end
 end
+
+local bloomMeta = atlases.getResource("util/bloomsprite", "Gameplay")
+function vivUtil.bloomSprite(entity, radius, alpha)
+    local sprite = drawableSprite.fromMeta(bloomMeta, entity)
+    sprite:setColor({alpha,alpha,alpha,alpha})
+    local scale = radius * 0.0078125 -- this is always the same value, radius * 2 / 256 = radius / 128 = radius * 0.0078125
+    sprite:setScale(scale, scale)
+    return sprite
+end
+
+function vivUtil.drawableCircle(mode, x, y, radius, color, strokeWidth, segments)
+    local segs = segments or 16
+    local sWidth = strokeWidth or 2
+    return drawableFunction.fromFunction(function()
+        local pr, pg, pb, pa = love.graphics.getColor()
+        local previousLineWidth = love.graphics.getLineWidth()
+
+        love.graphics.setLineWidth(sWidth)
+        love.graphics.setColor(color[1], color[2], color[3], color[4] or 0.5)
+        love.graphics.circle(mode, x, y, radius + 1 - math.ceil(sWidth / 2), segments)
+        love.graphics.setLineWidth(previousLineWidth)
+        love.graphics.setColor(pr, pg, pb, pa)
+    end)
+end
+
 
 ---Returns a handler function to implement entity.rotate(room, entity, direction), where the entity's _name field will get changed according to the rotations table
 function vivUtil.getNameRotationHandler(rotations)
@@ -195,7 +323,7 @@ function vivUtil.getBorder(sprite, color)
         texture.x += xOffset
         texture.y += yOffset
         if sprite.depth then texture.depth = sprite.depth + 1 end
-        texture.color = color and vivUtil.getColorTable(color) or {0, 0, 0, 1}
+        texture.color = color or {0,0,0,1}
         return texture
     end
 
@@ -254,10 +382,10 @@ function vivUtil.getImageWithNumbers(string, idx, data, _atlas)
     local atlas = _atlas or data.atlas or "Gameplay"
     local val = nil
     for i = 1,6,1 do 
-        val = require('atlases').getResource(string .. string.format("%0"..tostring(i).."d", idx), atlas)
+        val = atlases.getResource(string .. string.format("%0"..tostring(i).."d", idx), atlas)
         if val then break end
     end
-    if val then return drawableSprite.fromMeta(val, data) else return drawableSprite.fromMeta(require('atlases').getResource(require('mods').internalModContent .. "/missing_image"), data) end
+    if val then return drawableSprite.fromMeta(val, data) else return drawableSprite.fromMeta(vivUtil.missingImageMeta, data) end
 end
 
 function vivUtil.GetFilePathWithNoTrailingNumbers(AllowEmpty, atlasName)
@@ -330,6 +458,106 @@ function vivUtil.printJustifyText(text, x, y, width, height, font, fontSize, tri
     love.graphics.printf(text, 0, 0, width / fontSize, align or "center")
 
     love.graphics.pop()
+end
+
+function vivUtil.sortByKeys(t) 
+    local tkeys = {}
+    -- populate the table that holds the keys
+    for k in pairs(t) do table.insert(tkeys, k) end
+    -- sort the keys
+    table.sort(tkeys)
+    return tkeys
+end
+
+function vivUtil.print_table(node, filename)
+    local cache, stack, output = {},{},{}
+    local depth = 1
+    local output_str = "{\n"
+
+    while true do
+        local size = 0
+        for k,v in pairs(node) do
+            size = size + 1
+        end
+
+        local cur_index = 1
+        for k,v in pairs(node) do
+            if (cache[node] == nil) or (cur_index >= cache[node]) then
+
+                if (string.find(output_str,"}",output_str:len())) then
+                    output_str = output_str .. ",\n"
+                elseif not (string.find(output_str,"\n",output_str:len())) then
+                    output_str = output_str .. "\n"
+                end
+
+                -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
+                table.insert(output,output_str)
+                output_str = ""
+
+                local key
+                if (type(k) == "number" or type(k) == "boolean") then
+                    key = "["..tostring(k).."]"
+                else
+                    key = "['"..tostring(k).."']"
+                end
+
+                if (type(v) == "number" or type(v) == "boolean") then
+                    output_str = output_str .. string.rep('\t ',depth) .. key .. " = "..tostring(v)
+                elseif (type(v) == "table") then
+                    output_str = output_str .. string.rep('\t ',depth) .. key .. " = {\n"
+                    table.insert(stack,node)
+                    table.insert(stack,v)
+                    cache[node] = cur_index+1
+                    break
+                else
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = '"..tostring(v).."'"
+                end
+
+                if (cur_index == size) then
+                    output_str = output_str .. "\n" .. string.rep('\t ',depth-1) .. "}"
+                else
+                    output_str = output_str .. ","
+                end
+            else
+                -- close the table
+                if (cur_index == size) then
+                    output_str = output_str .. "\n" .. string.rep('\t ',depth-1) .. "}"
+                end
+            end
+
+            cur_index = cur_index + 1
+        end
+
+        if (size == 0) then
+            output_str = output_str .. "\n" .. string.rep('\t ',depth-1) .. "}"
+        end
+
+        if (#stack > 0) then
+            node = stack[#stack]
+            stack[#stack] = nil
+            depth = cache[node] == nil and depth + 1 or depth - 1
+        else
+            break
+        end
+    end
+
+    -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
+    table.insert(output,output_str)
+    output_str = table.concat(output)
+
+    file = io.open(filename, "w")
+    file:write(output_str)
+    file:close()
+    print("File written to " .. filename)
+end
+
+function vivUtil.isModLoaded(name)
+    return mods.modMetadata[name] or mods.modMetadata[name .. "_zip"]
+end
+
+function vivUtil.countStringKeys(table)
+    local ct,cn = utils.countKeys(table)
+    return ct - cn
 end
 
 return vivUtil

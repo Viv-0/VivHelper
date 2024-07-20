@@ -1,0 +1,65 @@
+OlympUI information:
+
+the OlympUI format is broken up into "groups" that compose various spaces within a UI window.
+
+the base is "panel" which is just a container for children elements, and these are all the various subsets of objects
+Label: This simply draws some text within another panel
+Image: This simply draws an image within another panel
+    Icon: A simple image. Given this extends "image," it's safe to just call this "image" but again and leave it be.
+Group: This is the basis for all of the other UI elements. Contains the base initializer for other elements.
+
+Spinner: This appears to be a loading screen spinner for OlympUI. Unused in Loenn.
+Root: Special root element. Don't touch.
+
+Groups:
+Row: this handles the layout format such that multiple children are set horizontally apart from each other.
+Column: this handles the layout format such that multiple children are set vertically apart from each other.
+Dynamic: this is a "dynamic layout setter" object. Nothing in Loenn uses this, and I'm not 100% sure how it works.
+Scrollbox: this is the "scrollbar" used by Loenn. Used only within Windows or widgets.
+
+Row and Column subelements:
+Button: This... is a button. Based on Row 
+Field: A text field. Does not contain special validators within it, that is handled by the form field definitions. Based on Row
+List: According to OlympUI, "a basic list, consisting of multiple listItems". Based on Column
+    ListItem: A single element of a List. Minus visual format, mostly equivalent to Label with a default onClick action. Based on Row
+Topbar: This is your "File", "Edit", etc. Menu items. Contains a series of MenuItems. Based on Row
+    MenuItem: A single element of a Topbar. Topbar equivalent to a ListItem. Based on Column
+    MenuItemSubmenu: A submenu "sidebar" from a given Menu Item. Contains a table of other items. Based on Column
+Dropdown: A dropdown used in fields in Loenn. Constructed of a button, on click it constructs a MenuItemSubmenu that contains ListItems, where, onClick, it sets dropdown.text to the ListItem
+Checkbox: A checkbox used in fields in Loenn. Constructed of a button, on click it inverts the state of a variable stored within checkbox
+
+MagicList: In Loenn, MagicLists are used for the Dependency Window and Room Lists. 
+Window: This handles the default Windows for *everything* in Loenn.
+
+All elements by default have access to the following variables
+x = X position
+y = Y position
+width = Width
+height = Height
+interactive = whether or not to Update every frame (?)
+visible = whether to call draw every frame
+reflowing = ???
+miniroot = ???
+parent = the object "above" this in the tree
+children = the objects "below" this in the tree
+id = ???
+All elements by default have access to the following functions
+update(self, dt): updates, *if* interactive > 0
+draw(self): runs redraw(root), drawing all items to the screen if visible
+with(self, properties, ...):
+    if properties is a function, call props(self, ...) and return the table it returns, or the element itself
+    otherwise, for each key-value pair in the props table, set self[key] = value
+hook(self, {key=value}):
+    creates a "wrapper hook" around the method element.key() with value(), i.e.:
+        draw = fieldDrawColorPreview(orig, element) => field.draw() = fieldDrawColorPreview(orig, element), where fieldDrawColorPreview runs orig(element) inside.
+onEnter(self) - triggers when mouse enters the region of the element
+onLeave(self) - triggers when mouse leaves the region of the element
+onUnfocus(self, x, y, mouseButton, dragging) - triggers when a different element is "focused" (clicked, for the case of a window)
+onPress(self, x, y, mouseButton, dragging) - triggers on mouse press
+onRelease(self, x, y, mouseButton, dragging) - triggers on mouse release
+onClick(self, x, y, mouseButton) - triggers on mouse "click" (i.e. not dragging)
+onDrag(self, x, y, dx, dy) - triggers on mouse "drag"
+onScroll(self, x, y, dx, dy) - triggers on scroll wheel
+onKeyPress(self, key, scancode, isRepeating) - triggers on key press
+onKeyRelease(self, key, scancode, isRepeating) - triggers on key release
+onText(self, text) - triggers on typing (keyrelease), returns the text of the last sequence of key press inputs.

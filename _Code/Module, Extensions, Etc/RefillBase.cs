@@ -28,11 +28,9 @@ namespace VivHelper {
 
 	    protected bool oneUse, spriteDrawOutline;
 
-	    protected ParticleType p_shatter = Refill.P_Shatter;
-
-        protected ParticleType p_regen = Refill.P_Regen;
-
-        protected ParticleType p_glow = Refill.P_Glow;
+        protected virtual ParticleType ShatterParticle() => Refill.P_Shatter;
+        protected virtual ParticleType RegenParticle() => Refill.P_Regen;
+        protected virtual ParticleType GlowParticle() => Refill.P_Glow;
 
 	    protected float respawnTimer;
 
@@ -65,7 +63,15 @@ namespace VivHelper {
 	    {
 		    base.Added(scene);
 		    level = SceneAs<Level>();
-	    }
+            if (sprite != null) {
+                sprite.CenterOrigin();
+                sprite.Visible = true;
+            }
+            if (outline != null) {
+                outline.CenterOrigin();
+                outline.Visible = false;
+            }
+        }
 
 	    public override void Update()
 	    {
@@ -80,9 +86,15 @@ namespace VivHelper {
 		    }
 		    else if (base.Scene.OnInterval(0.1f))
 		    {
-			    level.ParticlesFG.Emit(p_glow, 1, Position, Vector2.One * 5f);
-		    }
-		    UpdateY();
+			    level.ParticlesFG.Emit(GlowParticle(), 1, Position, Vector2.One * 5f);
+            }
+            if (sprite != null) {
+                sprite.Update();
+                sprite.Position = Position;
+            }
+            if (outline != null)
+                outline.Position = Position;
+            UpdateY();
             if(light != null) light.Alpha = Calc.Approach(light.Alpha, (sprite?.Visible ?? false) ? 1f : 0f, 4f * Engine.DeltaTime);
 		    if(bloom != null) bloom.Alpha = light.Alpha * 0.8f;
 		    if (base.Scene.OnInterval(2f) && (sprite?.Visible ?? false) && flash != null)
@@ -102,7 +114,7 @@ namespace VivHelper {
 			    base.Depth = -100;
 			    wiggler.Start();
 			    Audio.Play("event:/game/general/diamond_return", Position);
-			    level.ParticlesFG.Emit(p_regen, 16, Position, Vector2.One * 2f);
+			    level.ParticlesFG.Emit(RegenParticle(), 16, Position, Vector2.One * 2f);
 		    }
 	    }
 
@@ -112,7 +124,7 @@ namespace VivHelper {
             if (flash != null)
                 flash.Y = num;
             if (sprite != null)
-                sprite.Y = num;
+                sprite.Y = Position.Y + num;
             if (bloom != null)
                 bloom.Y = num;
 	    }
@@ -121,10 +133,13 @@ namespace VivHelper {
 	    {
             if (outline?.Visible ?? false)
                 outline.Render();
-		    if (spriteDrawOutline && (sprite?.Visible ?? false))
-		    {
-			    sprite.DrawOutline();
-		    }
+            if (sprite?.Visible ?? false) {
+                if (spriteDrawOutline)
+                    sprite.DrawOutline();
+                sprite.Render();
+            }
+
+            
 		    base.Render();
 	    }
 

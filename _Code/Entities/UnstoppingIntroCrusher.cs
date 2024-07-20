@@ -11,7 +11,7 @@ using System.Collections;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/UnstoppingFallIntroCrusher")]
-    public class UnstoppingFallIntroCrusher : Solid, PostAwakeHolder {
+    public class UnstoppingFallIntroCrusher : Solid, IPostAwake {
         private Vector2 shake;
         public bool KillPlayerOnTouch;
         public bool DestroyCustomSpinners;
@@ -99,7 +99,7 @@ namespace VivHelper.Entities {
                 time2 -= Engine.DeltaTime;
             }
             for (int i = 2; (float) i < Width; i += 4) {
-                SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + (float) i, Y), Vector2.One * 4f, (float) Math.PI / 2f);
+                SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustA, 2, new Vector2(X + (float) i, Y), Vector2.One * 4f, Consts.PIover2);
                 SceneAs<Level>().Particles.Emit(FallingBlock.P_FallDustB, 2, new Vector2(X + (float) i, Y), Vector2.One * 4f);
             }
             shakingSfx.Param("release", 1f);
@@ -112,8 +112,8 @@ namespace VivHelper.Entities {
             }
             while (!(time2 >= 1f));
             for (int j = 0; (float) j <= Width; j += 4) {
-                SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(X + (float) j, Bottom), Vector2.One * 4f, -(float) Math.PI / 2f);
-                float direction = ((!((float) j < Width / 2f)) ? 0f : ((float) Math.PI));
+                SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_FallDustA, 1, new Vector2(X + (float) j, Bottom), Vector2.One * 4f, -Consts.PIover2);
+                float direction = (!((float) j < Width / 2f)) ? 0f : Consts.PI;
                 SceneAs<Level>().ParticlesFG.Emit(FallingBlock.P_LandDust, 1, new Vector2(X + (float) j, Bottom), Vector2.One * 4f, direction);
             }
             shakingSfx.Stop();

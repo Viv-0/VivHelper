@@ -1,6 +1,7 @@
 local drawing = require('mods').requireFromPlugin('libraries.vivUtil')
 local dsprite = require('structs.drawable_sprite')
 local drawableFunction = require("structs.drawable_function")
+
 return {
     name = "VivHelper/SoundMuter",
     depth = 9-math.huge,
