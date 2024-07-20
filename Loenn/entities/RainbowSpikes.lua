@@ -18,13 +18,13 @@ local spikes = {spikeUp,spikeDown,spikeLeft,spikeRight}
 for i, spike in ipairs(spikes) do
     -- append Color and DoNotAttach options to placements by default
     for _,placement in ipairs(spike.placements) do
-        placement.data["Color"] = ""
+        placement.data["color"] = ""
         placement.data["DoNotAttach"] = false
         placement.data["groundRefill"] = false
     end
 
     -- append Color options to fieldInformation
-    spike.fieldInformation["Color"] = {fieldType = "VivHelper.oldColor", allowXNAColors = true, allowEmpty = true}
+    spike.fieldInformation["color"] = {fieldType = "color", allowXNAColors = true, allowEmpty = true, useAlpha = true}
 
     -- append sprite function to have rainbow color
     local oldSpriteFunc = spike.sprite

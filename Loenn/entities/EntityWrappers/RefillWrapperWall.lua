@@ -1,6 +1,6 @@
 local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 local rectangle = require('structs.drawable_rectangle')
-local func = require('structs.drawable_function')
+local text = require('structs.drawable_text')
 
 
 local rww = {
@@ -14,12 +14,12 @@ rww.fieldOrder = {
     "RespawnTime","oneUse",
     "TypeName","ImageVariableName",
     "RespawnMethodName","Depth",
-    "InnerColor","OuterColor"
+    "innerColor","outerColor"
 }
 
 rww.fieldInformation = {
-    InnerColor = {fieldType = "color", allowXNAColors = true, allowEmpty = false},
-    OuterColor = {fieldType = "color", allowXNAColors = true, allowEmpty = false},
+    innerColor = {fieldType = "color", allowXNAColors = true, allowEmpty = false, useAlpha = true},
+    outerColor = {fieldType = "color", allowXNAColors = true, allowEmpty = false, useAlpha = true},
     Depth = {fieldType = "integer" },
     ImageVariableName = {fieldType = "string", options = {{"Use Refill Render", "$render"}}, editable = true}
 }
@@ -31,7 +31,7 @@ rww.placements = {
         RespawnTime = -1.0, oneUse = false,
         TypeName = "Refill", ImageVariableName = "sprite",
         RespawnMethodName = "Respawn", Depth = 100,
-        InnerColor = "208020", OuterColor = "93bd40"
+        innerColor = "208020", outerColor = "93bd40"
     }
 }
 
@@ -41,7 +41,7 @@ rww.sprite = function(room,entity)
     vivUtil.alphMult(incolor, (entity.oneUse ? 0.25 : 0.7))
     vivUtil.alphMult(outcolor, (entity.oneUse ? 0.25 : 0.7))
     return { rectangle.fromRectangle("bordered",entity.x,entity.y,entity.width,entity.height,incolor,outcolor),
-        func.fromFunction(require('utils.drawing').printCenteredText,"Custom Refill Wall", entity.x,entity.y,entity.width,entity.height,nil,0.5)
+        text.fromText("Custom Refill Wall", entity.x,entity.y,entity.width,entity.height,nil,0.5)
     }
 end
 

@@ -15,9 +15,6 @@ using Celeste.Mod;
 
 namespace VivHelper {
     public class HoldablePlus : Holdable {
-
-        public static FieldInfo onGround = typeof(Player).GetField("onGround", BindingFlags.NonPublic | BindingFlags.Instance);
-        public static FieldInfo maxFall = typeof(Player).GetField("maxFall", BindingFlags.NonPublic | BindingFlags.Instance);
         public static void Load() {
             //pre-Core: using (new DetourContext { After = { "*" } }) {
             using (new DetourConfigContext(new DetourConfig("VivHelper", before: new[] { "*" })).Use()) {
@@ -99,16 +96,10 @@ namespace VivHelper {
 
         }
 
-        protected DynamicData holdableData;
 
         public float maxFallMult = 1;
 
         public HoldablePlus(float cannotHoldTimer = 0.1f) : base(cannotHoldTimer) {
-            holdableData = new DynamicData(typeof(Holdable), this);
-        }
-
-        public void SetCannotHoldTimer(float time) {
-            holdableData.Set("cannotHoldTimer", time);
         }
 
         /// <summary>

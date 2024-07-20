@@ -19,7 +19,7 @@ iltp.fieldInformation = {
     NumberOfUses2 = {fieldType="integer",minimumValue=-1},
     l = {fieldType="integer",minimumValue=2},
     Path = vivUtil.GetFilePathWithNoTrailingNumbers(true),
-    Color = {fieldType="color", allowEmpty = true, allowXNAColors = true}
+    color = {fieldType="color", allowEmpty = true, allowXNAColors = true, useAlpha = true}
 }
 
 iltp.placements = {{
@@ -53,7 +53,7 @@ iltp.placements = {{
         AlwaysRetainSpeed = true,
         Audio="",
         Path="VivHelper/portal/portal",
-        Color="White"
+        color="White"
     }
     }
 }

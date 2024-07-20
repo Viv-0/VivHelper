@@ -24,8 +24,9 @@ local cs = {
         {"Inner Bottom Left", "InnerUpRight"},
         {"Inner Top Right", "InnerDownLeft"},
         {"Inner Top Left", "InnerDownRight"}
-        }},
-        Color = {fieldType = "VivHelper.oldColor", allowXNAColors = true }
+        },
+        display},
+        color = {fieldType = "color", allowXNAColors = true, useAlpha = true }
     },
     depth = -2,
     texture = function(room,entity)
@@ -70,7 +71,7 @@ for _,edge in ipairs(edges) do
     table.insert(cs.placements,{
     name = edge, data = {
         type = "default",
-        Color = "ffffff",
+        color = "ffffff",
         EdgeDirection = edge,
         DoNotAttach = true, KillFormat = false
     }})

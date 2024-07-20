@@ -12,6 +12,12 @@ local colors = { -- 255 / 0.75 = 340
     {252 / 340, 220 / 340, 58 / 340, 0.75},
     {56 / 340, 224 / 340, 78 / 340, 0.75},
 }
+local colorHexes = {
+    "49aaf0bf",
+    "f049bebf",
+    "fcdc3abf",
+    "38e04ebf"
+}
 
 local colorNames = {
     ["1 - Blue"] = 0,
@@ -29,8 +35,8 @@ cte.fieldInformation = function(entity)
         options = colorNames,
         editable = false
     }
-    orig["enabledTint"] = {fieldType = "VivHelper.oldColor", allowXNAColors = true, allowEmpty = true }
-    orig["disabledTint"] = {fieldType = "VivHelper.oldColor", allowXNAColors = true, allowEmpty = true }
+    orig["enabledColor"] = {fieldType = "color", allowXNAColors = true, allowEmpty = true, useAlpha = true}
+    orig["disabledColor"] = {fieldType = "color", allowXNAColors = true, allowEmpty = true, useAlpha = true}
     return orig
 end
 cte.placements = {}
@@ -44,8 +50,8 @@ for i, _ in ipairs(colors) do
             tempo = 1.0,
             width = 16,
             height = 16,
-            enabledTint="4488ccff",
-            disabledTint="",
+            enabledColor = tostring(colorHexes[i]),
+            disabledColor="",
             ConnectTilesets = false
         }
     }

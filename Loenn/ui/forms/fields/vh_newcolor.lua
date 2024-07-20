@@ -9,7 +9,7 @@ local xnaColors = require("consts.xna_colors")
 
 local colorField = {}
 
-colorField.fieldType = "VivHelper.color"
+colorField.fieldType = "VivHelper.rgbacolor"
 
 colorField._MT = {}
 colorField._MT.__index = {}

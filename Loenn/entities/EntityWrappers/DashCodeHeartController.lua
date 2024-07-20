@@ -3,7 +3,7 @@ local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 
 local fields = {
      key="U,L,DR,UR,L,UL", CompleteFlag="DashCode", 
-     Color="ffffff",
+     color="ffffff",
      GlitchLength="Medium",
      ClassName="", MethodName="", CustomParameters="",
 }
@@ -53,7 +53,7 @@ DCHC.fieldInformation = {
             end
         end
         return true end },
-    Color = {fieldType = "color", allowXNAColors=true},
+    color = {fieldType = "color", allowXNAColors=true},
     GlitchLength = {fieldType = "string", options = {"Short", "Medium", "Long", "Glyph"}, editable = false}
 }
 return DCHC

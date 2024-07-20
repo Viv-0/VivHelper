@@ -1,5 +1,6 @@
 local enums = require('consts.celeste_enums')
 local drawableSprite = require('structs.drawable_sprite')
+local utils = require('utils')
 
 local BumperWrapper = {name = "VivHelper/BumperWrapper",
 fieldOrder = { -- The newlines in this file should denote the accurate visual alignment of the fieldOrders.
@@ -57,5 +58,6 @@ BumperWrapper.ignoredFields = {"_name", "_id", "oldLaunchLogic"}
 BumperWrapper.texture = "ahorn/VivHelper/bumperWrapper"
 BumperWrapper.color = {0.5,0.5,0.5,0.5}
 BumperWrapper.depth = -100
+BumperWrapper.selection = function(room,entity) return utils.rectangle(entity.x-8, entity.y-8, 16, 16) end
 
 return BumperWrapper

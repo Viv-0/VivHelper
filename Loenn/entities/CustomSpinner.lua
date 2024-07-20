@@ -42,9 +42,9 @@ customSpinner.placements = {
         AttachToSolid = true,
         Type = "White",
         ref = "VivHelper/customSpinner/white/fg_white",
-        Color = "FFFFFF",
-        BorderColor = "000000",
-        ShatterColor = "FFFFFF",
+        color = "FFFFFF",
+        borderColor = "000000",
+        shatterColor = "FFFFFF",
         HitboxType =  "C:6;0,0|R:16,4;-8,*1@-4",
         shatterOnDash = false,
         Scale = 1.0,
@@ -150,8 +150,6 @@ function customSpinner.sprite(room, entity)
     table.insert(sprites, fgSprite)
     return sprites
 end
-
-
 
 function customSpinner.selection(room, entity)
     return utils.rectangle(entity.x - 8 * entity.Scale, entity.y - 8 * entity.Scale, 16 * entity.Scale, 16 * entity.Scale)

@@ -369,14 +369,14 @@ entities.VivHelper/EnterBlock.placements.name.main=Enter Block
 
 entities.VivHelper/ExitDashBlock.placements.name.main=Exit Dash Block
 
-entities.VivHelper/FallThru.placements.name.wood=Jump Through (Wood)
-entities.VivHelper/FallThru.placements.name.dream=Jump Through (Dream)
-entities.VivHelper/FallThru.placements.name.temple=Jump Through (Temple)
-entities.VivHelper/FallThru.placements.name.templeB=Jump Through (Temple B)
-entities.VivHelper/FallThru.placements.name.cliffside=Jump Through (Cliffside)
-entities.VivHelper/FallThru.placements.name.reflection=Jump Through (Reflection)
-entities.VivHelper/FallThru.placements.name.core=Jump Through (Core)
-entities.VivHelper/FallThru.placements.name.moon=Jump Through (Moon)
+entities.VivHelper/FallThru.placements.name.wood=Fall Through (Wood)
+entities.VivHelper/FallThru.placements.name.dream=Fall Through (Dream)
+entities.VivHelper/FallThru.placements.name.temple=Fall Through (Temple)
+entities.VivHelper/FallThru.placements.name.templeB=Fall Through (Temple B)
+entities.VivHelper/FallThru.placements.name.cliffside=Fall Through (Cliffside)
+entities.VivHelper/FallThru.placements.name.reflection=Fall Through (Reflection)
+entities.VivHelper/FallThru.placements.name.core=Fall Through (Core)
+entities.VivHelper/FallThru.placements.name.moon=Fall Through (Moon)
 entities.VivHelper/FallThru.attributes.description.texture=Changes the appearance of the platform.
 entities.VivHelper/FallThru.attributes.description.surfaceIndex=Footstep sound when walking on the platform.\nLeave at Default for game to decide automatically based on texture.
 

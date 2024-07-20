@@ -1,4 +1,5 @@
-
+local drawRect = require('structs.drawable_rectangle')
+local drawSprite = require('structs.drawable_sprite')
 
 return {
     name = "VivHelper/RefillWall",
@@ -23,7 +24,7 @@ return {
             sprite = "objects/refillTwo/idle00"
         end
         return {
-        require('structs.drawable_rectangle').fromRectangle("bordered",entity.x,entity.y, entity.width, entity.height, incolor, outcolor),
-        require('structs.drawable_sprite').fromTexture(sprite, entity):setPosition(entity.x + entity.width/2, entity.y+ entity.height/2)}
+        drawRect.fromRectangle("bordered",entity.x,entity.y, entity.width, entity.height, incolor, outcolor),
+        drawSprite.fromTexture(sprite, entity):setPosition(entity.x + entity.width/2, entity.y+ entity.height/2)}
     end
 }

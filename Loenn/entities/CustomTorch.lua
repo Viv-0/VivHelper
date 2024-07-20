@@ -1,3 +1,5 @@
+local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
+
 local torch = {}
 
 torch.name = "VivHelper/CustomTorch"
@@ -6,8 +8,8 @@ torch.placements = {
     name = "main",
     data = {
         startLit=false,
-	    Color="ff80ffff",
-	    spriteColor="ff80ffff",
+	    color="80ffff",
+	    spriteColor="80ffff",
 	    Alpha=1.0,
 	    startFade=48,
 	    endFade=64,
@@ -16,8 +18,8 @@ torch.placements = {
     }
 }
 torch.fieldInformation = {
-    Color = {fieldType = "VivHelper.oldColor", allowXNAColors = true },
-    spriteColor = {fieldType = "VivHelper.oldColor", allowXNAColors = true },
+    color = {fieldType = "color", allowXNAColors = true, useAlpha=true },
+    spriteColor = {fieldType = "color", allowXNAColors = true, useAlpha=true },
     Alpha = {fieldType = "number", minimumValue = 0.0, maximumValue = 1.0},
     startFade = {fieldType = "integer", minimumValue = 0, maximumValue = 120 },
     endFade = {fieldType = "integer", minimumValue = 0, maximumValue = 120 }, -- Fun fact, this is the actual limit for lights in celeste
@@ -29,7 +31,7 @@ function torch.texture(room, entity)
 end
 
 function torch.color(room, entity)
-    return require('mods').requireFromPlugin('libraries.vivUtil').getColorTable(entity.spriteColor, true, {1,1,1,1})
+    return vivUtil.GetColorTable(entity.spriteColor, true, {1,1,1,1})
 end
 
 return torch

@@ -1,5 +1,5 @@
 local drawableRect = require('structs.drawable_rectangle')
-local drawableFunc = require('structs.drawable_function')
+local drawableText = require('structs.drawable_text')
 
 
 return {
@@ -17,6 +17,6 @@ return {
     },
     sprite = function(room,entity) return {
         drawableRect.fromRectangle("fill",entity.x,entity.y,entity.width,entity.height,{0.4,0.4,0.4,0.4}),
-        drawableFunc.fromFunction(require('utils.drawing').printCenteredText, "Refill OnCollect Modifier [VivHelper]", entity.x,entity.y,entity.width,entity.height,nil,0.5)
+        drawableText.fromText("Refill OnCollect Modifier [VivHelper]", entity.x,entity.y,entity.width,entity.height,nil,0.5)
     } end
 }

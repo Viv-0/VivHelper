@@ -349,6 +349,8 @@ namespace VivHelper.Triggers {
         }
 
         public override void OnEnter(Player player) {
+            if (player?.Dead ?? true)
+                return;
             base.OnEnter(player);
             if (ExitDirection != 0) {
                 ///Code by Oppenheimer

@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using YamlDotNet.Core.Tokens;
 
 namespace VivHelper {
     public static partial class VivHelper {
@@ -122,6 +121,7 @@ namespace VivHelper {
                 if (old.HasFlag(GetColorParams.ImplyEmptyAsTransparent) && string.IsNullOrWhiteSpace(parse2)) {
                     ret = Color.Transparent;
                 } else if (!(specialColorNames?.Invoke(parse2, out ret) ?? false)) {
+                    Logger.Log(LogLevel.Verbose, "VivHelper-Color", "Old Color used with " + data.Name + " @ room/pos " + data.Level.Name + ": " + data.Position.ToString());
                     ret = old.HasFlag(GetColorParams.AllowNull) ? OldColorFunctionWithNull(parse2, old.HasFlag(GetColorParams.DisallowXNAColors)) :
                             (old.HasFlag(GetColorParams.DisallowXNAColors) ? OldHexToColor(parse2) : OldColorFunction(parse2));
                 }
@@ -155,7 +155,7 @@ namespace VivHelper {
             if (hex.StartsWith("#")) num = 1;
             else if (hex.StartsWith("0x")) num = 2;
             else if (hex.StartsWith("pm")) { num = 2; nonPreMult = false; }
-            byte HexToByte(char c) { int res = "0123456789ABCDEF".IndexOf(char.ToUpper(c)); if (res < 0) throw new IndexOutOfRangeException(); return (byte) res; }
+            byte HexToByte(char c) { int res = "0123456789ABCDEF".IndexOf(char.ToUpperInvariant(c)); if (res < 0) throw new IndexOutOfRangeException(); return (byte) res; }
             try {
                 switch (hex.Length - num) {
                     case 6:

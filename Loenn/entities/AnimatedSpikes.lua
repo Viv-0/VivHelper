@@ -92,17 +92,17 @@ local ret = {
 for _,h in ipairs(ret) do
     h.rotate = vivUtil.getNameRotationHandler({"VivHelper/AnimatedSpikesUp","VivHelper/AnimatedSpikesRight","VivHelper/AnimatedSpikesDown","VivHelper/AnimatedSpikesLeft"})
     h.flip = vivUtil.getNameFlipHandler({"VivHelper/AnimatedSpikesUp","VivHelper/AnimatedSpikesRight","VivHelper/AnimatedSpikesDown","VivHelper/AnimatedSpikesLeft"})
-    h.ignoredFields = {"version"},
-    fieldInformation = {
+    h.ignoredFields = {"version"}
+    h.fieldInformation = {
         directory = {fieldType = "path", allowFolders = false, allowFiles = true, filenameProcessor = function(filename, rawFilename, prefix) return vivUtil.trim(filename):gsub("%d+",""):gsub("_up","") end
         },
         Color = {fieldType = "VivHelper.oldColor", allowXNAColors = true, allowRainbow = true },
-        color = {fieldType = "VivHelper.rgbaColor", allowXNAColors = true, allowRainbow = true }
-    },
-    sprite = function(room,entity,viewport) if  then return DrawV2(0,room,entity,viewport) else
+        color = {fieldType = "color", allowXNAColors = true, allowRainbow = true, useAlpha = true}
+    }
+    h.sprite = function(room,entity,viewport)
         local _entity = utils.deepcopy(entity) 
         _entity.type = "tentacles"
         return spikeHelper.getSpikeSprites(_entity, "right")
-    end end,
+    end
 end
 return ret

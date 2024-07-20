@@ -51,8 +51,8 @@ namespace VivHelper.Entities {
             Add(cutout = new EffectCutout());
         }
 
-        public CustomFakeWall(EntityID eid, EntityData data, Vector2 offset, Modes mode)
-            : this(eid, data.Position + offset, data.Char("tiletype", '3'), data.Width, data.Height, mode) {
+        public CustomFakeWall(EntityData data, Vector2 offset, EntityID eid)
+            : this(eid, data.Position + offset, data.Char("tiletype", '3'), data.Width, data.Height, data.Enum("mode", Modes.Wall)) {
             playReveal = data.Enum<RevealType>("playReveal");
             audioEvent = data.NoEmptyString("audioEvent", "event:/game/general/secret_revealed");
             Depth = data.Int("depth", -13000);

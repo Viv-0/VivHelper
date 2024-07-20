@@ -292,7 +292,7 @@ namespace VivHelper.Entities {
             }
         }
 
-        private void OnPlayer(Player player) {
+        protected virtual void OnPlayer(Player player) {
             if (shatterDash && VivHelperModule.MatchDashState(player.StateMachine.State)) {
                 Destroy();
                 Celeste.Celeste.Freeze(0.02f);

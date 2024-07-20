@@ -27,14 +27,14 @@ local HBC2 = {
 HBC2.placements = {
     name = "main",
     data = {
-        EdgeColor="5a6ee1", ParticleColor="5a6ee1",
+        edgeColor="5a6ee1", particleColor="5a6ee1",
         ParticleAngle=270, SolidOnRelease=true,
         Persistent=false, renderBloom=true
     }
 }
 HBC2.fieldInformation = {
-    EdgeColor = {fieldType = "VivHelper.oldColor", allowXNAColors = true},
-    ParticleColor = {fieldType = "VivHelper.oldColor", allowXNAColors = true},
+    edgeColor = {fieldType = "color", allowXNAColors = true, useAlpha = true},
+    particleColor = {fieldType = "color", allowXNAColors = true, useAlpha = true},
     ParticleAngle = {minimumValue = 0.0, maximumValue = 360.0}
 }
 HBC2.sprite = function(room,entity) return {

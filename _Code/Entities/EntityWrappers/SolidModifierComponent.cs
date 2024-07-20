@@ -18,7 +18,7 @@ namespace VivHelper {
     [Tracked]
     public class SolidModifierComponent : Component {
 
-        private readonly static string[] LegacyMapSIDs = new string[8] {
+        private readonly static string[] LegacyMapSIDs = new string[] {
             "MOCE/issy/MOCE_CPCL",
             "MOCE/issy/MOCE_LXVI",
             "Tardigrade/WaterbearMountain/WaterbearMountain",
@@ -27,6 +27,8 @@ namespace VivHelper {
             "AnarchyCollab2022/1-Submissions/02_ellatas",
             "AnarchyCollab2022/1-Submissions/22_pogseal",
             "AnarchyCollab2022/1-Submissions/ZZ_heartside",
+            "WinterCollab2021/1-Maps/Jackal",
+            "WinterCollab2021/1-Maps/Jackal_KAERRA"
         };
 
         public static void Load() {

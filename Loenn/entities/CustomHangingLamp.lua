@@ -8,14 +8,14 @@ local chl = {
         "height", "directory",
         "AnimationSpeed","WeightMultiplier",
         "BloomRadius","BloomAlpha",
-        "LightColor","LightAlpha",
+        "lightColor",
         "LightFadeIn","LightFadeOut",
         "AudioPath", "DrawOutline"
     },
     fieldInformation = {
         directory = {fieldType = "path", allowFiles = true, allowFolders = false, filenameProcessor = function(filename, rawFilename, prefix) return vivUtil.trim(filename):sub(1,filename:match('^.*()/')-1) end},
         LightColor = {fieldType = "VivHelper.oldColor", allowXNAColors = true},
-        lightColor = {fieldType = "VivHelper.color", allowXNAColors = true},
+        lightColor = {fieldType = "color", allowXNAColors = true, useAlpha},
     },
     minimumSize = {8, 16}
 }
@@ -25,7 +25,7 @@ chl.placements = {
         height = 16,
         directory="VivHelper/customHangingLamp", AnimationSpeed=0.2,
     BloomAlpha=1.0, BloomRadius=48,
-    LightAlpha=1.0, LightColor="White",
+    lightColor="ffffffff",
     LightFadeIn=24, LightFadeOut=48,
     AudioPath="event:/game/02_old_site/lantern_hit",
     WeightMultiplier=1.0,

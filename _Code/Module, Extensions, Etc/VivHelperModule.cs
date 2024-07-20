@@ -771,8 +771,8 @@ namespace VivHelper {
 
                             }
                         }
-                    } else if (soundObjects.Contains(entity.Name)) {
-                        VivHelperModule.Session.MapChangesToAudioSet(entity);
+                    /*} else if (soundObjects.Contains(entity.Name)) {
+                        VivHelperModule.Session.MapChangesToAudioSet(entity);*/
                     } else if (entity.Name == "VivHelper/DisableNeutralOnHoldable") {
                         VivHelperModule.Session.DisableNeutralsOnHoldable = true;
                     } else if(entity.Name == "VivHelper/DashPowerupManager") {

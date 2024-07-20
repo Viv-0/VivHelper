@@ -17,8 +17,8 @@ local spawnPoint = {
 spawnPoint.placements = { {
     name = "custom",
     data = {
-        Color = "FFFFFF",
-        OutlineColor = "000000",
+        color = "FFFFFF",
+        outlineColor = "000000",
         forceFacing = 0,
         NoResetOnRespawn = false,
         NoResetOnRetry = false,
@@ -27,22 +27,22 @@ spawnPoint.placements = { {
         Depth = 5000,
     }},
     {name = "hide", data = {
-        Color = "FFFFFF",
-        OutlineColor = "000000",
+        color = "FFFFFF",
+        outlineColor = "000000",
         forceFacing = 0,
         HideInMap = false,
     }},
     {name = "reset", data = {
-        Color = "FFFFFF",
-        OutlineColor = "000000",
+        color = "FFFFFF",
+        outlineColor = "000000",
         forceFacing = 0,
         NoResetOnRespawn = true,
         NoResetOnRetry = false,
     }}
 }
 spawnPoint.fieldInformation = {
-    Color = {fieldType = "color", allowXNAColors = true, allowEmpty = true},
-    OutlineColor = {fieldType = "color", allowXNAColors = true, allowEmpty = true},
+    Color = {fieldType = "color", allowXNAColors = true, allowEmpty = true, useAlpha = true},
+    OutlineColor = {fieldType = "color", allowXNAColors = true, allowEmpty = true, useAlpha = true},
     Texture = {fieldType = "path", allowEmpty = true},
     forceFacing = {fieldType = "integer", options = {{"Normal", 0},{"Face Right", 1}, {"Face Left", -1}}, editable = false}
 }
@@ -64,7 +64,7 @@ tpSpawn.placements = {
         tag = 1,
         forceFacing = 0,
         Texture = "", Depth = 5000,
-        Color = "FFFFFF", OutlineColor = "000000",
+        color = "FFFFFF", outlineColor = "000000",
         HideInMap = false,
         Flags=""
     }}
@@ -72,13 +72,13 @@ tpSpawn.placements = {
 
 tpSpawn.fieldInformation = {
     forceFacing = {fieldType = "integer", options = {{"Normal", 0},{"Face Right", 1}, {"Face Left", -1}}, editable = false},
-    tag = {fieldType = "VivHelper.tag", fieldSubtype = "integer"},
-    Color = {fieldType = "color", allowXNAColors = true, allowEmpty = true},
-    OutlineColor = {fieldType = "color", allowXNAColors = true, allowEmpty = true},
+    tag = {fieldType = "integer"},
+    color = {fieldType = "color", allowXNAColors = true, allowEmpty = true},
+    outlineColor = {fieldType = "color", allowXNAColors = true, allowEmpty = true},
     Texture = {fieldType = "path", allowEmpty = true},
 }
 
-vh_tag.addTagControlToHandler(tpSpawn, "tag", "spawnpoint", false)
+--vh_tag.addTagControlToHandler(tpSpawn, "tag", "spawnpoint", false)
 
 tpSpawn.sprite = function(room, entity)
     if not entity.tag or entity.tag == 0 then
@@ -116,7 +116,7 @@ tpSpawnOut.placements = {
         tag = 1,
         forceFacing = 0,
         Texture = "", Depth = 5000,
-        Color = "FFFFFF", OutlineColor = "000000",
+        color = "FFFFFF", outlineColor = "000000",
         HideInMap = false,
         Flags=""
     }}
@@ -124,12 +124,12 @@ tpSpawnOut.placements = {
 
 tpSpawnOut.fieldInformation = {
     forceFacing = {fieldType = "integer", options = {{"Normal", 0},{"Face Right", 1}, {"Face Left", -1}}, editable = false},
-    
-    Color = {fieldType = "color", allowXNAColors = true, allowEmpty = true},
-    OutlineColor = {fieldType = "color", allowXNAColors = true, allowEmpty = true},
+    tag = {fieldType = "integer"},
+    color = {fieldType = "color", allowXNAColors = true, allowEmpty = true, useAlpha = true},
+    outlineColor = {fieldType = "color", allowXNAColors = true, allowEmpty = true, useAlpha = true},
     Texture = {fieldType = "path", allowEmpty = true},
 }
-vh_tag.addTagControlToHandler(tpSpawn, "tag", "spawnpoint", true)
+--vh_tag.addTagControlToHandler(tpSpawn, "tag", "spawnpoint", true)
 
 
 return spawnPoint 
