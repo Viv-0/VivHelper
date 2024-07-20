@@ -2,6 +2,7 @@ local fakeTilesHelper = require("helpers.fake_tiles")
 local drawableSprite = require("structs.drawable_sprite")
 local objectDepths = require('consts.object_depths')
 local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
+return nil
 
 local customFallingBlockv3 = {
     name = "VivHelper/CustomFallingBlock3",

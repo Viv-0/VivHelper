@@ -159,21 +159,13 @@ namespace VivHelper.Entities {
         private static void Player_Added(On.Celeste.Player.orig_Added orig, Player self, Scene scene) {
             orig(self, scene);
             if (scene is Level level) {
-                try {
-                    LevelData l = level.Session.MapData.Levels.First(_l => _l.Name == level.Session.Level);
-                    var e = l.Entities.First(_e => trueSpawnPoints.Contains(_e.Name) && _e.Position == self.Position);
-                    if(e.Has("forceFacing")) {
-
-                        if (e.Values["forceFacing"] is int i) {
-                            if (i != 0) self.Facing = (Facings) i;
-                        }
-                        else if (e.Values["forceFacing"] is bool b)
-                            if(b) self.Facing = e.Bool("flipX", false) ? Facings.Left : Facings.Right;
-                    }
-                    return;
-
-                } catch {
-                    return;
+                LevelData l = level.Session.MapData.Levels.First(_l => _l.Name == level.Session.Level);
+                var e = l.Entities.FirstOrDefault(_e => trueSpawnPoints.Contains(_e.Name) && _e.Position == self.Position);
+                if (e != null && e.Has("forceFacing")) {
+                    if (e.Values["forceFacing"] is int i && i != 0)
+                        self.Facing = (Facings) i;
+                    else if (e.Values["forceFacing"] is bool b && b)
+                        self.Facing = e.Bool("flipX", false) ? Facings.Left : Facings.Right;
                 }
             }
         }
