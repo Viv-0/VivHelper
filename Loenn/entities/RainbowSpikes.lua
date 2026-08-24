@@ -24,7 +24,7 @@ for i, spike in ipairs(spikes) do
     end
 
     -- append Color options to fieldInformation
-    spike.fieldInformation["Color"] = {fieldType = "VivHelper.color", allowXNAColors = true, allowEmpty = true}
+    spike.fieldInformation["Color"] = {fieldType = "VivHelper.oldColor", allowXNAColors = true, allowEmpty = true}
 
     -- append sprite function to have rainbow color
     local oldSpriteFunc = spike.sprite

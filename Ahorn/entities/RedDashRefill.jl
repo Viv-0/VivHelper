@@ -14,5 +14,7 @@ function Ahorn.selection(entity::Refill)
 end
 
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::Refill, room::Maple.Room)
-    Ahorn.drawSprite(ctx, "VivHelper/redDashRefill/idle00", 0, 0)
+    Ahorn.drawSprite(ctx, "VivHelper/redDashRefill/redIdle00", 0, 0)
+end
+
 end

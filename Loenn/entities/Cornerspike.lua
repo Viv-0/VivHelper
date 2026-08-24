@@ -25,7 +25,7 @@ local cs = {
         {"Inner Top Right", "InnerDownLeft"},
         {"Inner Top Left", "InnerDownRight"}
         }},
-        Color = {fieldType = "VivHelper.color", allowXNAColors = true }
+        Color = {fieldType = "VivHelper.oldColor", allowXNAColors = true }
     },
     depth = -2,
     texture = function(room,entity)

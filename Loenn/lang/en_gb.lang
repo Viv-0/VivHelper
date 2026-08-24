@@ -170,12 +170,23 @@ entities.VivHelper/EntityMuter.placements.description.main=Mutes most entities i
 entities.VivHelper/FunctionRefillAppender.placements.name.main=Dash/Stamina Refill Modifier
 entities.VivHelper/FunctionRefillAppender.placements.description.main=Place over an entity to have its change the amount of dashes/stamina you get from acting on it.
 
-entities.VivHelper/SolidModifier.placements.name.main=~ Solid Modifier (Blank)
-entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to be impacted by triggering on touch or improves cornerboosts on the block.
-entities.VivHelper/SolidModifier.placements.name.cb=CornerBoost Block Modifier
-entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to improve cornerboosts on the block.
-entities.VivHelper/SolidModifier.placements.name.touch=Touch Contact Modifier
-entities.VivHelper/SolidModifier.placements.description.main=Enables changing of solids to change what counts as "touching" a block.
+entities.VivHelper/SolidModifier2.placements.name.main=~Solid Modifier (Blank)
+entities.VivHelper/SolidModifier2.placements.description.main=Enables changing of solids to be impacted by triggering on touch or improves cornerboosts on the block.
+entities.VivHelper/SolidModifier2.placements.name.cb=CornerBoost Block Modifier
+entities.VivHelper/SolidModifier2.placements.description.main=Enables changing of solids to improve cornerboosts on the block.
+entities.VivHelper/SolidModifier2.placements.name.touch=Touch Contact Modifier
+entities.VivHelper/SolidModifier2.placements.description.main=Enables changing of solids to change what counts as "touching" a block.
+entities.VivHelper/SolidModifier.attributes.name.CornerBoostBlock=Behavior
+entities.VivHelper/SolidModifier.attributes.description.CornerBoostBlock=The behavior set when getting a climbjump off of this block.
+entities.VivHelper/SolidModifier2.attributes.name.cornerBoostBlock=ClimbJump Window
+entities.VivHelper/SolidModifier2.attributes.description.cornerBoostBlock=This sets the window, in pixels, that you can climbjump or walljump off the solid from.\nSetting to -1 bases it off the player's current speed, and is the recommended setting for CornerBoost Blocks.
+entities.VivHelper/SolidModifier.attributes.name.TriggerOnTouch=Trigger On Touch?
+entities.VivHelper/SolidModifier.attributes.description.TriggerOnTouch=An option to toggle whether or not the solid gets "ridden" based on when/how the Player touches the block.
+entities.VivHelper/SolidModifier2.attributes.name.TriggerOnTouch=Trigger On Touch?
+entities.VivHelper/SolidModifier2.attributes.description.TriggerOnTouch=An option to toggle whether or not the solid gets "ridden" based on when/how the Player touches the block.
+entities.VivHelper/SolidModifier2.attributes.name.RetainWallSpeed=Retain Momentum?
+entities.VivHelper/SolidModifier2.attributes.description.RetainWallSpeed=Whether or not the block will ensure a cornerboost boosts the player's speed.\nPreviously called "Perfect" CornerBoostBlock, this is recommended.
+entities.VivHelper/SolidModifier.attributes.
 
 entities.VivHelper/AnimatedSpikesUp.placements.name.main=Animated Spikes (Up)
 entities.VivHelper/AnimatedSpikesLeft.placements.name.main=Animated Spikes (Left)

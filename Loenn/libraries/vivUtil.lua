@@ -65,6 +65,14 @@ function vivUtil.isNullEmptyOrWhitespace(s)
     end return true
 end
 
+function vivUtil.GetColorV2(entity, keyV1, keyV2, allowXNAColors) 
+    if entity[keyV2] then
+
+    elseif entity[keyV1] then
+        return vivUtil.getColor(entity[keyV1], allowXNAColors)
+    end
+end
+
 -- Format for VivHelper is "abgr" (format follows Color.PackedValue)
 function vivUtil.getColor(color, allowXNAColors)
     if type(color) == "nil" then 
@@ -330,6 +338,19 @@ function vivUtil.printJustifyText(text, x, y, width, height, font, fontSize, tri
     love.graphics.printf(text, 0, 0, width / fontSize, align or "center")
 
     love.graphics.pop()
+end
+
+function vivUtil.sortByKeys(t) 
+    local tkeys = {}
+    -- populate the table that holds the keys
+    for k in pairs(t) do table.insert(tkeys, k) end
+    -- sort the keys
+    table.sort(tkeys)
+    return tkeys
+end
+
+function vivUtil.getTextAccentColor(baseColor) 
+    
 end
 
 return vivUtil

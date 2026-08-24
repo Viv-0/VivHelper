@@ -20,7 +20,8 @@ rww.fieldOrder = {
 rww.fieldInformation = {
     InnerColor = {fieldType = "color", allowXNAColors = true, allowEmpty = false},
     OuterColor = {fieldType = "color", allowXNAColors = true, allowEmpty = false},
-    Depth = {fieldType = "integer" }
+    Depth = {fieldType = "integer" },
+    ImageVariableName = {fieldType = "string", options = {{"Use Refill Render", "$render"}}, editable = true}
 }
 
 rww.placements = {

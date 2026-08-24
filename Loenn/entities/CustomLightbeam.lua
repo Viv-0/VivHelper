@@ -4,7 +4,7 @@ local clb = {
     name = "VivHelper/CustomLightbeam",
     fieldOrder = {"width","height","rotation","Texture","Color","Alpha","ChangeFlag","DisableFlag","DisableParticlesFlag","Depth","FadeWhenNear","NoParticles"},
     fieldInformation = {
-        Color = {fieldType = "VivHelper.color", allowXNAColors = true },
+        Color = {fieldType = "VivHelper.oldColor", allowXNAColors = true },
         Texture = {fieldType = "path", allowFiles = true, allowFolders = false},
         Depth = {fieldType = "integer"}
     }

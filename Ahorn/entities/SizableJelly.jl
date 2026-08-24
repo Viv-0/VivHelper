@@ -2,7 +2,7 @@ module VH_SizableJellyfish
 
 using ..Ahorn, Maple
 
-@mapdef Entity "VivHelper/SizableJelly" SizableJelly(x::Integer, y::Integer, width::Integer=8, height::Integer=8, bubble::Bool=false, tutorial::Bool=false, scaleGrabBoxWithHitbox::Bool=true)
+@mapdef Entity "VivHelper/SizableJelly" SizableJelly(x::Integer, y::Integer, width::Integer=16, height::Integer=16, bubble::Bool=false, tutorial::Bool=false, scaleGrabBoxWithHitbox::Bool=true)
 
 const placements = Ahorn.PlacementDict(
     "Sizable Jellyfish" => Ahorn.EntityPlacement(
@@ -17,15 +17,19 @@ const placements = Ahorn.PlacementDict(
     )
 )
 
+Ahorn.resizable(entity::SizableJelly)
+
 sprite = "objects/glider/idle0"
 
 function Ahorn.selection(entity::SizableJelly)
     x, y = Ahorn.position(entity)
-    return Ahorn.Rectangle(x,y, Int(get(entity, "width", 8), Int(get(entity, "height", 8)))
+    return Ahorn.Rectangle(x,y, get(entity, "width", 8), get(entity, "height", 8))
 end
 
 function Ahorn.render(ctx::Ahorn.Cairo.CairoContext, entity::SizableJelly, room::Maple.Room)
-    Ahorn.drawSprite(ctx, sprite, 0, 0, 0.5,0.5, get(entity, "width", 8)/8, get(entity, "height", 8)/8)
+    x, y = Ahorn.position(entity)
+    w, h = get(entity, "width", 8),get(entity, "height", 8)
+    Ahorn.drawSprite(ctx, sprite, x + w/2, y+h/2; jx=0.5, jy=0.5, sx=w/8, sy=h/8)
 
     if get(entity, "bubble", false)
         curve = Ahorn.SimpleCurve((-7, -1), (7, -1), (0, -6))

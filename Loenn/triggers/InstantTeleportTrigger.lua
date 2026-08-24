@@ -6,7 +6,7 @@ local oldFieldOrder = {
     "x","y","width","height",
     "newPosX","newPosY",
     "WarpRoom","TransitionType",
-    "AddTriggerOffset","ResetDashes",
+    "AddTriggerOffset","ResetDashes", "bringHoldablesThrough",
     "TimeBeforeTeleport","ZFlagsData",
     "ExitVelocityX", "ExitVelocityY",
     "ExitVelocityS","Dreaming", "ForceNormalState",
@@ -46,7 +46,7 @@ ittOM.placements = {
         WarpRoom = "", TransitionType="None",
         AddTriggerOffset=false, ResetDashes=false,
         ExitVelocityX=0.0,ExitVelocityY=0.0,VelocityModifier=false,
-        TimeBeforeTeleport=0.0,ForceNormalState=false
+        TimeBeforeTeleport=0.0,ForceNormalState=false, bringHoldablesThrough = false
     }
 }
 local ittOC = { name = "VivHelper/CustomInstantTeleportTrigger",
@@ -64,7 +64,7 @@ ittOC.placements = {
         ExitVelocityX=0.0,ExitVelocityY=0.0,ExitVelocityS=0.0,VelocityModifier=false,
         TimeBeforeTeleport=0.0,ForceNormalState=false,
         RotationType=false,RotationActor=0.0,
-        TimeSlowDown=0.0
+        TimeSlowDown=0.0, bringHoldablesThrough = false
     }
 }
 

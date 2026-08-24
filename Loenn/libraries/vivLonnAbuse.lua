@@ -34,129 +34,9 @@ local vivUtil = require('mods').requireFromPlugin('libraries.vivUtil')
 
 local form = require('ui.forms.form')
 
-local loennExtended_triggerAPI = require("mods").requireFromPlugin("libraries.api.triggerRendering", "LoennExtended")
-local loennExtended_textAPI = require("mods").requireFromPlugin("libraries.api.textRendering", "LoennExtended")
-local loennExtended_layerAPI = require("mods").requireFromPlugin("libraries.api.layers", "LoennExtended")
-
 --hotreload manager: if triggers._vivh_unloadSeq has had a value set already, we're reloading the plugin, since triggers._vivh_unloadSeq is only created in this file.
 if triggers._vivh_unloadSeq then triggers._vivh_unloadSeq() end 
 -- if triggers contains an object "_vivh_unloadSeq" then run the function. that function is defined at the end of this codebase. If any other mod creates this function, then it will break this, so use a different Lonn source file.
-
-local function orig_triggers_getDrawable_backgroundOnly(trigger)
-    local x = trigger.x or 0
-    local y = trigger.y or 0
-    local width = trigger.width or 16
-    local height = trigger.height or 16
-    local lineWidth = love.graphics.getLineWidth()
-
-    drawing.callKeepOriginalColor(function()
-        love.graphics.setColor(colors.triggerBorderColor)
-        love.graphics.rectangle("line", x + lineWidth / 2, y + lineWidth / 2, width - lineWidth, height - lineWidth)
-        love.graphics.setColor(colors.triggerColor)
-        love.graphics.rectangle("fill", x + lineWidth, y + lineWidth, width - 2 * lineWidth, height - 2 * lineWidth)
-    end)
-end
-
-local function orig_triggers_getDrawable_textOnly(trigger, textOverride)
-    local displayName = textOverride or triggers.getDrawableDisplayText(trigger)
-
-    drawing.callKeepOriginalColor(function()
-        love.graphics.setColor(colors.triggerTextColor)
-        drawing.printCenteredText(displayName, trigger.x or 0, trigger.y or 0, trigger.width or 16, trigger.height or 16, love.graphics.getFont(), 1)
-    end)
-    
-end
-
-local _orig_triggers_getDrawable = triggers.getDrawable
-function triggers.getDrawable(name, handler, room, trigger, viewport)
-    local _handler = triggers.registeredTriggers[trigger._name]
-        
-    return drawableFunction.fromFunction(function() 
-            if _handler._vivh_drawRect then
-                _handler._vivh_drawRect(trigger, room, _handler)
-            elseif loennExtended_triggerAPI then 
-                loennExtended_triggerAPI.getTriggerDrawableBg(trigger) 
-            else 
-                orig_triggers_getDrawable_backgroundOnly(trigger)
-            end
-            if loennExtended_textAPI and loennExtended_triggerAPI then
-                loennExtended_textAPI.printCenteredText(_handler._vivh_textOverride and _handler._vivh_textOverride(room, trigger) or loennExtended_triggerAPI.getDisplayText(trigger), trigger.x or 0, trigger.y or 0, trigger.width or 16, trigger.height or 16, love.graphics.getFont(), loennExtended_triggerAPI.getFontSize())
-            else
-                orig_triggers_getDrawable_textOnly(trigger, _handler._vivh_textOverride and _handler._vivh_textOverride(room, trigger))
-            end
-            if _handler._vivh_drawAddendum then
-                _handler._vivh_drawAddendum(trigger, room, handler)
-            end
-        end), 0
-end
-
-local _orig_triggers_addDrawables = triggers.addDrawables
-function triggers.addDrawables(batch, room, targets, viewport, yieldRate)
-    local font = love.graphics.getFont()
-
-    -- Add rectangles first, then batch draw all text
-
-    local postDrawEvent = function() end
-    local function registerEvent(func)
-        local old = postDrawEvent
-        postDrawEvent = function()
-            old()
-            func()
-        end
-    end
-    for i, trigger in ipairs(targets) do
-        local handler = triggers.registeredTriggers[trigger._name]
-        trigger._vivh_handler = handler -- saves us the work of looking up the file later
-        local drawable = nil
-        if handler._vivh_drawRect then 
-            drawable = drawableFunction.fromFunction(handler._vivh_drawRect, trigger, room, handler) 
-        elseif loennExtended_triggerAPI then 
-            drawable = loennExtended_triggerAPI.getTriggerDrawableBg(trigger)
-        else 
-            drawable = drawableRectangle.fromRectangle("bordered", trigger.x or 0, trigger.y or 0, trigger.width or 16, trigger.height or 16, colors.triggerColor, colors.triggerBorderColor)
-        end
-        batch:addFromDrawable(drawable)
-
-        if i % yieldRate == 0 then
-            coroutine.yield(batch)
-        end
-        if handler._vivh_drawAddendum then
-            registerEvent(function() handler._vivh_drawAddendum(trigger, room, handler) end, false)
-        end
-    end
-
-
-    local textBatch = love.graphics.newText(font)
-
-    for i, trigger in ipairs(targets) do
-        local handler = trigger._vivh_handler
-        trigger._vivh_handler = nil
-        local displayName = handler._vivh_textOverride and handler._vivh_textOverride(room, trigger) or nil
-        if loennExtended_triggerAPI and loennExtended_textAPI then -- LoennExtended
-            displayName = displayName or loennExtended_triggerAPI.getDisplayText(trigger)
-    
-            local color = colors.triggerTextColor
-            -- add integration for layers
-            if loennExtended_layerAPI and not loennExtended_layerAPI.isInCurrentLayer(trigger) then
-                vivUtil.alphMult(color, loennExtended_layerAPI.hiddenLayerAlpha)
-            end
-            loennExtended_textAPI.addCenteredText(textBatch, displayName, trigger.x or 0, trigger.y or 0, trigger.width or 16, trigger.height or 16, font, loennExtended_triggerAPI.getFontSize(), nil, color)
-        else --Loenn vanilla
-            displayName = displayName or triggers.getDrawableDisplayText(trigger)
-            drawing.addCenteredText(textBatch, displayName, trigger.x or 0, trigger.y or 0, trigger.width or 16, trigger.height or 16, font, 1)
-        end
-    end
-
-    local function func()
-        drawing.callKeepOriginalColor(function()
-            love.graphics.setColor(colors.triggerTextColor)
-            love.graphics.draw(textBatch)
-        end)
-        postDrawEvent() -- runs all the triggers' events in order.
-    end
-    batch:addFromDrawable(drawableFunction.fromFunction(func))
-    return batch
-end
 
 local _orig_placementUtils_finalizePlacement = placementUtils.finalizePlacement
 placementUtils.finalizePlacement = function(room, layer, item)
@@ -170,39 +50,12 @@ placementUtils.finalizePlacement = function(room, layer, item)
     if handler and handler._vivh_finalizePlacement then handler._vivh_finalizePlacement(room, layer, item) end
 end
 
-local _orig_form_getFormFields = form.getFormFields
-form.getFormFields = function(data, options)
-    if options._vivh_submenuOverride then
-        return options._vivh_submenuOverride
-    end
-    local elements = _orig_form_getFormFields(data, options)
-    local elementsToRemove = {} -- maps string to the formField that steals the data. Data can only be stolen once, and will be stored in formField._vivh_data
-    for _,v in ipairs(elements) do
-        for _,v2 in ipairs(v._vivh_dataToSteal or {}) do
-            elementsToRemove[v2] = v
-        end
-    end
-    for i=#elements,1,-1 do
-        local q = elementsToRemove[elements[i].name]
-        if  q ~= nil then
-            -- First, add the element we've stolen to the formField stealing it in formField._vivh_data
-            q._vivh_data[elements[i].name] = elements[i]
-            q._vivh_fieldInformation[elements[i].name] = form.getFieldOptions(elements[i].name, options)
-            table.remove(elements, i) -- Then, remove the element from the form Fields list.
-        end
-    end
-    return elements
-end
-
 -- ##########################################################################################
 
 
 
 function triggers._vivh_unloadSeq() -- Handles hotreload.
-    triggers.addDrawables = _orig_triggers_addDrawables
-    triggers.getDrawable = _orig_triggers_getDrawable
     placementUtils.finalizePlacement = _orig_placementUtils_finalizePlacement
-    form.getFormFields = _orig_form_getFormFields
 end
 
 return {}
