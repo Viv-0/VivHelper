@@ -51,7 +51,7 @@ namespace VivHelper.Entities.Boosters {
         public static int PinkUpdate(Player player) {
             player.LastBooster = null;
             while (timer > 0) {
-                player.Center = new DynData<Player>(player).Get<Vector2>("boostTarget");
+                player.Center = DynamicData.For(player).Get<Vector2>("boostTarget");
                 return VivHelperModule.PinkState;
             }
             if (Engine.Scene.OnInterval(0.02f)) {
@@ -59,7 +59,7 @@ namespace VivHelper.Entities.Boosters {
             }
 
 
-            int j = (int) BoostFunctions.rdU.Invoke(player, VivHelper.EmptyObjectArray);
+            int j = (int) BoostFunctions.rdU.Invoke(player, Everest._EmptyObjectArray);
             j = j == 5 ? VivHelperModule.PinkState : j;
 
             return j;
@@ -209,7 +209,7 @@ namespace VivHelper.Entities.Boosters {
             player.StateMachine.State = VivHelperModule.PinkState;
             player.Position = booster.Center;
             player.Speed = Vector2.Zero;
-            new DynData<Player>(player).Set<Vector2>("boostTarget", booster.Center);
+            DynamicData.For(player).Set("boostTarget", booster.Center);
             booster.PlayerBoosted(player);
         }
 

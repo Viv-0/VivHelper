@@ -30,8 +30,8 @@ namespace VivHelper.Entities {
         }
 
         public CrystalBombDetonatorController(EntityData e, Vector2 v) : this() {
-            particleColor = VivHelper.ColorFix(e.Attr("ParticleColor", "Yellow"));
-            baseColor = VivHelper.ColorFix(e.Attr("BaseColor", "Purple"));
+            particleColor = VivHelper.OldColorFunction(e.Attr("ParticleColor", "Yellow"));
+            baseColor = VivHelper.OldColorFunction(e.Attr("BaseColor", "Purple"));
             particleDir = Vector2.UnitX.Rotate(0 - (e.Float("ParticleAngle", (float) 270f) * 0.0174533f)); //More efficient to multiply versus division, PI/180
             DetonationDelay = e.Float("DetonationDelay");
             CanBeNeutralized = e.Bool("CanBeNeutralized", true);

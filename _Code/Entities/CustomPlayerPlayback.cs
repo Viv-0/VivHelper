@@ -10,9 +10,9 @@ using Celeste.Mod.Entities;
 using Celeste.Mod.VivHelper;
 
 namespace VivHelper.Entities {
-    [CustomEntity("VivHelper/CPP")]
     [Tracked]
-    class CustomPlayerPlayback : Entity {
+    public class CustomPlayerPlayback : Entity {
+
         public Vector2 LastPosition;
 
         public List<Player.ChaserState> Timeline;
@@ -84,22 +84,22 @@ namespace VivHelper.Entities {
             customID = e.Attr("CustomStringID", "");
             color = null;
             if (e.Attr("Color") != "")
-                color = VivHelper.ColorFix(e.Attr("Color"));
+                color = VivHelper.OldColorFunction(e.Attr("Color"));
             base.Depth = e.Int("Depth", 9008);
-            Sprite.Color = color ?? Hair.Color;
-            Add(Sprite);
+            if (Sprite != null) {
+                Sprite.Color = color ?? Hair.Color;
+                Add(Sprite);
+            }
         }
 
         public CustomPlayerPlayback(Vector2 start, PlayerSpriteMode sprite, string tutorial) {
-            if (!PlaybackData.Tutorials.TryGetValue(tutorial, out var timeline))
-                breaker = "PlayerPlayback at " + start + " errors due to no Tutorial \"" + tutorial + ".\" You may need to restart or reload Assets manually to resolve this change.";
             this.start = start;
             base.Collider = new Hitbox(8f, 11f, -4f, -11f);
-            Timeline = timeline;
+            Timeline = PlaybackData.Tutorials[tutorial]; // Verified exists in LoadEntity event
             Position = start;
             time = 0f;
             index = 0;
-            Duration = timeline[timeline.Count - 1].TimeStamp;
+            Duration = Timeline[Timeline.Count - 1].TimeStamp;
             TrimStart = 0f;
             TrimEnd = Duration;
             Sprite = new PlayerSprite(sprite);
@@ -119,16 +119,6 @@ namespace VivHelper.Entities {
             index = Timeline.Count;
         }
 
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
-            if (breaker != null) //This is the "Active" state that is associated with Update calls, and is modified by if the Tutorial cannot be found.
-            {
-                VivHelperModule.SendErrorMessageThroughDebugConsole(breaker);
-                Active = false;
-                RemoveSelf();
-            }
-        }
-
         public void Restart() {
             Audio.Play("event:/new_content/char/tutorial_ghost/appear", Position);
             Visible = true;
@@ -140,7 +130,6 @@ namespace VivHelper.Entities {
             }
             SetFrame(index);
         }
-
         public void SetFrame(int index) {
             Player.ChaserState chaserState = Timeline[index];
             string currentAnimationID = Sprite.CurrentAnimationID;
@@ -154,9 +143,9 @@ namespace VivHelper.Entities {
             if (Sprite.Scale.X != 0f) {
                 Hair.Facing = (Facings) Math.Sign(Sprite.Scale.X);
             }
-            Hair.Color = color ?? chaserState.HairColor;
+            Hair.Color = chaserState.HairColor;
             if (Sprite.Mode == PlayerSpriteMode.Playback) {
-                Sprite.Color = color ?? Hair.Color;
+                Sprite.Color = Hair.Color;
             }
             DashDirection = chaserState.DashDirection;
             if (base.Scene == null) {

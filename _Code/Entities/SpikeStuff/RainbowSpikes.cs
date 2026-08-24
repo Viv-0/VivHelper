@@ -71,7 +71,7 @@ namespace VivHelper.Entities {
         public RainbowSpikes(EntityData data, Vector2 offset, DirectionPlus dir)
             : this(data.Position + offset, offset, GetSize(data.Height, data.Width, dir), dir, data.Attr("type", "default"), data.Bool("DoNotAttach", false), data.Bool("OverrideWallBounce"), data.Bool("KillFromAnyDirection", false), data.Bool("groundRefill", false)) {
             string str = data.Attr("Color", "");
-            oneColor = (str == "" ? Color.Transparent : VivHelper.ColorFix(str));
+            oneColor = (str == "" ? Color.Transparent : VivHelper.OldColorFunction(str));
 
         }
 

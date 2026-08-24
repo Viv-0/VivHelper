@@ -367,7 +367,7 @@ namespace VivHelper.Entities {
             RegenerateTimerMult = data.Float("RegenerationTimerLength", 1.85f) / 1.85f;
             StrongSkiddingTime = data.Float("StrongSkiddingTime", 0.08f);
             AttackMaxRotateRadians = data.Float("AttackMaxRotateDegrees", 35f) * (float) Math.PI / 180f;
-            TrailColor = VivHelper.ColorFix(data.Attr("TrailColor", "99e550"));
+            TrailColor = VivHelper.OldColorFunction(data.Attr("TrailColor", "99e550"));
             numberOfDashes = 0;
             maxNumberOfDashes = data.Int("MaxNumberOfDashes", -1);
             finalDash = data.Bool("FinalDash", false);
@@ -381,7 +381,7 @@ namespace VivHelper.Entities {
             deLagValue = Calc.Clamp((float) data.Int("aiDelag", 6), 1, 30) / 60f;
             DisableEffects = data.Bool("DisableEffects", false);
 
-            DeathEffectColor = VivHelper.ColorFix(data.Attr("DeathEffectColor", "HotPink"));
+            DeathEffectColor = VivHelper.OldColorFunction(data.Attr("DeathEffectColor", "HotPink"));
             RemoveBounceHitbox = data.Bool("RemoveBounceHitbox", false);
             FlagOnDeath = data.Attr("FlagOnDeath", "");
 
@@ -398,7 +398,7 @@ namespace VivHelper.Entities {
             CustomSpritePath = data.Attr("CustomSpritePath");
             CustomShockwavePath = data.Attr("CustomShockwavePath");
             sprite = CustomSpritePath == "" ? GFX.SpriteBank.Create("seeker") : GFX.SpriteBank.Create(CustomSpritePath);
-            tint = VivHelper.ColorFix(data.Attr("SeekerColorTint", "ffffff"));
+            tint = VivHelper.OldColorFunction(data.Attr("SeekerColorTint", "ffffff"));
 
             sprite.Color = tint;
             Vector2 position = data.Position + offset;
@@ -466,7 +466,7 @@ namespace VivHelper.Entities {
             base.Added(scene);
             random = new Random(SceneAs<Level>().Session.LevelData.LoadSeed);
             Level level = scene as Level;
-            if ((level.Session.MapData.GetMeta()?.SeekerSlowdown).GetValueOrDefault() && Scene.Entities.AmountOf<CustomSeekerEffectsController>() == 0) {
+            if ((level.Session.MapData.Meta?.SeekerSlowdown).GetValueOrDefault() && Scene.Entities.AmountOf<CustomSeekerEffectsController>() == 0) {
                 level.Add(new CustomSeekerEffectsController());
             }
             CustomSeekersList.Add(this);

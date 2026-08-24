@@ -10,6 +10,7 @@ using Microsoft.Xna.Framework;
 using static Celeste.TrackSpinner;
 using System.Collections;
 using VivHelper.Module__Extensions__Etc;
+using Celeste.Mod;
 
 namespace VivHelper.Entities {
 
@@ -137,7 +138,7 @@ namespace VivHelper.Entities {
                 return false;
             if (player.Holding != null)
                 return false;
-            if (!Input.GrabCheck || (bool) VivHelper.player_IsTired(player, VivHelper.EmptyObjectArray))
+            if (!Input.GrabCheck || (bool) VivHelper.player_IsTired(player, Everest._EmptyObjectArray))
                 return false;
             if (player.StateMachine.State == Player.StNormal || player.StateMachine.State == Player.StLaunch) {
                 return !player.Ducking;
@@ -182,8 +183,8 @@ namespace VivHelper.Entities {
             floating = data.Bool("floating", false);
             useWhenUnable = data.Bool("useAlways", false);
             solidCollider = new Hitbox(8f, 10f, -4f, -10f);
-            dashCollider = new Circle(6f, 0f, -7f);
-            dashCollider2 = new Circle(10f, 0f, -7f);
+            dashCollider = new Circle(7f, 0f, -8f);
+            dashCollider2 = new Circle(11f, 0f, -8f);
             Collider = solidCollider;
             Add(hold = new Holdable(0.1f));
             hold.PickupCollider = new Hitbox(18f, 22f, -9f, -16f);
@@ -381,11 +382,11 @@ namespace VivHelper.Entities {
 
         public override void DebugRender(Camera camera) {
             base.DebugRender(camera);
-            Collider = dashCollider;
-            Collider.Render(camera, Color.HotPink * 0.5f);
-            Collider = dashCollider2;
-            Collider.Render(camera, Color.HotPink * 0.25f);
-            Collider = solidCollider;
+            base.Collider = dashCollider;
+            base.Collider.Render(camera, Color.HotPink * 0.8f);
+            base.Collider = dashCollider2;
+            base.Collider.Render(camera, Color.HotPink * 0.6f);
+            base.Collider = solidCollider;
         }
 
         private void ImpactParticles(Vector2 dir) {

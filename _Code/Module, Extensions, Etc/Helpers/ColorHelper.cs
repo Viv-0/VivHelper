@@ -12,6 +12,7 @@ using Mono.Cecil.Cil;
 using System.Text.RegularExpressions;
 using Celeste.Mod;
 
+#pragma warning disable CS0612
 namespace VivHelper {
     public static partial class VivHelper {
 
@@ -31,35 +32,39 @@ namespace VivHelper {
                 return _getHueNoScene(pos);
             return _getHue(scene, pos);
         }
-
-        public static Color? ColorFixWithNull(string s) {
+#region Old Color Functions
+        [Obsolete]
+        public static Color? OldColorFunctionWithNull(string s) {
             if (string.IsNullOrWhiteSpace(s))
                 return null;
             if (s == "Transparent" || s.Length == 8 && s.Substring(0, 2) == "00" && int.TryParse(s.Substring(2), System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out int _)) { return Color.Transparent; } //Do this check first because we check for any other case of transparency, which is equivalent to no other valid case in this case
 
-            var c = ColorFix(s);
+            var c = OldColorFunction(s);
             if (c == Color.Transparent)
                 return null;
             return c;
         }
 
-        public static Color ColorFix(string s) {
+        [Obsolete]
+        public static Color OldColorFunction(string s) {
             if (colorHelper.ContainsKey(s.ToLower()))
                 return colorHelper[s.ToLower()];
-            return AdvHexToColor(s);
+            return OldHexToColor(s);
         }
 
-        public static Color ColorFix(string s, float alpha) {
+        [Obsolete]
+        public static Color OldColorFunction(string s, float alpha) {
             if (colorHelper.ContainsKey(s.ToLower()))
                 return colorHelper[s.ToLower()];
-            return Extensions.ColorCopy(AdvHexToColor(s), alpha);
+            return Extensions.ColorCopy(OldHexToColor(s), alpha);
         }
 
-        public static Color AdvHexToColor(string hex, bool nullIfInvalid = false) {
+        [Obsolete]
+        public static Color OldHexToColor(string hex, bool nullIfInvalid = false) {
             string hexplus = hex.Trim('#');
             if (hexplus.StartsWith("0x"))
                 hexplus = hexplus.Substring(2);
-            uint result;
+            uint result = 0;
             if (hexplus.Length == 6 && uint.TryParse(hexplus, System.Globalization.NumberStyles.HexNumber, System.Globalization.CultureInfo.InvariantCulture, out result)) {
                 return Calc.HexToColor((int) result);
             } else if (hexplus.Length == 8 && hexplus.Substring(0, 2) == "00" && Regex.IsMatch(hexplus.Substring(2), "[^0-9a-f]")) //Optimized check to determine Regex matching for a hex number, marginally faster for a check where you dont need the end value.
@@ -70,6 +75,82 @@ namespace VivHelper {
             }
             return Color.Transparent;
         }
+
+        [Obsolete]
+        public static List<Color> OldColorsFromString(string str, char sep = ',') {
+            List<Color> l = new List<Color>();
+            foreach (string s in str.Split(sep)) {
+                l.Add(OldColorFunction(s.Trim()));
+            }
+            return l;
+        }
+        #endregion
+        #region New Color Functions
+
+        public delegate bool PrependColorFunction(string value, out Color? color);
+        public delegate bool AppendedColorFunction(ref Color? color);
+
+        public static Color? GetColor(EntityData data, string legacyColor, string newColor, bool allowNull, Color? defaultColor = null, PrependColorFunction prependedColorFunction = null, AppendedColorFunction appendedColorFunction = null) {
+            Color? color = null;
+            if (data.Values.TryGetValue(newColor, out var value) && value is string text) {
+                if (prependedColorFunction == null || !prependedColorFunction(text, out color)) {
+                    color = NewColorFunction(text);
+                    if (!allowNull && !color.HasValue) {
+                        color = defaultColor ?? Color.White;
+                    }
+                }
+            } else if (data.Values.TryGetValue(legacyColor, out value) && value is string text2 && (prependedColorFunction == null || !prependedColorFunction(text2, out color))) {
+                color = (allowNull ? OldColorFunctionWithNull(text2) : new Color?(OldColorFunction(text2)));
+            }
+            appendedColorFunction?.Invoke(ref color);
+            return color;
+        }
+
+        public static Color? NewColorFunction(string hex) {
+            if (string.IsNullOrWhiteSpace(hex)) {
+                return null;
+            }
+            if (colorHelper.ContainsKey(hex.ToLower())) {
+                return colorHelper[hex.ToLower()];
+            }
+            int num = 0;
+            bool nonPreMult = true;
+            if (hex.StartsWith("#")) {
+                num = 1;
+            } else if (hex.StartsWith("0x")) {
+                num = 2;
+            } else if (hex.StartsWith("pm")) {
+                num = 2;
+                nonPreMult = false;
+            }
+            try {
+                switch (hex.Length - num) {
+                    case 6:
+                        return new Color(HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]), HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]), HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]));
+                    case 8: {
+                            int num2 = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                            int num3 = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                            int num4 = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                            int num5 = HexToByte(hex[num++]) * 16 + HexToByte(hex[num++]);
+                            if (nonPreMult) {
+                                float num6 = (float) num5 / 255f;
+                                return new Color(num6 * (float) num2 / 255f, num6 * (float) num3 / 255f, num6 * (float) num4 / 255f, num6);
+                            }
+                            return new Color(num2, num3, num4, num5);
+                        }
+                }
+            } catch (IndexOutOfRangeException) {
+            }
+            return null;
+            static byte HexToByte(char c) {
+                int num7 = "0123456789ABCDEF".IndexOf(char.ToUpper(c));
+                if (num7 < 0) {
+                    throw new IndexOutOfRangeException();
+                }
+                return (byte) num7;
+            }
+        }
+        #endregion
         public static Color UintToColor(uint hex) {
             Color result = default(Color);
             result.PackedValue = hex;
@@ -85,13 +166,7 @@ namespace VivHelper {
             return new Color((a.R / 255f) * (b.R / 255f), (a.G / 255f) * (b.G / 255f), (a.B / 255f) * (b.B / 255f), (a.A / 255f) * (b.A / 255f));
         }
 
-        public static List<Color> ColorsFromString(string str, char sep = ',') {
-            List<Color> l = new List<Color>();
-            foreach (string s in str.Split(sep)) {
-                l.Add(ColorFix(s.Trim()));
-            }
-            return l;
-        }
+        
 
         internal static Vector4[] ColorArrToVec4Arr(Color[] colors) {
             Vector4[] ret = new Vector4[colors.Length];
@@ -149,3 +224,4 @@ namespace VivHelper {
         #endregion
     }
 }
+#pragma warning restore CS0612

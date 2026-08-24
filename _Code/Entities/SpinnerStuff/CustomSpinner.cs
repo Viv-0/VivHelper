@@ -184,15 +184,15 @@ namespace VivHelper.Entities {
             string t = data.Attr("Color", "");
             if (t == "")
                 t = "ffffff";
-            color = VHM.ColorFix(t);
+            color = VHM.OldColorFunction(t);
             string u = data.Attr("ShatterColor", "");
             if (u == "")
                 u = t;
-            shatterColor = VHM.ColorFix(u);
+            shatterColor = VHM.OldColorFunction(u);
             t = data.Attr("BorderColor", "");
             if (t == "")
                 t = "000000";
-            borderColor = VHM.ColorFix(t);
+            borderColor = VHM.OldColorFunction(t);
             this.offset = Calc.Random.NextFloat();
             base.Tag = Tags.TransitionUpdate;
             scale = data.Float("Scale", 1f);

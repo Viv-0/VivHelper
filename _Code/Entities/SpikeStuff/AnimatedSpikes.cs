@@ -12,12 +12,6 @@ using MonoMod;
 using VivHelper.Entities.SpikeStuff;
 
 namespace VivHelper.Entities {
-    [CustomEntity(
-        "VivHelper/AnimatedSpikesUp = LoadUp",
-        "VivHelper/AnimatedSpikesDown = LoadDown",
-        "VivHelper/AnimatedSpikesLeft = LoadLeft",
-        "VivHelper/AnimatedSpikesRight = LoadRight"
-    )]
     public class AnimatedSpikes : Spikes {
 
         public static Entity LoadUp(Level level, LevelData levelData, Vector2 offset, EntityData entityData) => entityData.Int("version", 0) > 1 ? new BetterAnimatedSpikes(entityData, offset, DirectionPlus.Up) : new AnimatedSpikes(entityData, offset, Celeste.Spikes.Directions.Up);

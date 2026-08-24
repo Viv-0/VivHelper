@@ -20,26 +20,27 @@ namespace VivHelper.Entities
         private static ParticleType P_Shatter;
         private static ParticleType P_Glow;
         private static ParticleType P_Regen;
+        static RedDashRefill() {
+            P_Shatter = new ParticleType(Refill.P_Shatter) {
+                Color = Calc.HexToColor("ffc494"),
+                Color2 = Calc.HexToColor("5e1009")
+            };
+            P_Glow = new ParticleType(Refill.P_Glow) {
+                Color = Calc.HexToColor("ff594a"),
+                Color2 = Calc.HexToColor("9c1105")
+            };
+            P_Regen = new ParticleType(Refill.P_Regen) {
+                Color = Calc.HexToColor("ff594a"),
+                Color2 = Calc.HexToColor("9c1105")
+            };
+        }
+        protected override ParticleType ShatterParticle() => P_Shatter;
+        protected override ParticleType GlowParticle() => P_Glow;
+        protected override ParticleType RegenParticle() => P_Regen;
+
 
         public RedDashRefill(EntityData data, Vector2 offset)
-            : base(data, offset) { 
-            if(P_Shatter == null) {
-                P_Shatter = new ParticleType(Refill.P_Shatter) {
-                    Color = Calc.HexToColor("ffc494"),
-                    Color2 = Calc.HexToColor("5e1009")
-                };
-                P_Glow = new ParticleType(Refill.P_Glow) {
-                    Color = Calc.HexToColor("ff594a"),
-                    Color2 = Calc.HexToColor("9c1105")
-                };
-                P_Regen = new ParticleType(Refill.P_Regen) {
-                    Color = Calc.HexToColor("ff594a"),
-                    Color2 = Calc.HexToColor("9c1105")
-                };
-            }
-            p_shatter = P_Shatter;
-            p_glow = P_Glow;
-            p_regen = P_Regen;
+            : base(data, offset) {
             outline = new Image(GFX.Game["VivHelper/redDashRefill/redOutline"]);
             outline.CenterOrigin();
             outline.Visible = false;

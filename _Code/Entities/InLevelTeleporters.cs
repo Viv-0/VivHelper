@@ -321,7 +321,7 @@ namespace VivHelper.Entities {
             Vector2 speed = player.Speed;
             if (OHMod) {
                 //Direction is in the form of "right->down->left->up" because positive Y is downwards, and Pi/2 * Direction equals the angle in code.
-                if ((int) d == 3) // If the entry direction is Up, cap the speed @ 150 speed
+                if (d == Directions.Up) // If the entry direction is Up, cap the speed @ 150 speed
                     speed.Y = Math.Max(speed.Y, 150f);
                 //This code is an improvement on the Matrix transform found in OutbackHelper
                 float anglediff = (Direction - d) * (float) Math.PI / 2f; //the difference in angle is what the speed gets rotated by, with
@@ -333,12 +333,12 @@ namespace VivHelper.Entities {
                 }
                 //Optimized code
                 if (player.StateMachine.State != 5) {
-                    if ((int) d == 1) { //If the entry direction is Up or Down, multiply speed by 1.5 on both axes (WHAT)
+                    if (d == Directions.Down) { //If the entry direction is Up or Down, multiply speed by 1.5 on both axes (WHAT)
                         speed *= 1.5f;
                         if ((int) Direction % 2 == 0) { // if the exit direction is left or right, modify speed for some reason? 
                             speed.Y -= 150f; // I don't know why, but I presume this is to make it feel "floatier" so you dont die without seeing it.
                         }
-                    } else if ((int) d == 3) {
+                    } else if (d == Directions.Up) {
                         speed *= 1.5f;
                     }
                 }

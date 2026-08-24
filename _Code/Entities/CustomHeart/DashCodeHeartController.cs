@@ -115,12 +115,12 @@ namespace VivHelper.Entities {
             spawnType = data.Enum<SpawnTypes>("spawnType", SpawnTypes.LevelUp);
             switch (spawnType) {
                 case SpawnTypes.LevelUp:
-                    color = VivHelper.ColorFix(data.Attr("Color", "White"), 1f);
+                    color = VivHelper.OldColorFunction(data.Attr("Color", "White"), 1f);
                     if (nodes.Length > 0)
                         node = nodes[0];
                     break;
                 case SpawnTypes.FlashSpawn:
-                    color = VivHelper.ColorFix(data.Attr("Color", "White"), 1f);
+                    color = VivHelper.OldColorFunction(data.Attr("Color", "White"), 1f);
                     break;
                 case SpawnTypes.ForsakenCity:
                     if (nodes.Length > 0)

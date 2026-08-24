@@ -72,7 +72,6 @@
     <Compile Include="Entities\SizableJelly.cs" />
     <Compile Include="Entities\UltimateCustomDashRefill.cs" />
     <Compile Include="Module, Extensions, Etc\AudioModifiers.cs" />
-    <Compile Include="Module, Extensions, Etc\CILAbuse.cs" />
     <Compile Include="Module, Extensions, Etc\CustomDashOptions.cs" />
     <Compile Include="Module, Extensions, Etc\DashPowerupController.cs" />
     <Compile Include="Module, Extensions, Etc\DashPowerupManager.cs" />
@@ -86,8 +85,6 @@
     <Compile Include="Module, Extensions, Etc\Helpers\ModdedHelper.cs" />
     <Compile Include="Module, Extensions, Etc\Helpers\PlayerHelper.cs" />
     <Compile Include="Module, Extensions, Etc\Helpers\TypeHelper.cs" />
-    <Compile Include="Module, Extensions, Etc\HoldablePlus.cs" />
-    <Compile Include="Module, Extensions, Etc\LuaHelper.cs" />
     <Compile Include="Module, Extensions, Etc\Parsers\StringToGroup.cs" />
     <Compile Include="Module, Extensions, Etc\pseudoconsts.cs" />
     <Compile Include="Module, Extensions, Etc\RefillBase.cs" />
@@ -258,7 +255,7 @@
     <Compile Include="Entities\EntityWrappers\WrapperRefillWall.cs" />
     <Compile Include="Module, Extensions, Etc\PicoFont.cs" />
     <Compile Include="Polygon\PolygonalTriggerTrigger.cs" />
-    <Compile Include="Triggers\TeleporterRework.cs" />
+    <Compile Include="Teleport\TeleporterRework.cs" />
     <Compile Include="Triggers\TempleFallTrigger.cs" />
     <Compile Include="Triggers\TriggerPersistence.cs" />
     <Compile Include="Wipes\FastSpotlightWipe.cs" />
@@ -288,8 +285,8 @@
     <Compile Include="Triggers\ConfettiTrigger.cs" />
     <Compile Include="Triggers\FlameTravelTrigger.cs" />
     <Compile Include="Triggers\FollowerDistanceModifierTrigger.cs" />
-    <Compile Include="Triggers\InstantTeleportTrigger.cs" />
-    <Compile Include="Triggers\InstantTeleportTrigger2.cs" />
+    <Compile Include="Teleport\InstantTeleportTrigger.cs" />
+    <Compile Include="Teleport\InstantTeleportTrigger2.cs" />
     <Compile Include="Triggers\MultiflagCameraTargetTrigger.cs" />
     <Compile Include="Triggers\PlayerIndicatorTrigger.cs" />
     <Compile Include="Triggers\RefillCancelParticleTrigger.cs" />
@@ -309,36 +306,46 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Celeste">
-      <HintPath>..\..\..\Celeste.exe</HintPath>
+      <HintPath>..\..\..\legacyRef\Celeste.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="FNA">
-      <HintPath>..\..\..\FNA.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\FNA.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="KeraLua">
-      <HintPath>..\..\..\KeraLua.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\KeraLua.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MMHOOK_Celeste">
-      <HintPath>..\..\..\MMHOOK_Celeste.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\MMHOOK_Celeste.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="Mono.Cecil">
-      <HintPath>..\..\..\Mono.Cecil.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\Mono.Cecil.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MonoMod">
-      <HintPath>..\..\..\MonoMod.exe</HintPath>
+      <HintPath>..\..\..\legacyRef\MonoMod.exe</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MonoMod.RuntimeDetour">
-      <HintPath>..\..\..\MonoMod.RuntimeDetour.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\MonoMod.RuntimeDetour.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="MonoMod.Utils">
-      <HintPath>..\..\..\MonoMod.Utils.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\MonoMod.Utils.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="NLua">
-      <HintPath>..\..\..\NLua.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\NLua.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.XML" />
     <Reference Include="YamlDotNet">
-      <HintPath>..\..\..\YamlDotNet.dll</HintPath>
+      <HintPath>..\..\..\legacyRef\YamlDotNet.dll</HintPath>
+      <Private>False</Private>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

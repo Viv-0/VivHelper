@@ -15,7 +15,7 @@ namespace VivHelper.Entities.BooCrystal {
         public Color color;
         private DynData<SeekerBarrier> dyn;
         public GhostBarrier(EntityData data, Vector2 offset) : base(data, offset) {
-            color = VivHelper.ColorFix(data.Attr("Color", "Lavender"));
+            color = VivHelper.OldColorFunction(data.Attr("Color", "Lavender"));
             dyn = new DynData<SeekerBarrier>(this);
         }
 

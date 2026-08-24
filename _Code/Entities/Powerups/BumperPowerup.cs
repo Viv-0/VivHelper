@@ -22,11 +22,11 @@ namespace VivHelper.Entities {
             outline.CenterOrigin();
             outline.Visible = false;
             Add(sprite = new Sprite(GFX.Game, "VivHelper/TSSbumperrefill/"));
-            sprite.AddLoop("idle", "", 0.1f);
+            sprite.AddLoop("idle", "idle", 0.1f);
             sprite.Play("idle");
             sprite.CenterOrigin();
             Add(flash = new Sprite(GFX.Game, "VivHelper/TSSbumperrefill/"));
-            flash.Add("flash", "", 0.05f);
+            flash.Add("flash", "flash", 0.05f);
             flash.OnFinish = delegate {
                 flash.Visible = false;
             };

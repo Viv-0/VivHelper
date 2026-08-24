@@ -144,7 +144,7 @@ namespace VivHelper.Entities.Boosters {
                     }
                 }
                 if (player.CanUnDuck && Input.Jump.Pressed && dyn.Get<float>("jumpGraceTimer") > 0f) {
-                    VivHelper.player_SuperJump(player, VivHelper.EmptyObjectArray);
+                    VivHelper.player_SuperJump(player, Everest._EmptyObjectArray);
                     return 0;
                 }
             }
@@ -154,7 +154,7 @@ namespace VivHelper.Entities.Boosters {
                     if (Math.Abs(player.DashDir.X) <= 0.2f && player.DashDir.Y <= -0.75f) {
                         VivHelper.player_SuperWallJump(player, VivHelper.negOne);
                     } else if (player.Facing == Facings.Right && Input.GrabCheck && player.Stamina > 0f && player.Holding == null && !ClimbBlocker.Check(player.Scene, player, player.Position + Vector2.UnitX * 3f)) {
-                        VivHelper.player_ClimbJump(player, VivHelper.EmptyObjectArray);
+                        VivHelper.player_ClimbJump(player, Everest._EmptyObjectArray);
                     } else {
                         VivHelper.player_WallJump(player, VivHelper.negOne);
                     }
@@ -164,7 +164,7 @@ namespace VivHelper.Entities.Boosters {
                     if (Math.Abs(player.DashDir.X) <= 0.2f && player.DashDir.Y <= -0.75f) {
                         VivHelper.player_SuperWallJump(player, VivHelper.oneOne);
                     } else if (player.Facing == Facings.Left && Input.GrabCheck && player.Stamina > 0f && player.Holding == null && !ClimbBlocker.Check(player.Scene, player, player.Position - Vector2.UnitX * 3f)) {
-                        VivHelper.player_ClimbJump(player, VivHelper.EmptyObjectArray);
+                        VivHelper.player_ClimbJump(player, Everest._EmptyObjectArray);
                     } else {
                         VivHelper.player_WallJump(player, VivHelper.oneOne);
                     }
@@ -503,7 +503,7 @@ namespace VivHelper.Entities.Boosters {
                 compositeSprite.Add("pop", 0.08f, 9, 10, 11, 12, 13, 14, 15, 16, 17);
                 string _cs = data.NoEmptyString("ColorSet");
                 if (_cs != null)
-                    compositeSprite.DefineColorSet(VivHelper.ColorsFromString(_cs, ','));
+                    compositeSprite.DefineColorSet(VivHelper.OldColorsFromString(_cs, ','));
                 else {
                     compositeSprite.DefineColorSet(new List<Color>
                     {

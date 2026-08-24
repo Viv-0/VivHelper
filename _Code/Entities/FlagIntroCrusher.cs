@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Celeste;
+using Celeste.Mod.Entities;
+using Microsoft.Xna.Framework;
+using Monocle;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Celeste;
-using Monocle;
-using Celeste.Mod.Entities;
-using Microsoft.Xna.Framework;
-using System.Collections;
+using static MonoMod.InlineRT.MonoModRule;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/FlagIntroCrusher")]
@@ -42,7 +43,8 @@ namespace VivHelper.Entities {
             Add(shakingSfx = new SoundSource());
         }
 
-        public FlagIntroCrusher(EntityData data, Vector2 offset) : this(data.Position + offset, data.Width, data.Height, data.Nodes[0] + offset, data.Char("tileType", '3')) {
+        public FlagIntroCrusher(EntityData data, Vector2 offset) : this(data.Position + offset, data.Width, data.Height,
+            data.Nodes[0] + offset, data.Has("tileType") ? data.Char("tileType", '3') : data.Char("tiletype", '3')) {
             if (!string.IsNullOrWhiteSpace(data.Attr("flags")))
                 flags = data.Attr("flags").Split(',');
             delay = data.Float("delay", 1.2f);

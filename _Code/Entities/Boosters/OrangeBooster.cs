@@ -66,7 +66,7 @@ namespace VivHelper.Entities.Boosters {
             }
 
 
-            int j = (int) BoostFunctions.rdU.Invoke(player, VivHelper.EmptyObjectArray);
+            int j = (int) BoostFunctions.rdU.Invoke(player, Everest._EmptyObjectArray);
             j = j == 5 ? VivHelperModule.OrangeState : j;
 
             return j;

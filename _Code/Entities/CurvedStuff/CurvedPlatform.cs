@@ -54,7 +54,7 @@ namespace VivHelper.Entities {
             Add(upSfx = new SoundSource());
             Add(shaker = new Shaker(on: false));
             SurfaceSoundIndex = 5;
-            lineCols = new Color[] { VivHelper.ColorFix(data.Attr("InnerLineColor", "a4464a")), VivHelper.ColorFix(data.Attr("OuterLineColor", "2a1923")) };
+            lineCols = new Color[] { VivHelper.OldColorFunction(data.Attr("InnerLineColor", "a4464a")), VivHelper.OldColorFunction(data.Attr("OuterLineColor", "2a1923")) };
             lastSfx = ((Math.Sign(start.X - end.X) > 0 || Math.Sign(start.Y - end.Y) > 0) ? "event:/game/03_resort/platform_horiz_left" : "event:/game/03_resort/platform_horiz_right");
         }
 

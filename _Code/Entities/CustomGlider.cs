@@ -103,10 +103,10 @@ namespace VivHelper.Entities {
             GlowPath = e.Attr("GlowPath", "");
             if (string.IsNullOrWhiteSpace(GlowPath))
                 GlowPath = "";
-            GlideC1 = VivHelper.ColorFix(e.Attr("GlideColor1", "4FFFF3"));
-            GlideC2 = VivHelper.ColorFix(e.Attr("GlideColor2", "FFF899"));
-            GlowC1 = VivHelper.ColorFix(e.Attr("GlowColor1", "B7F3FF"));
-            GlowC2 = VivHelper.ColorFix(e.Attr("GlowColor2", "F4FDFF"));
+            GlideC1 = VivHelper.OldColorFunction(e.Attr("GlideColor1", "4FFFF3"));
+            GlideC2 = VivHelper.OldColorFunction(e.Attr("GlideColor2", "FFF899"));
+            GlowC1 = VivHelper.OldColorFunction(e.Attr("GlowColor1", "B7F3FF"));
+            GlowC2 = VivHelper.OldColorFunction(e.Attr("GlowColor2", "F4FDFF"));
 
             P_Glide = new ParticleType {
                 Acceleration = Vector2.UnitY * 60f,

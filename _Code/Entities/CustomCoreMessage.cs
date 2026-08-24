@@ -52,14 +52,14 @@ namespace VivHelper.Entities {
                     text = "{" + t1 + "}";
             }
             
-            outlineColor = VivHelper.ColorFix(data.Attr("OutlineColor", "Black"), 1f);
+            outlineColor = VivHelper.OldColorFunction(data.Attr("OutlineColor", "Black"), 1f);
             outline = data.Has("outline") ? data.Bool("outline") : outlineColor != Color.Transparent;
             pausetype = data.Enum<PauseRenderTypes>("PauseType", PauseRenderTypes.Hidden);
             scale = Vector2.One * data.Float("Scale", 1.25f);
             RenderDistance = data.Float("RenderDistance", 128f);
             if (!VivHelper.TryGetEaser(data.Attr("EaseType", "CubeInOut"), out EaseType))
                 EaseType = Ease.CubeInOut;
-            color = VivHelper.ColorFix(data.Attr("TextColor1", "White"), 1f);
+            color = VivHelper.OldColorFunction(data.Attr("TextColor1", "White"), 1f);
             alwaysRender = data.Bool("AlwaysRender");
 
             lockPosition = data.Bool("LockPosition", false);

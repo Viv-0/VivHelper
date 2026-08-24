@@ -1,20 +1,21 @@
-﻿using System;
+﻿using Celeste;
+using Celeste.Mod;
+using FMOD.Studio;
+using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
+using Monocle;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Celeste.Mod;
-using Celeste;
-using Monocle;
-using Microsoft.Xna.Framework;
 using VivHelper.Entities;
 using VivHelper.Entities.Boosters;
 using VivHelper.Entities.SeekerStuff;
 using VivHelper.Triggers;
-using Microsoft.Xna.Framework.Graphics;
-using FMOD.Studio;
-using System.Text.RegularExpressions;
+using YamlDotNet.Serialization;
 
 namespace VivHelper {
     public class VivHelperModuleSession : EverestModuleSession {
@@ -29,6 +30,7 @@ namespace VivHelper {
             public string baseColorHex { get; set; }
             public Vector2 particleDir { get; set; }
             public bool solidOnRelease { get; set; }
+            public bool toggleBloom { get; set; } = true;
         }
         public class CrystalBombDetonatorCh {
             public string particleColorHex { get; set; }
@@ -104,15 +106,16 @@ namespace VivHelper {
         public int FFDistance = 5;
         public int FPDistance = 30;
         public bool MakeClose = false;
-        public DemoDashDisabler demodashDisabler = DemoDashDisabler.Off;
 
         public float OrangeSpeed = 220f;
 
+        [YamlIgnore]
+        public SolidModifierComponent currentActiveSolidModifier = null;
 
-        [YamlDotNet.Serialization.YamlIgnore] //This will be set on all load-ins
+        [YamlIgnore] //This will be set on all load-ins
         public Dictionary<string, SoundChange> AudioChanges = new Dictionary<string, SoundChange>();
 
-        public void MakeChangesToAudioSet(EntityData data) {
+        public void MapChangesToAudioSet(EntityData data) {
             var eventName = data.Attr("eventName");
             if (string.IsNullOrWhiteSpace(eventName) || eventName == "event:/none")
                 return;

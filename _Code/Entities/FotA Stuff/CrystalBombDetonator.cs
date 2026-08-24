@@ -126,7 +126,7 @@ namespace VivHelper.Entities {
         }
 
         public override void Render() {
-            Color[] colors = new Color[] { colorController?.particleColor ?? VivHelper.ColorFix(VivHelperModule.Session.savedCBDController?.particleColorHex ?? VivHelperModule.defaultCBDController.particleColorHex), colorController?.baseColor ?? VivHelper.ColorFix(VivHelperModule.Session.savedCBDController?.baseColorHex ?? VivHelperModule.defaultCBDController.baseColorHex) };
+            Color[] colors = new Color[] { colorController?.particleColor ?? VivHelper.OldColorFunction(VivHelperModule.Session.savedCBDController?.particleColorHex ?? VivHelperModule.defaultCBDController.particleColorHex), colorController?.baseColor ?? VivHelper.OldColorFunction(VivHelperModule.Session.savedCBDController?.baseColorHex ?? VivHelperModule.defaultCBDController.baseColorHex) };
             colors[0] *= 0.5f;
             colors[1] *= 0.5f;
             foreach (Vector2 value in particles) {

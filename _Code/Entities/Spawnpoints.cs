@@ -483,24 +483,21 @@ namespace VivHelper.Entities {
 
         public SpawnPoint(EntityData data, Vector2 offset) : base(data.Position + offset) {
             texture = null;
-            if (data.Bool("ShowTexture", true)) {
-                string t = data.Attr("Texture");
-                if (string.IsNullOrWhiteSpace(t)) {
+            string t = data.Attr("Texture");
+            if (data.Bool("ShowTexture", string.IsNullOrWhiteSpace(t))) {
+                if (string.IsNullOrWhiteSpace(t) || t.ToLower() == "default") {
                     texture = _texture;
                 } else {
-                    GFX.Game.PushFallback(null);
+                    GFX.Game.PushFallback(_texture);
                     texture = GFX.Game[t];
-                    if (texture == null) {
-                        texture = _texture;
-                    }
                     GFX.Game.PopFallback();
                 }
             }
             NoResetRespawn = data.Bool("NoResetRespawn");
             HideFromDebugMap = data.Bool("HideFromDebugMap");
             Depth = data.Int("Depth", 5000);
-            color = VivHelper.ColorFix(data.Attr("Color"));
-            outlineColor = VivHelper.ColorFix(data.Attr("OutlineColor"));
+            color = VivHelper.OldColorFunction(data.Attr("Color"));
+            outlineColor = VivHelper.OldColorFunction(data.Attr("OutlineColor"));
             flipX = data.Bool("flipX");
         }
 

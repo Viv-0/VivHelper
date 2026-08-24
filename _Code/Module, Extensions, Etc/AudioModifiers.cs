@@ -40,89 +40,95 @@ namespace VivHelper {
     }
 
     public class SoundReplace : SoundChange {
-        public SoundReplace(EntityData data) {
-            DefaultEvent = null;
-            flagEvents = new();
-            Construct(data);
-        }
-        //Parameters are formatted as:
-        // NAME: #### ; NAME2: ####
-        // or
-        // NAME: FLAG ? ### : ### ; NAME2 ...
-
-        private static Regex ternary = new Regex(@"(.+)?([\d\s]+):(n*u*l*)([\d\s]*)");
-
-        private void Construct(EntityData data) {
-            string flag = data.Attr("flag");
-
-            string replace = data.Attr("replacementEvent");
-
-            if (string.IsNullOrWhiteSpace(replace))
-                return;
-            Event _event = new Event(replace);
-
-            string a = data.Attr("customParams");
-            if (!string.IsNullOrWhiteSpace(a)) {
-                List<AudioParam> @params = new List<AudioParam>();
-                foreach (string b in a.Split(';')) {
-                    int c = b.IndexOf(':');
-                    if (c == -1) continue;
-                    string name = b.Substring(0, c);
-                    string detail = b.Substring(c+1);
-                    if(float.TryParse(detail, out float normal)) {
-                        @params.Add(new AudioParam { Name = name, Normal = normal });
-                        continue;
-                    } else {
-                        Match m = ternary.Match(detail);
-                        if (m.Success && float.TryParse(m.Captures[1].Value, out var ifflag)) {
-                            AudioParam p = new AudioParam { Name = name, IfFlag = ifflag };
-                            string _flag = m.Captures[0].Value;
-                            if (_flag[0] == '!') {
-                                p.FlagInvert = true;
-                                p.Flag = _flag.Substring(1);
-                            }
-                            if (float.TryParse(m.Captures[3].Value, out float norm)) {
-                                p.Normal = norm;
-                            } else if (m.Captures[2].Value != "null") continue;
-                            @params.Add(p);
-                        }
-                        continue;
-                    }
-                }
-                _event.Params = @params.ToArray();
-            }
-            if (string.IsNullOrWhiteSpace(flag)) {
-                DefaultEvent = _event;
-            } else {
-                flagEvents.Add(flag, _event);
-            }
-        }
-
+        private static Regex ternary = new Regex("(\\w+)?\\s?\\?\\s*(\\d+)\\s*:\\s*(?:(null)|(\\d*))");
 
         private Event DefaultEvent;
+
         private Dictionary<string, Event> flagEvents;
+
+        public SoundReplace(EntityData data) {
+            DefaultEvent = null;
+            flagEvents = new Dictionary<string, Event>();
+            Construct(data);
+        }
+
+        private void Construct(EntityData data) {
+            string text = data.Attr("flag");
+            string text2 = data.Attr("replacementEvent");
+            if (string.IsNullOrWhiteSpace(text2)) {
+                return;
+            }
+            Event @event = new Event(text2);
+            string text3 = data.Attr("customParams");
+            if (!string.IsNullOrWhiteSpace(text3)) {
+                List<AudioParam> list = new List<AudioParam>();
+                string[] array = text3.Split(';');
+                foreach (string text4 in array) {
+                    int num = text4.IndexOf(':');
+                    if (num == -1) {
+                        continue;
+                    }
+                    string name = text4.Substring(0, num);
+                    string text5 = text4.Substring(num + 1);
+                    if (float.TryParse(text5, out var result)) {
+                        list.Add(new AudioParam {
+                            Name = name,
+                            Normal = result
+                        });
+                        continue;
+                    }
+                    Match match = ternary.Match(text5);
+                    if (!match.Success || !float.TryParse(match.Captures[1].Value, out var result2)) {
+                        continue;
+                    }
+                    AudioParam audioParam = default(AudioParam);
+                    audioParam.Name = name;
+                    audioParam.IfFlag = result2;
+                    AudioParam item = audioParam;
+                    string value = match.Captures[0].Value;
+                    if (value[0] == '!') {
+                        item.FlagInvert = true;
+                        item.Flag = value.Substring(1);
+                    }
+                    if (!(match.Captures[2].Value != "null")) {
+                        if (float.TryParse(match.Captures[2].Value, out var result3)) {
+                            item.Normal = result3;
+                        }
+                        list.Add(item);
+                    }
+                }
+                @event.Params = list.ToArray();
+            }
+            if (string.IsNullOrWhiteSpace(text)) {
+                DefaultEvent = @event;
+            } else {
+                flagEvents.Add(text, @event);
+            }
+        }
 
         public override void AddOrChangeFromEntityData(EntityData data) {
             Construct(data);
         }
+
         public override Event GrabEvent() {
-            Level l = Engine.Scene as Level;
-            if (l?.Session is Session s && flagEvents != null) {
-                foreach (var t in flagEvents) {
-                    var f = t.Key;
-                    var b = false;
-                    if (f[0] == '!') {
-                        b = true;
-                        f = f.Substring(1);
+            Session session = ((Engine.Scene is Level level) ? level.Session : null);
+            if (session != null && flagEvents != null) {
+                foreach (KeyValuePair<string, Event> flagEvent in flagEvents) {
+                    string text = flagEvent.Key;
+                    bool flag = false;
+                    if (text[0] == '!') {
+                        flag = true;
+                        text = text.Substring(1);
                     }
-                    if (s.GetFlag(f) != b) {
-                        return t.Value;
+                    if (session.GetFlag(text) != flag) {
+                        return flagEvent.Value;
                     }
                 }
             }
             return DefaultEvent;
         }
     }
+
     public class SoundMute : SoundChange {
 
         public SoundMute(EntityData data) {

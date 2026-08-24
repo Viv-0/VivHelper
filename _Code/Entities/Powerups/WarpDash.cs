@@ -60,14 +60,16 @@ namespace VivHelper.Entities {
 
         public static int WarpDashUpdate(Player player) {
             Celeste.Celeste.Freeze(0.05f);
-            player.DashDir = (Vector2) VivHelper.player_lastAim.GetValue(player);
+            player.DashDir = ((Vector2) VivHelper.player_lastAim.GetValue(player)).EightWayNormal();
             if (player.DashDir == Vector2.Zero) {
                 player.DashDir = Vector2.UnitX * (int) player.Facing;
             }
             ExplodeLaunchModifier.DisableFreeze = true;
+            Vector2 oldPos = player.Position;
+            Solid h = null;
             for (float t = 0f; t < 36; t++) {
                 player.Position.X += player.DashDir.X;
-                Solid h = player.CollideFirst<Solid>();
+                h = player.CollideFirst<Solid>();
                 if (h != null && h.OnDashCollide != null) {
                     h.OnDashCollide(player, Vector2.Normalize(player.DashDir.XComp()));
                 }
@@ -77,7 +79,11 @@ namespace VivHelper.Entities {
                     h.OnDashCollide(player, Vector2.Normalize(player.DashDir.YComp()));
                 }
             }
-            Vector2 oldPos = player.Position;
+            player.Position = Calc.Round(player.Position);
+            h = player.CollideFirst<Solid>();
+            if (h != null && h.OnDashCollide != null) {
+                h.OnDashCollide(player, Vector2.Normalize(player.DashDir.XComp()));
+            }
             ExplodeLaunchModifier.DetectFreeze = false;
             ExplodeLaunchModifier.DisableFreeze = false;
             Vector2 beforeDashSpeed = player.Speed;
@@ -94,7 +100,7 @@ namespace VivHelper.Entities {
                 player.Position = oldPos;
                 player.Die(player.DashDir);
             }
-            if((float)VivHelper.player_jumpGraceTimer.GetValue(player) > 0.02f)
+            if ((float) VivHelper.player_jumpGraceTimer.GetValue(player) > 0.02f)
                 VivHelper.player_jumpGraceTimer.SetValue(player, 0.02f);
             return 0;
         }
@@ -138,10 +144,10 @@ namespace VivHelper.Entities {
             player.Get<WarpDashIndicator>().Visible = false;
         }
         public WarpDashRefill(EntityData data, Vector2 offset) : base(data, offset) {
-            sprite.ClearAnimations();
-            sprite.Path = "VivHelper/TSStelerefill/";
+            sprite = new Sprite(GFX.Game, "VivHelper/TSStelerefill/");
             sprite.AddLoop("idle", "idle", 0.1f);
-            outline.Texture = GFX.Game["VivHelper/TSStelerefill/outline"];
+            sprite.Play("idle");
+            outline = new Image(GFX.Game["VivHelper/TSStelerefill/outline"]);
         }
 
         protected override void OnPlayer(Player player) {

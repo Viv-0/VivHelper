@@ -11,7 +11,7 @@ using Monocle;
 
 namespace VivHelper.Entities {
     [CustomEntity("VivHelper/DepthSetter")]
-    public class DepthSetter : Entity {
+    public class DepthSetter : Entity, PostAwakeHolder {
         public int newDepth;
         public bool onUpdate, earlyAwake;
         public List<Type> Types, assignableTypes;
@@ -27,16 +27,18 @@ namespace VivHelper.Entities {
             }
         }
 
-        public override void Awake(Scene scene) {
-            base.Awake(scene);
+        void PostAwakeHolder.PostAwake(Scene scene) {
             Collidable = true;
-            foreach (Entity e in scene.Entities.Where<Entity>((f) => Collide.Check(this, f))) {
-                var prev = e.Collidable;
-                e.Collidable = true;
-                if (Collide.Check(this, e) && VivHelper.MatchTypeFromTypeSet(e.GetType(), Types, assignableTypes)) {
+            foreach (Entity e in scene.Entities.Where<Entity>((f) => {
+                var prev = f.Collidable;
+                f.Collidable = true;
+                var ret = Collide.Check(this, f);
+                f.Collidable = prev;
+                return ret;
+            })) {
+                if (VivHelper.MatchTypeFromTypeSet(e.GetType(), Types, assignableTypes)) {
                     e.Depth = newDepth;
                 }
-                e.Collidable = prev;
             }
             RemoveSelf();
         }

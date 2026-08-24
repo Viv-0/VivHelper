@@ -91,12 +91,12 @@ namespace VivHelper.Entities.CurvedStuff {
             if (identifier == "") { target = data.Nodes[0] + offset; }
             Path = data.Attr("CustomSpritePath", "").TrimEnd('/');
             string t = Path;
-            ropeColor = VivHelper.ColorFix(data.Attr("RopeColor", "663931"));
-            ropeLightColor = VivHelper.ColorFix(data.Attr("RopeNotchColor", "9b6157"));
+            ropeColor = VivHelper.OldColorFunction(data.Attr("RopeColor", "663931"));
+            ropeLightColor = VivHelper.OldColorFunction(data.Attr("RopeNotchColor", "9b6157"));
             if (!VivHelper.TryGetEaser(data.Attr("EaseType", "SineIn"), out EaseType))
                 EaseType = Ease.SineIn;
             float lightOcclusion = data.Float("LightOcclusion", 1f);
-            baseColor = VivHelper.ColorFix(data.Attr("BaseColor", "FFFFFF"));
+            baseColor = VivHelper.OldColorFunction(data.Attr("BaseColor", "FFFFFF"));
             audio = data.Attr("AudioOnLaunch", "");
             t = t == "" ? "objects/zipmover" : t;
             string path, id, key;
@@ -211,7 +211,7 @@ namespace VivHelper.Entities.CurvedStuff {
             for (int i = 4; (float) i <= base.Height - 4f; i += 8) {
                 int num3 = num;
                 for (int j = 4; (float) j <= base.Width - 4f; j += 8) {
-                    int index = (int) (mod((num2 + (float) num * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * (float) count);
+                    int index = (int) (VivHelper.mod((num2 + (float) num * percent * (float) Math.PI * 4f) / ((float) Math.PI / 2f), 1f) * (float) count);
                     MTexture mTexture = innerCogs[index];
                     Rectangle rectangle = new Rectangle(0, 0, mTexture.Width, mTexture.Height);
                     Vector2 zero = Vector2.Zero;
@@ -415,10 +415,6 @@ namespace VivHelper.Entities.CurvedStuff {
             respawnCount -= 1;
             if (respawnCount != 0) { yield return Respawn(); }
 
-        }
-
-        private float mod(float x, float m) {
-            return (x % m + m) % m;
         }
 
         private void Break() {

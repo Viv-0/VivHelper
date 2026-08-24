@@ -222,7 +222,7 @@ namespace VivHelper.Entities.AsleepHeart {
         private IEnumerator CollectRoutine(Player player) {
             Level level = base.Scene as Level;
             bool flag = false;
-            MapMetaModeProperties mapMetaModeProperties = level?.Session.MapData.GetMeta();
+            MapMetaModeProperties mapMetaModeProperties = level?.Session.MapData.Meta;
             if (mapMetaModeProperties != null && mapMetaModeProperties.HeartIsEnd.HasValue) {
                 flag = mapMetaModeProperties.HeartIsEnd.Value;
             }

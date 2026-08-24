@@ -7,6 +7,7 @@ using Celeste;
 using Monocle;
 using Microsoft.Xna.Framework;
 using MonoMod.Utils;
+using Celeste.Mod;
 
 namespace VivHelper {
     public static class HelperEntities {
@@ -14,7 +15,7 @@ namespace VivHelper {
         public static HelperEntity AllUpdateHelperEntity;
 
         public static Entity GetHelperEntity(Scene scene) {
-            if (scene.Tracker.TryGetEntity<HelperEntity>(out var e))
+            if (scene?.Tracker.TryGetEntity<HelperEntity>(out var e) ?? false)
                 return e;
             return null;
         }

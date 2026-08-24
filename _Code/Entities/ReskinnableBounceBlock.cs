@@ -229,12 +229,12 @@ namespace VivHelper.Entities {
                     P_FireBreak.Color2 = RisingLava.Hot[2];
                     break;
                 case 1:
-                    P_FireBreak.Color = VivHelper.ColorFix(hotColors[0]);
+                    P_FireBreak.Color = VivHelper.OldColorFunction(hotColors[0]);
                     P_FireBreak.ColorMode = ParticleType.ColorModes.Static;
                     break;
                 case 2:
-                    P_FireBreak.Color = VivHelper.ColorFix(hotColors[0]);
-                    P_FireBreak.Color2 = VivHelper.ColorFix(hotColors[1]);
+                    P_FireBreak.Color = VivHelper.OldColorFunction(hotColors[0]);
+                    P_FireBreak.Color2 = VivHelper.OldColorFunction(hotColors[1]);
                     break;
                 default:
                     string mapId = AreaData.Get((Engine.Scene as Level)?.Session ?? (Engine.Scene as LevelLoader).Level.Session).SID;
@@ -247,12 +247,12 @@ namespace VivHelper.Entities {
                     P_IceBreak.Color2 = RisingLava.Cold[2];
                     break;
                 case 1:
-                    P_IceBreak.Color = VivHelper.ColorFix(coldColors[0]);
+                    P_IceBreak.Color = VivHelper.OldColorFunction(coldColors[0]);
                     P_IceBreak.ColorMode = ParticleType.ColorModes.Static;
                     break;
                 case 2:
-                    P_IceBreak.Color = VivHelper.ColorFix(coldColors[0]);
-                    P_IceBreak.Color2 = VivHelper.ColorFix(coldColors[1]);
+                    P_IceBreak.Color = VivHelper.OldColorFunction(coldColors[0]);
+                    P_IceBreak.Color2 = VivHelper.OldColorFunction(coldColors[1]);
                     break;
                 default:
                     throw new Exception("Too many colors in the Cold Particle Colors parameter of a Custom Bounce Block in room " + data.Level.Name);

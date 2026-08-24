@@ -168,7 +168,7 @@ namespace VivHelper.Entities {
 
         public Collectible(EntityData data, Vector2 offset, EntityID id) : base(data.Position + offset) {
 
-            particleColor = VivHelper.ColorFix(data.Attr("particleColor", "Goldenrod"));
+            particleColor = VivHelper.OldColorFunction(data.Attr("particleColor", "Goldenrod"));
             audioEvent = data.Attr("CollectAudio", "event:/VivHelper/coin:1");
             group = data.Attr("group", "");
 

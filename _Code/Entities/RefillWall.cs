@@ -246,17 +246,17 @@ namespace VivHelper.Entities {
             }
         }
 
-        private Color ColorDetermine(bool b) {
+        private Color ColorDetermine(bool inside) {
             Color color;
             switch (colorStates) {
                 case ColorStates.Normal:
-                    if (b) { color = twoDashes ? new Color(189, 64, 148, 255) * alpha : new Color(32, 128, 32, 255) * alpha; } else { color = twoDashes ? new Color(226, 104, 209, 255) * alpha : new Color(147, 189, 64, 255) * alpha; }
+                    if (inside) { color = twoDashes ? new Color(189, 64, 148, 255) * alpha : new Color(32, 128, 32, 255) * alpha; } else { color = twoDashes ? new Color(226, 104, 209, 255) * alpha : new Color(147, 189, 64, 255) * alpha; }
                     break;
                 case ColorStates.WhiteFlash:
                     color = Color.White * 0f;
                     break;
                 case ColorStates.Outline:
-                    if (b) { color = Color.Transparent; } else { color = new Color(128, 128, 128, 255) * (alpha * 0.25f); }
+                    if (inside) { color = Color.Transparent; } else { color = new Color(128, 128, 128, 255) * (alpha * 0.25f); }
                     break;
                 default:
                     throw new Exception("InvalidColorState");

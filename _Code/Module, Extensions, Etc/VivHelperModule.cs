@@ -1,12 +1,3 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
 using Celeste;
 using Celeste.Editor;
 using Celeste.Mod;
@@ -16,19 +7,29 @@ using Microsoft.Xna.Framework.Graphics;
 using Mono.Cecil;
 using Mono.Cecil.Cil;
 using Monocle;
-using MonoMod.RuntimeDetour;
 using MonoMod.Cil;
+using MonoMod.ModInterop;
+using MonoMod.RuntimeDetour;
 using MonoMod.Utils;
+using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Text;
+using System.Threading.Tasks;
 using VivHelper.Colliders;
 using VivHelper.Effects;
 using VivHelper.Entities;
-using VivHelper.PartOfMe;
 using VivHelper.Entities.Boosters;
-using VivHelper.Module__Extensions__Etc;
-using VivHelper.Triggers;
-using MonoMod.ModInterop;
-using VivHelper.Module__Extensions__Etc.Helpers;
 using VivHelper.Entities.Powerups;
+using VivHelper.Entities.SpikeStuff;
+using VivHelper.Module__Extensions__Etc;
+using VivHelper.Module__Extensions__Etc.Helpers;
+using VivHelper.PartOfMe;
+using VivHelper.Triggers;
 
 namespace VivHelper {
     public class VivHelperModule : EverestModule {
@@ -66,7 +67,7 @@ namespace VivHelper {
         public static string[] UnspawnedEntityNames = new string[]
         { "VivHelper/CollectibleGroup", "VivHelper/MapRespriter", "VivHelper/HideRoomInMap",
           "VivHelper/CustomDashStateDefiner", "VivHelper/PreviousBerriesToFlag", "VivHelper/DisableArbitrarySpawnInDebug",
-          "VivHelper/DisableNeutralOnHoldable"
+          "VivHelper/DisableNeutralOnHoldable", "VivHelper/GoldenBerryToFlag"
         };
 
         public VivHelperModule() {
@@ -471,26 +472,23 @@ namespace VivHelper {
 
         public static void LateInitialize(On.Celeste.GameLoader.orig_Begin orig, GameLoader self) {
             orig(self);
-            CILAbuse.LoadIL();
-        }
-
-        private static void NOTAHOOK(ILContext il) {
-            DynamicMethodDefinition dmd = new DynamicMethodDefinition("VivHelper._playerwjc_yieldnum", typeof(int), new Type[] { typeof(Player), typeof(int) });
-            var gen = dmd.GetILProcessor();
-            foreach (VariableDefinition v in il.Body.Variables) {
-                gen.Body.Variables.Add(new VariableDefinition(v.VariableType)); //deepcopy
-            }
-            ILCursor cursor = new(il);
-            List<Instruction> instrs = new List<Instruction>();
-            cursor.Index = 0;
-            while (!((cursor.Previous?.MatchLdarg(0) ?? false) && (cursor.Previous?.Previous?.MatchStloc(0) ?? false) && (cursor.Previous?.Previous?.Previous?.MatchLdcI4(5) ?? false))) {
-                gen.Append(cursor.Next);
-                cursor.Index++;
-            }
-            gen.Emit(OpCodes.Pop);
-            gen.Emit(OpCodes.Ldloc_0);
-            gen.Emit(OpCodes.Ret);
-            VivHelper.player_WallJumpCheck_getNum = (Func<Player, int, int>) dmd.Generate().CreateDelegate<Func<Player, int, int>>();
+            VivHelper.player_WallJumpCheck_getNum = (player, dir) => {
+                int num = 3;
+                bool flag = player.DashAttacking && player.DashDir.X == 0f && player.DashDir.Y == -1f;
+                if (flag) {
+                    Spikes.Directions directions = ((dir <= 0) ? Spikes.Directions.Right : Spikes.Directions.Left);
+                    foreach (Spikes entity in player.Scene.Tracker.GetEntities<Spikes>()) {
+                        if (entity.Direction == directions && player.CollideCheck(entity, player.Position + Vector2.UnitX * dir * 5f)) {
+                            flag = false;
+                            break;
+                        }
+                    }
+                }
+                if (flag) {
+                    num = 5;
+                }
+                return num;
+            };
         }
 
         private static void Scene_BeforeUpdate(On.Monocle.Scene.orig_BeforeUpdate orig, Scene self) {
@@ -585,28 +583,47 @@ namespace VivHelper {
                 }
                 return true;
             }
+            if(entityData.Name == "VivHelper/CPP") {
+                Vector2 start = entityData.Position + offset;
+                string tut = entityData.Attr("tutorial", null);
+                if (tut == null || !PlaybackData.Tutorials.ContainsKey(tut)) {
+                    VivHelper.CommandOverride("PlayerPlayback at " + start + " errors due to no Tutorial \"" + tut + ".\"\n" +
+                        "You may need to restart or reload Assets manually to resolve this change.");
+                    return false;
+                }
+                level.Add(new CustomPlayerPlayback(entityData, offset));
+                return true;
+            }
             if (entityData.Name == "VivHelper/CassetteTileEntity") {
                 level.HasCassetteBlocks = true;
                 if (level.CassetteBlockTempo == 1f) {
                     level.CassetteBlockTempo = entityData.Float("tempo", 1f);
                 }
-                level.CassetteBlockBeats = Math.Max(entityData.Int("index", 0) + 1, level.CassetteBlockBeats);
-
+                level.CassetteBlockBeats = Math.Max(entityData.Int("index") + 1, level.CassetteBlockBeats);
                 if (!createdCassetteManager) {
                     createdCassetteManager = true;
-                    if (level.Tracker.GetEntity<CassetteBlockManager>() == null && (bool) Level_get_ShouldCreateCassetteManager.Invoke(level, null)) {
-                        if (!level.Entities.ToAdd.Any(e => e is CassetteBlockManager)) {
-                            level.Entities.ForceAdd(new CassetteBlockManager());
-                        }
+                    if (level.Tracker.GetEntity<CassetteBlockManager>() == null && (bool) Level_get_ShouldCreateCassetteManager.Invoke(level, null) && !level.Entities.ToAdd.Any((Entity e) => e is CassetteBlockManager)) {
+                        level.Entities.ForceAdd(new CassetteBlockManager());
                     }
                 }
+                return true;
+            }
+            if (entityData.Name.StartsWith("VivHelper/AnimatedSpikes") && Enum.TryParse<Spikes.Directions>(entityData.Name.Substring(23), out var result)) {
+                int num = entityData.Int("version");
+                int num2 = num;
+                if (num2 == 2) {
+                    level.Add(new BetterAnimatedSpikes(entityData, offset, (DirectionPlus) (1 << (int) result)));
+                    return true;
+                }
+                level.Add(new AnimatedSpikes(entityData, offset, result));
+                return true;
             }
             return false;
         }
 
         private static void AttackSequence_CrushCustomFallingBlock(FieldInfo f, ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            if (cursor.TryGotoNext(instr => instr.MatchStloc(5))) {
+            if (cursor.TryGotoNext(MoveType.After, instr => instr.MatchStloc(5))) {
                 cursor.Emit(OpCodes.Ldarg_0);
                 cursor.Emit(OpCodes.Ldfld, f);
                 cursor.Emit(OpCodes.Dup);
@@ -723,7 +740,7 @@ namespace VivHelper {
                             }
                         }
                     } else if (mutingObjects.Contains(entity.Name)) {
-                        VivHelperModule.Session.MakeChangesToAudioSet(entity);
+                        VivHelperModule.Session.MapChangesToAudioSet(entity);
                     } else if (entity.Name == "VivHelper/DisableNeutralOnHoldable") {
                         VivHelperModule.Session.DisableNeutralsOnHoldable = true;
                     } else if(entity.Name == "VivHelper/DashPowerupManager") {
@@ -799,8 +816,9 @@ namespace VivHelper {
 
         private void Player_Render(ILContext il) {
             ILCursor cursor = new ILCursor(il);
-            while (cursor.TryGotoNext(MoveType.After, instr => instr.MatchCall<Color>("get_Red") || instr.MatchCall<Color>("get_White"))) {
+            while (cursor.TryGotoNext(MoveType.Before, instr => instr.MatchStfld<GraphicsComponent>("Color"))) {
                 cursor.EmitDelegate<Func<Color, Color>>((Color c) => FlashCombine(c));
+                cursor.Index++;
             }
 
         }
@@ -984,12 +1002,10 @@ namespace VivHelper {
         }
 
         public static void SendErrorMessageThroughDebugConsole(string message) {
-            if (message == null)
-                return;
-            if (Engine.Commands.Open)
+            if (message != null) {
+                Engine.Commands.Open = true;
                 Engine.Commands.Log(message);
-            else
-                CommandDebugString = (CommandDebugString == null ? message : CommandDebugString + "\n" + message);
+            }
         }
 
 

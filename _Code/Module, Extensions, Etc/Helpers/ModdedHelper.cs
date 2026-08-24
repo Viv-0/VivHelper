@@ -12,9 +12,6 @@ namespace VivHelper {
 
         internal static VirtualRenderTarget CustomLight = null;
 
-
-        public static readonly object[] EmptyObjectArray = new object[0];
-        //Code from ColoursOfNoise
         public static bool TryGetModule(EverestModuleMetadata meta, out EverestModule module) {
             foreach (EverestModule other in Everest.Modules) {
                 EverestModuleMetadata otherData = other.Metadata;
@@ -38,10 +35,9 @@ namespace VivHelper {
             if (Engine.Commands.Open) {
                 Engine.Commands.Log(input);
             } else {
-                Commands_UpdateClosed?.Invoke(Engine.Commands, VivHelper.EmptyObjectArray);
-                Engine.Commands.Log(input + (Celeste.Celeste.PlayMode != Celeste.Celeste.PlayModes.Debug ? "Type q and press [ENTER] to exit." : ""));
+                Commands_UpdateClosed?.Invoke(Engine.Commands, Everest._EmptyObjectArray);
+                Engine.Commands.Log(input + (Celeste.Celeste.PlayMode != Celeste.Celeste.PlayModes.Debug ? "\nType q and press [ENTER] to exit." : ""));
             }
         }
-
     }
 }
