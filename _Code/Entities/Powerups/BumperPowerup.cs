@@ -14,10 +14,11 @@ namespace VivHelper.Entities {
     public class BumperRefill : RefillBase {
         public const string BumperPowerup = "vh_bumper";
 
+        protected override ParticleType GlowParticle() => Bumper.P_Ambience;
+        protected override ParticleType ShatterParticle() => Bumper.P_Launch;
+        protected override ParticleType RegenParticle() => Bumper.P_Ambience;
+
         public BumperRefill(EntityData data, Vector2 offset) : base(data, offset) {
-            p_shatter = Bumper.P_Launch;
-            p_glow = Bumper.P_Ambience;
-            p_regen = Bumper.P_Ambience;
             outline = new Image(GFX.Game["VivHelper/genericCircleRefill/outline"]);
             outline.CenterOrigin();
             outline.Visible = false;
@@ -55,8 +56,8 @@ namespace VivHelper.Entities {
             Depth = 8999;
             yield return 0.05f;
             float num = player.Speed.Angle();
-            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num - (float) Math.PI / 2f);
-            level.ParticlesFG.Emit(p_shatter, 5, Position, Vector2.One * 4f, num + (float) Math.PI / 2f);
+            level.ParticlesFG.Emit(Bumper.P_Launch, 5, Position, Vector2.One * 4f, num - (float) Math.PI / 2f);
+            level.ParticlesFG.Emit(Bumper.P_Launch, 5, Position, Vector2.One * 4f, num + (float) Math.PI / 2f);
             SlashFx.Burst(Position, num);
             if (oneUse) {
                 RemoveSelf();

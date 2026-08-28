@@ -73,7 +73,7 @@ namespace VivHelper.Entities.Boosters {
                 (Engine.Scene as Level).ParticlesBG.Emit(WindBooster.P_Burst, 2, player.Center + new Vector2(0f, -2f), new Vector2(3f, 3f), (float) Math.PI / 2f);
             }
 
-            int j = (int) BoostFunctions.rdU.Invoke(player, VivHelper.EmptyObjectArray);
+            int j = (int) BoostFunctions.rdU.Invoke(player, Everest._EmptyObjectArray);
             j = j == 5 ? VivHelperModule.WindBoostState : j;
 
             return j;

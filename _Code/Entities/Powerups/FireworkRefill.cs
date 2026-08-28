@@ -1,14 +1,16 @@
-﻿using System;
+﻿using Celeste;
+using Celeste.Mod;
+using Microsoft.Xna.Framework;
+using Monocle;
+using MonoMod.Utils;
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Celeste;
-using Monocle;
-using Microsoft.Xna.Framework;
-using MonoMod.Utils;
-using System.Collections;
-using Celeste.Mod;
+using static Celeste.ClutterBlock;
+using static Monocle.ParticleType;
 
 namespace VivHelper.Entities {
     public class Firework : Component {
@@ -76,31 +78,26 @@ namespace VivHelper.Entities {
 
         public const string FireworkPowerup = "vh_firework";
 
-        private static ParticleType P_Shatter;
-        private static ParticleType P_Glow;
-        private static ParticleType P_Regen;
+        private static ParticleType P_Shatter = new ParticleType(Refill.P_Shatter) {
+            Color2 = Color.White,
+            ColorMode = ParticleType.ColorModes.Blink
+        };
+        private static ParticleType P_Glow = new ParticleType(Refill.P_Glow) {
+            Color2 = Color.White,
+            ColorMode = ParticleType.ColorModes.Blink
+        };
+        private static ParticleType P_Regen = new ParticleType(Refill.P_Regen) {
+            Color2 = Color.White,
+            ColorMode = ParticleType.ColorModes.Blink
+        };
+        protected override ParticleType GlowParticle() => P_Glow;
+        protected override ParticleType RegenParticle() => P_Regen;
+        protected override ParticleType ShatterParticle() => P_Shatter;
 
         private Image i1, i2, i3; // i1 Visibility handles all 3 render checks
         private Color color;
         public FireworkRefill(EntityData data, Vector2 offset)
             : base(data, offset) {
-            if (P_Shatter == null) {
-                P_Shatter = new ParticleType(Refill.P_Shatter) {
-                    Color2 = Color.White,
-                    ColorMode = ParticleType.ColorModes.Blink
-                };
-                P_Glow = new ParticleType(Refill.P_Glow) {
-                    Color2 = Color.White,
-                    ColorMode = ParticleType.ColorModes.Blink
-                };
-                P_Regen = new ParticleType(Refill.P_Regen) {
-                    Color2 = Color.White,
-                    ColorMode = ParticleType.ColorModes.Blink
-                };
-            }
-            p_shatter = P_Shatter;
-            p_glow = P_Glow;
-            p_regen = P_Regen;
             outline = new Image(GFX.Game["VivHelper/genericCircleRefill/outline"]);
             outline.CenterOrigin();
             outline.Visible = false;

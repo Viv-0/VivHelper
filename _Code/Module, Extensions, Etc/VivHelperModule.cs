@@ -495,12 +495,12 @@ namespace VivHelper {
             orig(self);
             if (self.OnRawInterval(self.Paused ? 3f : 40f)) {
                 try {
-                    EntityDebugColor = (Color) CelesteTAS_EntityDebugColor.Invoke(CelesteTASModuleInstance._Settings, VivHelper.EmptyObjectArray);
+                    EntityDebugColor = (Color) CelesteTAS_EntityDebugColor.Invoke(CelesteTASModuleInstance._Settings, Everest._EmptyObjectArray);
                 } catch {
                     EntityDebugColor = null;
                 }
                 try {
-                    TriggerDebugColor = (Color) CelesteTAS_TriggerDebugColor.Invoke(CelesteTASModuleInstance._Settings, VivHelper.EmptyObjectArray);
+                    TriggerDebugColor = (Color) CelesteTAS_TriggerDebugColor.Invoke(CelesteTASModuleInstance._Settings, Everest._EmptyObjectArray);
                 } catch {
                     TriggerDebugColor = null;
                 }
